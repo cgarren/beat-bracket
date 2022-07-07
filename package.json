@@ -1,0 +1,22 @@
+{
+  "name": "song-coliseum",
+  "version": "1.0.0",
+  "private": true,
+  "description": "song-coliseum",
+  "author": "Cooper Garren",
+  "keywords": [
+    "gatsby"
+  ],
+  "scripts": {
+    "develop": "gatsby develop",
+    "start": "gatsby develop",
+    "build": "gatsby build",
+    "serve": "gatsby serve",
+    "clean": "gatsby clean"
+  },
+  "dependencies": {
+    "gatsby": "^4.18.0",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0"
+  }
+}
