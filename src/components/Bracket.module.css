@@ -1,0 +1,25 @@
+.songButtonStyle {
+	background-color: gray;
+	width: 10em;
+	height: 4em;
+}
+
+.firstColumnStyle {
+	margin-top: 4em;
+}
+
+.secondColumnStyle {
+	margin-top: 12em;
+}
+
+.secondColumnStyleTop {
+	margin-top: 8em;
+}
+
+.thirdColumnStyle {
+	margin-top: 12em;
+}
+
+.thirdColumnStyleTop {
+	margin-top: 16em;
+}
