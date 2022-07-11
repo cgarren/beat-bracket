@@ -1,0 +1,5 @@
+.songButtonStyle {
+	background-color: gray;
+	width: 8em;
+	height: var(--buttonheight);
+}

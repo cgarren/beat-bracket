@@ -1,46 +1,13 @@
 import React, { useEffect, useState } from "react";
 
-import {
-  containerStyle,
-  songButtonStyle,
-  firstColumnStyle,
-  secondColumnStyle,
-  secondColumnStyleTop,
-  thirdColumnStyle,
-  thirdColumnStyleTop,
-  fourthColumnStyle,
-  fourthColumnStyleTop,
-  fifthColumnStyle,
-  fifthColumnStyleTop,
-  sixthColumnStyle,
-  sixthColumnStyleTop,
-  seventhColumnStyle,
-  seventhColumnStyleTop,
-} from "./Bracket.module.css";
+import { containerStyle } from "./Bracket.module.css";
+
+import BracketColumn from "./BracketColumn";
 
 const Bracket = () => {
   const [tracks, setTracks] = useState([]);
   const [bracket, setBracket] = useState({});
-
-  const styles = [
-    firstColumnStyle,
-    secondColumnStyle,
-    thirdColumnStyle,
-    fourthColumnStyle,
-    fifthColumnStyle,
-    sixthColumnStyle,
-    seventhColumnStyle,
-  ];
-
-  const topStyles = [
-    firstColumnStyle,
-    secondColumnStyleTop,
-    thirdColumnStyleTop,
-    fourthColumnStyleTop,
-    fifthColumnStyleTop,
-    sixthColumnStyleTop,
-    seventhColumnStyleTop,
-  ];
+  const [columns, setColumns] = useState(0);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -54,13 +21,11 @@ const Bracket = () => {
   }, []);
 
   useEffect(() => {
-    console.log(tracks);
     setBracket({
       ...bracket,
       ["l0"]: tracks.slice(0, Math.ceil(tracks.length / 2)),
       ["r0"]: tracks.slice(-Math.ceil(tracks.length / 2)),
     });
-    console.log("set bracket");
   }, [tracks]);
 
   // useEffect(() => {
@@ -106,9 +71,9 @@ const Bracket = () => {
       }
     }
 
-    console.log(temp);
     setBracket(temp);
-    setTracks(new Array(theTracks.length).fill(null));
+    setTracks(theTracks);
+    setColumns(cols);
   }
 
   function getNumberOfColumns(items) {
@@ -116,53 +81,26 @@ const Bracket = () => {
     return cols;
   }
 
-  function genDiv(columnStyle, columnStyleTop, songList, key) {
-    console.log("generating", columnStyle, columnStyleTop, songList, key);
-    return (
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-        }}
-        key={key}
-      >
-        {songList.map((item, index, array) => {
-          return (
-            <button
-              key={index}
-              className={
-                songButtonStyle +
-                " " +
-                (index != 0 ? columnStyle : columnStyleTop)
-              }
-            >
-              {item}
-            </button>
-          );
-        })}
-      </div>
-    );
-  }
-
   return (
     <div className={containerStyle}>
-      {/* {genDiv(
-        firstColumnStyle,
-        firstColumnStyle,
-        tracks.slice(0, Math.ceil(tracks.length / 2))
-      )} */}
-      {Array.apply(null, { length: getNumberOfColumns(tracks.length) }).map(
-        (e, i) => genDiv(styles[i], topStyles[i], bracket["l" + i], i)
-      )}
-      {Array.apply(null, { length: getNumberOfColumns(tracks.length) }).map(
-        (e, i) =>
-          genDiv(
-            styles[getNumberOfColumns(tracks.length) - 1 - i],
-            topStyles[getNumberOfColumns(tracks.length) - 1 - i],
-            bracket["r" + (getNumberOfColumns(tracks.length) - 1 - i)],
-            i
-          )
-      )}
+      {Array.apply(null, { length: columns }).map((e, i) => (
+        <BracketColumn
+          columnNum={i}
+          songList={bracket["l" + i] ? bracket["l" + i] : []}
+          key={i}
+        />
+      ))}
+      {Array.apply(null, { length: columns }).map((e, i) => (
+        <BracketColumn
+          columnNum={columns - 1 - i}
+          songList={
+            bracket["r" + (columns - 1 - i)]
+              ? bracket["r" + (columns - 1 - i)]
+              : []
+          }
+          key={i}
+        />
+      ))}
     </div>
   );
 };

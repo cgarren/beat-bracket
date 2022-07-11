@@ -1,0 +1,60 @@
+.columnStyle {
+	display: flex;
+	flex-direction: column;
+	--buttonheight: 3.5em;
+}
+
+.firstColumnStyle {
+	margin-top: var(--buttonheight);
+}
+
+.secondColumnStyle {
+	margin-top: calc(var(--buttonheight) * 3);
+}
+
+.thirdColumnStyle {
+	margin-top: calc(var(--buttonheight) * 7);
+}
+
+.fourthColumnStyle {
+	margin-top: calc(var(--buttonheight) * 15);
+}
+
+.fifthColumnStyle {
+	margin-top: calc(var(--buttonheight) * 31)
+}
+
+.sixthColumnStyle {
+	margin-top: calc(var(--buttonheight) * 63)
+}
+
+.seventhColumnStyle {
+	margin-top: calc(var(--buttonheight) * 127)
+}
+
+.secondColumnStyleTop {
+	margin-top: calc(var(--buttonheight) * 2);
+}
+
+.thirdColumnStyleTop {
+	margin-top: calc(var(--buttonheight) * 4);
+}
+
+.fourthColumnStyleTop {
+	margin-top: calc(var(--buttonheight) * 8);
+}
+
+.fifthColumnStyleTop {
+	margin-top: calc(var(--buttonheight) * 16);
+}
+
+.sixthColumnStyleTop {
+	margin-top: calc(var(--buttonheight) * 32);
+}
+
+.seventhColumnStyleTop {
+	margin-top: calc(var(--buttonheight) * 64);
+}
+
+/* 3, 7, 15, 31, 63, 127*/
+/*   4  8  16  32  64*/
