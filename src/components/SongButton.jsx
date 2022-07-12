@@ -1,6 +1,10 @@
 import React from "react";
 
-import { songButtonStyle } from "./SongButton.module.css";
+import {
+  songButtonStyle,
+  unfilledStyle,
+  winnerStyle,
+} from "./SongButton.module.css";
 
 const SongButton = ({
   styling,
@@ -9,27 +13,41 @@ const SongButton = ({
   nextId,
   id,
   disabled,
-  modifySong,
+  modifyBracket,
+  getBracket,
+  winner,
 }) => {
   function songChosen(e) {
-    disabled = true;
-    modifySong(nextId, "song", song);
-    modifySong(nextId, "disabled", false);
-    modifySong(opponentId, "disabled", true);
+    if (opponentId && getBracket(opponentId).song !== null) {
+      modifyBracket(id, "disabled", true);
+      modifyBracket(opponentId, "disabled", true);
+      if (nextId) {
+        modifyBracket(nextId, "song", song);
+        modifyBracket(nextId, "disabled", false);
+      } else {
+        console.log("Winner is " + song);
+        modifyBracket(id, "winner", true);
+      }
+    } else {
+      console.log("fill in opponent song first!");
+    }
   }
 
   return (
     <button
       disabled={disabled}
-      className={songButtonStyle + " " + styling}
+      className={
+        songButtonStyle +
+        (song == null ? " " + unfilledStyle + " " : " ") +
+        (winner ? " " + winnerStyle + " " : " ") +
+        styling
+      }
       onClick={songChosen}
       id={id}
       data-opponentid={opponentId}
       data-nextid={nextId}
     >
       {song}
-      <br />
-      id: {id}
     </button>
   );
 };

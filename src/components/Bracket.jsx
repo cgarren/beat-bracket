@@ -22,7 +22,6 @@ import {
 } from "./Bracket.module.css";
 
 import SongButton from "./SongButton";
-import BracketColumn from "./BracketColumn";
 
 const styles = [
   firstColumnStyle,
@@ -44,60 +43,40 @@ const topStyles = [
   seventhColumnStyleTop,
 ];
 
-const Bracket = () => {
-  const [tracks, setTracks] = useState([]);
+const Bracket = ({ tracks }) => {
   const [bracket, setBracket] = useState(new Map());
   const [columns, setColumns] = useState(0);
   const [renderArray, setRenderArray] = useState([]);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      fillBracket(
-        Array.from(
-          { length: 128 },
-          () => "Song " + Math.floor(Math.random() * 128)
-        )
-      );
-    }, 1000);
-    return () => {
-      clearTimeout(timer);
-      console.log("cleared");
-    };
-  }, []);
-
-  // useEffect(() => {
-  //   let temp = bracket;
-  //   console.log(temp);
-  //   for (let item in temp.l0) {
-  //     item.song = tracks.slice(0, Math.ceil(tracks.length / 2));
-  //   }
-  //   for (let item in temp.r0) {
-  //     item.songs = tracks.slice(-Math.ceil(tracks.length / 2));
-  //   }
-  //   setBracket(temp);
-  // }, [tracks]);
+    if (tracks && tracks.length !== 0) {
+      fillBracket(tracks);
+    }
+  }, [tracks]);
 
   function genArray(side) {
     return Array.apply(null, { length: columns }).map((e, i) => (
       <div className={columnStyle} key={side + i}>
         {Array.from(bracket.entries()).map((entry) => {
           const [mykey, value] = entry;
-          let colExpression = side == "l" ? i : columns - 1 - i;
-          if (value.side == side && value.col == colExpression) {
+          let colExpression = side === "l" ? i : columns - 1 - i;
+          if (value.side === side && value.col === colExpression) {
             return (
               <SongButton
-                modifySong={modifySong}
+                modifyBracket={modifyBracket}
+                getBracket={getBracket}
                 opponentId={value.opponentId}
                 nextId={value.nextId}
                 song={value.song}
                 id={value.id}
                 styling={
-                  value.index == 0
+                  value.index === 0
                     ? topStyles[colExpression]
                     : styles[colExpression]
                 }
                 key={mykey}
                 disabled={value.disabled}
+                winner={value.winner}
               />
             );
           }
@@ -110,75 +89,81 @@ const Bracket = () => {
     console.log("resetting render array");
     let leftSide = genArray("l");
     let rightSide = genArray("r");
-    console.log([...leftSide, ...rightSide]);
     setRenderArray([...leftSide, ...rightSide]);
   }, [bracket]);
 
-  function modifySong(key, attribute, value) {
-    console.log(key, attribute, value);
+  function modifyBracket(key, attribute, value) {
     let payload = bracket.get(key);
     payload[attribute] = value;
-    console.log(bracket);
-    console.log(new Map(bracket.set(key, payload)));
     setBracket(new Map(bracket.set(key, payload)));
   }
 
-  function relateSongs(len, tracks, side, col) {
+  function getBracket(key) {
+    return bracket.get(key);
+  }
+
+  function relateSongs(len, theTracks, col, side, otherSide) {
     let colMap = new Map();
     for (let i = 0; i < len; i++) {
       colMap.set(side + col + i, {
-        song: tracks ? tracks[i] : null,
-        opponentId: len <= 1 ? null : side + col + (i % 2 == 0 ? i + 1 : i - 1),
+        song: theTracks ? theTracks[i] : null,
+        opponentId:
+          len <= 1
+            ? otherSide + col + 0
+            : side + col + (i % 2 === 0 ? i + 1 : i - 1),
         nextId: len <= 1 ? null : side + (col + 1) + Math.floor(i / 2),
         id: side + col + i,
         col: col,
         side: side,
         index: i,
-        disabled: col == 0 ? false : true,
+        disabled: col === 0 ? false : true,
+        winner: false,
       });
       //colMap.set("l00", {});
     }
     return colMap;
   }
 
-  function fillBracket(theTracks) {
-    let cols = getNumberOfColumns(theTracks.length);
+  function fillBracket() {
+    let cols = getNumberOfColumns(tracks.length);
     let i = 0;
     let forward = true;
     let repeated = false;
     let temp = new Map();
     while (i >= 0) {
-      let len = theTracks.length / 2 ** (i + 1);
-      let tracks = undefined;
+      let len = tracks.length / 2 ** (i + 1);
+      let theTracks = undefined;
 
       if (i >= cols - 1) {
         if (!repeated) {
           repeated = true;
-          temp = new Map([...relateSongs(len, tracks, "l", i), ...temp]);
+          temp = new Map([
+            ...relateSongs(len, theTracks, i, "l", "r"),
+            ...temp,
+          ]);
           forward = false;
           continue;
         }
       }
 
-      if (i == 0) {
+      if (i === 0) {
         if (forward) {
-          tracks = theTracks.slice(0, Math.ceil(theTracks.length / 2));
+          theTracks = tracks.slice(0, Math.ceil(tracks.length / 2));
         } else {
-          tracks = theTracks.slice(-Math.ceil(theTracks.length / 2));
+          theTracks = tracks.slice(-Math.ceil(tracks.length / 2));
         }
       }
 
       if (forward) {
-        temp = new Map([...relateSongs(len, tracks, "l", i), ...temp]);
+        temp = new Map([...relateSongs(len, theTracks, i, "l", "r"), ...temp]);
         i++;
       } else {
-        temp = new Map([...relateSongs(len, tracks, "r", i), ...temp]);
+        temp = new Map([...relateSongs(len, theTracks, i, "r", "l"), ...temp]);
         i--;
       }
     }
 
     setBracket(temp);
-    setTracks(theTracks);
     setColumns(cols);
   }
 

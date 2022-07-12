@@ -1,5 +1,29 @@
 .songButtonStyle {
-	background-color: gray;
+	background-color: red;
+	color: white;
+	border-radius: 1em;
+	border-width: 3px;
+	border-color: gray;
+	cursor: pointer;
 	width: 8em;
 	height: var(--buttonheight);
+}
+
+.songButtonStyle:disabled {
+	cursor: default;
+}
+
+.songButtonStyle.unfilledStyle {
+	background-color: white;
+	color: black;
+}
+
+.songButtonStyle.unfilledStyle:disabled {
+	background-color: white;
+	color: black;
+}
+
+.songButtonStyle.winnerStyle {
+	border-color: yellow;
+	border-width: 5px;
 }
