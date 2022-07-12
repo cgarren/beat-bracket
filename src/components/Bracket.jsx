@@ -1,3 +1,5 @@
+//TODO: USE REFS INSTEAD OF REDRAWING EVERYTIME ONE THING CHANGES!
+
 import React, { useEffect, useState } from "react";
 
 import { containerStyle } from "./Bracket.module.css";

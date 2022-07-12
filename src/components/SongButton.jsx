@@ -12,14 +12,10 @@ const SongButton = ({
   modifySong,
 }) => {
   function songChosen(e) {
-    console.log(e);
-    e.target.disabled = true;
-    //document.getElementById(e.target.dataset.opponentid).disabled = true;
     disabled = true;
     modifySong(nextId, "song", song);
     modifySong(nextId, "disabled", false);
     modifySong(opponentId, "disabled", true);
-    //document.getElementById(e.target.dataset.nextid).disabled = false;
   }
 
   return (
