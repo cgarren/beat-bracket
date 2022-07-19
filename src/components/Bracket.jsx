@@ -103,10 +103,11 @@ const Bracket = ({ tracks }) => {
   }
 
   function relateSongs(len, theTracks, col, side, otherSide) {
+    console.log(theTracks);
     let colMap = new Map();
     for (let i = 0; i < len; i++) {
       colMap.set(side + col + i, {
-        song: theTracks ? theTracks[i] : null,
+        song: theTracks ? (theTracks[i] ? theTracks[i].name : null) : null,
         opponentId:
           len <= 1
             ? otherSide + col + 0
@@ -116,8 +117,9 @@ const Bracket = ({ tracks }) => {
         col: col,
         side: side,
         index: i,
-        disabled: col === 0 ? false : true,
+        disabled: col === 0 && theTracks[i] ? false : true,
         winner: false,
+        color: null,
       });
       //colMap.set("l00", {});
     }
@@ -130,9 +132,21 @@ const Bracket = ({ tracks }) => {
     let forward = true;
     let repeated = false;
     let temp = new Map();
+
+    let nearestPowerOf2 = 0;
+    let j = 0;
+    while (nearestPowerOf2 <= tracks.length) {
+      nearestPowerOf2 = 2 ** (j + 1);
+      j++;
+    }
+
+    let oddTracks = nearestPowerOf2 % tracks.length;
+
+    console.log(nearestPowerOf2, oddTracks);
+
     while (i >= 0) {
-      let len = tracks.length / 2 ** (i + 1);
       let theTracks = undefined;
+      let len = nearestPowerOf2 / 2 ** (i + 1) / 2;
 
       if (i >= cols - 1) {
         if (!repeated) {
@@ -149,10 +163,21 @@ const Bracket = ({ tracks }) => {
       if (i === 0) {
         if (forward) {
           theTracks = tracks.slice(0, Math.ceil(tracks.length / 2));
+          console.log(theTracks);
         } else {
-          theTracks = tracks.slice(-Math.ceil(tracks.length / 2));
+          theTracks = tracks.slice(-Math.floor(tracks.length / 2));
+          console.log(theTracks);
         }
       }
+
+      // if (i === 1) {
+      //   if (forward) {
+      //     if (tracks.length < )
+      //     theTracks = tracks.slice(0, Math.ceil(tracks.length / 2)));
+      //   } else {
+      //     theTracks = tracks.slice(-Math.ceil(tracks.length / 2));
+      //   }
+      // }
 
       if (forward) {
         temp = new Map([...relateSongs(len, theTracks, i, "l", "r"), ...temp]);
@@ -168,7 +193,7 @@ const Bracket = ({ tracks }) => {
   }
 
   function getNumberOfColumns(items) {
-    let cols = Math.log(items) / Math.log(2);
+    let cols = Math.ceil(Math.log(items) / Math.log(2));
     return cols;
   }
 
