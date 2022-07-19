@@ -2,7 +2,7 @@
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
-	--buttonheight: 3.5em;
+	--buttonheight: 3em;
 }
 
 .columnStyle {
@@ -11,55 +11,57 @@
 }
 
 .firstColumnStyle {
-	margin-top: var(--buttonheight);
+	margin-top: calc(var(--buttonheight) / 2);
 }
 
 .secondColumnStyle {
-	margin-top: calc(var(--buttonheight) * 3);
-}
-
-.thirdColumnStyle {
-	margin-top: calc(var(--buttonheight) * 7);
-}
-
-.fourthColumnStyle {
-	margin-top: calc(var(--buttonheight) * 15);
-}
-
-.fifthColumnStyle {
-	margin-top: calc(var(--buttonheight) * 31)
-}
-
-.sixthColumnStyle {
-	margin-top: calc(var(--buttonheight) * 63)
-}
-
-.seventhColumnStyle {
-	margin-top: calc(var(--buttonheight) * 127)
-}
-
-.secondColumnStyleTop {
 	margin-top: calc(var(--buttonheight) * 2);
 }
 
+.thirdColumnStyle {
+	margin-top: calc(var(--buttonheight) * 5);
+}
+
+.fourthColumnStyle {
+	margin-top: calc(var(--buttonheight) * 11);
+}
+
+.fifthColumnStyle {
+	margin-top: calc(var(--buttonheight) * 23)
+}
+
+.sixthColumnStyle {
+	margin-top: calc(var(--buttonheight) * 47)
+}
+
+.seventhColumnStyle {
+	margin-top: calc(var(--buttonheight) * 95)
+}
+
+
+
+.secondColumnStyleTop {
+	margin-top: calc(var(--buttonheight)*1.25);
+}
+
 .thirdColumnStyleTop {
-	margin-top: calc(var(--buttonheight) * 4);
+	margin-top: calc(var(--buttonheight) * 2.75);
 }
 
 .fourthColumnStyleTop {
-	margin-top: calc(var(--buttonheight) * 8);
+	margin-top: calc(var(--buttonheight) * 5.75);
 }
 
 .fifthColumnStyleTop {
-	margin-top: calc(var(--buttonheight) * 16);
+	margin-top: calc(var(--buttonheight) * 11.75);
 }
 
 .sixthColumnStyleTop {
-	margin-top: calc(var(--buttonheight) * 32);
+	margin-top: calc(var(--buttonheight) * 23.75);
 }
 
 .seventhColumnStyleTop {
-	margin-top: calc(var(--buttonheight) * 64);
+	margin-top: calc(var(--buttonheight) * 47.75);
 }
 
 /* 3, 7, 15, 31, 63, 127*/
