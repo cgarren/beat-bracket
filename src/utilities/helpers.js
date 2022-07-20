@@ -19,8 +19,8 @@ async function loadRequest(url, params) {
 }
 
 function popularitySort(track1, track2) {
-	if (track1.popularity < track2.popularity) { return -1 };
-	if (track1.popularity > track2.popularity) { return 1 };
+	if (track1.popularity > track2.popularity) { return -1 };
+	if (track1.popularity < track2.popularity) { return 1 };
 	return 0;
 }
 
