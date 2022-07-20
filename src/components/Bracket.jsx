@@ -103,7 +103,6 @@ const Bracket = ({ tracks }) => {
   }
 
   function relateSongs(len, theTracks, col, side, otherSide) {
-    console.log(theTracks);
     let colMap = new Map();
     for (let i = 0; i < len; i++) {
       colMap.set(side + col + i, {
