@@ -1,0 +1,9 @@
+.barStyle {
+	max-width: 800px;
+	width: auto;
+	min-width: 300px;
+	border-radius: 20px;
+	font-size: 1.25em;
+	font-family: Verdana, Geneva, Tahoma, sans-serif;
+	padding-left: 10px;
+}
