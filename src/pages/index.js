@@ -1,7 +1,13 @@
 import React, {useEffect, useState} from "react"
 import Bracket from "../components/Bracket"
 import SearchBar from "../components/SearchBar";
-import { loadRequest, popularitySort, removeDuplicatesWithKey } from "../utilities/helpers";
+import { loadRequest, popularitySort } from "../utilities/helpers";
+
+// TODO: Fix byes (but first restrict the number of songs)
+// TODO: Make songs playable when hovered over
+// TODO: Add a way to authenticate and add songs to queue
+// TODO: Make the final bracket shareable
+// TODO: Make search prettier
 
 // styles
 const pageStyles = {
@@ -11,17 +17,8 @@ const pageStyles = {
 // markup
 const IndexPage = () => {
   const [tracks, setTracks] = useState([]);
-  const [artistId, setArtistId] = useState(null);
-  const [artist, setArtist] = useState(null);
-
-  function genTracks() {
-    let generatedTracks = Array.from(
-      { length: 128 },
-      () => ({name: "Song " + Math.floor(Math.random() * 128) })
-    )
-    console.log(generatedTracks);
-    setTracks(generatedTracks);
-  }
+  const [artist, setArtist] = useState({ "name": undefined, "id": undefined });
+  const [showBracket, setshowBracket] = useState(false);
 
   async function loadTrackData(ids) {
     const url = "https://api.spotify.com/v1/tracks?ids=" + ids.join();
@@ -95,14 +92,14 @@ const IndexPage = () => {
       templist = templist.slice(0, 128)
       // seed the list by popularity
       for (let i = 1; i < templist.length / 2; i++) {
-        if (i % 2 != 0) {
+        if (i % 2 !== 0) {
           let temp = templist[i];
           templist[i] = templist[templist.length - i];
           console.log("switching", templist[templist.length - i].name, "AND", temp.name);
           templist[templist.length - i] = temp;
         }
       }
-      console.log("setting", templist);
+      //console.log("setting", templist);
       setTracks(templist);
       return templist;
     }
@@ -110,25 +107,22 @@ const IndexPage = () => {
 
   useEffect(() => {
     async function getTracks() {
-      setArtist("something");
-      await loadAlbums("https://api.spotify.com/v1/artists/" + artistId + "/albums?include_groups=album,single&limit=20");
-      console.log("hey");
+      await loadAlbums("https://api.spotify.com/v1/artists/" + artist.id + "/albums?include_groups=album,single&limit=20");
     }
-    if (artistId) {
+    if (artist.id) {
       getTracks();
     }
-  }, [artistId]);
+  }, [artist]);
 
   return (
     <main style={pageStyles}>
       <title>Song Coliseum</title>
       <h1>
-        Song Coliseum {(artist ? "- " + artist : "")}
+        Song Coliseum {(artist.name ? "- " + artist.name : "")}
       </h1>
-      <button onClick={genTracks}>Fill</button>
-      <SearchBar setArtistId={setArtistId}/>
+      <SearchBar setArtist={setArtist}/>
       <div>
-        <Bracket tracks={tracks} />
+        <Bracket tracks={tracks} show={showBracket} />
       </div>
     </main>
   )

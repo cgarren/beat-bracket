@@ -1,4 +1,7 @@
-//TODO: USE REFS INSTEAD OF REDRAWING EVERYTIME ONE THING CHANGES!
+//TODO: USE REFS INSTEAD OF REDRAWING EVERY TIME ONE THING CHANGES!
+
+// Library to get prominent colors from images (for coloring bracket spaces according to album art)
+import Vibrant, { Swatch } from "node-vibrant";
 
 import React, { useEffect, useState } from "react";
 
@@ -6,6 +9,9 @@ import { containerStyle } from "./Bracket.module.css";
 
 import {
   columnStyle,
+  lineStyle,
+  lineLeftStyle,
+  lineRightStyle,
   firstColumnStyle,
   secondColumnStyle,
   secondColumnStyleTop,
@@ -19,6 +25,13 @@ import {
   sixthColumnStyleTop,
   seventhColumnStyle,
   seventhColumnStyleTop,
+  firstColumnLineStyle,
+  secondColumnLineStyle,
+  thirdColumnLineStyle,
+  fourthColumnLineStyle,
+  fifthColumnLineStyle,
+  sixthColumnLineStyle,
+  seventhColumnLineStyle,
 } from "./Bracket.module.css";
 
 import SongButton from "./SongButton";
@@ -43,14 +56,27 @@ const topStyles = [
   seventhColumnStyleTop,
 ];
 
-const Bracket = ({ tracks }) => {
+const lineStyles = [
+  firstColumnLineStyle,
+  secondColumnLineStyle,
+  thirdColumnLineStyle,
+  fourthColumnLineStyle,
+  fifthColumnLineStyle,
+  sixthColumnLineStyle,
+  seventhColumnLineStyle,
+];
+
+const Bracket = ({ tracks, show }) => {
   const [bracket, setBracket] = useState(new Map());
   const [columns, setColumns] = useState(0);
   const [renderArray, setRenderArray] = useState([]);
 
   useEffect(() => {
+    async function kickOff() {
+      await fillBracket(tracks);
+    }
     if (tracks && tracks.length !== 0) {
-      fillBracket(tracks);
+      kickOff();
     }
   }, [tracks]);
 
@@ -62,22 +88,42 @@ const Bracket = ({ tracks }) => {
           let colExpression = side === "l" ? i : columns - 1 - i;
           if (value.side === side && value.col === colExpression) {
             return (
-              <SongButton
-                modifyBracket={modifyBracket}
-                getBracket={getBracket}
-                opponentId={value.opponentId}
-                nextId={value.nextId}
-                song={value.song}
-                id={value.id}
-                styling={
-                  value.index === 0
-                    ? topStyles[colExpression]
-                    : styles[colExpression]
-                }
-                key={mykey}
-                disabled={value.disabled}
-                winner={value.winner}
-              />
+              <div key={mykey}>
+                <SongButton
+                  modifyBracket={modifyBracket}
+                  getBracket={getBracket}
+                  opponentId={value.opponentId}
+                  nextId={value.nextId}
+                  song={value.song}
+                  id={value.id}
+                  styling={
+                    value.index === 0
+                      ? topStyles[colExpression]
+                      : value.index % 2 == 0
+                      ? styles[colExpression]
+                      : ""
+                  }
+                  color={value.color}
+                  key={mykey}
+                  eliminated={value.eliminated}
+                  disabled={value.disabled}
+                  winner={value.winner}
+                />
+                {value.index % 2 == 0 && value.nextId != null ? (
+                  <div
+                    className={
+                      lineStyles[colExpression] +
+                      " " +
+                      lineStyle +
+                      " " +
+                      (side === "l" ? lineLeftStyle : lineRightStyle)
+                    }
+                    key={mykey + "0"}
+                  ></div>
+                ) : (
+                  ""
+                )}
+              </div>
             );
           }
         })}
@@ -102,7 +148,7 @@ const Bracket = ({ tracks }) => {
     return bracket.get(key);
   }
 
-  function relateSongs(len, theTracks, col, side, otherSide) {
+  async function relateSongs(len, theTracks, col, side, otherSide) {
     let colMap = new Map();
     for (let i = 0; i < len; i++) {
       colMap.set(side + col + i, {
@@ -112,20 +158,29 @@ const Bracket = ({ tracks }) => {
             ? otherSide + col + 0
             : side + col + (i % 2 === 0 ? i + 1 : i - 1),
         nextId: len <= 1 ? null : side + (col + 1) + Math.floor(i / 2),
+        previousIds:
+          col == 0
+            ? []
+            : [
+                side + (col - 1) + Math.ceil(i * 2),
+                side + (col - 1) + (Math.ceil(i * 2) + 1),
+              ],
         id: side + col + i,
         col: col,
         side: side,
         index: i,
         disabled: col === 0 && theTracks[i] ? false : true,
         winner: false,
-        color: null,
+        eliminated: false,
+        color: theTracks
+          ? (await Vibrant.from(theTracks[i].art).getPalette()).Vibrant
+          : null,
       });
-      //colMap.set("l00", {});
     }
     return colMap;
   }
 
-  function fillBracket() {
+  async function fillBracket() {
     let cols = getNumberOfColumns(tracks.length);
     let i = 0;
     let forward = true;
@@ -141,8 +196,6 @@ const Bracket = ({ tracks }) => {
 
     let oddTracks = nearestPowerOf2 % tracks.length;
 
-    console.log(nearestPowerOf2, oddTracks);
-
     while (i >= 0) {
       let theTracks = undefined;
       let len = nearestPowerOf2 / 2 ** (i + 1) / 2;
@@ -151,7 +204,7 @@ const Bracket = ({ tracks }) => {
         if (!repeated) {
           repeated = true;
           temp = new Map([
-            ...relateSongs(len, theTracks, i, "l", "r"),
+            ...(await relateSongs(len, theTracks, i, "l", "r")),
             ...temp,
           ]);
           forward = false;
@@ -179,14 +232,20 @@ const Bracket = ({ tracks }) => {
       // }
 
       if (forward) {
-        temp = new Map([...relateSongs(len, theTracks, i, "l", "r"), ...temp]);
+        temp = new Map([
+          ...(await relateSongs(len, theTracks, i, "l", "r")),
+          ...temp,
+        ]);
         i++;
       } else {
-        temp = new Map([...relateSongs(len, theTracks, i, "r", "l"), ...temp]);
+        temp = new Map([
+          ...(await relateSongs(len, theTracks, i, "r", "l")),
+          ...temp,
+        ]);
         i--;
       }
     }
-
+    console.log(temp);
     setBracket(temp);
     setColumns(cols);
   }
@@ -197,7 +256,7 @@ const Bracket = ({ tracks }) => {
   }
 
   return (
-    <div className={containerStyle}>
+    <div className={containerStyle} hidden={!show}>
       {/* {bracket.forEach((value, key) => {
         <SongButton
           styling={value.col}

@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 import ArtistSuggestionList from "./ArtistSuggestionList";
 import { loadRequest } from "../utilities/helpers";
 
-const SearchBar = ({ setArtistId }) => {
+import { barStyle } from "./SearchBar.module.css";
+
+const SearchBar = ({ setArtist }) => {
   const [searchText, setSearchText] = useState("");
   const [artistSuggestionList, setArtistSuggestionList] = useState([]);
 
@@ -23,7 +25,7 @@ const SearchBar = ({ setArtistId }) => {
               art: item.images[2].url,
               id: item.id,
               onClick: () => {
-                setArtistId(item.id);
+                setArtist({ name: item.name, id: item.id });
                 setSearchText("");
               },
             });
@@ -52,6 +54,7 @@ const SearchBar = ({ setArtistId }) => {
         size="lg"
         value={searchText}
         onChange={(e) => setSearchText(e.target.value)}
+        className={barStyle}
       />
       <ArtistSuggestionList artistList={artistSuggestionList} />
     </div>

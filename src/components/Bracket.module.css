@@ -2,7 +2,16 @@
 	display: flex;
 	flex-direction: row;
 	justify-content: space-between;
-	--buttonheight: 3em;
+	--buttonheight: 50px;
+	--buttonwidth: 107px;
+	--lineWidth: 3px;
+	--firstColumnSpacing: calc(var(--buttonheight) / 2);
+	--secondColumnSpacing: calc(var(--buttonheight) * 2);
+	--thirdColumnSpacing: calc(var(--buttonheight) * 5);
+	--fourthColumnSpacing: calc(var(--buttonheight) * 11);
+	--fifthColumnSpacing: calc(var(--buttonheight) * 23);
+	--sixthColumnSpacing: calc(var(--buttonheight) * 47);
+	--seventhColumnSpacing: calc(var(--buttonheight) * 95);
 }
 
 .columnStyle {
@@ -10,32 +19,75 @@
 	flex-direction: column;
 }
 
+.lineStyle {
+	width: var(--lineWidth);
+	background-color: gray;
+}
+
+.lineLeftStyle {
+	margin-left: calc((var(--buttonwidth)) - (var(--lineWidth)));
+}
+
+.lineRightStyle {
+	margin-left: 0px;
+}
+
+.firstColumnLineStyle {
+	height: var(--firstColumnSpacing);
+}
+
+.secondColumnLineStyle {
+	height: var(--secondColumnSpacing);
+}
+
+.thirdColumnLineStyle {
+	height: var(--thirdColumnSpacing);
+}
+
+.fourthColumnLineStyle {
+	height: var(--fourthColumnSpacing);
+}
+
+.fifthColumnLineStyle {
+	height: var(--fifthColumnSpacing);
+}
+
+.sixthColumnLineStyle {
+	height: var(--sixthColumnSpacing);
+}
+
+.seventhColumnLineStyle {
+	height: var(--seventhColumnSpacing);
+}
+
+
+
 .firstColumnStyle {
-	margin-top: calc(var(--buttonheight) / 2);
+	margin-top: var(--firstColumnSpacing);
 }
 
 .secondColumnStyle {
-	margin-top: calc(var(--buttonheight) * 2);
+	margin-top: var(--secondColumnSpacing);
 }
 
 .thirdColumnStyle {
-	margin-top: calc(var(--buttonheight) * 5);
+	margin-top: var(--thirdColumnSpacing);
 }
 
 .fourthColumnStyle {
-	margin-top: calc(var(--buttonheight) * 11);
+	margin-top: var(--fourthColumnSpacing);
 }
 
 .fifthColumnStyle {
-	margin-top: calc(var(--buttonheight) * 23)
+	margin-top: var(--fifthColumnSpacing);
 }
 
 .sixthColumnStyle {
-	margin-top: calc(var(--buttonheight) * 47)
+	margin-top: var(--sixthColumnSpacing);
 }
 
 .seventhColumnStyle {
-	margin-top: calc(var(--buttonheight) * 95)
+	margin-top: var(--seventhColumnSpacing);
 }
 
 
