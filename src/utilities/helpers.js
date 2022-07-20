@@ -11,7 +11,7 @@ async function loadRequest(url, params) {
 	
 	if (response.ok) {
 		return response.json(); // parses JSON response into native JavaScript objects
-	} else if (response.status == 429) {
+	} else if (response.status === 429) {
 		throw new Error("Too many requests. Code: " + response.status);
 	} else {
 		throw new Error("Unknown request error. Code: " + response.status);
@@ -31,7 +31,7 @@ function removeDuplicatesWithKey(theArray, key) {
 	let tempArray = [];
 	//loop through given array
 	for (let index in theArray) {
-		if (theArray[index][key] == "Jail") {
+		if (theArray[index][key] === "Jail") {
 			console.log(tempArray);
 			console.log(index);
 		}
