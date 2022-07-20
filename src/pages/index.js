@@ -23,29 +23,54 @@ const IndexPage = () => {
     setTracks(generatedTracks);
   }
 
+  async function loadTrackData(ids) {
+    const url = "https://api.spotify.com/v1/tracks?ids=" + ids.join();
+    let response = await loadRequest(url);
+    let templist = new Array();
+    if (!response["error"] && response.tracks.length > 0) {
+      response.tracks.map((track) => {
+        const trackObject = {
+          name: track.name,
+          art: track.album.images[2].url,
+          id: track.id,
+          popularity: track.popularity
+        }
+        templist.push(trackObject);
+      });
+    }
+    return templist;
+  }
+
   async function loadTracks(url, duplicatelist) {
     let response = await loadRequest(url);
-    console.log(response);
-    let templist = new Array();
+    let ids = [];
     if (!response["error"] && response.albums.length > 0) {
       response.albums.map((album) => {
         if (album.images.length > 0) {
           album.tracks.items.map((track) => {
             if (!duplicatelist.includes(track.name)) {
-              const trackObject = {
-                name: track.name,
-                art: album.images[2].url,
-                id: track.id,
-                popularity: track.popularity
-              }
-              templist.push(trackObject);
+              ids.push(track.id)
               duplicatelist.push(track.name);
             }
           })
         }
       });
+      let templist = new Array();
+      let tempids = [];
+      while (true) {
+        tempids.push(ids.shift());
+        if (tempids.length == 50) {
+          let trackData = await loadTrackData(tempids);
+          templist = templist.concat(trackData);
+          tempids = [];
+        }
+        if (ids.length == 0) {
+          break;
+        }
+      }
+      return templist;
     }
-    return templist;
+    return [];
   }
   
   async function loadAlbums(url, templist=[], duplicatelist=[]) {
@@ -62,15 +87,24 @@ const IndexPage = () => {
     }
     if (response.next) {
       const res = await loadAlbums(response.next, templist, duplicatelist);
-      console.log(duplicatelist);
       templist = res;
     } else {
       // sort the list by popularity and cut it to a certain size
-      // templist.sort(popularitySort)
+      templist.sort(popularitySort)
+      // limit the list to 128 songs
       templist = templist.slice(0, 128)
+      // seed the list by popularity
+      for (let i = 1; i < templist.length / 2; i++) {
+        if (i % 2 != 0) {
+          let temp = templist[i];
+          templist[i] = templist[templist.length - i];
+          console.log("switching", templist[templist.length - i].name, "AND", temp.name);
+          templist[templist.length - i] = temp;
+        }
+      }
       console.log("setting", templist);
       setTracks(templist);
-      return Promise.resolve(templist);
+      return templist;
     }
   }
 
