@@ -2,30 +2,32 @@
 	background-color: red;
 	color: white;
 	border-radius: 1em;
-	border-width: 3px;
-	border-color: gray;
+	border-width: 0px;
+	/*border-color: transparent;
 	border-style: outset;
+	*/
+	box-shadow: 0px 0px 8px black;
 	cursor: pointer;
 	width: var(--buttonwidth);
 	height: var(--buttonheight);
-	/* word-wrap: break-word; */
 	overflow: hidden;
 	text-overflow: ellipsis;
-	/* box-shadow: 0px 0px 15px 1px green; */
+	line-height: 1.2em;
 }
 
 .songButtonStyle:disabled {
 	cursor: default;
 	box-shadow: none;
+	border-width: 0px;
 	/* opacity: .8; */
-	border-width: 0;
 }
 
 .songButtonStyle.unfilledStyle {
 	background-color: white;
 	color: black;
-	border-style: ridge;
 	border-width: 2px;
+	border-style: ridge;
+	border-color: gray;
 }
 
 .songButtonStyle.unfilledStyle:disabled {
@@ -40,5 +42,5 @@
 
 .songButtonStyle.eliminatedStyle {
 	/* opacity: .65; */
-	border: none;
+	border-width: none;
 }
