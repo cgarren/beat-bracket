@@ -31,12 +31,12 @@ const IndexPage = () => {
     for (let ids of Object.values(songs)) {
       const url = "https://api.spotify.com/v1/tracks?ids=" + ids.join();
       const response = await loadRequest(url);
-      //console.log(response);
-      if (!response["error"]) {
+      console.log(response);
+      if (!response["error"] && response.tracks.length > 0) {
         let highestPop = 0;
         let selectedTrack = null;
         for (let track of response.tracks) {
-          if (track.popularity > highestPop) {
+          if (track.popularity >= highestPop) {
             selectedTrack = track;
             highestPop = track.popularity;
           }
@@ -82,7 +82,7 @@ const IndexPage = () => {
       });
       let tracksurl =
         "https://api.spotify.com/v1/albums?ids=" + albumIds.join();
-      loadTracks(tracksurl, songs); // saves 
+      await loadTracks(tracksurl, songs); // saves 
     }
     if (response.next) {
       await loadAlbums(response.next, songs);
@@ -96,8 +96,7 @@ const IndexPage = () => {
       console.log(songs);
       // load data for the songs
       let templist = await loadTrackData(songs);
-      console.log(templist);
-      // sort the list by popularity and cut it to a certain size
+      // sort the list by popularity
       templist.sort(popularitySort);
       console.log(templist, nearestLesserPowerOf2(templist.length));
       // limit the list length to the nearest lesser power of 2 (for now)
@@ -105,7 +104,7 @@ const IndexPage = () => {
       // seed the list by popularity
       for (let i = 1; i < templist.length / 2; i+=2) {
         if (i % 2 !== 0) {
-          console.log("switching", templist[templist.length - i].name, "AND", templist[i].name);
+          //console.log("switching", templist[templist.length - i].name, "AND", templist[i].name);
           let temp = templist[i];
           templist[i] = templist[templist.length - i];
           templist[templist.length - i] = temp;

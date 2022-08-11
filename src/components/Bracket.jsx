@@ -79,6 +79,8 @@ const Bracket = ({ tracks, show }) => {
 
   useEffect(() => {
     async function kickOff() {
+      // reset the undo chain
+      setCommands([]);
       await fillBracket(tracks);
     }
     if (tracks && tracks.length !== 0) {
@@ -116,7 +118,7 @@ const Bracket = ({ tracks, show }) => {
       <div className={columnStyle} key={side + i}>
         {Array.from(bracket.entries()).map((entry) => {
           const [mykey, value] = entry;
-          let colExpression = side === "l" ? i : columns - 1 - i;
+          const colExpression = side === "l" ? i : columns - 1 - i;
           if (value.side === side && value.col === colExpression) {
             return (
               <div key={mykey}>
