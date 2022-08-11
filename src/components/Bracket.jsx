@@ -173,7 +173,9 @@ const Bracket = ({ tracks, show }) => {
         winner: false,
         eliminated: false,
         color: theTracks
-          ? (await Vibrant.from(theTracks[i].art).getPalette()).Vibrant
+          ? theTracks[i]
+            ? (await Vibrant.from(theTracks[i].art).getPalette()).Vibrant
+            : null
           : null,
       });
     }
@@ -181,25 +183,15 @@ const Bracket = ({ tracks, show }) => {
   }
 
   async function fillBracket() {
-    let cols = getNumberOfColumns(tracks.length);
+    const cols = getNumberOfColumns(tracks.length);
     let i = 0;
     let forward = true;
     let repeated = false;
     let temp = new Map();
 
-    let nearestPowerOf2 = 0;
-    let j = 0;
-    while (nearestPowerOf2 <= tracks.length) {
-      nearestPowerOf2 = 2 ** (j + 1);
-      j++;
-    }
-
-    let oddTracks = nearestPowerOf2 % tracks.length;
-
     while (i >= 0) {
-      let theTracks = undefined;
-      let len = nearestPowerOf2 / 2 ** (i + 1) / 2;
-
+      const len = nearestGreaterPowerOf2(tracks.length) / 2 ** (i + 1) / 2;
+      let theTracks = new Array(len);
       if (i >= cols - 1) {
         if (!repeated) {
           repeated = true;
@@ -215,10 +207,10 @@ const Bracket = ({ tracks, show }) => {
       if (i === 0) {
         if (forward) {
           theTracks = tracks.slice(0, Math.ceil(tracks.length / 2));
-          console.log(theTracks);
+          //console.log(theTracks);
         } else {
           theTracks = tracks.slice(-Math.floor(tracks.length / 2));
-          console.log(theTracks);
+          //console.log(theTracks);
         }
       }
 
@@ -250,9 +242,33 @@ const Bracket = ({ tracks, show }) => {
     setColumns(cols);
   }
 
-  function getNumberOfColumns(items) {
-    let cols = Math.ceil(Math.log(items) / Math.log(2));
+  function getNumberOfColumns(numItems) {
+    let cols = Math.ceil(
+      Math.log(nearestLesserPowerOf2(numItems)) / Math.log(2)
+    );
     return cols;
+  }
+
+  function nearestGreaterPowerOf2(length) {
+    let nearestPowerOf2 = 0;
+    let j = 0;
+    while (nearestPowerOf2 <= length) {
+      nearestPowerOf2 = 2 ** (j + 1);
+      j++;
+    }
+    return nearestPowerOf2;
+  }
+
+  function nearestLesserPowerOf2(length) {
+    let nearestPowerOf2 = 0;
+    let j = 0;
+    while (true) {
+      nearestPowerOf2 = 2 ** (j + 1);
+      j++;
+      if (nearestPowerOf2 >= length) {
+        return nearestPowerOf2;
+      }
+    }
   }
 
   return (

@@ -20,57 +20,53 @@ const IndexPage = () => {
   const [artist, setArtist] = useState({ "name": undefined, "id": undefined });
   const [showBracket, setshowBracket] = useState(false);
 
-  async function loadTrackData(ids) {
-    const url = "https://api.spotify.com/v1/tracks?ids=" + ids.join();
-    let response = await loadRequest(url);
-    let templist = new Array();
-    if (!response["error"] && response.tracks.length > 0) {
-      response.tracks.map((track) => {
+  async function loadTrackData(songs) {
+    let templist = [];
+    for (let ids of Object.values(songs)) {
+      const url = "https://api.spotify.com/v1/tracks?ids=" + ids.join();
+      const response = await loadRequest(url);
+      //console.log(response);
+      if (!response["error"]) {
+        let highestPop = 0;
+        let selectedTrack = null;
+        for (let track of response.tracks) {
+          if (track.popularity > highestPop) {
+            selectedTrack = track;
+            highestPop = track.popularity;
+          }
+        };
         const trackObject = {
-          name: track.name,
-          art: track.album.images[2].url,
-          id: track.id,
-          popularity: track.popularity
+          name: selectedTrack.name,
+          art: selectedTrack.album.images[2].url,
+          id: selectedTrack.id,
+          popularity: selectedTrack.popularity
         }
         templist.push(trackObject);
-      });
+      }
     }
     return templist;
   }
 
-  async function loadTracks(url, duplicatelist) {
+  async function loadTracks(url, songs) {
     let response = await loadRequest(url);
-    let ids = [];
     if (!response["error"] && response.albums.length > 0) {
       response.albums.map((album) => {
         if (album.images.length > 0) {
+          // Iterate through the tracks
           album.tracks.items.map((track) => {
-            if (!duplicatelist.includes(track.name)) {
-              ids.push(track.id)
-              duplicatelist.push(track.name);
+            // Check if the track already exists
+            if (track.name in songs) {
+              songs[track.name].push(track.id);
+            } else {
+              songs[track.name] = [track.id];
             }
           })
         }
       });
-      let templist = new Array();
-      let tempids = [];
-      while (true) {
-        tempids.push(ids.shift());
-        if (tempids.length == 50) {
-          let trackData = await loadTrackData(tempids);
-          templist = templist.concat(trackData);
-          tempids = [];
-        }
-        if (ids.length == 0) {
-          break;
-        }
-      }
-      return templist;
     }
-    return [];
   }
   
-  async function loadAlbums(url, templist=[], duplicatelist=[]) {
+  async function loadAlbums(url, songs = {}) {
     let response = await loadRequest(url);
     //console.log(response);
     if (!response["error"] && response.items.length > 0) {
@@ -79,35 +75,41 @@ const IndexPage = () => {
         albumIds.push(item.id);
       });
       let tracksurl =
-      "https://api.spotify.com/v1/albums?ids=" + albumIds.join();
-      templist = [...templist, ...await loadTracks(tracksurl, duplicatelist)];
+        "https://api.spotify.com/v1/albums?ids=" + albumIds.join();
+      loadTracks(tracksurl, songs); // saves 
     }
     if (response.next) {
-      const res = await loadAlbums(response.next, templist, duplicatelist);
-      templist = res;
-    } else {
-      // sort the list by popularity and cut it to a certain size
-      templist.sort(popularitySort)
-      // limit the list to 128 songs
-      templist = templist.slice(0, 128)
-      // seed the list by popularity
-      for (let i = 1; i < templist.length / 2; i++) {
-        if (i % 2 !== 0) {
-          let temp = templist[i];
-          templist[i] = templist[templist.length - i];
-          console.log("switching", templist[templist.length - i].name, "AND", temp.name);
-          templist[templist.length - i] = temp;
-        }
-      }
-      //console.log("setting", templist);
-      setTracks(templist);
-      return templist;
+      await loadAlbums(response.next, songs);
     }
+    return songs;
   }
+
+
 
   useEffect(() => {
     async function getTracks() {
-      await loadAlbums("https://api.spotify.com/v1/artists/" + artist.id + "/albums?include_groups=album,single&limit=20");
+      let songs = await loadAlbums("https://api.spotify.com/v1/artists/" + artist.id + "/albums?include_groups=album,single&limit=20");
+      console.log(songs);
+      // load data for the songs
+      let templist = await loadTrackData(songs);
+      console.log(templist);
+      // sort the list by popularity and cut it to a certain size
+      templist.sort(popularitySort);
+      console.log(templist);
+      //await new Promise(resolve => setTimeout(() => { }, 5000));
+      // limit the list to 128 songs
+      templist = templist.slice(0, 128);
+      // seed the list by popularity
+      for (let i = 1; i < templist.length / 2; i+=2) {
+        if (i % 2 !== 0) {
+          console.log("switching", templist[templist.length - i].name, "AND", templist[i].name);
+          let temp = templist[i];
+          templist[i] = templist[templist.length - i];
+          templist[templist.length - i] = temp;
+        }
+      }
+      console.log("setting", templist);
+      setTracks(templist);
     }
     if (artist.id) {
       getTracks();

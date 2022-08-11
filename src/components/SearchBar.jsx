@@ -15,7 +15,7 @@ const SearchBar = ({ setArtist }) => {
         "https://api.spotify.com/v1/search/?" +
         new URLSearchParams(params).toString();
       let response = await loadRequest(url);
-      console.log(response);
+      //console.log(response);
       if (!response["error"] && response.artists.items.length > 0) {
         let templist = [];
         response.artists.items.map((item) => {
@@ -43,7 +43,7 @@ const SearchBar = ({ setArtist }) => {
 
   useEffect(() => {
     searchSuggestions();
-    console.log(searchText);
+    //console.log(searchText);
   }, [searchText]);
 
   return (
