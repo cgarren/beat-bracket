@@ -4,7 +4,6 @@ import SearchBar from "../components/SearchBar";
 import { loadRequest, popularitySort } from "../utilities/helpers";
 
 // TODO: Fix byes (but first restrict the number of songs)
-// TODO: Add undo functionality
 // TODO: Make songs playable when hovered over
 // TODO: Add a way to authenticate and add songs to queue
 // TODO: -----> Implement saving the bracket with every change linked to a users spotify account and stored in a db somewhere. Maybe a landing page where users can see their past brackets?
@@ -14,6 +13,7 @@ import { loadRequest, popularitySort } from "../utilities/helpers";
 // TODO: Make loading track data calls efficient (able to request a max of 50 ids at once)
 // TODO: Once a column is finished zoom/scale the bracket to make it easier to do the next column
 // TODO: Add explainer text as to why we used 'Coliseum' over 'Colosseum'
+// TODO: Mobile support
 
 // styles
 const pageStyles = {
