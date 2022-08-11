@@ -13,30 +13,38 @@ import {
 } from "../utilities/helpers";
 
 import {
+  containerStyle,
+  holderStyle,
   columnStyle,
   lineStyle,
   lineLeftStyle,
   lineRightStyle,
   firstColumnStyle,
+  firstColumnLineStyle,
   secondColumnStyle,
   secondColumnStyleTop,
+  secondColumnLineStyle,
   thirdColumnStyle,
   thirdColumnStyleTop,
+  thirdColumnLineStyle,
   fourthColumnStyle,
   fourthColumnStyleTop,
+  fourthColumnLineStyle,
   fifthColumnStyle,
   fifthColumnStyleTop,
+  fifthColumnLineStyle,
   sixthColumnStyle,
   sixthColumnStyleTop,
+  sixthColumnLineStyle,
   seventhColumnStyle,
   seventhColumnStyleTop,
-  firstColumnLineStyle,
-  secondColumnLineStyle,
-  thirdColumnLineStyle,
-  fourthColumnLineStyle,
-  fifthColumnLineStyle,
-  sixthColumnLineStyle,
   seventhColumnLineStyle,
+  eigthColumnStyle,
+  eigthColumnStyleTop,
+  eigthColumnLineStyle,
+  ninthColumnStyle,
+  ninthColumnStyleTop,
+  ninthColumnLineStyle,
 } from "./Bracket.module.css";
 
 import SongButton from "./SongButton";
@@ -49,6 +57,8 @@ const styles = [
   fifthColumnStyle,
   sixthColumnStyle,
   seventhColumnStyle,
+  eigthColumnStyle,
+  ninthColumnStyle,
 ];
 
 const topStyles = [
@@ -59,6 +69,8 @@ const topStyles = [
   fifthColumnStyleTop,
   sixthColumnStyleTop,
   seventhColumnStyleTop,
+  eigthColumnStyleTop,
+  ninthColumnStyleTop,
 ];
 
 const lineStyles = [
@@ -69,6 +81,8 @@ const lineStyles = [
   fifthColumnLineStyle,
   sixthColumnLineStyle,
   seventhColumnLineStyle,
+  eigthColumnLineStyle,
+  ninthColumnLineStyle,
 ];
 
 const Bracket = ({ tracks, show }) => {
@@ -121,7 +135,7 @@ const Bracket = ({ tracks, show }) => {
           const colExpression = side === "l" ? i : columns - 1 - i;
           if (value.side === side && value.col === colExpression) {
             return (
-              <div key={mykey}>
+              <div key={mykey} className={holderStyle}>
                 <SongButton
                   modifyBracket={modifyBracket}
                   saveCommand={saveCommand}

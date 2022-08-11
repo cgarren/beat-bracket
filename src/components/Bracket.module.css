@@ -1,22 +1,32 @@
 .containerStyle {
 	display: flex;
 	flex-direction: row;
+	gap: 10px;
 	justify-content: space-between;
 	--buttonheight: 50px;
 	--buttonwidth: 107px;
+	/*107px;*/
 	--lineWidth: 3px;
 	--firstColumnSpacing: calc(var(--buttonheight) / 2);
-	--secondColumnSpacing: calc(var(--buttonheight) * 2);
-	--thirdColumnSpacing: calc(var(--buttonheight) * 5);
-	--fourthColumnSpacing: calc(var(--buttonheight) * 11);
-	--fifthColumnSpacing: calc(var(--buttonheight) * 23);
-	--sixthColumnSpacing: calc(var(--buttonheight) * 47);
-	--seventhColumnSpacing: calc(var(--buttonheight) * 95);
+	--secondColumnSpacing: calc(var(--buttonheight) * 1.98);
+	--thirdColumnSpacing: calc(var(--buttonheight) * 4.98);
+	--fourthColumnSpacing: calc(var(--buttonheight) * 10.98);
+	--fifthColumnSpacing: calc(var(--buttonheight) * 22.98);
+	--sixthColumnSpacing: calc(var(--buttonheight) * 46.98);
+	--seventhColumnSpacing: calc(var(--buttonheight) * 94.98);
+	--eigthColumnSpacing: calc(var(--buttonheight) * 190.98);
+	--ninthColumnSpacing: calc(var(--buttonheight) * 382.98);
+}
+
+.holderStyle {
+	width: unset;
 }
 
 .columnStyle {
 	display: flex;
 	flex-direction: column;
+	/* flex-grow: 1; */
+	/* flex-basis: 107px; */
 }
 
 .lineStyle {
@@ -60,6 +70,13 @@
 	height: var(--seventhColumnSpacing);
 }
 
+.eigthColumnLineStyle {
+	height: var(--eigthColumnSpacing);
+}
+
+.ninthColumnLineStyle {
+	height: var(--ninthColumnSpacing);
+}
 
 
 .firstColumnStyle {
@@ -90,6 +107,14 @@
 	margin-top: var(--seventhColumnSpacing);
 }
 
+.eigthColumnStyle {
+	margin-top: var(--eigthColumnSpacing);
+}
+
+.ninthColumnStyle {
+	margin-top: var(--ninthColumnSpacing);
+}
+
 
 
 .secondColumnStyleTop {
@@ -114,6 +139,14 @@
 
 .seventhColumnStyleTop {
 	margin-top: calc(var(--buttonheight) * 47.75);
+}
+
+.eigthColumnStyleTop {
+	margin-top: calc(var(--buttonheight) * 95.75);
+}
+
+.ninthColumnStyleTop {
+	margin-top: calc(var(--buttonheight) * 191.75);
 }
 
 /* 3, 7, 15, 31, 63, 127*/

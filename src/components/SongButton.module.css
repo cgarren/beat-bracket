@@ -3,7 +3,8 @@
 	color: white;
 	border-radius: 1em;
 	border-width: 3px;
-	border-color: red;
+	border-color: gray;
+	border-style: outset;
 	cursor: pointer;
 	width: var(--buttonwidth);
 	height: var(--buttonheight);
@@ -17,13 +18,14 @@
 	cursor: default;
 	box-shadow: none;
 	/* opacity: .8; */
-	border: none;
+	border-width: 0;
 }
 
 .songButtonStyle.unfilledStyle {
 	background-color: white;
 	color: black;
 	border-style: ridge;
+	border-width: 2px;
 }
 
 .songButtonStyle.unfilledStyle:disabled {
@@ -32,8 +34,8 @@
 }
 
 .songButtonStyle.winnerStyle {
-	border-color: yellow;
-	border-width: 5px;
+	border-width: 5px !important;
+	border-color: yellow !important;
 }
 
 .songButtonStyle.eliminatedStyle {
