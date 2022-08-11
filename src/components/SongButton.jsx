@@ -67,7 +67,11 @@ const SongButton = ({
       }
       style={
         color
-          ? { backgroundColor: color.getHex(), color: color.getBodyTextColor() }
+          ? {
+              backgroundColor: color.getHex(),
+              color: color.getBodyTextColor(),
+              borderColor: color.getHex(),
+            }
           : {}
       }
       onClick={songChosen}

@@ -3,7 +3,7 @@
 	color: white;
 	border-radius: 1em;
 	border-width: 3px;
-	border-color: gray;
+	border-color: red;
 	cursor: pointer;
 	width: var(--buttonwidth);
 	height: var(--buttonheight);
@@ -16,7 +16,8 @@
 .songButtonStyle:disabled {
 	cursor: default;
 	box-shadow: none;
-	opacity: .9;
+	/* opacity: .8; */
+	border: none;
 }
 
 .songButtonStyle.unfilledStyle {
@@ -36,5 +37,6 @@
 }
 
 .songButtonStyle.eliminatedStyle {
-	opacity: .65;
+	/* opacity: .65; */
+	border: none;
 }
