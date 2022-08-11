@@ -116,6 +116,7 @@ const IndexPage = () => {
       setshowBracket(true);
     }
     if (artist.id) {
+      setshowBracket(false);
       getTracks();
     }
   }, [artist]);
@@ -128,6 +129,7 @@ const IndexPage = () => {
       </h1>
       <SearchBar setArtist={setArtist}/>
       <div>
+        {/* loading inicator here */}
         <Bracket tracks={tracks} show={showBracket} />
       </div>
     </main>
