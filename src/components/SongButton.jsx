@@ -16,6 +16,7 @@ const SongButton = ({
   previousIds,
   disabled,
   modifyBracket,
+  saveCommand,
   getBracket,
   eliminated,
   winner,
@@ -36,12 +37,17 @@ const SongButton = ({
     }
   }
 
-  function songChosen(e) {
+  function songChosen() {
+    makeChoice();
+    saveCommand(makeChoice, undoChoice);
+  }
+
+  function makeChoice() {
     if (opponentId && getBracket(opponentId).song !== null) {
       modifyBracket(id, "disabled", true);
       modifyBracket(opponentId, "disabled", true);
       modifyBracket(opponentId, "eliminated", true);
-      eliminatePrevious(opponentId);
+      //eliminatePrevious(opponentId);
       if (nextId) {
         modifyBracket(nextId, "song", song);
         modifyBracket(nextId, "disabled", false);
@@ -52,6 +58,20 @@ const SongButton = ({
       }
     } else {
       console.log("fill in opponent song first!");
+    }
+  }
+
+  function undoChoice() {
+    modifyBracket(id, "disabled", false);
+    modifyBracket(opponentId, "disabled", false);
+    modifyBracket(opponentId, "eliminated", false);
+    //undoEliminatePrevious(opponentId);
+    if (nextId) {
+      modifyBracket(nextId, "song", null);
+      modifyBracket(nextId, "disabled", true);
+      modifyBracket(nextId, "color", null);
+    } else {
+      modifyBracket(id, "winner", false);
     }
   }
 

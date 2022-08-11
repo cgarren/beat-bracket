@@ -90,8 +90,6 @@ const IndexPage = () => {
     return songs;
   }
 
-
-
   useEffect(() => {
     async function getTracks() {
       let songs = await loadAlbums("https://api.spotify.com/v1/artists/" + artist.id + "/albums?include_groups=album,single&limit=20");
@@ -116,6 +114,7 @@ const IndexPage = () => {
       }
       console.log("setting", templist);
       setTracks(templist);
+      setshowBracket(true);
     }
     if (artist.id) {
       getTracks();

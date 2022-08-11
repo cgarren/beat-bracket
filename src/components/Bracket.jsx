@@ -3,6 +3,8 @@
 // Library to get prominent colors from images (for coloring bracket spaces according to album art)
 import Vibrant, { Swatch } from "node-vibrant";
 
+import Mousetrap from "mousetrap";
+
 import React, { useEffect, useState } from "react";
 
 import { containerStyle } from "./Bracket.module.css";
@@ -70,6 +72,7 @@ const Bracket = ({ tracks, show }) => {
   const [bracket, setBracket] = useState(new Map());
   const [columns, setColumns] = useState(0);
   const [renderArray, setRenderArray] = useState([]);
+  const [commands, setCommands] = useState([]);
 
   useEffect(() => {
     async function kickOff() {
@@ -79,6 +82,31 @@ const Bracket = ({ tracks, show }) => {
       kickOff();
     }
   }, [tracks]);
+
+  function saveCommand(action, inverse) {
+    let temp = [
+      ...commands,
+      {
+        action: action,
+        inverse: inverse,
+      },
+    ];
+    console.log(temp);
+    setCommands(temp);
+  }
+
+  function undo() {
+    const lastCommand = commands[commands.length - 1];
+    console.log(commands, lastCommand);
+    if (lastCommand) {
+      // remove the last element
+      setCommands(commands.splice(0, commands.length - 1));
+      // run the function that was just popped
+      lastCommand.inverse();
+    }
+  }
+
+  Mousetrap.bind("mod+z", undo);
 
   function genArray(side) {
     return Array.apply(null, { length: columns }).map((e, i) => (
@@ -91,6 +119,7 @@ const Bracket = ({ tracks, show }) => {
               <div key={mykey}>
                 <SongButton
                   modifyBracket={modifyBracket}
+                  saveCommand={saveCommand}
                   getBracket={getBracket}
                   opponentId={value.opponentId}
                   nextId={value.nextId}
@@ -263,7 +292,8 @@ const Bracket = ({ tracks, show }) => {
   }
 
   return (
-    <div className={containerStyle} hidden={!show}>
+    <div hidden={!show}>
+      <button onClick={undo}>Undo</button>
       {/* {bracket.forEach((value, key) => {
         <SongButton
           styling={value.col}
@@ -271,7 +301,7 @@ const Bracket = ({ tracks, show }) => {
           disabled={col != 0 ? true : false}
         />;
       })} */}
-      {renderArray}
+      <div className={containerStyle}>{renderArray}</div>
       {/* {Array.apply(null, { length: columns }).map((e, i) => (
         <BracketColumn
           columnNum={columns - 1 - i}
