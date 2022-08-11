@@ -214,15 +214,6 @@ const Bracket = ({ tracks, show }) => {
         }
       }
 
-      // if (i === 1) {
-      //   if (forward) {
-      //     if (tracks.length < )
-      //     theTracks = tracks.slice(0, Math.ceil(tracks.length / 2)));
-      //   } else {
-      //     theTracks = tracks.slice(-Math.ceil(tracks.length / 2));
-      //   }
-      // }
-
       if (forward) {
         temp = new Map([
           ...(await relateSongs(len, theTracks, i, "l", "r")),
