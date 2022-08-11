@@ -29,6 +29,10 @@
 	/* flex-basis: 107px; */
 }
 
+.loading {
+	font-weight: bold;
+}
+
 .lineStyle {
 	width: var(--lineWidth);
 	background-color: gray;

@@ -13,6 +13,7 @@ import {
 } from "../utilities/helpers";
 
 import {
+  loading,
   containerStyle,
   holderStyle,
   columnStyle,
@@ -85,16 +86,18 @@ const lineStyles = [
   ninthColumnLineStyle,
 ];
 
-const Bracket = ({ tracks, show }) => {
+const Bracket = ({ tracks, loadReady }) => {
   const [bracket, setBracket] = useState(new Map());
   const [columns, setColumns] = useState(0);
   const [renderArray, setRenderArray] = useState([]);
   const [commands, setCommands] = useState([]);
+  const [show, setShow] = useState(true);
 
   useEffect(() => {
     async function kickOff() {
       // reset the undo chain
       setCommands([]);
+      setShow(false);
       await fillBracket(tracks);
     }
     if (tracks && tracks.length !== 0) {
@@ -185,6 +188,11 @@ const Bracket = ({ tracks, show }) => {
     let rightSide = genArray("r");
     setRenderArray([...leftSide, ...rightSide]);
   }, [bracket]);
+
+  useEffect(() => {
+    // show the bracket when the renderArray is ready
+    setShow(true);
+  }, [renderArray]);
 
   function modifyBracket(key, attribute, value) {
     let payload = bracket.get(key);
@@ -289,17 +297,21 @@ const Bracket = ({ tracks, show }) => {
   }
 
   return (
-    <div hidden={!show}>
-      <button onClick={undo}>Undo</button>
-      {/* {bracket.forEach((value, key) => {
+    <div>
+      <div className={loading} hidden={show && loadReady}>
+        Loading...
+      </div>
+      <div hidden={!show || !loadReady || renderArray.length === 0}>
+        <button onClick={undo}>Undo</button>
+        {/* {bracket.forEach((value, key) => {
         <SongButton
           styling={value.col}
           key={key}
           disabled={col != 0 ? true : false}
         />;
       })} */}
-      <div className={containerStyle}>{renderArray}</div>
-      {/* {Array.apply(null, { length: columns }).map((e, i) => (
+        <div className={containerStyle}>{renderArray}</div>
+        {/* {Array.apply(null, { length: columns }).map((e, i) => (
         <BracketColumn
           columnNum={columns - 1 - i}
           songList={
@@ -311,6 +323,7 @@ const Bracket = ({ tracks, show }) => {
           key={i}
         />
       ))} */}
+      </div>
     </div>
   );
 };

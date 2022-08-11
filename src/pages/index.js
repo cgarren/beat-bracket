@@ -24,7 +24,7 @@ const pageStyles = {
 const IndexPage = () => {
   const [tracks, setTracks] = useState([]);
   const [artist, setArtist] = useState({ "name": undefined, "id": undefined });
-  const [showBracket, setshowBracket] = useState(false);
+  const [showBracket, setshowBracket] = useState(true);
 
   async function loadTrackData(songs) {
     let templist = [];
@@ -129,7 +129,7 @@ const IndexPage = () => {
       <SearchBar setArtist={setArtist}/>
       <div>
         {/* loading inicator here */}
-        <Bracket tracks={tracks} show={showBracket} />
+        <Bracket tracks={tracks} loadReady={showBracket} />
       </div>
     </main>
   )
