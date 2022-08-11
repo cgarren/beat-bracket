@@ -21,7 +21,7 @@ const SongButton = ({
   winner,
   color,
 }) => {
-  // Recursive function to maek all previous instances of a song in a bracket as eliminated
+  // Recursive function to mark all previous instances of a song in a bracket as eliminated
   function eliminatePrevious(thisId) {
     let songInfo = getBracket(thisId);
     if (songInfo.previousIds.length === 0) {
