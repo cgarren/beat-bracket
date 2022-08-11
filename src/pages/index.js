@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react"
 import Bracket from "../components/Bracket"
 import SearchBar from "../components/SearchBar";
-import { loadRequest, popularitySort } from "../utilities/helpers";
+import { loadRequest, nearestLesserPowerOf2, popularitySort } from "../utilities/helpers";
 
 // TODO: Fix byes (but first restrict the number of songs)
 // TODO: Make songs playable when hovered over
@@ -99,10 +99,9 @@ const IndexPage = () => {
       console.log(templist);
       // sort the list by popularity and cut it to a certain size
       templist.sort(popularitySort);
-      console.log(templist);
-      //await new Promise(resolve => setTimeout(() => { }, 5000));
-      // limit the list to 128 songs
-      templist = templist.slice(0, 128);
+      console.log(templist, nearestLesserPowerOf2(templist.length));
+      // limit the list length to the nearest lesser power of 2 (for now)
+      templist = templist.slice(0, nearestLesserPowerOf2(templist.length));
       // seed the list by popularity
       for (let i = 1; i < templist.length / 2; i+=2) {
         if (i % 2 !== 0) {

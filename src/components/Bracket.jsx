@@ -7,7 +7,10 @@ import Mousetrap from "mousetrap";
 
 import React, { useEffect, useState } from "react";
 
-import { containerStyle } from "./Bracket.module.css";
+import {
+  nearestGreaterPowerOf2,
+  nearestLesserPowerOf2,
+} from "../utilities/helpers";
 
 import {
   columnStyle,
@@ -267,28 +270,6 @@ const Bracket = ({ tracks, show }) => {
       Math.log(nearestLesserPowerOf2(numItems)) / Math.log(2)
     );
     return cols;
-  }
-
-  function nearestGreaterPowerOf2(length) {
-    let nearestPowerOf2 = 0;
-    let j = 0;
-    while (nearestPowerOf2 <= length) {
-      nearestPowerOf2 = 2 ** (j + 1);
-      j++;
-    }
-    return nearestPowerOf2;
-  }
-
-  function nearestLesserPowerOf2(length) {
-    let nearestPowerOf2 = 0;
-    let j = 0;
-    while (true) {
-      nearestPowerOf2 = 2 ** (j + 1);
-      j++;
-      if (nearestPowerOf2 >= length) {
-        return nearestPowerOf2;
-      }
-    }
   }
 
   return (

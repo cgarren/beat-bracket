@@ -50,8 +50,32 @@ function removeDuplicatesWithKey(theArray, key) {
 	return theArray;
 }
 
+function nearestGreaterPowerOf2(num) {
+	let current = 0;
+	let j = 0;
+	while (current <= num) {
+		current = 2 ** (j + 1);
+		j++;
+	}
+	return current;
+}
+
+function nearestLesserPowerOf2(num) {
+	let last = 0;
+	let current = 0;
+	let j = 0;
+	while (current <= num) {
+		last = current
+		current = 2 ** (j + 1);
+		j++;
+	}
+	return last;
+}
+
 export {
 	loadRequest,
 	popularitySort,
-	removeDuplicatesWithKey
+	removeDuplicatesWithKey,
+	nearestGreaterPowerOf2,
+	nearestLesserPowerOf2
 }
