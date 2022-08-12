@@ -133,7 +133,7 @@ const Bracket = ({ tracks, loadReady }) => {
   function genArray(side) {
     return Array.apply(null, { length: columns }).map((e, i) => (
       <div className={columnStyle} key={side + i}>
-        {Array.from(bracket.entries()).map((entry) => {
+        {Array.from(bracket.entries()).forEach((entry) => {
           const [mykey, value] = entry;
           const colExpression = side === "l" ? i : columns - 1 - i;
           if (value.side === side && value.col === colExpression) {
@@ -150,7 +150,7 @@ const Bracket = ({ tracks, loadReady }) => {
                   styling={
                     value.index === 0
                       ? topStyles[colExpression]
-                      : value.index % 2 == 0
+                      : value.index % 2 === 0
                       ? styles[colExpression]
                       : ""
                   }
@@ -160,7 +160,7 @@ const Bracket = ({ tracks, loadReady }) => {
                   disabled={value.disabled}
                   winner={value.winner}
                 />
-                {value.index % 2 == 0 && value.nextId != null ? (
+                {value.index % 2 === 0 && value.nextId != null ? (
                   <div
                     className={
                       lineStyles[colExpression] +
@@ -183,7 +183,6 @@ const Bracket = ({ tracks, loadReady }) => {
   }
 
   useEffect(() => {
-    console.log("resetting render array");
     let leftSide = genArray("l");
     let rightSide = genArray("r");
     setRenderArray([...leftSide, ...rightSide]);
@@ -215,7 +214,7 @@ const Bracket = ({ tracks, loadReady }) => {
             : side + col + (i % 2 === 0 ? i + 1 : i - 1),
         nextId: len <= 1 ? null : side + (col + 1) + Math.floor(i / 2),
         previousIds:
-          col == 0
+          col === 0
             ? []
             : [
                 side + (col - 1) + Math.ceil(i * 2),

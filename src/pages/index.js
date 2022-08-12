@@ -31,7 +31,6 @@ const IndexPage = () => {
     for (let ids of Object.values(songs)) {
       const url = "https://api.spotify.com/v1/tracks?ids=" + ids.join();
       const response = await loadRequest(url);
-      console.log(response);
       if (!response["error"] && response.tracks.length > 0) {
         let highestPop = 0;
         let selectedTrack = null;
@@ -56,10 +55,10 @@ const IndexPage = () => {
   async function loadTracks(url, songs) {
     let response = await loadRequest(url);
     if (!response["error"] && response.albums.length > 0) {
-      response.albums.map((album) => {
+      response.albums.forEach((album) => {
         if (album.images.length > 0) {
           // Iterate through the tracks
-          album.tracks.items.map((track) => {
+          album.tracks.items.forEach((track) => {
             // Check if the track already exists
             if (track.name in songs) {
               songs[track.name].push(track.id);
@@ -77,7 +76,7 @@ const IndexPage = () => {
     //console.log(response);
     if (!response["error"] && response.items.length > 0) {
       let albumIds = [];
-      response.items.map((item) => {
+      response.items.forEach((item) => {
         albumIds.push(item.id);
       });
       let tracksurl =
@@ -93,7 +92,7 @@ const IndexPage = () => {
   useEffect(() => {
     async function getTracks() {
       let songs = await loadAlbums("https://api.spotify.com/v1/artists/" + artist.id + "/albums?include_groups=album,single&limit=20");
-      console.log(songs);
+      //console.log(songs);
       // load data for the songs
       let templist = await loadTrackData(songs);
       // sort the list by popularity

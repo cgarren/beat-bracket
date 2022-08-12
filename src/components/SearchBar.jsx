@@ -18,7 +18,7 @@ const SearchBar = ({ setArtist }) => {
       //console.log(response);
       if (!response["error"] && response.artists.items.length > 0) {
         let templist = [];
-        response.artists.items.map((item) => {
+        response.artists.items.forEach((item) => {
           if (item.images.length > 0) {
             templist.push({
               name: item.name,

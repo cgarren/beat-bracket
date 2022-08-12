@@ -30,7 +30,7 @@ const SongButton = ({
     }
     console.log(songInfo);
     for (let prevId of songInfo.previousIds) {
-      if (getBracket(prevId).song == getBracket(thisId).song) {
+      if (getBracket(prevId).song === getBracket(thisId).song) {
         modifyBracket(prevId, "eliminated", true);
         eliminatePrevious(prevId);
       }
@@ -56,8 +56,6 @@ const SongButton = ({
         console.log("Winner is " + song);
         modifyBracket(id, "winner", true);
       }
-    } else {
-      console.log("fill in opponent song first!");
     }
   }
 
