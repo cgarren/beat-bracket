@@ -10,6 +10,7 @@ import Layout from "../components/Layout";
 // TODO: -----> Implement saving the bracket with every change linked to a users spotify account and stored in a db somewhere. Maybe a landing page where users can see their past brackets?
 // TODO: -----> Make songs playable when hovered over
 // TODO: -----> Take site live
+// TODOL -----> Generate a playlist with the tracks
 // TODO: Make the final bracket shareable
 // TODO: Make search prettier
 // TODO: Make bracket loading prettier
@@ -212,9 +213,9 @@ const App = () => {
           <option value="popularity">Popularity</option>
         </select>
       </div>
-      {commands.length !==0 ? <button onClick={undo}>Undo</button> : ""}
+      <hr />
       <div>
-        <hr/>
+        {commands.length !==0 ? <button onClick={undo}>Undo</button> : ""}
         <Bracket tracks={tracks} loadReady={showBracket} saveCommand={saveCommand} />
       </div>
     </Layout>
