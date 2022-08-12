@@ -24,7 +24,7 @@ const pageStyles = {
 }
 
 // markup
-const IndexPage = () => {
+const App = () => {
   const [tracks, setTracks] = useState([]);
   const [artist, setArtist] = useState({ "name": undefined, "id": undefined });
   const [showBracket, setshowBracket] = useState(true);
@@ -84,7 +84,7 @@ const IndexPage = () => {
     templist = seedBracket(templist);
     setTracks(templist);
     setshowBracket(true);
-  }, [seedingMethod])
+  }, [seedingMethod]);
 
   function seedBracket(trackList) {
     switch (seedingMethod) {
@@ -224,4 +224,4 @@ const IndexPage = () => {
   )
 }
 
-export default IndexPage
+export default App
