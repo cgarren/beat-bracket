@@ -276,7 +276,7 @@ const Bracket = ({ tracks, loadReady, saveCommand }) => {
         Loading...
       </div>
       <div hidden={!show || !loadReady || renderArray.length === 0}>
-        {/* Display number of tracks here <div>Bracket contains {tracks.length} tracks</div> */}
+        <div>{tracks.length} tracks displayed</div>
         <div className={containerStyle}>{renderArray}</div>
       </div>
     </div>
