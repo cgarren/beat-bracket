@@ -214,7 +214,7 @@ const App = () => {
       </div>
       {commands.length !==0 ? <button onClick={undo}>Undo</button> : ""}
       <div>
-        {/* loading inicator here */}
+        <hr/>
         <Bracket tracks={tracks} loadReady={showBracket} saveCommand={saveCommand} />
       </div>
     </Layout>
