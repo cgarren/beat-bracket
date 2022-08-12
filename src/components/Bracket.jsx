@@ -5,6 +5,8 @@ import Vibrant from "node-vibrant";
 
 import React, { useEffect, useState } from "react";
 
+import SongButton from "./SongButton";
+
 import {
   nearestGreaterPowerOf2,
   nearestLesserPowerOf2,
@@ -46,8 +48,6 @@ import {
   ninthColumnLineStyle,
 } from "./Bracket.module.css";
 
-import SongButton from "./SongButton";
-
 const styles = [
   firstColumnStyle,
   secondColumnStyle,
@@ -84,7 +84,7 @@ const lineStyles = [
   ninthColumnLineStyle,
 ];
 
-const Bracket = ({ tracks, loadReady, commands, saveCommand }) => {
+const Bracket = ({ tracks, loadReady, saveCommand }) => {
   const [bracket, setBracket] = useState(new Map());
   const [columns, setColumns] = useState(0);
   const [renderArray, setRenderArray] = useState([]);
@@ -106,7 +106,7 @@ const Bracket = ({ tracks, loadReady, commands, saveCommand }) => {
   function genArray(side) {
     return Array.apply(null, { length: columns }).map((e, i) => (
       <div className={columnStyle} key={side + i}>
-        {Array.from(bracket.entries()).forEach((entry) => {
+        {Array.from(bracket.entries()).map((entry) => {
           const [mykey, value] = entry;
           const colExpression = side === "l" ? i : columns - 1 - i;
           if (value.side === side && value.col === colExpression) {
@@ -149,6 +149,8 @@ const Bracket = ({ tracks, loadReady, commands, saveCommand }) => {
                 )}
               </div>
             );
+          } else {
+            return null;
           }
         })}
       </div>
