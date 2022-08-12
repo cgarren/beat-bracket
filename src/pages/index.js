@@ -5,7 +5,7 @@ import Mousetrap from "mousetrap";
 import { loadRequest, nearestLesserPowerOf2, popularitySort, shuffleArray, switchEveryOther } from "../utilities/helpers";
 import Layout from "../components/Layout";
 
-// TODO: Fix byes (but first restrict the number of songs)
+// TODO: Fix byes
 // TODO: Add a way to authenticate and add songs to queue
 // TODO: -----> Implement saving the bracket with every change linked to a users spotify account and stored in a db somewhere. Maybe a landing page where users can see their past brackets?
 // TODO: -----> Make songs playable when hovered over
@@ -18,6 +18,7 @@ import Layout from "../components/Layout";
 // TODO: Add explainer text as to why we used 'Coliseum' over 'Colosseum'
 // TODO: Mobile support
 // TODO: Display seed number/popularity in badge on each song button with toggle to hide it
+// TODO: Add metrics on generation like - number of songs, seconds it took to make, number from albums vs singles, etc...
 
 // markup
 const App = () => {
