@@ -276,26 +276,8 @@ const Bracket = ({ tracks, loadReady, saveCommand }) => {
         Loading...
       </div>
       <div hidden={!show || !loadReady || renderArray.length === 0}>
-        {/* {bracket.forEach((value, key) => {
-        <SongButton
-          styling={value.col}
-          key={key}
-          disabled={col != 0 ? true : false}
-        />;
-      })} */}
+        {/* Display number of tracks here <div>Bracket contains {tracks.length} tracks</div> */}
         <div className={containerStyle}>{renderArray}</div>
-        {/* {Array.apply(null, { length: columns }).map((e, i) => (
-        <BracketColumn
-          columnNum={columns - 1 - i}
-          songList={
-            bracket["r" + (columns - 1 - i)]
-              ? bracket["r" + (columns - 1 - i)]
-              : []
-          }
-          modifySong={modifySong}
-          key={i}
-        />
-      ))} */}
       </div>
     </div>
   );
