@@ -1,7 +1,8 @@
 import React, {useEffect, useState} from "react"
 import Bracket from "../components/Bracket"
 import SearchBar from "../components/SearchBar";
-import { loadRequest, nearestLesserPowerOf2, popularitySort } from "../utilities/helpers";
+import Mousetrap from "mousetrap";
+import { loadRequest, nearestLesserPowerOf2, popularitySort, shuffleArray, switchEveryOther } from "../utilities/helpers";
 
 // TODO: Fix byes (but first restrict the number of songs)
 // TODO: Make songs playable when hovered over
@@ -14,6 +15,7 @@ import { loadRequest, nearestLesserPowerOf2, popularitySort } from "../utilities
 // TODO: Once a column is finished zoom/scale the bracket to make it easier to do the next column
 // TODO: Add explainer text as to why we used 'Coliseum' over 'Colosseum'
 // TODO: Mobile support
+// TODO: Display seed number/popularity in badge on each song button with toggle to hide it
 
 // styles
 const pageStyles = {
@@ -25,6 +27,75 @@ const IndexPage = () => {
   const [tracks, setTracks] = useState([]);
   const [artist, setArtist] = useState({ "name": undefined, "id": undefined });
   const [showBracket, setshowBracket] = useState(true);
+  const [commands, setCommands] = useState([]);
+  const [limit, setLimit] = useState(64);
+  const [seedingMethod, setSeedingMethod] = useState("popularity");
+
+  function limitChange(e) {
+    setLimit(parseInt(e.target.value));
+  }
+
+  function seedingChange(e) {
+    if (noChanges()) {
+      setSeedingMethod(e.target.value);
+    }
+  }
+
+  function saveCommand(action, inverse) {
+    let temp = [
+      ...commands,
+      {
+        action: action,
+        inverse: inverse,
+      },
+    ];
+    setCommands(temp);
+  }
+
+  function noChanges() {
+    if (commands.length !== 0) {
+      if (window.confirm("You have bracket changes that will be lost! Proceed anyways?")) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return true;
+    }
+  }
+
+  function undo() {
+    const lastCommand = commands[commands.length - 1];
+    if (lastCommand) {
+      // remove the last element
+      setCommands(commands.splice(0, commands.length - 1));
+      // run the function that was just popped
+      lastCommand.inverse();
+    }
+  }
+
+  Mousetrap.bind("mod+z", undo);
+
+  useEffect(() => {
+    let templist = [...tracks];
+    setshowBracket(false);
+    setCommands([]);
+    templist = seedBracket(templist);
+    setTracks(templist);
+    setshowBracket(true);
+  }, [seedingMethod])
+
+  function seedBracket(trackList) {
+    switch (seedingMethod) {
+      case "random":
+        return shuffleArray(trackList);
+      case "popularity":
+        trackList.sort(popularitySort);
+        return switchEveryOther(trackList);
+      default:
+        return trackList;
+    }
+  }
 
   async function loadTrackData(songs) {
     let templist = [];
@@ -95,26 +166,25 @@ const IndexPage = () => {
       //console.log(songs);
       // load data for the songs
       let templist = await loadTrackData(songs);
-      // sort the list by popularity
-      templist.sort(popularitySort);
-      console.log(templist, nearestLesserPowerOf2(templist.length));
-      // limit the list length to the nearest lesser power of 2 (for now)
-      templist = templist.slice(0, nearestLesserPowerOf2(templist.length));
-      // seed the list by popularity
-      for (let i = 1; i < templist.length / 2; i+=2) {
-        if (i % 2 !== 0) {
-          //console.log("switching", templist[templist.length - i].name, "AND", templist[i].name);
-          let temp = templist[i];
-          templist[i] = templist[templist.length - i];
-          templist[templist.length - i] = temp;
-        }
+      // if the artist has less than 8 songs, stop
+      if (templist.length >= 8) {
+        // sort the list by popularity
+        templist.sort(popularitySort);
+        const power = nearestLesserPowerOf2(templist.length);
+        // limit the list length to the nearest lesser power of 2 (for now)
+        templist = templist.slice(0, (limit < power ? limit : power));
+        seedBracket(templist);
+        console.log(templist);
+        setTracks(templist);
+      } else {
+        alert(artist.name + " doesn't have enough songs on Spotify!")
+        setTracks([]);
       }
-      console.log("setting", templist);
-      setTracks(templist);
       setshowBracket(true);
     }
     if (artist.id) {
       setshowBracket(false);
+      setCommands([]);
       getTracks();
     }
   }, [artist]);
@@ -125,10 +195,29 @@ const IndexPage = () => {
       <h1>
         Song Coliseum {(artist.name ? "- " + artist.name : "")}
       </h1>
-      <SearchBar setArtist={setArtist}/>
+      <SearchBar setArtist={setArtist} noChanges={noChanges} disabled={!showBracket}/>
+      <div className={""}>
+        <label htmlFor="limit-select">Maximum tracks: </label>
+        <select name="limit" id="limit-select" defaultValue="64" onChange={limitChange} disabled={!showBracket}>
+          <option value="8">8</option>
+          <option value="16">16</option>
+          <option value="32">32</option>
+          <option value="64">64</option>
+          <option value="128">128</option>
+          <option value="256">256</option>
+        </select>
+      </div>
+      <div className={""}>
+        <label htmlFor="seeding-select">Seed by: </label>
+        <select name="seeding" id="seeding-select" value={seedingMethod} onChange={seedingChange} disabled={!showBracket}>
+          <option value="random">Random</option>
+          <option value="popularity">Popularity</option>
+        </select>
+      </div>
+      {commands.length !==0 ? <button onClick={undo}>Undo</button> : ""}
       <div>
         {/* loading inicator here */}
-        <Bracket tracks={tracks} loadReady={showBracket} />
+        <Bracket tracks={tracks} loadReady={showBracket} saveCommand={saveCommand} />
       </div>
     </main>
   )

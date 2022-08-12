@@ -4,7 +4,7 @@ import { loadRequest } from "../utilities/helpers";
 
 import { barStyle } from "./SearchBar.module.css";
 
-const SearchBar = ({ setArtist }) => {
+const SearchBar = ({ setArtist, noChanges, disabled }) => {
   const [searchText, setSearchText] = useState("");
   const [artistSuggestionList, setArtistSuggestionList] = useState([]);
 
@@ -25,8 +25,10 @@ const SearchBar = ({ setArtist }) => {
               art: item.images[2].url,
               id: item.id,
               onClick: () => {
-                setArtist({ name: item.name, id: item.id });
-                setSearchText("");
+                if (noChanges()) {
+                  setArtist({ name: item.name, id: item.id });
+                  setSearchText("");
+                }
               },
             });
           }
@@ -55,6 +57,7 @@ const SearchBar = ({ setArtist }) => {
         value={searchText}
         onChange={(e) => setSearchText(e.target.value)}
         className={barStyle}
+        disabled={disabled}
       />
       <ArtistSuggestionList artistList={artistSuggestionList} />
     </div>

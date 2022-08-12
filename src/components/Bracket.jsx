@@ -1,9 +1,7 @@
 //TODO: USE REFS INSTEAD OF REDRAWING EVERY TIME ONE THING CHANGES!
 
 // Library to get prominent colors from images (for coloring bracket spaces according to album art)
-import Vibrant, { Swatch } from "node-vibrant";
-
-import Mousetrap from "mousetrap";
+import Vibrant from "node-vibrant";
 
 import React, { useEffect, useState } from "react";
 
@@ -86,49 +84,24 @@ const lineStyles = [
   ninthColumnLineStyle,
 ];
 
-const Bracket = ({ tracks, loadReady }) => {
+const Bracket = ({ tracks, loadReady, commands, saveCommand }) => {
   const [bracket, setBracket] = useState(new Map());
   const [columns, setColumns] = useState(0);
   const [renderArray, setRenderArray] = useState([]);
-  const [commands, setCommands] = useState([]);
   const [show, setShow] = useState(true);
 
   useEffect(() => {
     async function kickOff() {
       // reset the undo chain
-      setCommands([]);
       setShow(false);
       await fillBracket(tracks);
     }
     if (tracks && tracks.length !== 0) {
       kickOff();
+    } else {
+      setRenderArray([]);
     }
   }, [tracks]);
-
-  function saveCommand(action, inverse) {
-    let temp = [
-      ...commands,
-      {
-        action: action,
-        inverse: inverse,
-      },
-    ];
-    console.log(temp);
-    setCommands(temp);
-  }
-
-  function undo() {
-    const lastCommand = commands[commands.length - 1];
-    console.log(commands, lastCommand);
-    if (lastCommand) {
-      // remove the last element
-      setCommands(commands.splice(0, commands.length - 1));
-      // run the function that was just popped
-      lastCommand.inverse();
-    }
-  }
-
-  Mousetrap.bind("mod+z", undo);
 
   function genArray(side) {
     return Array.apply(null, { length: columns }).map((e, i) => (
@@ -301,7 +274,6 @@ const Bracket = ({ tracks, loadReady }) => {
         Loading...
       </div>
       <div hidden={!show || !loadReady || renderArray.length === 0}>
-        <button onClick={undo}>Undo</button>
         {/* {bracket.forEach((value, key) => {
         <SongButton
           styling={value.col}
