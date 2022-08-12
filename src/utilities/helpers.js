@@ -18,6 +18,46 @@ async function loadRequest(url, params) {
 	}
 }
 
+function generateRandomString(length) {
+		let text = '';
+		let possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+		for (let i = 0; i < length; i++) {
+			text += possible.charAt(Math.floor(Math.random() * possible.length));
+		}
+		return text;
+	}
+
+function getParamsFromURL(new_url) {
+	try {
+		var hashParams = getHashParams()
+		if (hashParams["raw_hash"] == '') {
+
+		} else {
+				sessionStorage.setItem('access_token', hashParams["access_token"]);
+				sessionStorage.setItem('received_state', hashParams["state"]);
+				sessionStorage.setItem('raw_hash', hashParams["raw_hash"]);
+				sessionStorage.setItem('expires_at', Date.now() + (parseInt(hashParams["expires_in"]) * 1000));
+		}
+		var myNewURL = new_url; //the new URL
+		window.history.replaceState({}, document.title, "/" + myNewURL);
+		return true;
+	} catch (err) {
+		console.log(err.message)
+		return false;
+	}
+}
+
+function getHashParams() {
+	var hashParams = {};
+	var e, r = /([^&;=]+)=?([^&;]*)/g,
+	q = window.location.hash.substring(1);
+	hashParams['raw_hash'] = window.location.hash
+	while (e = r.exec(q)) {
+		hashParams[e[1]] = decodeURIComponent(e[2]);
+	}
+	return hashParams;
+}
+
 function popularitySort(track1, track2) {
 	if (track1.popularity > track2.popularity) { return -1 };
 	if (track1.popularity < track2.popularity) { return 1 };
@@ -105,5 +145,7 @@ export {
 	nearestGreaterPowerOf2,
 	nearestLesserPowerOf2,
 	switchEveryOther,
-	shuffleArray
+	shuffleArray,
+	getParamsFromURL,
+	generateRandomString
 }

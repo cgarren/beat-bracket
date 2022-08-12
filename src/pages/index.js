@@ -3,6 +3,7 @@ import Bracket from "../components/Bracket"
 import SearchBar from "../components/SearchBar";
 import Mousetrap from "mousetrap";
 import { loadRequest, nearestLesserPowerOf2, popularitySort, shuffleArray, switchEveryOther } from "../utilities/helpers";
+import Layout from "../components/Layout";
 
 // TODO: Fix byes (but first restrict the number of songs)
 // TODO: Add a way to authenticate and add songs to queue
@@ -17,11 +18,6 @@ import { loadRequest, nearestLesserPowerOf2, popularitySort, shuffleArray, switc
 // TODO: Add explainer text as to why we used 'Coliseum' over 'Colosseum'
 // TODO: Mobile support
 // TODO: Display seed number/popularity in badge on each song button with toggle to hide it
-
-// styles
-const pageStyles = {
-  fontFamily: "-apple-system, Roboto, sans-serif, serif",
-}
 
 // markup
 const App = () => {
@@ -191,7 +187,7 @@ const App = () => {
   }, [artist]);
 
   return (
-    <main style={pageStyles}>
+    <Layout>
       <title>Song Coliseum</title>
       <h1>
         Song Coliseum {(artist.name ? "- " + artist.name : "")}
@@ -220,7 +216,7 @@ const App = () => {
         {/* loading inicator here */}
         <Bracket tracks={tracks} loadReady={showBracket} saveCommand={saveCommand} />
       </div>
-    </main>
+    </Layout>
   )
 }
 
