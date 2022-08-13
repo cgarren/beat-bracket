@@ -177,6 +177,7 @@ const App = () => {
       } else {
         alert(artist.name + " doesn't have enough songs on Spotify!")
         setTracks([]);
+        setArtist({ "name": undefined, "id": undefined });
       }
       setshowBracket(true);
     }
