@@ -8,18 +8,17 @@ import Layout from "../components/Layout";
 // TODO: Fix byes
 // TODO: Add a way to authenticate and add songs to queue
 // TODO: -----> Implement saving the bracket with every change linked to a users spotify account and stored in a db somewhere. Maybe a landing page where users can see their past brackets?
-// TODO: -----> Make songs playable when hovered over
-// TODO: -----> Take site live
-// TODOL -----> Generate a playlist with the tracks
-// TODO: Make the final bracket shareable
-// TODO: Make search prettier
+// TODO: -----> Make songs playable when hovered over ***
+// TODO: -----> Take site live ***
+// TODOL -----> Generate a playlist with the tracks ***
+// TODO: Make the final bracket shareable ***
 // TODO: Make bracket loading prettier
-// TODO: Make loading track data calls efficient (able to request a max of 50 ids at once)
+// TODO: Make loading track data calls efficient (able to request a max of 50 ids at once) ***
 // TODO: Once a column is finished zoom/scale the bracket to make it easier to do the next column
 // TODO: Add explainer text as to why we used 'Coliseum' over 'Colosseum'
 // TODO: Mobile support
 // TODO: Display seed number/popularity in badge on each song button with toggle to hide it
-// TODO: Add metrics on generation like - number of songs, seconds it took to make, number from albums vs singles, etc...
+// TODO: Add metrics on generation like - seconds it took to make, number from albums vs singles, etc...
 
 // markup
 const App = () => {
@@ -190,10 +189,6 @@ const App = () => {
 
   return (
     <Layout>
-      <title>Song Coliseum</title>
-      <h1>
-        Song Coliseum {(artist.name ? "- " + artist.name : "")}
-      </h1>
       <SearchBar setArtist={setArtist} noChanges={noChanges} disabled={!showBracket}/>
       <div className={""}>
         <label htmlFor="limit-select">Maximum tracks: </label>

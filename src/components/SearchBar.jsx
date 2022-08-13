@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import ArtistSuggestionList from "./ArtistSuggestionList";
 import { loadRequest } from "../utilities/helpers";
 
-import { barStyle } from "./SearchBar.module.css";
+import { barStyle, holderStyle } from "./SearchBar.module.css";
 
 const SearchBar = ({ setArtist, noChanges, disabled }) => {
   const [searchText, setSearchText] = useState("");
@@ -15,7 +15,7 @@ const SearchBar = ({ setArtist, noChanges, disabled }) => {
         "https://api.spotify.com/v1/search/?" +
         new URLSearchParams(params).toString();
       let response = await loadRequest(url);
-      //console.log(response);
+
       if (!response["error"] && response.artists.items.length > 0) {
         let templist = [];
         response.artists.items.forEach((item) => {
@@ -49,7 +49,7 @@ const SearchBar = ({ setArtist, noChanges, disabled }) => {
   }, [searchText]);
 
   return (
-    <div>
+    <div className={holderStyle}>
       <input
         placeholder="Search for an artist..."
         aria-label="Search for an artist..."

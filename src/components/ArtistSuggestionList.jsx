@@ -1,12 +1,14 @@
 import * as React from "react";
-import SongSuggestion from "./ArtistSuggestion";
+import ArtistSuggestion from "./ArtistSuggestion";
+
+import { listStyle } from "./ArtistSuggestionList.module.css";
 
 const ArtistSuggestionList = ({ artistList }) => {
   return (
-    <ul>
+    <ul className={listStyle}>
       {artistList.map((item) => {
         return (
-          <SongSuggestion
+          <ArtistSuggestion
             artistName={item.name}
             art={item.art}
             onClick={item.onClick}

@@ -1,0 +1,16 @@
+.suggestionStyle {
+  cursor: pointer;
+  margin-bottom: .2em;
+  width: auto;
+  padding: 5px;
+  display: flex;
+  border-width: 1px;
+  border-color: black;
+  border-radius: 10px;
+  border-style: outset;
+  align-items: center;
+}
+
+.suggestionStyle:hover {
+  box-shadow: 5px, 5px, black;
+}
