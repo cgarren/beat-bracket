@@ -30,7 +30,7 @@ function generateRandomString(length) {
 function getParamsFromURL(new_url) {
 	try {
 		var hashParams = getHashParams()
-		if (hashParams["raw_hash"] == '') {
+		if (hashParams["raw_hash"] === '') {
 
 		} else {
 				sessionStorage.setItem('access_token', hashParams["access_token"]);
