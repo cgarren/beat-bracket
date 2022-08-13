@@ -18,7 +18,8 @@ import Layout from "../components/Layout";
 // TODO: Add explainer text as to why we used 'Coliseum' over 'Colosseum'
 // TODO: Mobile support
 // TODO: Display seed number/popularity in badge on each song button with toggle to hide it
-// TODO: Add metrics on generation like - seconds it took to make, number from albums vs singles, etc...
+// TODO: Add metrics on generation like - number of songs, seconds it took to make, number from albums vs singles, etc...
+//TODO: Make the bracket from a spotify playlist
 
 // markup
 const App = () => {
