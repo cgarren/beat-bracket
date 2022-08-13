@@ -3,6 +3,6 @@ module.exports = {
     title: `Song Coliseum`,
     siteUrl: `https://www.yourdomain.tld`,
   },
-  plugins: [],
+  plugins: ['gatsby-plugin-react-helmet'],
   pathPrefix: "/song-coliseum"
 }
