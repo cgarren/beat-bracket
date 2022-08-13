@@ -38,8 +38,7 @@ function getParamsFromURL(new_url) {
 				sessionStorage.setItem('raw_hash', hashParams["raw_hash"]);
 				sessionStorage.setItem('expires_at', Date.now() + (parseInt(hashParams["expires_in"]) * 1000));
 		}
-		var myNewURL = new_url; //the new URL
-		window.history.replaceState({}, document.title, "/" + myNewURL);
+		window.history.replaceState({}, document.title, new_url);
 		return true;
 	} catch (err) {
 		console.log(err.message)

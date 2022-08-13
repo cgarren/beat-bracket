@@ -25,7 +25,7 @@ const AuthBanner = () => {
   }, []);
 
   useEffect(() => {
-    getParamsFromURL("");
+    getParamsFromURL(window.location.pathname);
     if (
       sessionStorage.getItem("received_state") ===
       sessionStorage.getItem("spotify_auth_state")
