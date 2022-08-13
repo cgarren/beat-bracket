@@ -4,4 +4,5 @@ module.exports = {
     siteUrl: `https://www.yourdomain.tld`,
   },
   plugins: [],
+  pathPrefix: "/song-coliseum"
 }
