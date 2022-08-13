@@ -61,7 +61,8 @@ function getHashParams() {
 function popularitySort(track1, track2) {
 	if (track1.popularity > track2.popularity) { return -1 };
 	if (track1.popularity < track2.popularity) { return 1 };
-	return 0;
+	// sort alphabetically for consistency if popularity is the same
+	return track1.name < track2.name ? -1 : track1.name > track2.name;
 }
 
 function switchEveryOther(array) {
