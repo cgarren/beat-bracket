@@ -212,9 +212,8 @@ const App = () => {
       </div>
       <hr />
       <div>
-        {commands.length !== 0 ? <div><button onClick={undo}>Undo</button><br/></div> : <div></div>}
-        {artist.name ? "Bracket for: " + artist.name : ""}
-        <Bracket tracks={tracks} loadReady={showBracket} saveCommand={saveCommand} />
+        {commands.length !== 0 ? <div><button onClick={undo}>Undo</button><br /></div> : <div></div>}
+        <Bracket tracks={tracks} loadReady={showBracket} saveCommand={saveCommand} artist={artist} />
       </div>
     </Layout>
   )

@@ -2,7 +2,8 @@
 	display: flex;
 	flex-direction: row;
 	gap: 10px;
-	justify-content: space-between;
+	justify-content: flex-start;
+	padding: 5px;
 	--buttonheight: 50px;
 	--buttonwidth: 107px;
 	/*107px;*/
@@ -16,6 +17,10 @@
 	--seventhColumnSpacing: calc(var(--buttonheight) * 94.98);
 	--eigthColumnSpacing: calc(var(--buttonheight) * 190.98);
 	--ninthColumnSpacing: calc(var(--buttonheight) * 382.98);
+}
+
+.largeContainerStyle {
+	display: inline-block;
 }
 
 .holderStyle {

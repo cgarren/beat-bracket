@@ -3,6 +3,9 @@
 // Library to get prominent colors from images (for coloring bracket spaces according to album art)
 import Vibrant from "node-vibrant";
 
+// Screnshot library
+import html2canvas from "html2canvas";
+
 import React, { useEffect, useState } from "react";
 
 import SongButton from "./SongButton";
@@ -15,6 +18,7 @@ import {
 import {
   loading,
   containerStyle,
+  largeContainerStyle,
   holderStyle,
   columnStyle,
   lineStyle,
@@ -84,11 +88,12 @@ const lineStyles = [
   ninthColumnLineStyle,
 ];
 
-const Bracket = ({ tracks, loadReady, saveCommand }) => {
+const Bracket = ({ tracks, loadReady, saveCommand, artist }) => {
   const [bracket, setBracket] = useState(new Map());
   const [columns, setColumns] = useState(0);
   const [renderArray, setRenderArray] = useState([]);
   const [show, setShow] = useState(true);
+  const [bracketComplete, setBracketComplete] = useState(false);
 
   useEffect(() => {
     async function kickOff() {
@@ -97,6 +102,7 @@ const Bracket = ({ tracks, loadReady, saveCommand }) => {
       await fillBracket(tracks);
     }
     if (tracks && tracks.length !== 0) {
+      setBracketComplete(false);
       kickOff();
     } else {
       setRenderArray([]);
@@ -132,6 +138,7 @@ const Bracket = ({ tracks, loadReady, saveCommand }) => {
                   eliminated={value.eliminated}
                   disabled={value.disabled}
                   winner={value.winner}
+                  setBracketComplete={setBracketComplete}
                 />
                 {value.index % 2 === 0 && value.nextId != null ? (
                   <div
@@ -270,14 +277,36 @@ const Bracket = ({ tracks, loadReady, saveCommand }) => {
     return cols;
   }
 
+  function shareBracket() {
+    html2canvas(document.getElementById("bracket")).then(function (canvas) {
+      //document.body.appendChild(canvas); // used for debugging
+      const createEl = document.createElement("a");
+      createEl.href = canvas.toDataURL("image/svg+xml");
+      createEl.download = artist.name + " bracket from Song Coliseum";
+      createEl.click();
+      createEl.remove();
+    });
+  }
+
   return (
     <div>
       <div className={loading} hidden={show && loadReady}>
         Loading...
       </div>
-      <div hidden={!show || !loadReady || renderArray.length === 0}>
+      <div
+        hidden={!show || !loadReady || renderArray.length === 0}
+        className={largeContainerStyle}
+      >
+        {artist.name ? "Bracket for: " + artist.name : ""}
         <div>{tracks.length} tracks displayed</div>
-        <div className={containerStyle}>{renderArray}</div>
+        {bracketComplete ? (
+          <button onClick={shareBracket}>Download Bracket</button>
+        ) : (
+          <div></div>
+        )}
+        <div className={containerStyle} id="bracket">
+          {renderArray}
+        </div>
       </div>
     </div>
   );

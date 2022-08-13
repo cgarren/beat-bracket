@@ -20,6 +20,7 @@ const SongButton = ({
   getBracket,
   eliminated,
   winner,
+  setBracketComplete,
   color,
 }) => {
   // Recursive function to mark all previous instances of a song in a bracket as eliminated
@@ -55,6 +56,7 @@ const SongButton = ({
       } else {
         console.log("Winner is " + song);
         modifyBracket(id, "winner", true);
+        setBracketComplete(true);
       }
     }
   }
@@ -70,6 +72,7 @@ const SongButton = ({
       modifyBracket(nextId, "color", null);
     } else {
       modifyBracket(id, "winner", false);
+      setBracketComplete(false);
     }
   }
 
