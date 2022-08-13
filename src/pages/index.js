@@ -73,7 +73,9 @@ const App = () => {
     }
   }
 
-  Mousetrap.bind("mod+z", undo);
+  if (Mousetrap.bind) {
+    Mousetrap.bind("mod+z", undo);
+  }
 
   useEffect(() => {
     let templist = [...tracks];
