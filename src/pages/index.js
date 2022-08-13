@@ -84,6 +84,14 @@ const App = () => {
     setshowBracket(true);
   }, [seedingMethod]);
 
+  useEffect(() => {
+    if (artist.id) {
+      setshowBracket(false);
+      setCommands([]);
+      getTracks();
+    }
+  }, [limit]);
+
   function seedBracket(trackList) {
     switch (seedingMethod) {
       case "random":
@@ -159,29 +167,30 @@ const App = () => {
     return songs;
   }
 
-  useEffect(() => {
-    async function getTracks() {
-      let songs = await loadAlbums("https://api.spotify.com/v1/artists/" + artist.id + "/albums?include_groups=album,single&limit=20");
-      //console.log(songs);
-      // load data for the songs
-      let templist = await loadTrackData(songs);
-      // if the artist has less than 8 songs, stop
-      if (templist.length >= 8) {
-        // sort the list by popularity
-        templist.sort(popularitySort);
-        const power = nearestLesserPowerOf2(templist.length);
-        // limit the list length to the nearest lesser power of 2 (for now)
-        templist = templist.slice(0, (limit < power ? limit : power));
-        seedBracket(templist);
-        console.log(templist);
-        setTracks(templist);
-      } else {
-        alert(artist.name + " doesn't have enough songs on Spotify!")
-        setTracks([]);
-        setArtist({ "name": undefined, "id": undefined });
-      }
-      setshowBracket(true);
+  async function getTracks() {
+    let songs = await loadAlbums("https://api.spotify.com/v1/artists/" + artist.id + "/albums?include_groups=album,single&limit=20");
+    //console.log(songs);
+    // load data for the songs
+    let templist = await loadTrackData(songs);
+    // if the artist has less than 8 songs, stop
+    if (templist.length >= 8) {
+      // sort the list by popularity
+      templist.sort(popularitySort);
+      const power = nearestLesserPowerOf2(templist.length);
+      // limit the list length to the nearest lesser power of 2 (for now)
+      templist = templist.slice(0, (limit < power ? limit : power));
+      seedBracket(templist);
+      console.log(templist);
+      setTracks(templist);
+    } else {
+      alert(artist.name + " doesn't have enough songs on Spotify!")
+      setTracks([]);
+      setArtist({ "name": undefined, "id": undefined });
     }
+    setshowBracket(true);
+  }
+
+  useEffect(() => {
     if (artist.id) {
       setshowBracket(false);
       setCommands([]);
