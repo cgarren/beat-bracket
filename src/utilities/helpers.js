@@ -28,6 +28,7 @@ function generateRandomString(length) {
 	}
 
 function getParamsFromURL(new_url) {
+	console.log(new_url);
 	try {
 		var hashParams = getHashParams()
 		if (hashParams["raw_hash"] === '') {
