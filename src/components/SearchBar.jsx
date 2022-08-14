@@ -35,7 +35,6 @@ const SearchBar = ({ setArtist, noChanges, disabled }) => {
         });
         setArtistSuggestionList(templist);
       } else {
-        console.log("no results for search");
         setArtistSuggestionList([]);
       }
     } else {
