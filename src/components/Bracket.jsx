@@ -278,8 +278,28 @@ const Bracket = ({ tracks, loadReady, saveCommand, artist }) => {
   }
 
   function shareBracket() {
-    html2canvas(document.getElementById("bracket")).then(function (canvas) {
-      //document.body.appendChild(canvas); // used for debugging
+    html2canvas(document.getElementById("bracket"), {
+      scale: 4,
+    }).then(function (canvas) {
+      // canvas = document.body.appendChild(canvas); // used for debugging
+      let ctx = canvas.getContext("2d");
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = "black";
+      ctx.font = "bold 30px sans-serif";
+      ctx.fillText(
+        artist.name,
+        canvas.width / 8 + 8,
+        canvas.height / 8 + 172,
+        225
+      );
+      ctx.font = "8px sans-serif";
+      ctx.fillText(
+        "Bracket made at cgarren.github.io/song-coliseum",
+        canvas.width / 8 + 8,
+        canvas.height / 8 + 192,
+        225
+      );
       const createEl = document.createElement("a");
       createEl.href = canvas.toDataURL("image/svg+xml");
       createEl.download = artist.name + " bracket from Song Coliseum";
