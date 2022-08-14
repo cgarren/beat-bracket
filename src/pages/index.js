@@ -31,7 +31,9 @@ const App = () => {
   const [seedingMethod, setSeedingMethod] = useState("popularity");
 
   function limitChange(e) {
-    setLimit(parseInt(e.target.value));
+    if (noChanges()) {
+      setLimit(parseInt(e.target.value));
+    }
   }
 
   function seedingChange(e) {
@@ -205,7 +207,7 @@ const App = () => {
       <SearchBar setArtist={setArtist} noChanges={noChanges} disabled={!showBracket}/>
       <div className={""}>
         <label htmlFor="limit-select">Maximum tracks: </label>
-        <select name="limit" id="limit-select" defaultValue="64" onChange={limitChange} disabled={!showBracket}>
+        <select name="limit" id="limit-select" value={limit} onChange={limitChange} disabled={!showBracket}>
           <option value="8">8</option>
           <option value="16">16</option>
           <option value="32">32</option>
