@@ -6,12 +6,10 @@ import { loadRequest, nearestLesserPowerOf2, popularitySort, shuffleArray, switc
 import Layout from "../components/Layout";
 
 // TODO: Fix byes
-// TODO: Add a way to authenticate and add songs to queue
 // TODO: -----> Implement saving the bracket with every change linked to a users spotify account and stored in a db somewhere. Maybe a landing page where users can see their past brackets?
-// TODO: -----> Make songs playable when hovered over ***
-// TODO: -----> Take site live ***
+// TODO: -----> Add a way to add songs to queue or make songs playable when hovered over ***
 // TODOL -----> Generate a playlist with the tracks ***
-// TODO: Make the final bracket shareable ***
+// TODO: Make the final bracket shareable
 // TODO: Make bracket loading prettier
 // TODO: Make loading track data calls efficient (able to request a max of 50 ids at once) ***
 // TODO: Once a column is finished zoom/scale the bracket to make it easier to do the next column
