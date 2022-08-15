@@ -104,9 +104,6 @@ const SongButton = ({
 
   useEffect(() => {
     if (disabled) {
-      if (song !== null) {
-        console.log("pausing", song.name, "for good");
-      }
       audioRef.current.pause();
     }
   }, [disabled]);
