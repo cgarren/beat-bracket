@@ -88,7 +88,13 @@ const lineStyles = [
   ninthColumnLineStyle,
 ];
 
-const Bracket = ({ tracks, loadReady, saveCommand, artist }) => {
+const Bracket = ({
+  tracks,
+  loadReady,
+  saveCommand,
+  artist,
+  playbackEnabled,
+}) => {
   const [bracket, setBracket] = useState(new Map());
   const [columns, setColumns] = useState(0);
   const [renderArray, setRenderArray] = useState([]);
@@ -119,6 +125,7 @@ const Bracket = ({ tracks, loadReady, saveCommand, artist }) => {
             return (
               <div key={mykey} className={holderStyle}>
                 <SongButton
+                  playbackEnabled={playbackEnabled}
                   modifyBracket={modifyBracket}
                   saveCommand={saveCommand}
                   getBracket={getBracket}
@@ -164,11 +171,15 @@ const Bracket = ({ tracks, loadReady, saveCommand, artist }) => {
     ));
   }
 
-  useEffect(() => {
+  function regenerateRenderArray() {
     let leftSide = genArray("l");
     let rightSide = genArray("r");
     setRenderArray([...leftSide, ...rightSide]);
-  }, [bracket]);
+  }
+
+  useEffect(() => {
+    regenerateRenderArray();
+  }, [bracket, playbackEnabled]);
 
   useEffect(() => {
     // show the bracket when the renderArray is ready
@@ -189,7 +200,7 @@ const Bracket = ({ tracks, loadReady, saveCommand, artist }) => {
     let colMap = new Map();
     for (let i = 0; i < len; i++) {
       colMap.set(side + col + i, {
-        song: theTracks ? (theTracks[i] ? theTracks[i].name : null) : null,
+        song: theTracks ? (theTracks[i] ? theTracks[i] : null) : null,
         opponentId:
           len <= 1
             ? otherSide + col + 0

@@ -27,6 +27,7 @@ const App = () => {
   const [commands, setCommands] = useState([]);
   const [limit, setLimit] = useState(64);
   const [seedingMethod, setSeedingMethod] = useState("popularity");
+  const [playbackEnabled, setPlaybackEnabled] = useState(true);
 
   function limitChange(e) {
     if (noChanges()) {
@@ -40,6 +41,10 @@ const App = () => {
     }
   }
 
+  function playbackChange(e) {
+      setPlaybackEnabled(!playbackEnabled);
+  }
+  
   function saveCommand(action, inverse) {
     let temp = [
       ...commands,
@@ -124,7 +129,8 @@ const App = () => {
           name: selectedTrack.name,
           art: selectedTrack.album.images[2].url,
           id: selectedTrack.id,
-          popularity: selectedTrack.popularity
+          popularity: selectedTrack.popularity,
+          preview_url: selectedTrack.preview_url
         }
         templist.push(trackObject);
       }
@@ -221,10 +227,14 @@ const App = () => {
           <option value="popularity">Popularity</option>
         </select>
       </div>
+      <div className={""}>
+        <label htmlFor="playback-select">Hover preview: </label>
+        <input type="checkbox" id="playback-select" checked={playbackEnabled} onChange={playbackChange} disabled={!showBracket} name="playback-select"></input> 
+      </div>
       <hr />
       <div>
         {commands.length !== 0 ? <div><button onClick={undo}>Undo</button><br /></div> : <div></div>}
-        <Bracket tracks={tracks} loadReady={showBracket} saveCommand={saveCommand} artist={artist} />
+        <Bracket tracks={tracks} loadReady={showBracket} saveCommand={saveCommand} artist={artist} playbackEnabled={playbackEnabled} />
       </div>
     </Layout>
   )

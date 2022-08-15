@@ -1,4 +1,5 @@
 import React from "react";
+import { useEffect, useRef } from "react";
 
 import {
   songButtonStyle,
@@ -22,7 +23,11 @@ const SongButton = ({
   winner,
   setBracketComplete,
   color,
+  playbackEnabled,
 }) => {
+  const thebutton = useRef(null);
+  const audioRef = useRef(null);
+
   // Recursive function to mark all previous instances of a song in a bracket as eliminated
   function eliminatePrevious(thisId) {
     let songInfo = getBracket(thisId);
@@ -54,7 +59,7 @@ const SongButton = ({
         modifyBracket(nextId, "disabled", false);
         modifyBracket(nextId, "color", color);
       } else {
-        console.log("Winner is " + song);
+        console.log("Winner is " + song.name);
         modifyBracket(id, "winner", true);
         setBracketComplete(true);
       }
@@ -75,6 +80,36 @@ const SongButton = ({
       setBracketComplete(false);
     }
   }
+
+  function playSnippet() {
+    thebutton.current.removeEventListener("mouseenter", playSnippet, true);
+    audioRef.current.play();
+    thebutton.current.addEventListener("mouseleave", pauseSnippet, true);
+  }
+
+  function pauseSnippet() {
+    thebutton.current.removeEventListener("mouseleave", pauseSnippet, true);
+    audioRef.current.pause();
+    thebutton.current.addEventListener("mouseenter", playSnippet, true);
+  }
+
+  useEffect(() => {
+    if (playbackEnabled) {
+      thebutton.current.addEventListener("mouseenter", playSnippet, true);
+      return () => {
+        thebutton.current.removeEventListener("mouseenter", playSnippet, true);
+      };
+    }
+  }, [playbackEnabled]);
+
+  useEffect(() => {
+    if (disabled) {
+      if (song !== null) {
+        console.log("pausing", song.name, "for good");
+      }
+      audioRef.current.pause();
+    }
+  }, [disabled]);
 
   return (
     <button
@@ -99,8 +134,14 @@ const SongButton = ({
       id={id}
       data-opponentid={opponentId}
       data-nextid={nextId}
+      ref={thebutton}
     >
-      {song}
+      {song !== null ? song.name : ""}
+      <audio
+        src={song !== null ? song.preview_url : ""}
+        volume="1"
+        ref={audioRef}
+      ></audio>
     </button>
   );
 };
