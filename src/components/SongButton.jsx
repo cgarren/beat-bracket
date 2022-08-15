@@ -97,7 +97,13 @@ const SongButton = ({
     if (playbackEnabled) {
       thebutton.current.addEventListener("mouseenter", playSnippet, true);
       return () => {
-        thebutton.current.removeEventListener("mouseenter", playSnippet, true);
+        if (thebutton.current) {
+          thebutton.current.removeEventListener(
+            "mouseenter",
+            playSnippet,
+            true
+          );
+        }
       };
     }
   }, [playbackEnabled]);
