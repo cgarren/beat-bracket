@@ -9,17 +9,24 @@ import LoginButton from "./LoginButton";
 const AuthBanner = () => {
   const [show, setShow] = useState(false);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      let mydate = new Date(parseInt(sessionStorage.getItem("expires_at")));
-      if (
-        sessionStorage.getItem("expires_at") === null ||
-        mydate.toString() === "Invalid Date" ||
-        Date.now() > mydate
-      ) {
-        setShow(true);
+  function checkAuth(timer = undefined) {
+    let mydate = new Date(parseInt(sessionStorage.getItem("expires_at")));
+    if (
+      sessionStorage.getItem("expires_at") === null ||
+      mydate.toString() === "Invalid Date" ||
+      Date.now() > mydate
+    ) {
+      setShow(true);
+      if (timer) {
         clearInterval(timer);
       }
+    }
+  }
+
+  useEffect(() => {
+    checkAuth();
+    const timer = setInterval(() => {
+      checkAuth(timer);
     }, 2000);
     return () => clearInterval(timer);
   }, []);
