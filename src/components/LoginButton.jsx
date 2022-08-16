@@ -4,7 +4,7 @@ import { generateRandomString } from "../utilities/helpers";
 
 import { buttonStyle, logoStyle } from "./LoginButton.module.css";
 
-import spotifyLogo from "../images/Spotify_Logo_RGB_Green.png";
+import spotifyLogo from "../assets/images/Spotify_Logo_RGB_Green.png";
 
 const LoginButton = () => {
   function login() {
