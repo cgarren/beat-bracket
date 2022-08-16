@@ -228,7 +228,7 @@ const App = () => {
         </select>
       </div>
         <div className={""}>
-          <label htmlFor="playback-select">Hover preview: </label>
+          <label htmlFor="playback-select">Hover preview (chrome only, buggy): </label>
           <input type="checkbox" id="playback-select" checked={playbackEnabled} onChange={playbackChange} disabled={!showBracket} name="playback-select"></input> 
         </div>
       <hr />
