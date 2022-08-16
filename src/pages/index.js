@@ -120,26 +120,38 @@ const App = () => {
 
   async function loadTrackData(songs) {
     let templist = [];
+    let runningList = [];
+    let trackOptions = [];
     for (let ids of Object.values(songs)) {
-      const url = "https://api.spotify.com/v1/tracks?ids=" + ids.join();
-      const response = await loadRequest(url);
-      if (!response["error"] && response.tracks.length > 0) {
-        let highestPop = 0;
-        let selectedTrack = null;
-        for (let track of response.tracks) {
-          if (track.popularity >= highestPop) {
-            selectedTrack = track;
-            highestPop = track.popularity;
+      if (runningList.length + ids.length <= 50) {
+        runningList.push(...ids);
+        trackOptions.push(ids.length);
+      } else {
+        const url = "https://api.spotify.com/v1/tracks?ids=" + runningList.join();
+        const response = await loadRequest(url);
+        if (!response["error"] && response.tracks.length > 0) {
+          for (let numTracks of trackOptions) {
+            let highestPop = 0;
+            let selectedTrack = null;
+            for (let i = 0; i < numTracks; i++) {
+              const track = response.tracks.shift()
+              if (track.popularity >= highestPop) {
+                selectedTrack = track;
+                highestPop = track.popularity;
+              }
+            }
+            const trackObject = {
+              name: selectedTrack.name,
+              art: selectedTrack.album.images[2].url,
+              id: selectedTrack.id,
+              popularity: selectedTrack.popularity,
+              preview_url: selectedTrack.preview_url
+            }
+            templist.push(trackObject);
           }
-        };
-        const trackObject = {
-          name: selectedTrack.name,
-          art: selectedTrack.album.images[2].url,
-          id: selectedTrack.id,
-          popularity: selectedTrack.popularity,
-          preview_url: selectedTrack.preview_url
         }
-        templist.push(trackObject);
+        runningList = [];
+        trackOptions = [];
       }
     }
     return templist;
