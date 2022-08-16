@@ -10,7 +10,6 @@ import Layout from "../components/Layout";
 // TODO: -----> Add a way to add songs to queue
 // TODO: Make the final bracket shareable with a link
 // TODO: Make bracket loading prettier
-// TODO: Make loading track data calls efficient (able to request a max of 50 ids at once) ***
 // TODO: Once a column is finished zoom/scale the bracket to make it easier to do the next column
 // TODO: Add explainer text as to why we used 'Coliseum' over 'Colosseum'
 // TODO: Full Mobile support
@@ -24,7 +23,6 @@ import Layout from "../components/Layout";
 // TODO: Move todos to separate file, maybe readme? maybe at root level?
 // TODO: Get domain and settle on site name
 // TODO: Make created playlist description fit on mobile
-// TODO: Make create playlist button refresh when track seeding changes?
 
 // markup
 const App = () => {
@@ -196,7 +194,6 @@ const App = () => {
 
   async function getTracks() {
     let songs = await loadAlbums("https://api.spotify.com/v1/artists/" + artist.id + "/albums?include_groups=album,single&limit=20");
-    //console.log(songs);
     // load data for the songs
     let templist = await loadTrackData(songs);
     // if the artist has less than 8 songs, stop
