@@ -10,6 +10,8 @@ import React, { useEffect, useState } from "react";
 
 import SongButton from "./SongButton";
 
+import GeneratePlaylistButton from "./GeneratePlaylistButton";
+
 import {
   nearestGreaterPowerOf2,
   nearestLesserPowerOf2,
@@ -331,6 +333,7 @@ const Bracket = ({
       >
         {artist.name ? "Bracket for: " + artist.name : ""}
         <div>{tracks.length} tracks displayed</div>
+        <GeneratePlaylistButton tracks={tracks} artist={artist} />
         {bracketComplete ? (
           <button onClick={shareBracket}>Download Bracket</button>
         ) : (
