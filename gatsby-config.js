@@ -3,6 +3,13 @@ module.exports = {
     title: `Song Coliseum`,
     siteUrl: `https://www.yourdomain.tld`,
   },
-  plugins: ['gatsby-plugin-react-helmet'],
+  plugins: ['gatsby-plugin-react-helmet', {
+    resolve: "gatsby-plugin-react-svg",
+    options: {
+      rule: {
+        include: /svgs/ // Including svgs in image folder for now
+      }
+    }
+  }],
   pathPrefix: "/song-coliseum"
 }
