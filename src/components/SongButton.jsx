@@ -36,6 +36,8 @@ const SongButton = ({
   const thebutton = useRef(null);
   const audioRef = useRef(null);
   const [paused, setPaused] = useState(true);
+  const blankAudio =
+    "https://github.com/anars/blank-audio/raw/master/2-seconds-of-silence.mp3";
 
   // Recursive function to mark all previous instances of a song in a bracket as eliminated
   function eliminatePrevious(thisId) {
@@ -217,7 +219,7 @@ const SongButton = ({
         {paused ? <PlayIcon /> : <PauseIcon />}
       </button>
       <audio
-        src={song !== null ? song.preview_url : ""}
+        src={song !== null && !disabled ? song.preview_url : blankAudio}
         volume="1"
         ref={audioRef}
       ></audio>
