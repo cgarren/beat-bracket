@@ -133,6 +133,7 @@ const Bracket = ({
                   nextId={value.nextId}
                   song={value.song}
                   id={value.id}
+                  side={side}
                   styling={
                     value.index === 0
                       ? topStyles[colExpression]
