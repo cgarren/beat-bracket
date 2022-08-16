@@ -40,11 +40,15 @@
 }
 
 .songButtonStyle.leftStyle {
-	padding-right: 2px;
+	padding-right: 6px;
+	border-bottom-left-radius: 0px;
+	border-top-left-radius: 0px;
 }
 
 .songButtonStyle.rightStyle {
-	padding-left: 2px;
+	padding-left: 6px;
+	border-bottom-right-radius: 0px;
+	border-top-right-radius: 0px;
 }
 
 .playButtonStyle {
@@ -86,8 +90,9 @@
 
 .songButtonStyle:disabled {
 	width: 100%;
-	padding-left: 2px;
-	padding-right: 2px;
+	padding-left: 6px;
+	padding-right: 6px;
+	border-radius: inherit;
 }
 
 .songButtonStyle.unfilledStyle:disabled {
@@ -101,12 +106,20 @@
 	color: black;
 }
 
-.songDivStyle.winnerStyle {
-	border-width: 5px !important;
-	border-color: yellow !important;
+/* .songDivStyle.winnerStyle {
+	border-width: 3px !important;
+	border-style: solid;
+	border-color: black !important;
+	width: calc(var(--buttonwidth) - 6px);
+	height: calc(var(--buttonheight) - 6px);
 }
 
+.songButtonStyle.eliminatedStyle {
+	opacity: .65;
+	background-color: white !important;
+	color: black !important;
+} */
+
 .songDivStyle.eliminatedStyle {
-	/* opacity: .65; */
-	border-width: none;
+	opacity: .5;
 }
