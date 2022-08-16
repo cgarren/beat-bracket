@@ -19,7 +19,7 @@ const GeneratePlaylistButton = ({ tracks, artist, hidden }) => {
       " tracks used in a " +
       artist.name +
       " bracket. Make your own at cgarren.github.com/song-coliseum!";
-    const response = await createPlaylist(nameStr, true, false, descriptionStr);
+    const response = await createPlaylist(nameStr, descriptionStr);
     if (!response["error"]) {
       const response2 = await addTracksToPlaylist(
         response.id,
@@ -28,9 +28,9 @@ const GeneratePlaylistButton = ({ tracks, artist, hidden }) => {
       if (!response2["error"]) {
         console.log("success");
         setPlaylistId(response.id);
-        setLoading(false);
       }
     }
+    setLoading(false);
   }
 
   function viewPlaylist() {

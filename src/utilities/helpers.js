@@ -40,8 +40,8 @@ async function postRequest(url, params, data) {
 	}
 }
 
-async function createPlaylist(name = "New Playlist", isPublic = true, isCollaborative = false, description = "") {
-	const response = await loadRequest("https://api.spotify.com/v1/me")
+async function createPlaylist(name = "New Playlist", description = "", isPublic = true, isCollaborative = false) {
+	const response = await loadRequest("https://api.spotify.com/v1/me");
 	if (!response["error"]) {
 		const url = "https://api.spotify.com/v1/users/" + response.id + "/playlists"
 		return await postRequest(url, {}, {
