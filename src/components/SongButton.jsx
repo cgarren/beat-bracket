@@ -1,11 +1,18 @@
 import React from "react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import PlayIcon from "../assets/svgs/playIcon.svg";
+import PauseIcon from "../assets/svgs/pauseIcon.svg";
 
 import {
   songButtonStyle,
+  playButtonStyle,
+  songDivStyle,
   unfilledStyle,
   winnerStyle,
   eliminatedStyle,
+  disabledStyle,
+  leftStyle,
+  rightStyle,
 } from "./SongButton.module.css";
 
 const SongButton = ({
@@ -14,6 +21,7 @@ const SongButton = ({
   opponentId,
   nextId,
   id,
+  side,
   previousIds,
   disabled,
   modifyBracket,
@@ -27,6 +35,7 @@ const SongButton = ({
 }) => {
   const thebutton = useRef(null);
   const audioRef = useRef(null);
+  const [paused, setPaused] = useState(true);
 
   // Recursive function to mark all previous instances of a song in a bracket as eliminated
   function eliminatePrevious(thisId) {
@@ -83,13 +92,13 @@ const SongButton = ({
 
   function playSnippet() {
     thebutton.current.removeEventListener("mouseenter", playSnippet, true);
-    audioRef.current.play();
+    setPaused(false);
     thebutton.current.addEventListener("mouseleave", pauseSnippet, true);
   }
 
   function pauseSnippet() {
     thebutton.current.removeEventListener("mouseleave", pauseSnippet, true);
-    audioRef.current.pause();
+    setPaused(true);
     thebutton.current.addEventListener("mouseenter", playSnippet, true);
   }
 
@@ -108,19 +117,47 @@ const SongButton = ({
     }
   }, [playbackEnabled]);
 
+  function playPauseAudio() {
+    if (paused) {
+      setPaused(false);
+    } else {
+      setPaused(true);
+    }
+  }
+
+  useEffect(() => {
+    audioRef.current.addEventListener("ended", () => {
+      setPaused(true);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (paused) {
+      audioRef.current.pause();
+    } else {
+      try {
+        audioRef.current.play();
+      } catch (error) {
+        console.log(error);
+        setPaused(true);
+      }
+    }
+  }, [paused]);
+
   useEffect(() => {
     if (disabled) {
-      audioRef.current.pause();
+      setPaused(true);
     }
   }, [disabled]);
 
   return (
-    <button
-      disabled={disabled}
+    <div
       className={
-        songButtonStyle +
+        songDivStyle +
         (song == null ? " " + unfilledStyle + " " : " ") +
         (winner ? " " + winnerStyle + " " : " ") +
+        (disabled ? " " + disabledStyle + " " : " ") +
+        (side ? " " + leftStyle + " " : " " + rightStyle + " ") +
         (eliminated ? " " + eliminatedStyle + " " : " ") +
         styling
       }
@@ -133,19 +170,58 @@ const SongButton = ({
             }
           : {}
       }
-      onClick={songChosen}
       id={id}
       data-opponentid={opponentId}
       data-nextid={nextId}
       ref={thebutton}
     >
-      {song !== null ? song.name : ""}
+      <button
+        disabled={disabled}
+        onClick={songChosen}
+        style={
+          color
+            ? {
+                backgroundColor: color.getHex(),
+                color: color.getBodyTextColor(),
+                borderColor: color.getHex(),
+              }
+            : {}
+        }
+        className={
+          songButtonStyle +
+          (song == null ? " " + unfilledStyle + " " : " ") +
+          (winner ? " " + winnerStyle + " " : " ") +
+          (side ? " " + leftStyle + " " : " " + rightStyle + " ") +
+          (eliminated ? " " + eliminatedStyle + " " : " ")
+        }
+      >
+        {song !== null ? song.name : ""}
+      </button>
+      <button
+        onClick={playPauseAudio}
+        className={
+          playButtonStyle +
+          (side ? " " + leftStyle + " " : " " + rightStyle + " ")
+        }
+        style={
+          color
+            ? {
+                backgroundColor: color.getHex(),
+                color: color.getBodyTextColor(),
+                borderColor: color.getHex(),
+              }
+            : {}
+        }
+        hidden={song === null || disabled}
+      >
+        {paused ? <PlayIcon /> : <PauseIcon />}
+      </button>
       <audio
         src={song !== null ? song.preview_url : ""}
         volume="1"
         ref={audioRef}
       ></audio>
-    </button>
+    </div>
   );
 };
 
