@@ -18,6 +18,49 @@ async function loadRequest(url, params) {
 	}
 }
 
+async function postRequest(url, params, data) {
+	if (params) {
+		url = url + "?" + new URLSearchParams(params);
+	}
+	const response = await fetch(url, {
+		method: 'POST',
+    headers: {
+			'Content-Type': 'application/json',
+			'Authorization': 'Bearer ' + sessionStorage.getItem('access_token')
+		},
+		body: JSON.stringify(data)
+	});
+	
+	if (response.ok) {
+		return response.json(); // parses JSON response into native JavaScript objects
+	} else if (response.status === 429) {
+		throw new Error("Too many requests. Code: " + response.status);
+	} else {
+		throw new Error("Unknown request error. Code: " + response.status);
+	}
+}
+
+async function createPlaylist(name = "New Playlist", isPublic = true, isCollaborative = false, description = "") {
+	const response = await loadRequest("https://api.spotify.com/v1/me")
+	if (!response["error"]) {
+		const url = "https://api.spotify.com/v1/users/" + response.id + "/playlists"
+		return await postRequest(url, {}, {
+			"name": name,
+			"public": isPublic,
+			"collaborative": isCollaborative,
+			"description": description
+		})
+	}
+	return response;
+}
+
+async function addTracksToPlaylist(playlistId, trackUris) {
+	const url = "https://api.spotify.com/v1/playlists/" + playlistId + "/tracks"
+	return await postRequest(url, {
+		"uris": trackUris
+	})
+}
+
 function generateRandomString(length) {
 		let text = '';
 		let possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -138,6 +181,7 @@ function nearestLesserPowerOf2(num) {
 
 export {
 	loadRequest,
+	postRequest,
 	popularitySort,
 	removeDuplicatesWithKey,
 	nearestGreaterPowerOf2,
@@ -145,5 +189,7 @@ export {
 	switchEveryOther,
 	shuffleArray,
 	getParamsFromURL,
-	generateRandomString
+	generateRandomString,
+	createPlaylist,
+	addTracksToPlaylist
 }
