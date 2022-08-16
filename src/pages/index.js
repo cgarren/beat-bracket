@@ -21,6 +21,8 @@ import Layout from "../components/Layout";
 // TODO: Only let one song preview play at a time
 // TODO: Break into smaller components
 // TODO: Use spotify metrics to filter (only kanye's slow songs, danceable songs, etc...)
+// TODO: Move todos to separate file
+// TODO: Get domain and settle on site name
 
 // markup
 const App = () => {
