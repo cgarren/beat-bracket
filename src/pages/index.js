@@ -21,8 +21,10 @@ import Layout from "../components/Layout";
 // TODO: Only let one song preview play at a time
 // TODO: Break into smaller components
 // TODO: Use spotify metrics to filter (only kanye's slow songs, danceable songs, etc...)
-// TODO: Move todos to separate file, maybe readme?
+// TODO: Move todos to separate file, maybe readme? maybe at root level?
 // TODO: Get domain and settle on site name
+// TODO: Make created playlist description fit on mobile
+// TODO: Make create playlist button refresh when track seeding changes?
 
 // markup
 const App = () => {
