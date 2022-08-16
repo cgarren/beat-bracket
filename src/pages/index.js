@@ -7,17 +7,18 @@ import Layout from "../components/Layout";
 
 // TODO: Fix byes
 // TODO: -----> Implement saving the bracket with every change linked to a users spotify account and stored in a db somewhere. Maybe a landing page where users can see their past brackets?
-// TODO: -----> Add a way to add songs to queue or make songs playable when hovered over ***
+// TODO: -----> Add a way to add songs to queue
 // TODOL -----> Generate a playlist with the tracks ***
-// TODO: Make the final bracket shareable
+// TODO: Make the final bracket shareable with a link
 // TODO: Make bracket loading prettier
 // TODO: Make loading track data calls efficient (able to request a max of 50 ids at once) ***
 // TODO: Once a column is finished zoom/scale the bracket to make it easier to do the next column
 // TODO: Add explainer text as to why we used 'Coliseum' over 'Colosseum'
-// TODO: Mobile support
+// TODO: Full Mobile support
 // TODO: Display seed number/popularity in badge on each song button with toggle to hide it
 // TODO: Add metrics on generation like - number of songs, seconds it took to make, number from albums vs singles, etc...
-// TODO: Make the bracket from a spotify playlist
+// TODO: Make the bracket from a spotify playlist ***
+// TODO: Make it possibel to see the whole song name
 
 // markup
 const App = () => {
