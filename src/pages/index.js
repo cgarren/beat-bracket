@@ -18,7 +18,8 @@ import Layout from "../components/Layout";
 // TODO: Display seed number/popularity in badge on each song button with toggle to hide it
 // TODO: Add metrics on generation like - number of songs, seconds it took to make, number from albums vs singles, etc...
 // TODO: Make the bracket from a spotify playlist ***
-// TODO: Make it possibel to see the whole song name
+// TODO: Make it possible to see the whole song name
+// TODO: Only let one song preview play at a time
 
 // markup
 const App = () => {
