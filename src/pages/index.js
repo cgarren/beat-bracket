@@ -8,7 +8,6 @@ import Layout from "../components/Layout";
 // TODO: Fix byes
 // TODO: -----> Implement saving the bracket with every change linked to a users spotify account and stored in a db somewhere. Maybe a landing page where users can see their past brackets?
 // TODO: -----> Add a way to add songs to queue
-// TODOL -----> Generate a playlist with the tracks ***
 // TODO: Make the final bracket shareable with a link
 // TODO: Make bracket loading prettier
 // TODO: Make loading track data calls efficient (able to request a max of 50 ids at once) ***
@@ -20,6 +19,8 @@ import Layout from "../components/Layout";
 // TODO: Make the bracket from a spotify playlist ***
 // TODO: Make it possible to see the whole song name
 // TODO: Only let one song preview play at a time
+// TODO: Break into smaller components
+// TODO: Use spotify metrics to filter (only kanye's slow songs, danceable songs, etc...)
 
 // markup
 const App = () => {
