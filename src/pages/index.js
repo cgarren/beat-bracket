@@ -27,7 +27,7 @@ const App = () => {
   const [commands, setCommands] = useState([]);
   const [limit, setLimit] = useState(64);
   const [seedingMethod, setSeedingMethod] = useState("popularity");
-  const [playbackEnabled, setPlaybackEnabled] = useState(true);
+  const [playbackEnabled, setPlaybackEnabled] = useState(false);
 
   function limitChange(e) {
     if (noChanges()) {
@@ -44,7 +44,7 @@ const App = () => {
   function playbackChange(e) {
       setPlaybackEnabled(!playbackEnabled);
   }
-  
+
   function saveCommand(action, inverse) {
     let temp = [
       ...commands,
@@ -227,10 +227,10 @@ const App = () => {
           <option value="popularity">Popularity</option>
         </select>
       </div>
-      <div className={""}>
-        <label htmlFor="playback-select">Hover preview: </label>
-        <input type="checkbox" id="playback-select" checked={playbackEnabled} onChange={playbackChange} disabled={!showBracket} name="playback-select"></input> 
-      </div>
+        <div className={""}>
+          <label htmlFor="playback-select">Hover preview: </label>
+          <input type="checkbox" id="playback-select" checked={playbackEnabled} onChange={playbackChange} disabled={!showBracket} name="playback-select"></input> 
+        </div>
       <hr />
       <div>
         {commands.length !== 0 ? <div><button onClick={undo}>Undo</button><br /></div> : <div></div>}
