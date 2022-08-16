@@ -16,8 +16,7 @@ const LoginButton = () => {
     let state = generateRandomString(16);
 
     sessionStorage.setItem(stateKey, state);
-    let scope =
-      "user-read-private user-read-email user-follow-read user-follow-modify user-read-private user-read-email streaming user-read-currently-playing user-read-recently-played user-modify-playback-state user-library-modify user-library-read user-top-read user-modify-private";
+    let scope = "playlist-modify-private playlist-modify-public";
 
     let url = "https://accounts.spotify.com/authorize";
     url += "?response_type=token";
