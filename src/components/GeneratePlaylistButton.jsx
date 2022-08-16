@@ -5,6 +5,7 @@ import { buttonStyle, logoStyle } from "./GeneratePlaylistButton.module.css";
 import { createPlaylist, addTracksToPlaylist } from "../utilities/helpers";
 
 import spotifyLogo from "../assets/images/Spotify_Logo_RGB_Green.png";
+import { useEffect } from "react";
 
 const GeneratePlaylistButton = ({ tracks, artist, hidden }) => {
   const [playlistId, setPlaylistId] = useState(undefined);
@@ -32,6 +33,10 @@ const GeneratePlaylistButton = ({ tracks, artist, hidden }) => {
     }
     setLoading(false);
   }
+
+  useEffect(() => {
+    setPlaylistId(undefined);
+  }, [tracks, artist]);
 
   function viewPlaylist() {
     const url = "https://open.spotify.com/playlist/" + playlistId;
