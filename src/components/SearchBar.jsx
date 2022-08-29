@@ -26,7 +26,11 @@ const SearchBar = ({ setArtist, noChanges, disabled }) => {
               id: item.id,
               onClick: () => {
                 if (noChanges()) {
-                  setArtist({ name: item.name, id: item.id });
+                  setArtist({
+                    name: item.name,
+                    id: item.id,
+                    art: item.images[2].url,
+                  });
                   setSearchText("");
                 }
               },
