@@ -117,18 +117,19 @@ const App = () => {
   }
 
   async function loadTrackData(songs) {
+    console.log(songs);
     let templist = [];
     let runningList = [];
-    let trackOptions = [];
+    let trackOptionsAmounts = [];
     for (let ids of Object.values(songs)) {
       if (runningList.length + ids.length <= 50) {
         runningList.push(...ids);
-        trackOptions.push(ids.length);
+        trackOptionsAmounts.push(ids.length);
       } else {
         const url = "https://api.spotify.com/v1/tracks?ids=" + runningList.join();
         const response = await loadRequest(url);
         if (!response["error"] && response.tracks.length > 0) {
-          for (let numTracks of trackOptions) {
+          for (let numTracks of trackOptionsAmounts) {
             let highestPop = 0;
             let selectedTrack = null;
             for (let i = 0; i < numTracks; i++) {
@@ -149,7 +150,7 @@ const App = () => {
           }
         }
         runningList = [];
-        trackOptions = [];
+        trackOptionsAmounts = [];
       }
     }
     return templist;
