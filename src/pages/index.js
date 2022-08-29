@@ -23,6 +23,8 @@ import Layout from "../components/Layout";
 // TODO: Move todos to separate file, maybe readme? maybe at root level?
 // TODO: Get domain and settle on site name
 // TODO: Make created playlist description fit on mobile
+// TODO: Make a toggle for songs exclusively by the artist vs songs the aritst is featured on
+// TODO: Make a toggle which decides which songs to include in the bracket in the first place (random vs popularity vs custom)
 
 // markup
 const App = () => {
