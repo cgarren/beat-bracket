@@ -23,6 +23,7 @@ import {
   largeContainerStyle,
   holderStyle,
   columnStyle,
+  bracketInfoStyle,
   lineStyle,
   lineLeftStyle,
   lineRightStyle,
@@ -331,8 +332,14 @@ const Bracket = ({
         hidden={!show || !loadReady || renderArray.length === 0}
         className={largeContainerStyle}
       >
-        {artist.name ? "Bracket for: " + artist.name : ""}
-        <div>{tracks.length} tracks displayed</div>
+        <span className={bracketInfoStyle}>
+          {artist.name ? "Bracket for: " + artist.name : ""}
+        </span>
+        <div>
+          <span className={bracketInfoStyle}>
+            {tracks.length} tracks displayed
+          </span>
+        </div>
         <GeneratePlaylistButton tracks={tracks} artist={artist} />
         {bracketComplete ? (
           <button onClick={shareBracket}>Download Bracket</button>

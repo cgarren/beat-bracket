@@ -27,6 +27,10 @@
 	width: unset;
 }
 
+.bracketInfoStyle {
+	font-weight: bold;
+}
+
 .columnStyle {
 	display: flex;
 	flex-direction: column;
