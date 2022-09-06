@@ -122,13 +122,15 @@ const App = () => {
 
   async function loadTrackData(idList, trackOptionsAmounts) {
     let templist = [];
-    const url = "https://api.spotify.com/v1/tracks?ids=" + idList.join();
-    const response = await loadRequest(url);
-    if (!response["error"] && response.tracks.length > 0) {
-      for (let numTracks of trackOptionsAmounts) {
-        //console.log(numTracks, response.tracks.length, idList);
-        const selectedTrack = await selectTrackVersion(numTracks, response.tracks)
-        templist.push(await makeTrackObject(selectedTrack));
+    if (idList.length !== 0) {
+      const url = "https://api.spotify.com/v1/tracks?ids=" + idList.join();
+      const response = await loadRequest(url);
+      if (!response["error"] && response.tracks.length > 0) {
+        for (let numTracks of trackOptionsAmounts) {
+          //console.log(numTracks, response.tracks.length, idList);
+          const selectedTrack = await selectTrackVersion(numTracks, response.tracks)
+          templist.push(await makeTrackObject(selectedTrack));
+        }
       }
     }
     return templist;
