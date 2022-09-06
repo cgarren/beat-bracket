@@ -5,27 +5,6 @@ import Mousetrap from "mousetrap";
 import { loadRequest, nearestLesserPowerOf2, popularitySort, shuffleArray, switchEveryOther } from "../utilities/helpers";
 import Layout from "../components/Layout";
 
-// TODO: Fix byes
-// TODO: Implement saving the bracket with every change linked to a users spotify account and stored in a db somewhere. Maybe a landing page where users can see their past brackets? ***
-// TODO: Add a way to add songs to queue
-// TODO: Make the final bracket shareable with a link
-// TODO: Make bracket loading prettier
-// TODO: Once a column is finished zoom/scale the bracket to make it easier to do the next column
-// TODO: Add explainer text as to why we used 'Coliseum' over 'Colosseum'
-// TODO: Full Mobile support
-// TODO: Display seed number/popularity in badge on each song button with toggle to hide it
-// TODO: Add metrics on generation like - number of songs, seconds it took to make, number from albums vs singles, etc...
-// TODO: Make the bracket from a spotify playlist ***
-// TODO: Make it possible to see the whole song name ***
-// TODO: Break into smaller components
-// TODO: Use spotify metrics to filter (only kanye's slow songs, danceable songs, etc...)
-// TODO: Move todos to separate file, maybe readme? maybe at root level?
-// TODO: Get domain and settle on site name
-// TODO: Make created playlist description fit on mobile
-// TODO: Make a toggle for songs exclusively by the artist vs songs the aritst is featured on
-// TODO: Make a toggle which decides which songs to include in the bracket in the first place (random vs popularity vs custom)
-// TODO: Generate picture with just final four/eight for easy sharing. Maybe some pretty sharable grpahics that just show the winner and artist
-
 // markup
 const App = () => {
   const [tracks, setTracks] = useState([]);
