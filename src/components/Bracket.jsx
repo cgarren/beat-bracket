@@ -297,26 +297,26 @@ const Bracket = ({
   }
 
   function shareBracket() {
-    html2canvas(document.getElementById("bracket"), {
+    let bracketEl = document.getElementById("bracket");
+    html2canvas(bracketEl, {
       scale: 4,
+      scrollX: -bracketEl.offsetLeft,
+      scrollY: -bracketEl.offsetTop,
+      logging: false,
     }).then(function (canvas) {
-      // canvas = document.body.appendChild(canvas); // used for debugging
+      //canvas = document.body.appendChild(canvas); // used for debugging
+      //console.log(canvas.width, canvas.height);
       let ctx = canvas.getContext("2d");
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillStyle = "black";
       ctx.font = "bold 30px sans-serif";
-      ctx.fillText(
-        artist.name,
-        canvas.width / 8 + 8,
-        canvas.height / 8 + 172,
-        225
-      );
+      ctx.fillText(artist.name, canvas.width / 8, canvas.height / 16, 225);
       ctx.font = "8px sans-serif";
       ctx.fillText(
         "Bracket made at cgarren.github.io/song-coliseum",
-        canvas.width / 8 + 8,
-        canvas.height / 8 + 192,
+        canvas.width / 8,
+        canvas.height / 16 + 20,
         225
       );
       const createEl = document.createElement("a");
