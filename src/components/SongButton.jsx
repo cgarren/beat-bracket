@@ -108,14 +108,11 @@ const SongButton = ({
 
   useEffect(() => {
     if (playbackEnabled) {
-      thebutton.current.addEventListener("mouseenter", playSnippet, true);
+      const songButton = thebutton.current;
+      songButton.addEventListener("mouseenter", playSnippet, true);
       return () => {
-        if (thebutton.current) {
-          thebutton.current.removeEventListener(
-            "mouseenter",
-            playSnippet,
-            true
-          );
+        if (songButton) {
+          songButton.removeEventListener("mouseenter", playSnippet, true);
         }
       };
     }

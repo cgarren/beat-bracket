@@ -158,7 +158,7 @@ const App = () => {
     let templist = [];
     let runningList = [];
     let trackOptionsAmounts = [];
-    for (const [name, idList] of Object.entries(songs)) {
+    for (const idList of Object.values(songs)) {
       if (runningList.length + idList.length > 50) {
         templist.push(...await loadTrackData(runningList, trackOptionsAmounts));
         runningList = [];

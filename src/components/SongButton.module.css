@@ -123,3 +123,7 @@
 .songDivStyle.eliminatedStyle {
 	opacity: .5;
 }
+
+.winnerStyle {
+	opacity: 1;
+}
