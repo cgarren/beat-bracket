@@ -9,7 +9,7 @@ import Layout from "../components/Layout";
 const App = () => {
   const [tracks, setTracks] = useState([]);
   const [artist, setArtist] = useState({ "name": undefined, "id": undefined });
-  const [showBracket, setshowBracket] = useState(true);
+  const [showBracket, setShowBracket] = useState(true);
   const [commands, setCommands] = useState([]);
   const [limit, setLimit] = useState(64);
   const [seedingMethod, setSeedingMethod] = useState("popularity");
@@ -70,16 +70,16 @@ const App = () => {
 
   useEffect(() => {
     let templist = [...tracks];
-    setshowBracket(false);
+    setShowBracket(false);
     setCommands([]);
     templist = seedBracket(templist);
     setTracks(templist);
-    setshowBracket(true);
+    setShowBracket(true);
   }, [seedingMethod]);
 
   useEffect(() => {
     if (artist.id) {
-      setshowBracket(false);
+      setShowBracket(false);
       setCommands([]);
       getTracks();
     }
@@ -210,12 +210,12 @@ const App = () => {
       setTracks([]);
       setArtist({ "name": undefined, "id": undefined });
     }
-    setshowBracket(true);
+    setShowBracket(true);
   }
 
   useEffect(() => {
     if (artist.id) {
-      setshowBracket(false);
+      setShowBracket(false);
       setCommands([]);
       getTracks();
     }
@@ -249,7 +249,7 @@ const App = () => {
       <hr />
       <div>
         {commands.length !== 0 ? <div><button onClick={undo}>Undo</button><br /></div> : <div></div>}
-        <Bracket tracks={tracks} loadReady={showBracket} saveCommand={saveCommand} artist={artist} playbackEnabled={playbackEnabled} />
+        <Bracket tracks={tracks} setShowBracket={setShowBracket} showBracket={showBracket} saveCommand={saveCommand} artist={artist} playbackEnabled={playbackEnabled} />
       </div>
     </Layout>
   )

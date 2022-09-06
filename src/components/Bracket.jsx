@@ -93,7 +93,8 @@ const lineStyles = [
 
 const Bracket = ({
   tracks,
-  loadReady,
+  showBracket,
+  setShowBracket,
   saveCommand,
   artist,
   playbackEnabled,
@@ -101,14 +102,13 @@ const Bracket = ({
   const [bracket, setBracket] = useState(new Map());
   const [columns, setColumns] = useState(0);
   const [renderArray, setRenderArray] = useState([]);
-  const [show, setShow] = useState(true);
   const [bracketComplete, setBracketComplete] = useState(false);
   const [currentlyPlayingId, setCurrentlyPlayingId] = useState(null);
 
   useEffect(() => {
     async function kickOff() {
       // reset the undo chain
-      setShow(false);
+      setShowBracket(false);
       await fillBracket(tracks);
     }
     if (tracks && tracks.length !== 0) {
@@ -191,7 +191,7 @@ const Bracket = ({
 
   useEffect(() => {
     // show the bracket when the renderArray is ready
-    setShow(true);
+    setShowBracket(true);
   }, [renderArray]);
 
   function modifyBracket(key, attribute, value) {
@@ -329,11 +329,11 @@ const Bracket = ({
 
   return (
     <div>
-      <div className={loading} hidden={show && loadReady}>
+      <div className={loading} hidden={showBracket}>
         Loading...
       </div>
       <div
-        hidden={!show || !loadReady || renderArray.length === 0}
+        hidden={!showBracket || renderArray.length === 0}
         className={largeContainerStyle}
       >
         <span className={bracketInfoStyle}>
