@@ -9,7 +9,9 @@
 	box-shadow: 0px 0px 8px black;
 	cursor: pointer;
 	width: var(--buttonwidth);
+	min-width: var(--buttonwidth);
 	height: var(--buttonheight);
+	min-height: var(--buttonheight);
 	display: flex;
 }
 
@@ -28,6 +30,7 @@
 	border: none;
 	width: 70%;
 	height: 100%;
+	min-height: var(--buttonheight);
 	line-height: 1.2em;
 	cursor: inherit;
 	border-radius: inherit;
@@ -51,12 +54,18 @@
 	border-top-right-radius: 0px;
 }
 
+.songDivStyle:hover {
+	height: auto;
+	display: flex;
+}
+
 .playButtonStyle {
 	background-color: green;
 	color: white;
 	border: none;
 	width: 30%;
 	height: 100%;
+	min-height: var(--buttonheight);
 	cursor: inherit;
 	border-radius: inherit;
 	text-align: center;
@@ -76,6 +85,7 @@
 .songDivStyle.disabledStyle {
 	cursor: default;
 	box-shadow: none;
+	width: var(--buttonwidth);
 	/* opacity: .8; */
 }
 
