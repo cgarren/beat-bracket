@@ -24,6 +24,8 @@ const SongButton = ({
   side,
   previousIds,
   disabled,
+  currentlyPlayingId,
+  setCurrentlyPlayingId,
   modifyBracket,
   saveCommand,
   getBracket,
@@ -33,9 +35,9 @@ const SongButton = ({
   color,
   playbackEnabled,
 }) => {
+  const [paused, setPaused] = useState(true);
   const thebutton = useRef(null);
   const audioRef = useRef(null);
-  const [paused, setPaused] = useState(true);
   const blankAudio =
     "https://github.com/anars/blank-audio/raw/master/2-seconds-of-silence.mp3";
 
@@ -94,13 +96,13 @@ const SongButton = ({
 
   function playSnippet() {
     thebutton.current.removeEventListener("mouseenter", playSnippet, true);
-    setPaused(false);
+    setCurrentlyPlayingId(id);
     thebutton.current.addEventListener("mouseleave", pauseSnippet, true);
   }
 
   function pauseSnippet() {
     thebutton.current.removeEventListener("mouseleave", pauseSnippet, true);
-    setPaused(true);
+    setCurrentlyPlayingId(null);
     thebutton.current.addEventListener("mouseenter", playSnippet, true);
   }
 
@@ -121,34 +123,37 @@ const SongButton = ({
 
   function playPauseAudio() {
     if (paused) {
-      setPaused(false);
+      setCurrentlyPlayingId(id);
     } else {
-      setPaused(true);
+      setCurrentlyPlayingId(null);
     }
   }
 
   useEffect(() => {
     audioRef.current.addEventListener("ended", () => {
-      setPaused(true);
+      setCurrentlyPlayingId(null);
     });
   }, []);
 
   useEffect(() => {
-    if (paused) {
+    if (currentlyPlayingId !== id) {
       audioRef.current.pause();
+      setPaused(true);
     } else {
       try {
         audioRef.current.play();
+        setPaused(false);
       } catch (error) {
         console.log(error);
+        setCurrentlyPlayingId(null);
         setPaused(true);
       }
     }
-  }, [paused]);
+  }, [currentlyPlayingId]);
 
   useEffect(() => {
     if (disabled) {
-      setPaused(true);
+      setCurrentlyPlayingId(null);
     }
   }, [disabled]);
 

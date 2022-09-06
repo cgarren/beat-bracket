@@ -103,6 +103,7 @@ const Bracket = ({
   const [renderArray, setRenderArray] = useState([]);
   const [show, setShow] = useState(true);
   const [bracketComplete, setBracketComplete] = useState(false);
+  const [currentlyPlayingId, setCurrentlyPlayingId] = useState(null);
 
   useEffect(() => {
     async function kickOff() {
@@ -118,7 +119,7 @@ const Bracket = ({
     }
   }, [tracks]);
 
-  function genArray(side) {
+  function generateComponentArray(side) {
     return Array.apply(null, { length: columns }).map((e, i) => (
       <div className={columnStyle} key={side + i}>
         {Array.from(bracket.entries()).map((entry) => {
@@ -136,6 +137,8 @@ const Bracket = ({
                   nextId={value.nextId}
                   song={value.song}
                   id={value.id}
+                  currentlyPlayingId={currentlyPlayingId}
+                  setCurrentlyPlayingId={setCurrentlyPlayingId}
                   side={side}
                   styling={
                     value.index === 0
@@ -176,14 +179,15 @@ const Bracket = ({
   }
 
   function regenerateRenderArray() {
-    let leftSide = genArray("l");
-    let rightSide = genArray("r");
+    let leftSide = generateComponentArray("l");
+    let rightSide = generateComponentArray("r");
     setRenderArray([...leftSide, ...rightSide]);
   }
 
+  // rerender the bracket when certain events happen
   useEffect(() => {
     regenerateRenderArray();
-  }, [bracket, playbackEnabled]);
+  }, [bracket, playbackEnabled, currentlyPlayingId]);
 
   useEffect(() => {
     // show the bracket when the renderArray is ready
