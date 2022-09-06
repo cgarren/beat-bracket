@@ -5,7 +5,6 @@
 - Make the final bracket shareable with a link
 - Make bracket loading and the site in general prettier
 - Make a toggle for songs exclusively by the artist vs songs the artist is featured on
-- Make it possible to see the whole song name
 - Better duplicate detection
 ### Medium
 - Implement saving the bracket with every change linked to a users spotify account and stored in a db somewhere. Maybe a landing page where users can see their past brackets?
@@ -16,6 +15,8 @@
 - Add metrics on generation like - number of songs, seconds it took to make, number from albums vs singles, etc...
 - Make a toggle which decides which songs to include in the bracket in the first place (random vs popularity vs custom)
 ### Low
+- Make favicon
+- Option to include/exclude remixes (wouldd have to be word detection or regex based, beta first)
 - Make the bracket from a spotify playlist
 - Full Mobile support
 - Fix byes
