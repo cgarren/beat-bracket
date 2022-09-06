@@ -4,6 +4,7 @@ import SearchBar from "../components/SearchBar";
 import Mousetrap from "mousetrap";
 import { loadRequest, nearestLesserPowerOf2, popularitySort, shuffleArray, switchEveryOther } from "../utilities/helpers";
 import Layout from "../components/Layout";
+import LoadingIndicator from "../components/LoadingIndicator";
 
 // markup
 const App = () => {
@@ -14,6 +15,7 @@ const App = () => {
   const [limit, setLimit] = useState(64);
   const [seedingMethod, setSeedingMethod] = useState("popularity");
   const [playbackEnabled, setPlaybackEnabled] = useState(false);
+  const [loadingText, setLoadingText] = useState("Loading...");
 
   function limitChange(e) {
     if (noChanges()) {
@@ -191,14 +193,17 @@ const App = () => {
   }
 
   async function getTracks() {
+    setLoadingText("Gathering Spotify tracks for " + artist.name + "...");
     let songs = await loadAlbums("https://api.spotify.com/v1/artists/" + artist.id + "/albums?include_groups=album,single&limit=20");
     // load data for the songs
+    setLoadingText("Gathering track information...");
     let templist = await processTracks(songs);
     // if the artist has less than 8 songs, stop
     if (templist.length >= 8) {
+      const power = nearestLesserPowerOf2(templist.length);
+      setLoadingText("Seeding tracks by " + seedingMethod + "...");
       // sort the list by popularity
       templist.sort(popularitySort);
-      const power = nearestLesserPowerOf2(templist.length);
       console.log(templist);
       // limit the list length to the nearest lesser power of 2 (for now)
       templist = templist.slice(0, (limit < power ? limit : power));
@@ -210,7 +215,7 @@ const App = () => {
       setTracks([]);
       setArtist({ "name": undefined, "id": undefined });
     }
-    setShowBracket(true);
+    setLoadingText("Generating bracket...");
   }
 
   useEffect(() => {
@@ -248,6 +253,7 @@ const App = () => {
         </div>
       <hr />
       <div>
+        <LoadingIndicator hidden={showBracket} loadingText={loadingText} />
         {commands.length !== 0 ? <div><button onClick={undo}>Undo</button><br /></div> : <div></div>}
         <Bracket tracks={tracks} setShowBracket={setShowBracket} showBracket={showBracket} saveCommand={saveCommand} artist={artist} playbackEnabled={playbackEnabled} />
       </div>

@@ -18,7 +18,6 @@ import {
 } from "../utilities/helpers";
 
 import {
-  loading,
   containerStyle,
   largeContainerStyle,
   holderStyle,
@@ -329,9 +328,6 @@ const Bracket = ({
 
   return (
     <div>
-      <div className={loading} hidden={showBracket}>
-        Loading...
-      </div>
       <div
         hidden={!showBracket || renderArray.length === 0}
         className={largeContainerStyle}
