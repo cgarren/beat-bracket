@@ -204,11 +204,8 @@ const App = () => {
       setLoadingText("Seeding tracks by " + seedingMethod + "...");
       // sort the list by popularity
       templist.sort(popularitySort);
-      console.log(templist);
       // limit the list length to the nearest lesser power of 2 (for now)
-      templist = templist.slice(0, (limit < power ? limit : power));
-      seedBracket(templist);
-      console.log(templist);
+      templist = seedBracket(templist.slice(0, (limit < power ? limit : power)));
       setTracks(templist);
     } else {
       alert(artist.name + " doesn't have enough songs on Spotify!")
