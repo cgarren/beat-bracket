@@ -15,6 +15,8 @@
 - Add metrics on generation like - number of songs, seconds it took to make, number from albums vs singles, etc...
 - Make a toggle which decides which songs to include in the bracket in the first place (random vs popularity vs custom)
 - Play from the beginning of songs (scrubber too maybe?)
+- USE REFS INSTEAD OF REDRAWING EVERY TIME ONE THING CHANGES
+
 ### Low
 - Make favicon
 - Option to include/exclude remixes (would have to be word detection or regex based, beta first)

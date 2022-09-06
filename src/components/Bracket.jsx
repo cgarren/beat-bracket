@@ -1,5 +1,3 @@
-//TODO: USE REFS INSTEAD OF REDRAWING EVERY TIME ONE THING CHANGES!
-
 // Library to get prominent colors from images (for coloring bracket spaces according to album art)
 import Vibrant from "node-vibrant";
 
