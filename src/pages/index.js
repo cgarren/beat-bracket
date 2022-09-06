@@ -6,8 +6,8 @@ import { loadRequest, nearestLesserPowerOf2, popularitySort, shuffleArray, switc
 import Layout from "../components/Layout";
 
 // TODO: Fix byes
-// TODO: -----> Implement saving the bracket with every change linked to a users spotify account and stored in a db somewhere. Maybe a landing page where users can see their past brackets?
-// TODO: -----> Add a way to add songs to queue
+// TODO: Implement saving the bracket with every change linked to a users spotify account and stored in a db somewhere. Maybe a landing page where users can see their past brackets? ***
+// TODO: Add a way to add songs to queue
 // TODO: Make the final bracket shareable with a link
 // TODO: Make bracket loading prettier
 // TODO: Once a column is finished zoom/scale the bracket to make it easier to do the next column
@@ -24,6 +24,7 @@ import Layout from "../components/Layout";
 // TODO: Make created playlist description fit on mobile
 // TODO: Make a toggle for songs exclusively by the artist vs songs the aritst is featured on
 // TODO: Make a toggle which decides which songs to include in the bracket in the first place (random vs popularity vs custom)
+// TODO: Generate picture with just final four/eight for easy sharing. Maybe some pretty sharable grpahics that just show the winner and artist
 
 // markup
 const App = () => {
