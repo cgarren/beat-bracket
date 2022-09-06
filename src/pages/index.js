@@ -16,8 +16,7 @@ import Layout from "../components/Layout";
 // TODO: Display seed number/popularity in badge on each song button with toggle to hide it
 // TODO: Add metrics on generation like - number of songs, seconds it took to make, number from albums vs singles, etc...
 // TODO: Make the bracket from a spotify playlist ***
-// TODO: Make it possible to see the whole song name
-// TODO: Only let one song preview play at a time
+// TODO: Make it possible to see the whole song name ***
 // TODO: Break into smaller components
 // TODO: Use spotify metrics to filter (only kanye's slow songs, danceable songs, etc...)
 // TODO: Move todos to separate file, maybe readme? maybe at root level?
