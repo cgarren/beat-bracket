@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 
-import { buttonStyle, logoStyle } from "./GeneratePlaylistButton.module.css";
+import {
+  createPlaylist,
+  addTracksToPlaylist,
+  addCoverImageToPlaylist,
+} from "../utilities/helpers";
 
-import { createPlaylist, addTracksToPlaylist } from "../utilities/helpers";
-
-import spotifyLogo from "../assets/images/Spotify_Logo_RGB_Green.png";
 import { useEffect } from "react";
 
 const GeneratePlaylistButton = ({ tracks, artist, hidden }) => {
@@ -21,6 +22,7 @@ const GeneratePlaylistButton = ({ tracks, artist, hidden }) => {
       artist.name +
       " bracket. Make your own at cgarren.github.com/song-coliseum!";
     const response = await createPlaylist(nameStr, descriptionStr);
+    //addCoverImageToPlaylist(response.id, artist.art);
     if (!response["error"]) {
       const response2 = await addTracksToPlaylist(
         response.id,
@@ -46,24 +48,26 @@ const GeneratePlaylistButton = ({ tracks, artist, hidden }) => {
   return (
     <button
       onClick={playlistId ? viewPlaylist : makePlaylist}
-      className={buttonStyle}
+      className="inline-flex items-center justify-center cursor-pointer text-center"
       hidden={hidden}
       disabled={loading}
     >
       <span>
-        {playlistId ? "View playlist on" : loading ? "" : "Make"}&nbsp;
+        {playlistId
+          ? "View playlist on Spotify"
+          : loading
+          ? ""
+          : "Make Spotify"}
       </span>
-      {loading ? (
-        ""
-      ) : (
-        <img src={spotifyLogo} alt="Spotify logo" className={logoStyle}></img>
-      )}
       <span>
         {playlistId
           ? ""
           : loading
           ? "Working..."
-          : String.fromCharCode(160) + "playlist"}
+          : String.fromCharCode(160) +
+            "playlist with " +
+            tracks.length +
+            " tracks"}
       </span>
     </button>
   );

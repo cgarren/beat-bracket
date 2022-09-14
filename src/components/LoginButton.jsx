@@ -2,8 +2,6 @@ import React from "react";
 
 import { generateRandomString } from "../utilities/helpers";
 
-import { buttonStyle, logoStyle } from "./LoginButton.module.css";
-
 import spotifyLogo from "../assets/images/Spotify_Logo_RGB_Green.png";
 
 const LoginButton = () => {
@@ -28,9 +26,12 @@ const LoginButton = () => {
   }
 
   return (
-    <button onClick={login} className={buttonStyle}>
+    <button
+      onClick={login}
+      className="bg-black hover:bg-zinc-800 text-white border-black hover:border-zinc-800 flex items-center justify-center"
+    >
       <span>Login with&nbsp;</span>
-      <img src={spotifyLogo} alt="Spotify logo" className={logoStyle}></img>
+      <img src={spotifyLogo} alt="Spotify logo" className="h-6"></img>
     </button>
   );
 };

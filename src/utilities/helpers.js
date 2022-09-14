@@ -1,3 +1,6 @@
+// Screnshot library
+import html2canvas from "html2canvas";
+
 async function loadRequest(url, params) {
 	if (params) {
 		url = url + "?" + new URLSearchParams(params);
@@ -40,6 +43,28 @@ async function postRequest(url, params, data) {
 	}
 }
 
+async function putRequest(url, params, data) {
+	if (params) {
+		url = url + "?" + new URLSearchParams(params);
+	}
+	const response = await fetch(url, {
+		method: 'PUT',
+    headers: {
+			'Content-Type': 'image/jpeg',
+			'Authorization': 'Bearer ' + sessionStorage.getItem('access_token')
+		},
+		///body: data
+	});
+	
+	if (response.ok) {
+		return response.json(); // parses JSON response into native JavaScript objects
+	} else if (response.status === 429) {
+		throw new Error("Too many requests. Code: " + response.status);
+	} else {
+		throw new Error("Unknown request error. Code: " + response.status);
+	}
+}
+
 async function createPlaylist(name = "New Playlist", description = "", isPublic = true, isCollaborative = false) {
 	const response = await loadRequest("https://api.spotify.com/v1/me");
 	if (!response["error"]) {
@@ -61,6 +86,15 @@ async function addTracksToPlaylist(playlistId, trackUris) {
 	})
 }
 
+async function addCoverImageToPlaylist(playlistId, imageUrl) {
+	const url = "https://api.spotify.com/v1/playlists/" + playlistId + "/images"
+	return await putRequest(url, {}, base64FromImageUrl(imageUrl))
+}
+
+function base64FromImageUrl(url) {
+	return "iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=="
+}
+
 function generateRandomString(length) {
 		let text = '';
 		let possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -72,7 +106,7 @@ function generateRandomString(length) {
 
 function getParamsFromURL(new_url) {
 	try {
-		var hashParams = getHashParams()
+		let hashParams = getHashParams()
 		if (hashParams["raw_hash"] !== '') {
 				sessionStorage.setItem('access_token', hashParams["access_token"]);
 				sessionStorage.setItem('received_state', hashParams["state"]);
@@ -88,10 +122,10 @@ function getParamsFromURL(new_url) {
 }
 
 function getHashParams() {
-	var hashParams = {};
-	var e, r = /([^&;=]+)=?([^&;]*)/g,
+	let hashParams = {};
+	let e, r = /([^&;=]+)=?([^&;]*)/g,
 	q = window.location.hash.substring(1);
-	hashParams['raw_hash'] = window.location.hash
+	hashParams['raw_hash'] = window.location.hash;
 	while (e = r.exec(q)) {
 		hashParams[e[1]] = decodeURIComponent(e[2]);
 	}
@@ -179,9 +213,41 @@ function nearestLesserPowerOf2(num) {
 	return last;
 }
 
+function shareBracket(bracketId, artistName) {
+    let bracketEl = document.getElementById(bracketId);
+    html2canvas(bracketEl, {
+      scale: 4,
+      scrollX: -bracketEl.offsetLeft,
+      scrollY: -bracketEl.offsetTop,
+      logging: false,
+    }).then(function (canvas) {
+      //canvas = document.body.appendChild(canvas); // used for debugging
+      //console.log(canvas.width, canvas.height);
+      let ctx = canvas.getContext("2d");
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = "black";
+      ctx.font = "bold 30px sans-serif";
+      ctx.fillText(artistName, canvas.width / 8, canvas.height / 16, 225);
+      ctx.font = "8px sans-serif";
+      ctx.fillText(
+        "Bracket made at cgarren.github.io/song-coliseum",
+        canvas.width / 8,
+        canvas.height / 16 + 20,
+        225
+      );
+      const createEl = document.createElement("a");
+      createEl.href = canvas.toDataURL("image/svg+xml");
+      createEl.download = artistName + " bracket from Song Coliseum";
+      createEl.click();
+      createEl.remove();
+    });
+  }
+
 export {
 	loadRequest,
 	postRequest,
+	putRequest,
 	popularitySort,
 	removeDuplicatesWithKey,
 	nearestGreaterPowerOf2,
@@ -191,5 +257,7 @@ export {
 	getParamsFromURL,
 	generateRandomString,
 	createPlaylist,
-	addTracksToPlaylist
+	addTracksToPlaylist,
+	addCoverImageToPlaylist,
+	shareBracket
 }

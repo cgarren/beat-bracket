@@ -3,18 +3,6 @@ import { useEffect, useRef, useState } from "react";
 import PlayIcon from "../assets/svgs/playIcon.svg";
 import PauseIcon from "../assets/svgs/pauseIcon.svg";
 
-import {
-  songButtonStyle,
-  playButtonStyle,
-  songDivStyle,
-  unfilledStyle,
-  winnerStyle,
-  eliminatedStyle,
-  disabledStyle,
-  leftStyle,
-  rightStyle,
-} from "./SongButton.module.css";
-
 const SongButton = ({
   styling,
   song,
@@ -157,12 +145,13 @@ const SongButton = ({
   return (
     <div
       className={
-        songDivStyle +
-        (song == null ? " " + unfilledStyle + " " : " ") +
-        (winner ? " " + winnerStyle + " " : " ") +
-        (disabled ? " " + disabledStyle + " " : " ") +
-        (side ? " " + leftStyle + " " : " " + rightStyle + " ") +
-        (eliminated ? " " + eliminatedStyle + " " : " ") +
+        "flex rounded-2xl border-0 shadow-md cursor-pointer w-[var(--buttonwidth)] min-w-[var(--buttonwidth)] h-[var(--buttonheight)] min-h-[var(--buttonheight) hover:h-auto hover:flex] disabled:cursor-default disabled:shadow-none disabled:w-[var(--buttonwidth)]" +
+        (song == null
+          ? " bg-white text-black shadow-md border-0 border-gray-400"
+          : " ") +
+        (winner ? "opacity-100" : " ") +
+        (side ? " flex-row-reverse " : "") +
+        (eliminated ? " opacity-50 " : " ") +
         styling
       }
       style={
@@ -192,11 +181,11 @@ const SongButton = ({
             : {}
         }
         className={
-          songButtonStyle +
-          (song == null ? " " + unfilledStyle + " " : " ") +
-          (winner ? " " + winnerStyle + " " : " ") +
-          (side ? " " + leftStyle + " " : " " + rightStyle + " ") +
-          (eliminated ? " " + eliminatedStyle + " " : " ")
+          "rounded-[inherit] disabled:rounded-[inherit] bg-red-500 text-white border-0 w-[70%] h-full min-h-[var(--buttonheight)] leading-[1.2em] p-0 text-center overflow-hidden break-words disabled:w-full disabled:px-[6px]" +
+          (song == null ? " w-full bg-transparent text-black" : "") +
+          (winner ? " opacity-100 " : "") +
+          (side ? " pr-[6px] rounded-l-[0] " : " pl-[6px] rounded-r-[0] ") +
+          (eliminated ? " " : "")
         }
       >
         {song !== null ? song.name : ""}
@@ -204,8 +193,8 @@ const SongButton = ({
       <button
         onClick={playPauseAudio}
         className={
-          playButtonStyle +
-          (side ? " " + leftStyle + " " : " " + rightStyle + " ")
+          "rounded-[inherit] bg-green-500 text-white border-0 w-[30%] h-full min-h-[var(--buttonheight)] cursor-[inherit] text-center p-0" +
+          (side ? " rounded-r-[0] " : " rounded-l-[0] ")
         }
         style={
           color

@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
-import ArtistSuggestionList from "./ArtistSuggestionList";
+import ArtistSuggestion from "./ArtistSuggestion";
 import { loadRequest } from "../utilities/helpers";
-
-import { barStyle, holderStyle } from "./SearchBar.module.css";
 
 const SearchBar = ({ setArtist, noChanges, disabled }) => {
   const [searchText, setSearchText] = useState("");
@@ -52,17 +50,31 @@ const SearchBar = ({ setArtist, noChanges, disabled }) => {
   }, [searchText]);
 
   return (
-    <div className={holderStyle}>
+    // <div className="mb-2 max-w-[800px] min-w-[25%] flex flex-col">
+    <div className="inline-flex flex-col justify-items-center mb-2 place-items-center min-w-[800px]">
       <input
         placeholder="Search for an artist..."
         aria-label="Search for an artist..."
-        size="lg"
+        size="search"
         value={searchText}
         onChange={(e) => setSearchText(e.target.value)}
-        className={barStyle}
+        className={
+          "text-black text-2xl font-bar w-full p-1 border-0 rounded focus:z-10 pl-3 mousetrap"
+        }
         disabled={disabled}
       />
-      <ArtistSuggestionList artistList={artistSuggestionList} />
+      <ul className="m-0 p-0 list-none flex-nowrap gap-0 inline-flex flex-col text-center w-full rounded">
+        {artistSuggestionList.map((item) => {
+          return (
+            <ArtistSuggestion
+              artistName={item.name}
+              art={item.art}
+              onClick={item.onClick}
+              key={item.id}
+            />
+          );
+        })}
+      </ul>
     </div>
   );
 };

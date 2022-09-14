@@ -2,9 +2,10 @@ import React, {useEffect, useState} from "react"
 import Bracket from "../components/Bracket"
 import SearchBar from "../components/SearchBar";
 import Mousetrap from "mousetrap";
-import { loadRequest, nearestLesserPowerOf2, popularitySort, shuffleArray, switchEveryOther } from "../utilities/helpers";
+import { loadRequest, nearestLesserPowerOf2, popularitySort, shuffleArray, switchEveryOther, shareBracket } from "../utilities/helpers";
 import Layout from "../components/Layout";
 import LoadingIndicator from "../components/LoadingIndicator";
+import GeneratePlaylistButton from "../components/GeneratePlaylistButton";
 
 // markup
 const App = () => {
@@ -16,6 +17,7 @@ const App = () => {
   const [seedingMethod, setSeedingMethod] = useState("popularity");
   const [playbackEnabled, setPlaybackEnabled] = useState(false);
   const [loadingText, setLoadingText] = useState("Loading...");
+  const [bracketComplete, setBracketComplete] = useState(false);
 
   function limitChange(e) {
     if (noChanges()) {
@@ -206,6 +208,7 @@ const App = () => {
       templist.sort(popularitySort);
       // limit the list length to the nearest lesser power of 2 (for now)
       templist = seedBracket(templist.slice(0, (limit < power ? limit : power)));
+      console.table(templist);
       setTracks(templist);
     } else {
       alert(artist.name + " doesn't have enough songs on Spotify!")
@@ -223,36 +226,63 @@ const App = () => {
     }
   }, [artist]);
 
+  function share() {
+    shareBracket("bracket", artist.name);
+  }
+
   return (
     <Layout>
-      <SearchBar setArtist={setArtist} noChanges={noChanges} disabled={!showBracket}/>
-      <div className={""}>
-        <label htmlFor="limit-select">Maximum tracks: </label>
-        <select name="limit" id="limit-select" value={limit} onChange={limitChange} disabled={!showBracket}>
-          <option value="8">8</option>
-          <option value="16">16</option>
-          <option value="32">32</option>
-          <option value="64">64</option>
-          <option value="128">128</option>
-          <option value="256">256</option>
-        </select>
-      </div>
-      <div className={""}>
-        <label htmlFor="seeding-select">Seed by: </label>
-        <select name="seeding" id="seeding-select" value={seedingMethod} onChange={seedingChange} disabled={!showBracket}>
-          <option value="random">Random</option>
-          <option value="popularity">Popularity</option>
-        </select>
-      </div>
-        <div className={""}>
-          <label htmlFor="playback-select">Hover preview (beta): </label>
-          <input type="checkbox" id="playback-select" checked={playbackEnabled} onChange={playbackChange} disabled={!showBracket} name="playback-select"></input> 
+      <div className="text-center">
+      <div className="inline-flex flex-col gap-1 max-w-[800px] items-center">
+        <div className="font-bold mb-2">Create a bracket with songs from your favorite artists on Spotify!</div>
+        <SearchBar setArtist={setArtist} noChanges={noChanges} disabled={!showBracket} />
+        <div className="border border-black rounded-lg p-2 mb-1 flex flex-col">
+          <div className={""}>
+            <label htmlFor="limit-select">Maximum tracks: </label>
+            <select name="limit" id="limit-select" value={limit} onChange={limitChange} disabled={!showBracket} className="border-0 rounded border-black">
+              <option value="8">8</option>
+              <option value="16">16</option>
+              <option value="32">32</option>
+              <option value="64">64</option>
+              <option value="128">128</option>
+              <option value="256">256</option>
+            </select>
+          </div>
+          <div className={""}>
+            <label htmlFor="seeding-select">Seed by: </label>
+            <select name="seeding" id="seeding-select" value={seedingMethod} onChange={seedingChange} disabled={!showBracket} className="border-0 rounded border-black">
+              <option value="random">Random</option>
+              <option value="popularity">Popularity</option>
+            </select>
+          </div>
+          <div className={""}>
+            <label htmlFor="playback-select">Hover preview (beta): </label>
+            <input type="checkbox" id="playback-select" checked={playbackEnabled} onChange={playbackChange} disabled={!showBracket} name="playback-select"></input> 
+          </div>
         </div>
+      </div>
       <hr />
       <div>
-        <LoadingIndicator hidden={showBracket} loadingText={loadingText} />
-        {commands.length !== 0 ? <div><button onClick={undo}>Undo</button><br /></div> : <div></div>}
-        <Bracket tracks={tracks} setShowBracket={setShowBracket} showBracket={showBracket} saveCommand={saveCommand} artist={artist} playbackEnabled={playbackEnabled} />
+          <LoadingIndicator hidden={showBracket} loadingText={loadingText} />
+          <div hidden={!showBracket || !artist.name}>
+            <div className="inline-flex flex-col justify-center">
+              <span className="font-bold">
+              {artist.name ? "Bracket for: " + artist.name : ""}
+              </span>
+              <div>
+                <span className="font-bold">{tracks.length} tracks displayed</span>
+              </div>
+              <div className="inline-flex items-center text-xs -space-x-px rounded-md">
+                <GeneratePlaylistButton tracks={tracks} artist={artist}/>
+                <button onClick={undo} hidden={commands.length <= 0} className="border-l-gray-200 hover:disabled:border-x-gray-200">Undo</button>
+                <button onClick={share} hidden={!bracketComplete} className="border-l-gray-200 hover:disabled:border-l-gray-200">
+                  Download Bracket
+                </button>
+              </div>
+            </div>
+          </div>
+          <Bracket tracks={tracks} setShowBracket={setShowBracket} showBracket={showBracket} saveCommand={saveCommand} playbackEnabled={playbackEnabled} bracketComplete={bracketComplete} setBracketComplete={setBracketComplete} />
+        </div>
       </div>
     </Layout>
   )

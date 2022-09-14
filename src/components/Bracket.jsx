@@ -1,105 +1,65 @@
 // Library to get prominent colors from images (for coloring bracket spaces according to album art)
 import Vibrant from "node-vibrant";
 
-// Screnshot library
-import html2canvas from "html2canvas";
-
 import React, { useEffect, useState } from "react";
 
 import SongButton from "./SongButton";
-
-import GeneratePlaylistButton from "./GeneratePlaylistButton";
 
 import {
   nearestGreaterPowerOf2,
   nearestLesserPowerOf2,
 } from "../utilities/helpers";
 
-import {
-  containerStyle,
-  largeContainerStyle,
-  holderStyle,
-  columnStyle,
-  bracketInfoStyle,
-  lineStyle,
-  lineLeftStyle,
-  lineRightStyle,
-  firstColumnStyle,
-  firstColumnLineStyle,
-  secondColumnStyle,
-  secondColumnStyleTop,
-  secondColumnLineStyle,
-  thirdColumnStyle,
-  thirdColumnStyleTop,
-  thirdColumnLineStyle,
-  fourthColumnStyle,
-  fourthColumnStyleTop,
-  fourthColumnLineStyle,
-  fifthColumnStyle,
-  fifthColumnStyleTop,
-  fifthColumnLineStyle,
-  sixthColumnStyle,
-  sixthColumnStyleTop,
-  sixthColumnLineStyle,
-  seventhColumnStyle,
-  seventhColumnStyleTop,
-  seventhColumnLineStyle,
-  eigthColumnStyle,
-  eigthColumnStyleTop,
-  eigthColumnLineStyle,
-  ninthColumnStyle,
-  ninthColumnStyleTop,
-  ninthColumnLineStyle,
-} from "./Bracket.module.css";
-
 const styles = [
-  firstColumnStyle,
-  secondColumnStyle,
-  thirdColumnStyle,
-  fourthColumnStyle,
-  fifthColumnStyle,
-  sixthColumnStyle,
-  seventhColumnStyle,
-  eigthColumnStyle,
-  ninthColumnStyle,
+  "mt-[var(--firstColumnSpacing)]",
+  "mt-[var(--secondColumnSpacing)]",
+  "mt-[var(--thirdColumnSpacing)]",
+  "mt-[var(--fourthColumnSpacing)]",
+  "mt-[var(--fifthColumnSpacing)]",
+  "mt-[var(--sixthColumnSpacing)]",
+  "mt-[var(--seventhColumnSpacing)]",
+  "mt-[var(--eigthColumnSpacing)]",
+  "mt-[var(--ninthColumnSpacing)]",
 ];
 
 const topStyles = [
-  firstColumnStyle,
-  secondColumnStyleTop,
-  thirdColumnStyleTop,
-  fourthColumnStyleTop,
-  fifthColumnStyleTop,
-  sixthColumnStyleTop,
-  seventhColumnStyleTop,
-  eigthColumnStyleTop,
-  ninthColumnStyleTop,
+  "mt-[var(--firstColumnSpacing)]",
+  "mt-[calc(var(--buttonheight)*1.25)]",
+  "mt-[calc(var(--buttonheight)*2.75)]",
+  "mt-[calc(var(--buttonheight)*5.75)]",
+  "mt-[calc(var(--buttonheight)*11.75)]",
+  "mt-[calc(var(--buttonheight)*23.75)]",
+  "mt-[calc(var(--buttonheight)*47.75)]",
+  "mt-[calc(var(--buttonheight)*95.75)]",
+  "mt-[calc(var(--buttonheight)*191.75)]",
 ];
 
 const lineStyles = [
-  firstColumnLineStyle,
-  secondColumnLineStyle,
-  thirdColumnLineStyle,
-  fourthColumnLineStyle,
-  fifthColumnLineStyle,
-  sixthColumnLineStyle,
-  seventhColumnLineStyle,
-  eigthColumnLineStyle,
-  ninthColumnLineStyle,
+  "h-[var(--firstColumnSpacing)]",
+  "h-[var(--secondColumnSpacing)]",
+  "h-[var(--thirdColumnSpacing)]",
+  "h-[var(--fourthColumnSpacing)]",
+  "h-[var(--fifthColumnSpacing)]",
+  "h-[var(--sixthColumnSpacing)]",
+  "h-[var(--seventhColumnSpacing)]",
+  "h-[var(--eigthColumnSpacing)]",
+  "h-[var(--ninthColumnSpacing)]",
 ];
+
+/* 3, 7, 15, 31, 63, 127*/
+/*   4  8  16  32  64*/
 
 const Bracket = ({
   tracks,
   showBracket,
   setShowBracket,
+  setBracketComplete,
   saveCommand,
-  artist,
   playbackEnabled,
 }) => {
   const [bracket, setBracket] = useState(new Map());
   const [columns, setColumns] = useState(0);
   const [renderArray, setRenderArray] = useState([]);
-  const [bracketComplete, setBracketComplete] = useState(false);
   const [currentlyPlayingId, setCurrentlyPlayingId] = useState(null);
 
   useEffect(() => {
@@ -118,13 +78,13 @@ const Bracket = ({
 
   function generateComponentArray(side) {
     return Array.apply(null, { length: columns }).map((e, i) => (
-      <div className={columnStyle} key={side + i}>
+      <div className="flex flex-col" key={side + i}>
         {Array.from(bracket.entries()).map((entry) => {
           const [mykey, value] = entry;
           const colExpression = side === "l" ? i : columns - 1 - i;
           if (value.side === side && value.col === colExpression) {
             return (
-              <div key={mykey} className={holderStyle}>
+              <div key={mykey}>
                 <SongButton
                   playbackEnabled={playbackEnabled}
                   modifyBracket={modifyBracket}
@@ -155,10 +115,8 @@ const Bracket = ({
                   <div
                     className={
                       lineStyles[colExpression] +
-                      " " +
-                      lineStyle +
-                      " " +
-                      (side === "l" ? lineLeftStyle : lineRightStyle)
+                      " bg-gray-500 w-[var(--lineWidth)] " +
+                      (side === "l" ? "ml-[var(--leftLineMargin)]" : "ml-0")
                     }
                     key={mykey + "0"}
                   ></div>
@@ -293,58 +251,13 @@ const Bracket = ({
     return cols;
   }
 
-  function shareBracket() {
-    let bracketEl = document.getElementById("bracket");
-    html2canvas(bracketEl, {
-      scale: 4,
-      scrollX: -bracketEl.offsetLeft,
-      scrollY: -bracketEl.offsetTop,
-      logging: false,
-    }).then(function (canvas) {
-      //canvas = document.body.appendChild(canvas); // used for debugging
-      //console.log(canvas.width, canvas.height);
-      let ctx = canvas.getContext("2d");
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillStyle = "black";
-      ctx.font = "bold 30px sans-serif";
-      ctx.fillText(artist.name, canvas.width / 8, canvas.height / 16, 225);
-      ctx.font = "8px sans-serif";
-      ctx.fillText(
-        "Bracket made at cgarren.github.io/song-coliseum",
-        canvas.width / 8,
-        canvas.height / 16 + 20,
-        225
-      );
-      const createEl = document.createElement("a");
-      createEl.href = canvas.toDataURL("image/svg+xml");
-      createEl.download = artist.name + " bracket from Song Coliseum";
-      createEl.click();
-      createEl.remove();
-    });
-  }
-
   return (
-    <div>
-      <div
-        hidden={!showBracket || renderArray.length === 0}
-        className={largeContainerStyle}
-      >
-        <span className={bracketInfoStyle}>
-          {artist.name ? "Bracket for: " + artist.name : ""}
-        </span>
-        <div>
-          <span className={bracketInfoStyle}>
-            {tracks.length} tracks displayed
-          </span>
-        </div>
-        <GeneratePlaylistButton tracks={tracks} artist={artist} />
-        {bracketComplete ? (
-          <button onClick={shareBracket}>Download Bracket</button>
-        ) : (
-          <div></div>
-        )}
-        <div className={containerStyle} id="bracket">
+    <div hidden={!showBracket || renderArray.length === 0}>
+      <div className="flex flex-col overflow-x-scroll">
+        <div
+          className="flex flex-row gap-[10px] justify-start p-[5px]"
+          id="bracket"
+        >
           {renderArray}
         </div>
       </div>

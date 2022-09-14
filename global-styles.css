@@ -1,3 +1,43 @@
-body {
-	margin: 0;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+	--buttonheight: 50px;
+	--buttonwidth: 107px;
+	--lineWidth: 3px;
+	--firstColumnSpacing: calc(var(--buttonheight) / 2);
+	--secondColumnSpacing: calc(var(--buttonheight) * 2);
+	--thirdColumnSpacing: calc(var(--buttonheight) * 5);
+	--fourthColumnSpacing: calc(var(--buttonheight) * 11);
+	--fifthColumnSpacing: calc(var(--buttonheight) * 23);
+	--sixthColumnSpacing: calc(var(--buttonheight) * 47);
+	--seventhColumnSpacing: calc(var(--buttonheight) * 95);
+	--eigthColumnSpacing: calc(var(--buttonheight) * 191);
+	--ninthColumnSpacing: calc(var(--buttonheight) * 383);
+	--leftLineMargin: calc((var(--buttonwidth)) - (var(--lineWidth)));
+}
+
+button {
+	@apply px-4 py-2 border text-sm rounded-md text-black bg-white border-white transition;
+}
+
+button:hover {
+	@apply z-10 bg-gray-100 border-gray-100;
+}
+
+button:focus {
+	@apply outline-none border-indigo-600 z-10;
+}
+
+button:active {
+	@apply opacity-75;
+}
+
+button:disabled {
+	@apply text-gray-500;
+}
+
+button:disabled:hover {
+	@apply bg-white border-white;
 }
