@@ -164,6 +164,7 @@ const SongButton = ({
           : {}
       }
       id={id}
+      disabled={disabled}
       data-opponentid={opponentId}
       data-nextid={nextId}
       ref={thebutton}
