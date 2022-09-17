@@ -253,7 +253,7 @@ const Bracket = ({
 
   return (
     <div hidden={!showBracket || renderArray.length === 0}>
-      <div className="flex flex-col overflow-x-scroll">
+      <div className="block w-fit flex-col overflow-x-scroll">
         <div
           className="flex flex-row gap-[10px] justify-start p-[5px]"
           id="bracket"
