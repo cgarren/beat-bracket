@@ -23,7 +23,6 @@ const ProfileDropdown = ({ loggedIn }) => {
     const url = "https://api.spotify.com/v1/me";
     const response = await loadRequest(url);
     if (!response["error"]) {
-      console.log(response);
       if (response.images.length == 0) {
         response.images.push({
           url: guestProfileImage,
@@ -37,7 +36,6 @@ const ProfileDropdown = ({ loggedIn }) => {
     async function getInfo() {
       setUserInfo(await getUserInfo());
     }
-    console.log(loggedIn);
     if (loggedIn) {
       getInfo();
     } else {

@@ -17,13 +17,11 @@ const Layout = ({ children }) => {
       sessionStorage.getItem("received_state") !==
         sessionStorage.getItem("spotify_auth_state")
     ) {
-      console.log("setting false");
       setLoggedIn(false);
       if (timer) {
         clearInterval(timer);
       }
     } else {
-      console.log("setting true");
       setLoggedIn(true);
     }
   }
