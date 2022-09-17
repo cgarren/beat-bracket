@@ -5,6 +5,7 @@
 - Make the final bracket shareable with a link
 - Make a toggle for songs exclusively by the artist vs songs the artist is featured on
 - Better duplicate detection
+- Improve seeding so that the top four songs are in the four corners
 ### Medium
 - Allow user to delete certain songs
 - Implement saving the bracket with every change linked to a users spotify account and stored in a db somewhere. Maybe a landing page where users can see their past brackets?
