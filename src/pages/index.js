@@ -208,7 +208,7 @@ const App = () => {
       templist.sort(popularitySort);
       // limit the list length to the nearest lesser power of 2 (for now)
       templist = seedBracket(templist.slice(0, (limit < power ? limit : power)));
-      console.table(templist);
+      //console.table(templist);
       setTracks(templist);
     } else {
       alert(artist.name + " doesn't have enough songs on Spotify!")

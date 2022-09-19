@@ -239,7 +239,7 @@ const Bracket = ({
         i--;
       }
     }
-    console.log(temp);
+    //console.log(temp);
     setBracket(temp);
     setColumns(cols);
   }
