@@ -12,12 +12,12 @@ const App = () => {
   const [tracks, setTracks] = useState([]);
   const [artist, setArtist] = useState({ "name": undefined, "id": undefined });
   const [showBracket, setShowBracket] = useState(true);
-  const [commands, setCommands] = useState([]);
   const [limit, setLimit] = useState(64);
   const [seedingMethod, setSeedingMethod] = useState("popularity");
   const [playbackEnabled, setPlaybackEnabled] = useState(false);
   const [loadingText, setLoadingText] = useState("Loading...");
   const [bracketComplete, setBracketComplete] = useState(false);
+  const [commands, setCommands] = useState([]);
 
   function limitChange(e) {
     if (noChanges()) {
@@ -35,6 +35,14 @@ const App = () => {
       setPlaybackEnabled(!playbackEnabled);
   }
 
+  if (Mousetrap.bind) {
+    Mousetrap.bind("mod+z", undo);
+  }
+
+  function clearCommands() {
+    setCommands([]);
+  }
+
   function saveCommand(action, inverse) {
     let temp = [
       ...commands,
@@ -48,7 +56,11 @@ const App = () => {
 
   function noChanges() {
     if (commands.length !== 0) {
-      if (window.confirm("You have bracket changes that will be lost! Proceed anyways?")) {
+      if (
+        window.confirm(
+          "You have bracket changes that will be lost! Proceed anyways?"
+        )
+      ) {
         return true;
       } else {
         return false;
@@ -68,14 +80,10 @@ const App = () => {
     }
   }
 
-  if (Mousetrap.bind) {
-    Mousetrap.bind("mod+z", undo);
-  }
-
   useEffect(() => {
     let templist = [...tracks];
     setShowBracket(false);
-    setCommands([]);
+    clearCommands();
     templist = seedBracket(templist);
     setTracks(templist);
     setShowBracket(true);
@@ -84,7 +92,7 @@ const App = () => {
   useEffect(() => {
     if (artist.id) {
       setShowBracket(false);
-      setCommands([]);
+      clearCommands();
       getTracks();
     }
   }, [limit]);
@@ -221,7 +229,7 @@ const App = () => {
   useEffect(() => {
     if (artist.id) {
       setShowBracket(false);
-      setCommands([]);
+      clearCommands();
       getTracks();
     }
   }, [artist]);
@@ -231,7 +239,7 @@ const App = () => {
   }
 
   return (
-    <Layout>
+    <Layout noChanges={noChanges}>
       <div className="text-center">
       <div className="inline-flex flex-col gap-1 max-w-[800px] items-center">
         <div className="font-bold mb-2">Create a bracket with songs from your favorite artists on Spotify!</div>
@@ -274,7 +282,13 @@ const App = () => {
               </div>
               <div className="inline-flex items-center text-xs -space-x-px rounded-md">
                 <GeneratePlaylistButton tracks={tracks} artist={artist}/>
-                <button onClick={undo} hidden={commands.length <= 0} className="border-l-gray-200 hover:disabled:border-x-gray-200">Undo</button>
+                <button
+                  onClick={undo}
+                  hidden={commands.length === 0}
+                  className="border-l-gray-200 hover:disabled:border-x-gray-200"
+                >
+                  Undo
+                </button>
                 <button onClick={share} hidden={!bracketComplete} className="border-l-gray-200 hover:disabled:border-l-gray-200">
                   Download Bracket
                 </button>

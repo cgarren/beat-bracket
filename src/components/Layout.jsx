@@ -5,7 +5,7 @@ import AuthBanner from "../components/AuthBanner";
 import NavBar from "./NavBar";
 import { getParamsFromURL } from "../utilities/helpers";
 
-const Layout = ({ children }) => {
+const Layout = ({ children, noChanges }) => {
   const [loggedIn, setLoggedIn] = useState(false);
 
   function checkAuth(timer = undefined) {
@@ -42,7 +42,7 @@ const Layout = ({ children }) => {
       </Helmet>
       <div className="fixed w-full h-full top-0 left-0 bg-repeat bg-scroll bg-slate-900 bg-colosseum bg-blend-screen bg-cover opacity-40 -z-10"></div>
       <AuthBanner show={!loggedIn} />
-      <NavBar loggedIn={loggedIn} />
+      <NavBar loggedIn={loggedIn} noChanges={noChanges} />
       <div className="">{children}</div>
     </main>
   );
