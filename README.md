@@ -16,6 +16,7 @@
 - Make a toggle which decides which songs to include in the bracket in the first place (random vs popularity vs custom)
 - Play from the beginning of songs (scrubber too maybe?)
 - USE REFS INSTEAD OF REDRAWING EVERY TIME ONE THING CHANGES
+- Make the bracket options more attractive/streamlined
 ### Low
 - Make favicon
 - Animation with one song knocking out or killing another song
