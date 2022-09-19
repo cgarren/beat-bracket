@@ -49,6 +49,62 @@ const SearchBar = ({ setArtist, noChanges, disabled }) => {
     //console.log(searchText);
   }, [searchText]);
 
+  useEffect(() => {
+    document.getElementById("searchbar").addEventListener("keydown", (e) => {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        if (document.getElementById("artist-list").children.length > 0) {
+          document.getElementById("artist-list").firstChild.focus();
+        }
+      }
+    });
+    document.getElementById("artist-list").addEventListener("keydown", (e) => {
+      if (document.getElementById("artist-list").children.length > 0) {
+        if (e.key === "ArrowUp") {
+          e.preventDefault();
+          e.stopPropagation();
+          if (
+            document.activeElement ===
+            document.getElementById("artist-list").firstChild
+          ) {
+            document.getElementById("searchbar").focus();
+          } else if (
+            document
+              .getElementById("artist-list")
+              .contains(document.activeElement)
+          ) {
+            document.activeElement.previousSibling.focus();
+          }
+        } else if (e.key === "ArrowDown") {
+          e.preventDefault();
+          e.stopPropagation();
+          if (
+            document
+              .getElementById("artist-list")
+              .contains(document.activeElement) &&
+            document.activeElement.nextSibling
+          ) {
+            document.activeElement.nextSibling.focus();
+          }
+        }
+      }
+    });
+  }, []);
+
+  // $("#myDropdown, .dropbtn").on("keydown", function (e) {
+  //   if (e.which == 40) {
+  //     //down
+  //     pos = pos == maxpos ? 0 : pos + 1;
+  //     $("#myDropdown a").eq(pos).trigger("focus");
+  //   }
+  //   if (e.which == 38) {
+  //     //up
+  //     pos = pos == 0 ? maxpos : pos - 1;
+  //     $("#myDropdown a").eq(pos).trigger("focus");
+  //   }
+  //   return false; //cancel scrolling
+  // });
+
   return (
     // <div className="mb-2 max-w-[800px] min-w-[25%] flex flex-col">
     <div className="inline-flex flex-col justify-items-center mb-2 place-items-center min-w-[800px]">
@@ -56,6 +112,7 @@ const SearchBar = ({ setArtist, noChanges, disabled }) => {
         placeholder="Search for an artist..."
         aria-label="Search for an artist..."
         size="search"
+        id="searchbar"
         value={searchText}
         onChange={(e) => setSearchText(e.target.value)}
         className={
@@ -63,7 +120,10 @@ const SearchBar = ({ setArtist, noChanges, disabled }) => {
         }
         disabled={disabled}
       />
-      <ul className="m-0 p-0 list-none flex-nowrap gap-0 inline-flex flex-col text-center w-full rounded">
+      <div
+        id="artist-list"
+        className="m-0 p-0 list-none flex-nowrap gap-0 inline-flex flex-col text-center w-full rounded"
+      >
         {artistSuggestionList.map((item) => {
           return (
             <ArtistSuggestion
@@ -74,7 +134,7 @@ const SearchBar = ({ setArtist, noChanges, disabled }) => {
             />
           );
         })}
-      </ul>
+      </div>
     </div>
   );
 };
