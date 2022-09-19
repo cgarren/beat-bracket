@@ -279,19 +279,20 @@ const Bracket = ({
   }
 
   return (
-    <div
-      hidden={!showBracket || renderArray.length === 0}
-      className={
-        "overflow-x-scroll flex" +
-        (centerBracket ? " justify-center" : " justify-start")
-      }
-    >
-      <div ref={bracketCallback} className="block w-fit flex-col">
-        <div
-          className="flex flex-row gap-[10px] justify-start p-[5px]"
-          id="bracket"
-        >
-          {renderArray}
+    <div hidden={!showBracket || renderArray.length === 0}>
+      <div
+        className={
+          "overflow-x-scroll flex" +
+          (centerBracket ? " justify-center" : " justify-start")
+        }
+      >
+        <div ref={bracketCallback} className="block w-fit flex-col">
+          <div
+            className="flex flex-row gap-[10px] justify-start p-[5px]"
+            id="bracket"
+          >
+            {renderArray}
+          </div>
         </div>
       </div>
     </div>
