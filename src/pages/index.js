@@ -236,7 +236,7 @@ const App = () => {
       <div className="inline-flex flex-col gap-1 max-w-[800px] items-center">
         <div className="font-bold mb-2">Create a bracket with songs from your favorite artists on Spotify!</div>
         <SearchBar setArtist={setArtist} noChanges={noChanges} disabled={!showBracket} />
-        <div className="rounded-lg p-2 mb-1 flex flex-col">
+        <div className="rounded-lg mb-2 flex flex-col">
           <div className={""}>
             <label htmlFor="limit-select">Maximum tracks: </label>
             <select name="limit" id="limit-select" value={limit} onChange={limitChange} disabled={!showBracket} className="border-0 rounded border-black">
