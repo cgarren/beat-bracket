@@ -1,7 +1,7 @@
 // Library to get prominent colors from images (for coloring bracket spaces according to album art)
 import Vibrant from "node-vibrant";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 
 import SongButton from "./SongButton";
 
@@ -9,6 +9,7 @@ import {
   nearestGreaterPowerOf2,
   nearestLesserPowerOf2,
 } from "../utilities/helpers";
+import { useRef } from "react";
 
 const styles = [
   "mt-[var(--firstColumnSpacing)]",
@@ -61,6 +62,32 @@ const Bracket = ({
   const [columns, setColumns] = useState(0);
   const [renderArray, setRenderArray] = useState([]);
   const [currentlyPlayingId, setCurrentlyPlayingId] = useState(null);
+  const [centerBracket, setCenterBracket] = useState(false);
+  const [bracketRef, setBracketRef] = useState(null);
+  const bracketCallback = useCallback((node) => {
+    setBracketRef(node);
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("resize", updateCenterBracket);
+    return () => {
+      window.removeEventListener("resize", updateCenterBracket);
+    };
+  }, []);
+
+  useEffect(() => {
+    updateCenterBracket();
+  }, [bracketRef, bracket, showBracket]);
+
+  function updateCenterBracket() {
+    if (bracketRef && window) {
+      if (bracketRef.offsetWidth <= window.innerWidth) {
+        setCenterBracket(true);
+      } else {
+        setCenterBracket(false);
+      }
+    }
+  }
 
   useEffect(() => {
     async function kickOff() {
@@ -254,9 +281,12 @@ const Bracket = ({
   return (
     <div
       hidden={!showBracket || renderArray.length === 0}
-      className="overflow-x-scroll"
+      className={
+        "overflow-x-scroll flex" +
+        (centerBracket ? " justify-center" : " justify-start")
+      }
     >
-      <div className="block w-fit flex-col">
+      <div ref={bracketCallback} className="block w-fit flex-col">
         <div
           className="flex flex-row gap-[10px] justify-start p-[5px]"
           id="bracket"
