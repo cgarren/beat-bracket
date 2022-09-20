@@ -1,4 +1,4 @@
-# Song Coliseum
+# Song Colosseum
 ## TODO
 ### High
 - Add a way to add songs to queue

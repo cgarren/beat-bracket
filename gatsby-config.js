@@ -1,6 +1,6 @@
 module.exports = {
   siteMetadata: {
-    title: `Song Coliseum`,
+    title: `Song Colosseum`,
     siteUrl: `https://www.yourdomain.tld`,
   },
   plugins: ['gatsby-plugin-postcss', 'gatsby-plugin-react-helmet', {
@@ -11,5 +11,5 @@ module.exports = {
       }
     }
   }],
-  pathPrefix: "/song-coliseum"
+  pathPrefix: "/song-colosseum"
 }
