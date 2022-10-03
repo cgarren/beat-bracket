@@ -31,7 +31,7 @@ const LoginButton = () => {
       className="bg-black hover:bg-zinc-800 text-white border-black hover:border-zinc-800 flex items-center justify-center"
     >
       <span>Login with&nbsp;</span>
-      <img src={spotifyLogo} alt="Spotify" className="h-6"></img>
+      <img src={spotifyLogo} alt="Spotify" className="h-6 text-white"></img>
     </button>
   );
 };

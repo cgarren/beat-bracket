@@ -16,7 +16,7 @@ const NavBar = ({ loggedIn, noChanges }) => {
         >
           🏛️ Song Colosseum
         </button>
-        <ProfileDropdown loggedIn={loggedIn} />
+        <ProfileDropdown loggedIn={loggedIn} noChanges={noChanges} />
       </div>
     </header>
   );

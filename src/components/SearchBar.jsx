@@ -113,6 +113,8 @@ const SearchBar = ({ setArtist, noChanges, disabled }) => {
         aria-label="Search for an artist..."
         size="search"
         id="searchbar"
+        type="search"
+        spellCheck="false"
         value={searchText}
         onChange={(e) => setSearchText(e.target.value)}
         className={
