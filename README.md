@@ -7,6 +7,7 @@
 - Better duplicate detection
 - Improve seeding so that the top four songs are in the four corners
 ### Medium
+- Make styling on searchbar for both keyboard and mouse option select consistent (currently purple outline for keyboard select and gray background for mouse hover)
 - Allow user to delete certain songs
 - Implement saving the bracket with every change linked to a users spotify account and stored in a db somewhere. Maybe a landing page where users can see their past brackets?
 - Break into smaller components
