@@ -103,6 +103,7 @@ const App = () => {
         return shuffleArray(trackList);
       case "popularity":
         trackList.sort(popularitySort);
+        console.table(trackList);
         return switchEveryOther(trackList);
       default:
         return trackList;

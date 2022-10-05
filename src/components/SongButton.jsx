@@ -213,6 +213,7 @@ const SongButton = ({
       <audio
         src={song !== null && !disabled ? song.preview_url : blankAudio}
         volume="1"
+        className="hidden"
         ref={audioRef}
       ></audio>
     </div>
