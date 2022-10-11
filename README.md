@@ -6,6 +6,7 @@
 - Make a toggle for songs exclusively by the artist vs songs the artist is featured on
 - Better duplicate detection
 - Improve seeding so that the top four songs are in the four corners
+- Rename to Beat Bracket
 ### Medium
 - Make styling on searchbar for both keyboard and mouse option select consistent (currently purple outline for keyboard select and gray background for mouse hover)
 - Allow user to delete certain songs
@@ -24,9 +25,9 @@
 - Option to include/exclude remixes (would have to be word detection or regex based, beta first)
 - Make the bracket from a spotify playlist
 - Full Mobile support (including songButton stretching toggle)
-- Fix byes
+- Fix byes (make it possible to work with odd numbers of songs)
 - Use spotify metrics to filter (only kanye's slow songs, danceable songs, etc...)
 - Make created playlist description fit on mobile
 - Generate picture with just final four/eight for easy sharing. Maybe some pretty sharable grpahics that just show the winner and artist
 - Once a column is finished zoom/scale the bracket to make it easier to do the next column
-- Toggle to enable/disable songButton stretching to show the full
+- Toggle to enable/disable songButton stretching to show the full song name
