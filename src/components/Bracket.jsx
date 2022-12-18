@@ -9,7 +9,6 @@ import {
   nearestGreaterPowerOf2,
   nearestLesserPowerOf2,
 } from "../utilities/helpers";
-import { useRef } from "react";
 
 const styles = [
   "mt-[var(--firstColumnSpacing)]",
@@ -65,6 +64,7 @@ const Bracket = ({
   const [centerBracket, setCenterBracket] = useState(false);
   const [bracketRef, setBracketRef] = useState(null);
   const bracketCallback = useCallback((node) => {
+    // console.log("setting bracket ref");
     setBracketRef({ current: node });
     updateCenterBracket();
   }, []);
@@ -81,10 +81,14 @@ const Bracket = ({
   }, [bracket, showBracket]);
 
   function updateCenterBracket() {
+    // console.log("called", bracketRef);
     if (bracketRef && window) {
+      // console.log("inner", bracketRef.current);
       if (bracketRef.current.offsetWidth <= window.innerWidth) {
+        // console.log("center on");
         setCenterBracket(true);
       } else {
+        // console.log("center off");
         setCenterBracket(false);
       }
     }
