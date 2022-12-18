@@ -41,3 +41,7 @@ button:disabled {
 button:disabled:hover {
 	@apply bg-white border-white;
 }
+
+body {
+	@apply min-h-screen;
+}

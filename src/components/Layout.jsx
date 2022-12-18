@@ -36,11 +36,11 @@ const Layout = ({ children, noChanges }) => {
   }, []);
 
   return (
-    <main className="font-sans text-black h-full">
+    <main className="font-sans text-black min-h-screen bg-zinc-300">
       <Helmet>
         <title>Song Colosseum</title>
       </Helmet>
-      <div className="fixed w-full h-full top-0 left-0 bg-repeat bg-scroll bg-slate-900 bg-colosseum bg-blend-screen bg-cover opacity-40 -z-10"></div>
+      {/* <div className="fixed w-full h-full top-0 left-0 bg-repeat bg-scroll bg-slate-900 bg-colosseum bg-blend-screen bg-cover opacity-40 -z-10"></div> */}
       <AuthBanner show={!loggedIn} />
       <NavBar loggedIn={loggedIn} noChanges={noChanges} />
       <div className="">{children}</div>
