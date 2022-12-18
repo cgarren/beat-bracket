@@ -107,7 +107,7 @@ const SearchBar = ({ setArtist, noChanges, disabled }) => {
 
   return (
     // <div className="mb-2 max-w-[800px] min-w-[25%] flex flex-col">
-    <div className="inline-flex flex-col justify-items-center mb-2 place-items-center min-w-[800px]">
+    <div className="inline-flex flex-col justify-items-center mb-2 place-items-center sm:min-w-[400px] md:min-w-[700px] lg:min-w-[800px]">
       <input
         placeholder="Search for an artist..."
         aria-label="Search for an artist..."
