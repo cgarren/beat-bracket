@@ -65,7 +65,8 @@ const Bracket = ({
   const [centerBracket, setCenterBracket] = useState(false);
   const [bracketRef, setBracketRef] = useState(null);
   const bracketCallback = useCallback((node) => {
-    setBracketRef(node);
+    setBracketRef({ current: node });
+    updateCenterBracket();
   }, []);
 
   useEffect(() => {
@@ -77,11 +78,11 @@ const Bracket = ({
 
   useEffect(() => {
     updateCenterBracket();
-  }, [bracketRef, bracket, showBracket]);
+  }, [bracket, showBracket]);
 
   function updateCenterBracket() {
     if (bracketRef && window) {
-      if (bracketRef.offsetWidth <= window.innerWidth) {
+      if (bracketRef.current.offsetWidth <= window.innerWidth) {
         setCenterBracket(true);
       } else {
         setCenterBracket(false);
