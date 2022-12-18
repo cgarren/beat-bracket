@@ -5,13 +5,13 @@ async function loadRequest(url, params) {
 	if (params) {
 		url = url + "?" + new URLSearchParams(params);
 	}
-  const response = await fetch(url, {
-    headers: {
+	const response = await fetch(url, {
+		headers: {
 			'Content-Type': 'application/json',
 			'Authorization': 'Bearer ' + sessionStorage.getItem('access_token')
-    }
+		}
 	});
-	
+
 	if (response.ok) {
 		return response.json(); // parses JSON response into native JavaScript objects
 	} else if (response.status === 429) {
@@ -27,13 +27,13 @@ async function postRequest(url, params, data) {
 	}
 	const response = await fetch(url, {
 		method: 'POST',
-    headers: {
+		headers: {
 			'Content-Type': 'application/json',
 			'Authorization': 'Bearer ' + sessionStorage.getItem('access_token')
 		},
 		body: JSON.stringify(data)
 	});
-	
+
 	if (response.ok) {
 		return response.json(); // parses JSON response into native JavaScript objects
 	} else if (response.status === 429) {
@@ -49,13 +49,13 @@ async function putRequest(url, params, data) {
 	}
 	const response = await fetch(url, {
 		method: 'PUT',
-    headers: {
+		headers: {
 			'Content-Type': 'image/jpeg',
 			'Authorization': 'Bearer ' + sessionStorage.getItem('access_token')
 		},
 		///body: data
 	});
-	
+
 	if (response.ok) {
 		return response.json(); // parses JSON response into native JavaScript objects
 	} else if (response.status === 429) {
@@ -96,22 +96,22 @@ function base64FromImageUrl(url) {
 }
 
 function generateRandomString(length) {
-		let text = '';
-		let possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-		for (let i = 0; i < length; i++) {
-			text += possible.charAt(Math.floor(Math.random() * possible.length));
-		}
-		return text;
+	let text = '';
+	let possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+	for (let i = 0; i < length; i++) {
+		text += possible.charAt(Math.floor(Math.random() * possible.length));
 	}
+	return text;
+}
 
 function getParamsFromURL(new_url) {
 	try {
 		let hashParams = getHashParams()
 		if (hashParams["raw_hash"] !== '') {
-				sessionStorage.setItem('access_token', hashParams["access_token"]);
-				sessionStorage.setItem('received_state', hashParams["state"]);
-				sessionStorage.setItem('raw_hash', hashParams["raw_hash"]);
-				sessionStorage.setItem('expires_at', Date.now() + (parseInt(hashParams["expires_in"]) * 1000));
+			sessionStorage.setItem('access_token', hashParams["access_token"]);
+			sessionStorage.setItem('received_state', hashParams["state"]);
+			sessionStorage.setItem('raw_hash', hashParams["raw_hash"]);
+			sessionStorage.setItem('expires_at', Date.now() + (parseInt(hashParams["expires_in"]) * 1000));
 		}
 		window.history.replaceState({}, document.title, new_url);
 		return true;
@@ -124,7 +124,7 @@ function getParamsFromURL(new_url) {
 function getHashParams() {
 	let hashParams = {};
 	let e, r = /([^&;=]+)=?([^&;]*)/g,
-	q = window.location.hash.substring(1);
+		q = window.location.hash.substring(1);
 	hashParams['raw_hash'] = window.location.hash;
 	while (e = r.exec(q)) {
 		hashParams[e[1]] = decodeURIComponent(e[2]);
@@ -140,7 +140,7 @@ function popularitySort(track1, track2) {
 }
 
 function switchEveryOther(array) {
-	for (let i = 1; i < array.length / 2; i+=2) {
+	for (let i = 1; i < array.length / 2; i += 2) {
 		if (i % 2 !== 0) {
 			//console.log("switching", array[array.length - i].name, "AND", array[i].name);
 			let temp = array[i];
@@ -178,17 +178,17 @@ function removeDuplicatesWithKey(theArray, key) {
 }
 
 function shuffleArray(array) {
-  let currentIndex = array.length,  randomIndex;
-  // While there remain elements to shuffle.
-  while (currentIndex !== 0) {
-    // Pick a remaining element.
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex--;
-    // And swap it with the current element.
-    [array[currentIndex], array[randomIndex]] = [
-      array[randomIndex], array[currentIndex]];
-  }
-  return array;
+	let currentIndex = array.length, randomIndex;
+	// While there remain elements to shuffle.
+	while (currentIndex !== 0) {
+		// Pick a remaining element.
+		randomIndex = Math.floor(Math.random() * currentIndex);
+		currentIndex--;
+		// And swap it with the current element.
+		[array[currentIndex], array[randomIndex]] = [
+			array[randomIndex], array[currentIndex]];
+	}
+	return array;
 }
 
 function nearestGreaterPowerOf2(num) {
@@ -214,35 +214,35 @@ function nearestLesserPowerOf2(num) {
 }
 
 function shareBracket(bracketId, artistName) {
-    let bracketEl = document.getElementById(bracketId);
-    html2canvas(bracketEl, {
-      scale: 4,
-      scrollX: -bracketEl.offsetLeft,
-      scrollY: -bracketEl.offsetTop,
-      logging: false,
-    }).then(function (canvas) {
-      //canvas = document.body.appendChild(canvas); // used for debugging
-      //console.log(canvas.width, canvas.height);
-      let ctx = canvas.getContext("2d");
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillStyle = "black";
-      ctx.font = "bold 30px sans-serif";
-      ctx.fillText(artistName, canvas.width / 8, canvas.height / 16, 225);
-      ctx.font = "8px sans-serif";
-      ctx.fillText(
-        "Bracket made at cgarren.github.io/song-coliseum",
-        canvas.width / 8,
-        canvas.height / 16 + 20,
-        225
-      );
-      const createEl = document.createElement("a");
-      createEl.href = canvas.toDataURL("image/svg+xml");
-      createEl.download = artistName + " bracket from Song Coliseum";
-      createEl.click();
-      createEl.remove();
-    });
-  }
+	let bracketEl = document.getElementById(bracketId);
+	html2canvas(bracketEl, {
+		scale: 4,
+		scrollX: -bracketEl.offsetLeft,
+		scrollY: -bracketEl.offsetTop,
+		logging: false,
+	}).then(function (canvas) {
+		//canvas = document.body.appendChild(canvas); // used for debugging
+		//console.log(canvas.width, canvas.height);
+		let ctx = canvas.getContext("2d");
+		ctx.textAlign = "center";
+		ctx.textBaseline = "middle";
+		ctx.fillStyle = "black";
+		ctx.font = "bold 30px sans-serif";
+		ctx.fillText(artistName, canvas.width / 8, canvas.height / 16, 225);
+		ctx.font = "8px sans-serif";
+		ctx.fillText(
+			"Bracket made at cgarren.github.io/song-coliseum",
+			canvas.width / 8,
+			canvas.height / 16 + 20,
+			225
+		);
+		const createEl = document.createElement("a");
+		createEl.href = canvas.toDataURL("image/svg+xml");
+		createEl.download = artistName + " bracket from Song Coliseum";
+		createEl.click();
+		createEl.remove();
+	});
+}
 
 export {
 	loadRequest,

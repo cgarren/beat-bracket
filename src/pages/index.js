@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react"
+import React, { useEffect, useState } from "react"
 import Bracket from "../components/Bracket"
 import SearchBar from "../components/SearchBar";
 import Mousetrap from "mousetrap";
@@ -32,7 +32,7 @@ const App = () => {
   }
 
   function playbackChange(e) {
-      setPlaybackEnabled(!playbackEnabled);
+    setPlaybackEnabled(!playbackEnabled);
   }
 
   if (Mousetrap.bind) {
@@ -78,6 +78,7 @@ const App = () => {
       // run the function that was just popped
       lastCommand.inverse();
     }
+    return false;
   }
 
   useEffect(() => {
@@ -184,7 +185,7 @@ const App = () => {
       });
     }
   }
-  
+
   async function loadAlbums(url, songs = {}) {
     let response = await loadRequest(url);
     //console.log(response);
@@ -242,47 +243,47 @@ const App = () => {
   return (
     <Layout noChanges={noChanges}>
       <div className="text-center">
-      <div className="inline-flex flex-col gap-1 max-w-[800px] items-center">
-        <div className="font-bold mb-2">Create a bracket with songs from your favorite artists on Spotify!</div>
-        <SearchBar setArtist={setArtist} noChanges={noChanges} disabled={!showBracket} />
-        <div className="rounded-lg mb-2 flex flex-col">
-          <div className={""}>
-            <label htmlFor="limit-select">Maximum tracks: </label>
-            <select name="limit" id="limit-select" value={limit} onChange={limitChange} disabled={!showBracket} className="border-0 rounded border-black">
-              <option value="8">8</option>
-              <option value="16">16</option>
-              <option value="32">32</option>
-              <option value="64">64</option>
-              <option value="128">128</option>
-              <option value="256">256</option>
-            </select>
-          </div>
-          <div className={""}>
-            <label htmlFor="seeding-select">Seed by: </label>
-            <select name="seeding" id="seeding-select" value={seedingMethod} onChange={seedingChange} disabled={!showBracket} className="border-0 rounded border-black">
-              <option value="random">Random</option>
-              <option value="popularity">Popularity</option>
-            </select>
-          </div>
-          <div className={""}>
-            <label htmlFor="playback-select">Hover preview (beta): </label>
-            <input type="checkbox" id="playback-select" checked={playbackEnabled} onChange={playbackChange} disabled={!showBracket} name="playback-select"></input> 
+        <div className="inline-flex flex-col gap-1 max-w-[800px] items-center">
+          <div className="font-bold mb-2">Create a bracket with songs from your favorite artists on Spotify!</div>
+          <SearchBar setArtist={setArtist} noChanges={noChanges} disabled={!showBracket} />
+          <div className="rounded-lg mb-2 flex flex-col">
+            <div className={""}>
+              <label htmlFor="limit-select">Maximum tracks: </label>
+              <select name="limit" id="limit-select" value={limit} onChange={limitChange} disabled={!showBracket} className="border-0 rounded border-black">
+                <option value="8">8</option>
+                <option value="16">16</option>
+                <option value="32">32</option>
+                <option value="64">64</option>
+                <option value="128">128</option>
+                <option value="256">256</option>
+              </select>
+            </div>
+            <div className={""}>
+              <label htmlFor="seeding-select">Seed by: </label>
+              <select name="seeding" id="seeding-select" value={seedingMethod} onChange={seedingChange} disabled={!showBracket} className="border-0 rounded border-black">
+                <option value="random">Random</option>
+                <option value="popularity">Popularity</option>
+              </select>
+            </div>
+            <div className={""}>
+              <label htmlFor="playback-select">Hover preview (beta): </label>
+              <input type="checkbox" id="playback-select" checked={playbackEnabled} onChange={playbackChange} disabled={!showBracket} name="playback-select"></input>
+            </div>
           </div>
         </div>
-      </div>
-      <hr />
-      <div>
+        <hr />
+        <div>
           <LoadingIndicator hidden={showBracket} loadingText={loadingText} />
           <div hidden={!showBracket || !artist.name}>
             <div className="inline-flex flex-col justify-center">
               <span className="font-bold">
-              {artist.name ? "Bracket for: " + artist.name : ""}
+                {artist.name ? "Bracket for: " + artist.name : ""}
               </span>
               <div>
                 <span className="font-bold">{tracks.length} tracks displayed</span>
               </div>
               <div className="inline-flex items-center text-xs -space-x-px rounded-md">
-                <GeneratePlaylistButton tracks={tracks} artist={artist}/>
+                <GeneratePlaylistButton tracks={tracks} artist={artist} />
                 <button
                   onClick={undo}
                   hidden={commands.length === 0}
