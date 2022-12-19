@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { loadRequest } from "../utilities/helpers";
 import guestProfileImage from "../assets/images/guestProfileImage.png";
+import { getUserInfo } from "../utilities/helpers";
 
 const ProfileDropdown = ({ loggedIn }) => {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -17,19 +17,6 @@ const ProfileDropdown = ({ loggedIn }) => {
   function signOut() {
     setShowDropdown(false);
     sessionStorage.clear();
-  }
-
-  async function getUserInfo() {
-    const url = "https://api.spotify.com/v1/me";
-    const response = await loadRequest(url);
-    if (!response["error"]) {
-      if (response.images.length == 0) {
-        response.images.push({
-          url: guestProfileImage,
-        });
-      }
-      return response;
-    }
   }
 
   useEffect(() => {

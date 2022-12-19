@@ -1,5 +1,7 @@
 // Screnshot library
 import html2canvas from "html2canvas";
+// Guest profile pic
+import guestProfileImage from "../assets/images/guestProfileImage.png";
 
 async function loadRequest(url, params) {
 	if (params) {
@@ -213,6 +215,19 @@ function nearestLesserPowerOf2(num) {
 	return last;
 }
 
+async function getUserInfo() {
+	const url = "https://api.spotify.com/v1/me";
+	const response = await loadRequest(url);
+	if (!response["error"]) {
+		if (response.images.length == 0) {
+			response.images.push({
+				url: guestProfileImage,
+			});
+		}
+		return response;
+	}
+}
+
 function shareBracket(bracketId, artistName) {
 	let bracketEl = document.getElementById(bracketId);
 	html2canvas(bracketEl, {
@@ -259,5 +274,6 @@ export {
 	createPlaylist,
 	addTracksToPlaylist,
 	addCoverImageToPlaylist,
-	shareBracket
+	shareBracket,
+	getUserInfo
 }
