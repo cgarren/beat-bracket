@@ -6,11 +6,13 @@ import { loadRequest, nearestLesserPowerOf2, popularitySort, shuffleArray, switc
 import Layout from "../components/Layout";
 import LoadingIndicator from "../components/LoadingIndicator";
 import GeneratePlaylistButton from "../components/GeneratePlaylistButton";
+import { getUserInfo } from "../utilities/helpers";
 
 // markup
 const App = () => {
   const [tracks, setTracks] = useState([]);
   const [artist, setArtist] = useState({ "name": undefined, "id": undefined });
+  const [bracket, setBracket] = useState(new Map());
   const [showBracket, setShowBracket] = useState(true);
   const [limit, setLimit] = useState(64);
   const [seedingMethod, setSeedingMethod] = useState("popularity");
@@ -33,6 +35,15 @@ const App = () => {
 
   function playbackChange(e) {
     setPlaybackEnabled(!playbackEnabled);
+  }
+
+  async function saveBracket() { //Called on these occasions: user is about to exit page, user clicks save button, user completes bracket
+    const obj = Object.fromEntries(bracket);
+    console.log(bracket, obj);
+    let userId = await getUserInfo().id;
+
+    //write to datbase and stuff
+    //show notification confirming the save
   }
 
   if (Mousetrap.bind) {
@@ -291,13 +302,14 @@ const App = () => {
                 >
                   Undo
                 </button>
-                <button onClick={share} hidden={!bracketComplete} className="border-l-gray-200 hover:disabled:border-l-gray-200">
+                <button onClick={saveBracket} className="border-l-gray-200 hover:disabled:border-l-gray-200">Save</button>
+                {/* <button onClick={share} hidden={!bracketComplete} className="border-l-gray-200 hover:disabled:border-l-gray-200">
                   Download Bracket
-                </button>
+                </button> */}
               </div>
             </div>
           </div>
-          <Bracket tracks={tracks} setShowBracket={setShowBracket} showBracket={showBracket} saveCommand={saveCommand} playbackEnabled={playbackEnabled} bracketComplete={bracketComplete} setBracketComplete={setBracketComplete} />
+          <Bracket bracket={bracket} setBracket={setBracket} tracks={tracks} setShowBracket={setShowBracket} showBracket={showBracket} saveCommand={saveCommand} playbackEnabled={playbackEnabled} bracketComplete={bracketComplete} setBracketComplete={setBracketComplete} />
         </div>
       </div>
     </Layout>

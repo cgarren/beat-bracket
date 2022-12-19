@@ -56,8 +56,9 @@ const Bracket = ({
   setBracketComplete,
   saveCommand,
   playbackEnabled,
+  bracket,
+  setBracket,
 }) => {
-  const [bracket, setBracket] = useState(new Map());
   const [columns, setColumns] = useState(0);
   const [renderArray, setRenderArray] = useState([]);
   const [currentlyPlayingId, setCurrentlyPlayingId] = useState(null);
