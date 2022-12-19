@@ -13,7 +13,7 @@ module.exports = {
       serif: ['Merriweather', 'serif'],
       display: ['Righteous', 'sans-serif'],
       //bar: ['"Helvetica Neue"', '"Helvetica"', '"Arial"', 'sans-serif'], //'"SF Pro Text"','"Myriad Set Pro"','"SF Pro Icons"',
-      bar: ['system-ui','-apple-system','"Segoe UI"','Roboto','"Helvetica Neue"','Arial','"Noto Sans"','"Liberation Sans"','sans-serif','"Apple Color Emoji"','"Segoe UI Emoji"','"Segoe UI Symbol"','"Noto Color Emoji"']
+      bar: ['system-ui', '-apple-system', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', '"Noto Sans"', '"Liberation Sans"', 'sans-serif', '"Apple Color Emoji"', '"Segoe UI Emoji"', '"Segoe UI Symbol"', '"Noto Color Emoji"']
     },
     extend: {
       backgroundImage: {
