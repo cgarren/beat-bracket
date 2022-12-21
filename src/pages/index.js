@@ -7,9 +7,11 @@ import Layout from "../components/Layout";
 import LoadingIndicator from "../components/LoadingIndicator";
 import GeneratePlaylistButton from "../components/GeneratePlaylistButton";
 import { getUserInfo } from "../utilities/helpers";
+import { v4 as uuidv4 } from 'uuid';
 
 // markup
 const App = () => {
+  const [bracketId, setBracketId] = useState(null);
   const [tracks, setTracks] = useState([]);
   const [artist, setArtist] = useState({ "name": undefined, "id": undefined });
   const [bracket, setBracket] = useState(new Map());
@@ -41,8 +43,8 @@ const App = () => {
     const obj = Object.fromEntries(bracket);
     console.log(bracket, obj);
     let userId = await getUserInfo().id;
-
-    //write to datbase and stuff
+    const bracketData = { id: bracketId, userId: userId, artistName: artist.name, artistId: artist.id, tracks: bracket.length, seeding: seedingMethod, lastModified: Date.now(), complete: bracketComplete, bracket: obj };
+    //write to database and stuff
     //show notification confirming the save
   }
 
