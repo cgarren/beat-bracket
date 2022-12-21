@@ -2,6 +2,7 @@
 import html2canvas from "html2canvas";
 // Guest profile pic
 import guestProfileImage from "../assets/images/guestProfileImage.png";
+import { navigate } from "gatsby";
 
 async function loadRequest(url, params) {
 	if (params) {
@@ -228,6 +229,12 @@ async function getUserInfo() {
 	}
 }
 
+function openBracket(uuid) {
+	console.log("Opening Bracket: " + uuid);
+	//open the bracket editor and pass the bracket id off
+	navigate("/bracket/" + uuid);
+}
+
 function shareBracket(bracketId, artistName) {
 	let bracketEl = document.getElementById(bracketId);
 	html2canvas(bracketEl, {
@@ -275,5 +282,6 @@ export {
 	addTracksToPlaylist,
 	addCoverImageToPlaylist,
 	shareBracket,
-	getUserInfo
+	getUserInfo,
+	openBracket
 }

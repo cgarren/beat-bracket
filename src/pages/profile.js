@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react"
 import Layout from "../components/Layout";
-import BracketCard from "../components/BracketCard";
+import ArtistBracketCard from "../components/ArtistBracketCard";
 import Tab from "../components/Tab";
+import CreateBracketCard from "../components/CreateBracketCard";
 
 // markup
 const App = () => {
@@ -48,9 +49,10 @@ const App = () => {
             <Tab id={2} activeTab={activeTab} setActiveTab={setActiveTab} text="Completed" />
           </nav>
         </div>
-        <div className="flex flex-row flex-wrap justify-start items-stretch gap-5 overflow-scroll mx-5">
+        <div className="flex flex-row flex-wrap justify-center items-stretch gap-5 overflow-scroll mx-5">
+          <CreateBracketCard />
           {shownBrackets.map((bracket) => (
-            <BracketCard bracket={bracket} key={bracket.id} />
+            <ArtistBracketCard bracket={bracket} key={bracket.id} />
           ))}
         </div>
       </div>

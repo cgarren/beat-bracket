@@ -1,10 +1,11 @@
+import { navigate } from "gatsby";
 import React from "react";
 import ProfileDropdown from "./ProfileDropdown";
 
 const NavBar = ({ loggedIn, noChanges }) => {
   function handleNaviagtionAttempt() {
     if (noChanges()) {
-      window.location = window.location.href;
+      navigate("/");
     }
   }
   return (
