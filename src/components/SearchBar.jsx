@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ArtistSuggestion from "./ArtistSuggestion";
-import { loadRequest } from "../utilities/helpers";
+import { loadSpotifyRequest } from "../utilities/helpers";
 
 const SearchBar = ({ setArtist, noChanges, disabled }) => {
   const [searchText, setSearchText] = useState("");
@@ -12,7 +12,7 @@ const SearchBar = ({ setArtist, noChanges, disabled }) => {
       var url =
         "https://api.spotify.com/v1/search/?" +
         new URLSearchParams(params).toString();
-      let response = await loadRequest(url);
+      let response = await loadSpotifyRequest(url);
 
       if (!response["error"] && response.artists.items.length > 0) {
         let templist = [];

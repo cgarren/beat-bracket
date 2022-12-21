@@ -2,15 +2,17 @@ import React, { useEffect, useState } from "react"
 import Bracket from "../../components/Bracket"
 import SearchBar from "../../components/SearchBar";
 import Mousetrap from "mousetrap";
-import { loadRequest, nearestLesserPowerOf2, popularitySort, shuffleArray, switchEveryOther, shareBracket } from "../../utilities/helpers";
+import { loadSpotifyRequest, nearestLesserPowerOf2, popularitySort, shuffleArray, switchEveryOther, shareBracket } from "../../utilities/helpers";
 import Layout from "../../components/Layout";
 import LoadingIndicator from "../../components/LoadingIndicator";
 import GeneratePlaylistButton from "../../components/GeneratePlaylistButton";
 import { getUserInfo } from "../../utilities/helpers";
+import { getBracket } from "../../utilities/backend";
 
 // markup
 const App = ({ params }) => {
-  const [bracketId, setBracketId] = useState(null);
+  const [bracketId, setBracketId] = useState(params.id);
+  const [userId, setUserId] = useState(null);
   const [tracks, setTracks] = useState([]);
   const [artist, setArtist] = useState({ "name": undefined, "id": undefined });
   const [bracket, setBracket] = useState(new Map());
@@ -37,6 +39,30 @@ const App = ({ params }) => {
   function playbackChange(e) {
     setPlaybackEnabled(!playbackEnabled);
   }
+
+  useEffect(() => {
+    getUserInfo().then((userInfo) => {
+      if (userInfo) {
+        setUserId(userInfo.id);
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    console.log(bracketId, userId);
+    if (bracketId && userId) {
+      getBracket(bracketId, userId).then((loadedBracket) => {
+        console.log(loadedBracket);
+        //setBracket(loadedBracket.bracketData);
+        setArtist({ name: loadedBracket.artistName, id: loadedBracket.artistId });
+        setSeedingMethod(loadedBracket.seeding);
+        setLimit(loadedBracket.tracks);
+        setBracketComplete(loadedBracket.complete);
+      });
+    } else {
+      console.log("No bracket id provided");
+    }
+  }, [userId]);
 
   async function saveBracket() { //Called on these occasions: user is about to exit page, user clicks save button, user completes bracket
     const obj = Object.fromEntries(bracket);
@@ -150,7 +176,7 @@ const App = ({ params }) => {
     let templist = [];
     if (idList.length !== 0) {
       const url = "https://api.spotify.com/v1/tracks?ids=" + idList.join();
-      const response = await loadRequest(url);
+      const response = await loadSpotifyRequest(url);
       if (!response["error"] && response.tracks.length > 0) {
         for (let numTracks of trackOptionsAmounts) {
           //console.log(numTracks, response.tracks.length, idList);
@@ -180,7 +206,7 @@ const App = ({ params }) => {
   }
 
   async function loadTracks(url, songs) {
-    let response = await loadRequest(url);
+    let response = await loadSpotifyRequest(url);
     if (!response["error"] && response.albums.length > 0) {
       response.albums.forEach((album) => {
         if (album.images.length > 0) {
@@ -199,7 +225,7 @@ const App = ({ params }) => {
   }
 
   async function loadAlbums(url, songs = {}) {
-    let response = await loadRequest(url);
+    let response = await loadSpotifyRequest(url);
     //console.log(response);
     if (!response["error"] && response.items.length > 0) {
       let albumIds = [];

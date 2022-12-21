@@ -4,7 +4,7 @@ import html2canvas from "html2canvas";
 import guestProfileImage from "../assets/images/guestProfileImage.png";
 import { navigate } from "gatsby";
 
-async function loadRequest(url, params) {
+async function loadSpotifyRequest(url, params) {
 	if (params) {
 		url = url + "?" + new URLSearchParams(params);
 	}
@@ -69,7 +69,7 @@ async function putRequest(url, params, data) {
 }
 
 async function createPlaylist(name = "New Playlist", description = "", isPublic = true, isCollaborative = false) {
-	const response = await loadRequest("https://api.spotify.com/v1/me");
+	const response = await loadSpotifyRequest("https://api.spotify.com/v1/me");
 	if (!response["error"]) {
 		const url = "https://api.spotify.com/v1/users/" + response.id + "/playlists"
 		return await postRequest(url, {}, {
@@ -218,7 +218,7 @@ function nearestLesserPowerOf2(num) {
 
 async function getUserInfo() {
 	const url = "https://api.spotify.com/v1/me";
-	const response = await loadRequest(url);
+	const response = await loadSpotifyRequest(url);
 	if (!response["error"]) {
 		if (response.images.length == 0) {
 			response.images.push({
@@ -267,7 +267,7 @@ function shareBracket(bracketId, artistName) {
 }
 
 export {
-	loadRequest,
+	loadSpotifyRequest,
 	postRequest,
 	putRequest,
 	popularitySort,

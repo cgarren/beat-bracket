@@ -3,6 +3,7 @@ import Layout from "../components/Layout";
 import ArtistBracketCard from "../components/ArtistBracketCard";
 import Tab from "../components/Tab";
 import CreateBracketCard from "../components/CreateBracketCard";
+import { getBrackets } from "../utilities/backend";
 
 // markup
 const App = () => {
@@ -21,20 +22,10 @@ const App = () => {
   }, [activeTab]);
 
   useEffect(() => {
-    async function getBrackets() {
-      await new Promise(resolve => setTimeout(resolve, 5000)); //simulate network loading
-      const loadedBrackets = [
-        { id: 1, artistName: "Kanye West", artistId: "5K4W6rqBFWDnAN6FQUkS6x", tracks: 64, seeding: "popularity", lastModified: Date.now(), complete: true },
-        { id: 2, artistName: "Ariana Grande", artistId: "66CXWjxzNUsdJxJ2JdwvnR", tracks: 32, seeding: "popularity", lastModified: Date.now(), complete: false },
-        { id: 3, artistName: "Kanye West", artistId: "5K4W6rqBFWDnAN6FQUkS6x", tracks: 8, seeding: "popularity", lastModified: Date.now(), complete: false },
-        { id: 4, artistName: "Kanye West", artistId: "5K4W6rqBFWDnAN6FQUkS6x", tracks: 128, seeding: "popularity", lastModified: Date.now(), complete: true },
-        { id: 5, artistName: "Kanye West", artistId: "5K4W6rqBFWDnAN6FQUkS6x", tracks: 16, seeding: "popularity", lastModified: Date.now(), complete: false },
-        { id: 6, artistName: "Kanye West", artistId: "5K4W6rqBFWDnAN6FQUkS6x", tracks: 32, seeding: "popularity", lastModified: Date.now(), complete: true },
-      ]
+    getBrackets().then((loadedBrackets) => {
       setBrackets(loadedBrackets);
       setShownBrackets(loadedBrackets);
-    }
-    getBrackets();
+    });
   }, []);
 
   return (

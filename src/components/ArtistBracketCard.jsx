@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { loadRequest } from "../utilities/helpers";
+import { loadSpotifyRequest } from "../utilities/helpers";
 import BracketCard from "./BracketCard";
 import { openBracket } from "../utilities/helpers";
 
@@ -19,7 +19,7 @@ const ArtistBracketCard = ({ bracket }) => {
   async function getArtistImage() {
     const url = "https://api.spotify.com/v1/artists/" + bracket.artistId;
     console.log(url);
-    const response = await loadRequest(url);
+    const response = await loadSpotifyRequest(url);
     return response.images[0].url;
   }
 
