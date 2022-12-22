@@ -1,3 +1,4 @@
+import { navigate } from "gatsby";
 import React, { useEffect, useState } from "react";
 import guestProfileImage from "../assets/images/guestProfileImage.png";
 import { getUserInfo } from "../utilities/helpers";
@@ -17,6 +18,11 @@ const ProfileDropdown = ({ loggedIn }) => {
   function signOut() {
     setShowDropdown(false);
     sessionStorage.clear();
+  }
+
+  function navProfile() {
+    setShowDropdown(false);
+    navigate("/profile");
   }
 
   useEffect(() => {
@@ -93,6 +99,12 @@ const ProfileDropdown = ({ loggedIn }) => {
           </button>
         </li> */}
         <li>
+          <button
+            onClick={navProfile}
+            className="py-2 px-4 items-center whitespace-nowrap flex gap-1 group-hover:bg-gray-200 border-0 w-full group"
+          >
+            <span>Profile</span>
+          </button>
           <button
             onClick={signOut}
             className="py-2 px-4 items-center whitespace-nowrap flex gap-1 group-hover:bg-gray-200 border-0 w-full group"

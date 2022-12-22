@@ -3,7 +3,7 @@ import { loadSpotifyRequest } from "../utilities/helpers";
 import BracketCard from "./BracketCard";
 import { openBracket } from "../utilities/helpers";
 
-const ArtistBracketCard = ({ bracket }) => {
+const ArtistBracketCard = ({ bracket, userId }) => {
   const [cardImage, setCardImage] = useState(null);
   const [cardName, setCardName] = useState("");
 
@@ -18,7 +18,6 @@ const ArtistBracketCard = ({ bracket }) => {
 
   async function getArtistImage() {
     const url = "https://api.spotify.com/v1/artists/" + bracket.artistId;
-    console.log(url);
     const response = await loadSpotifyRequest(url);
     return response.images[0].url;
   }
@@ -31,7 +30,7 @@ const ArtistBracketCard = ({ bracket }) => {
             ? bracket.artistName + " (" + bracket.tracks + " tracks)"
             : "Getting brackets..."}
         </span>
-        {bracket.complete ? (
+        {bracket.completed ? (
           <span className="text-green-600 text-xs font-medium inline-flex items-center px-0.5 py-0.5 rounded-md">
             <svg
               className="w-4 h-4"
@@ -60,7 +59,7 @@ const ArtistBracketCard = ({ bracket }) => {
       image={cardImage}
       cardText={cardName}
       onClick={() => {
-        openBracket(bracket.id);
+        openBracket(bracket.id, userId);
       }}
     />
   );

@@ -101,13 +101,22 @@ const Bracket = ({
       setShowBracket(false);
       await fillBracket(tracks);
     }
-    if (tracks && tracks.length !== 0) {
-      setBracketComplete(false);
-      kickOff();
+    if (bracket.size === 0) {
+      if (tracks && tracks.length !== 0) {
+        setBracketComplete(false);
+        kickOff();
+      } else {
+        setRenderArray([]);
+      }
     } else {
-      setRenderArray([]);
+      console.log(bracket);
+      setColumns(nearestGreaterPowerOf2(tracks.length));
     }
   }, [tracks]);
+
+  useEffect(() => {
+    regenerateRenderArray();
+  }, [columns]);
 
   function generateComponentArray(side) {
     return Array.apply(null, { length: columns }).map((e, i) => (
@@ -175,10 +184,12 @@ const Bracket = ({
   // rerender the bracket when certain events happen
   useEffect(() => {
     regenerateRenderArray();
+    setShowBracket(true);
   }, [bracket, playbackEnabled, currentlyPlayingId]);
 
   useEffect(() => {
     // show the bracket when the renderArray is ready
+    console.log(renderArray);
     setShowBracket(true);
   }, [renderArray]);
 

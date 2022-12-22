@@ -4,27 +4,34 @@ import ArtistBracketCard from "../components/ArtistBracketCard";
 import Tab from "../components/Tab";
 import CreateBracketCard from "../components/CreateBracketCard";
 import { getBrackets } from "../utilities/backend";
+import { getUserInfo } from "../utilities/helpers";
 
 // markup
 const App = () => {
   const [brackets, setBrackets] = useState([
-    { id: 1, artistName: null, artistId: null, tracks: null, seeding: null, lastModified: null, complete: false },
+    { id: 1, userId: undefined, artistName: undefined, artistId: undefined, tracks: undefined, seeding: undefined, lastModified: undefined, completed: false, bracketData: undefined },
   ]);
   const [shownBrackets, setShownBrackets] = useState(brackets);
   const [activeTab, setActiveTab] = useState(0);
+  const [currentUserId, setCurrentUserId] = useState(undefined);
 
   useEffect(() => {
     setShownBrackets(brackets.filter((bracket) => {
       if (activeTab === 0) return true;
-      if (activeTab === 1) return !bracket.complete;
-      if (activeTab === 2) return bracket.complete;
+      if (activeTab === 1) return !bracket.completed;
+      if (activeTab === 2) return bracket.completed;
+      return true;
     }));
-  }, [activeTab]);
+  }, [activeTab, brackets]);
 
   useEffect(() => {
-    getBrackets().then((loadedBrackets) => {
-      setBrackets(loadedBrackets);
-      setShownBrackets(loadedBrackets);
+    getUserInfo().then((userInfo) => {
+      setCurrentUserId(userInfo.id);
+      getBrackets(userInfo.id).then((loadedBrackets) => {
+        console.log(loadedBrackets);
+        setBrackets(loadedBrackets);
+        setShownBrackets(loadedBrackets);
+      });
     });
   }, []);
 
@@ -41,9 +48,9 @@ const App = () => {
           </nav>
         </div>
         <div className="flex flex-row flex-wrap justify-center items-stretch gap-5 overflow-scroll mx-5">
-          <CreateBracketCard />
+          {activeTab === 0 ? <CreateBracketCard userId={currentUserId} /> : null}
           {shownBrackets.map((bracket) => (
-            <ArtistBracketCard bracket={bracket} key={bracket.id} />
+            <ArtistBracketCard bracket={bracket} key={bracket.id} userId={currentUserId} />
           ))}
         </div>
       </div>

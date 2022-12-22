@@ -216,11 +216,14 @@ function nearestLesserPowerOf2(num) {
 	return last;
 }
 
-async function getUserInfo() {
-	const url = "https://api.spotify.com/v1/me";
+async function getUserInfo(userId = undefined) {
+	let url = "https://api.spotify.com/v1/me";
+	if (userId) {
+		url = "https://api.spotify.com/v1/users/" + userId;
+	}
 	const response = await loadSpotifyRequest(url);
 	if (!response["error"]) {
-		if (response.images.length == 0) {
+		if (response.images.length === 0) {
 			response.images.push({
 				url: guestProfileImage,
 			});
@@ -229,10 +232,19 @@ async function getUserInfo() {
 	}
 }
 
-function openBracket(uuid) {
+async function isCurrentUser(userId) {
+	const currentUser = await getUserInfo();
+	if (userId === currentUser.id) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+function openBracket(uuid, userId = undefined, state = {}) {
 	console.log("Opening Bracket: " + uuid);
 	//open the bracket editor and pass the bracket id off
-	navigate("/bracket/" + uuid);
+	navigate("/" + (userId ? userId : getUserInfo().id) + "/brackets/" + uuid, { state: state });
 }
 
 function shareBracket(bracketId, artistName) {
@@ -283,5 +295,6 @@ export {
 	addCoverImageToPlaylist,
 	shareBracket,
 	getUserInfo,
-	openBracket
+	openBracket,
+	isCurrentUser
 }

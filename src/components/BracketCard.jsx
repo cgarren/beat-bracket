@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import LoadingIndicator from "./LoadingIndicator";
 
-const BracketCard = ({ image, cardText, onClick = () => {} }) => {
+const BracketCard = ({ children, image, cardText, onClick = () => {} }) => {
   return (
     <button
       className="text-center p-3"
@@ -15,6 +15,7 @@ const BracketCard = ({ image, cardText, onClick = () => {} }) => {
           <LoadingIndicator loadingText="" hidden={false} />
         )}
       </div>
+      {children}
       <div className="">{cardText}</div>
     </button>
   );
