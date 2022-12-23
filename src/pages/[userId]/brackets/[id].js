@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react"
 import Bracket from "../../../components/Bracket"
 import Mousetrap from "mousetrap";
-import { isCurrentUser, nearestLesserPowerOf2, popularitySort, shareBracket } from "../../../utilities/helpers";
+import { bracketSorter, isCurrentUser, nearestLesserPowerOf2, popularitySort, shareBracket } from "../../../utilities/helpers";
 import Layout from "../../../components/Layout";
 import LoadingIndicator from "../../../components/LoadingIndicator";
 import GeneratePlaylistButton from "../../../components/GeneratePlaylistButton";
@@ -20,7 +20,7 @@ const App = ({ params, location }) => {
   const [artist, setArtist] = useState({ "name": undefined, "id": undefined });
   const [bracket, setBracket] = useState(new Map());
   const [showBracket, setShowBracket] = useState(true);
-  const [limit, setLimit] = useState(64);
+  const [limit, setLimit] = useState(32);
   const [seedingMethod, setSeedingMethod] = useState("popularity");
   const [playbackEnabled, setPlaybackEnabled] = useState(false);
   const [loadingText, setLoadingText] = useState("Loading...");
@@ -52,6 +52,7 @@ const App = ({ params, location }) => {
           }
         });
         if (loadedBracket) {
+          console.log(loadedBracket);
           // Bracket already exists, now check if it belongs to the current user or not
           isCurrentUser(loadedBracket.userId).then((isCurrentUser) => {
             if (isCurrentUser) {
@@ -60,17 +61,17 @@ const App = ({ params, location }) => {
               setEditable(false);
             }
             let mymap = new Map(Object.entries(loadedBracket.bracketData));
+            mymap = new Map([...mymap].sort(bracketSorter));
             mymap.forEach((value, key) => {
               if (value.color) {
                 value.color = new Vibrant.Swatch(value.color.rgb, value.color.population);
               }
             });
             setBracket(mymap);
-
             setArtist({ name: loadedBracket.artistName, id: loadedBracket.artistId });
             setSeedingMethod(loadedBracket.seeding);
             setLimit(loadedBracket.tracks);
-            setBracketComplete(loadedBracket.complete);
+            setBracketComplete(loadedBracket.completed);
             setShowBracket(true);
             setTracks(new Array(loadedBracket.tracks));
           });
@@ -103,9 +104,9 @@ const App = ({ params, location }) => {
       artistId: artist.id,
       tracks: tracks.length,
       seeding: seedingMethod,
-      lastModified: Date.now(),
-      complete: bracketComplete,
-      bracketData: obj
+      lastModifiedDate: Date.now(),
+      completed: bracketComplete,
+      bracketData: obj,
     };
     //write to database and stuff
     await writeBracket(theBracket);
@@ -218,7 +219,7 @@ const App = ({ params, location }) => {
     <Layout noChanges={noChanges}>
       <div className="text-center">
         {user.name && artist.name ? <div className="font-bold mb-2">{artist.name} bracket by {user.name}</div> : <div>Loading...</div>}
-        {editable ?
+        {editable && !bracketComplete ?
           <div className="inline-flex flex-col gap-1 max-w-[800px] items-center">
             <div className="rounded-lg mb-2 flex flex-col">
               <div className={""}>
@@ -245,7 +246,7 @@ const App = ({ params, location }) => {
               </div>
             </div>
           </div>
-          : <div></div>}
+          : !editable ? <button onClick={() => { }} className="border-l-gray-200 hover:disabled:border-l-gray-200">Fill out this bracket</button> : <div>Bracket Complete</div>}
         <hr />
         <div>
           <LoadingIndicator hidden={showBracket} loadingText={loadingText} />

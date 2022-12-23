@@ -10,7 +10,12 @@ const BracketCard = ({ children, image, cardText, onClick = () => {} }) => {
     >
       <div className="rounded-lg w-[320px] h-[320px]">
         {image ? (
-          <img src={image} className="" />
+          <img
+            src={image}
+            className="w-[320px] h-[320px]"
+            width="320px"
+            height="320px"
+          />
         ) : (
           <LoadingIndicator loadingText="" hidden={false} />
         )}

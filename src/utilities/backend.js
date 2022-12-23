@@ -8,7 +8,7 @@
 // 		"seeding": "popularity",
 // 		"lastModifiedDate": 3948230948,
 // 		"completed": false,
-// 		"bracketData": "some data"
+// 		"bracketData": "some data",
 // 	},
 
 async function loadBackendRequest(path, method, params, data = {}, headers = {}) {

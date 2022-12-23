@@ -78,8 +78,9 @@ const Bracket = ({
   }, []);
 
   useEffect(() => {
+    console.log("center bracket changed");
     updateCenterBracket();
-  }, [bracket, showBracket]);
+  }, [bracket, showBracket, renderArray]);
 
   function updateCenterBracket() {
     // console.log("called", bracketRef);
@@ -110,7 +111,7 @@ const Bracket = ({
       }
     } else {
       console.log(bracket);
-      setColumns(nearestGreaterPowerOf2(tracks.length));
+      setColumns(getNumberOfColumns(tracks.length));
     }
   }, [tracks]);
 
@@ -123,6 +124,7 @@ const Bracket = ({
       <div className="flex flex-col" key={side + i}>
         {Array.from(bracket.entries()).map((entry) => {
           const [mykey, value] = entry;
+          //console.log(mykey, value);
           const colExpression = side === "l" ? i : columns - 1 - i;
           if (value.side === side && value.col === colExpression) {
             return (
@@ -140,11 +142,15 @@ const Bracket = ({
                   setCurrentlyPlayingId={setCurrentlyPlayingId}
                   side={side}
                   styling={
-                    value.index === 0
+                    (value.index === 0
                       ? topStyles[colExpression]
                       : value.index % 2 === 0
                       ? styles[colExpression]
-                      : ""
+                      : "") +
+                    " " +
+                    colExpression +
+                    " " +
+                    value.index
                   }
                   color={value.color}
                   key={mykey}
@@ -189,7 +195,6 @@ const Bracket = ({
 
   useEffect(() => {
     // show the bracket when the renderArray is ready
-    console.log(renderArray);
     setShowBracket(true);
   }, [renderArray]);
 

@@ -107,7 +107,7 @@ const ProfileDropdown = ({ loggedIn }) => {
           </button>
           <button
             onClick={signOut}
-            className="py-2 px-4 items-center whitespace-nowrap flex gap-1 group-hover:bg-gray-200 border-0 w-full group"
+            className="py-2 px-4 items-center rounded-t-none whitespace-nowrap flex gap-1 group-hover:bg-gray-200 border-0 w-full group"
           >
             <span>Sign out</span>
             <svg

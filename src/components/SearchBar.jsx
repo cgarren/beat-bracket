@@ -113,6 +113,9 @@ const SearchBar = ({ setArtist, disabled }) => {
         id="searchbar"
         type="search"
         spellCheck="false"
+        autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="off"
         value={searchText}
         onChange={(e) => setSearchText(e.target.value)}
         className={

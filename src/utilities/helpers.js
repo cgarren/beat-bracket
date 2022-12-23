@@ -216,6 +216,52 @@ function nearestLesserPowerOf2(num) {
 	return last;
 }
 
+function bracketSorter(a, b) {
+	const value1 = a[1];
+	const value2 = b[1];
+
+	// r > l
+	// for r, sort col increasing
+	// for l, sort col decreasing
+	// always sort row increasing
+
+	if (value1.side === "r" && value2.side === "l") {
+		return -1;
+	} else if (value1.side === "l" && value2.side === "r") {
+		return 1;
+	} else if (value1.side === "l" && value2.side === "l") {
+		if (value1.col > value2.col) {
+			return -1;
+		} else if (value1.col < value2.col) {
+			return 1;
+		} else {
+			if (value1.index > value2.index) {
+				return 1;
+			} else if (value1.index < value2.index) {
+				return -1;
+			} else {
+				return 0;
+			}
+		}
+	} else if (value1.side === "r" && value2.side === "r") {
+		if (value1.col > value2.col) {
+			return 1;
+		} else if (value1.col < value2.col) {
+			return -1;
+		} else {
+			if (value1.index > value2.index) {
+				return 1;
+			} else if (value1.index < value2.index) {
+				return -1;
+			} else {
+				return 0;
+			}
+		}
+	} else {
+		throw new Error("Found bracket with invalid side: " + value1.side + " or " + value2.side);
+	}
+}
+
 async function getUserInfo(userId = undefined) {
 	let url = "https://api.spotify.com/v1/me";
 	if (userId) {
@@ -296,5 +342,6 @@ export {
 	shareBracket,
 	getUserInfo,
 	openBracket,
-	isCurrentUser
+	isCurrentUser,
+	bracketSorter
 }
