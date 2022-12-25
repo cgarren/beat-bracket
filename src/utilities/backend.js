@@ -52,7 +52,7 @@ async function writeBracket(bracket) {
 	console.log(bracket);
 	const response = await loadBackendRequest("/item", "PUT", undefined, bracket);
 	if (response.ok) {
-		return "Creation Successful";
+		return 0;
 	} else {
 		throw new Error("Unknown request error. Code: " + response.status);
 	}
