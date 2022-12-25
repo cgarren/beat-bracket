@@ -103,7 +103,6 @@ const Bracket = ({
       setShowBracket(false);
       await fillBracket(tracks);
     }
-    console.log("tracks", tracks);
     if (Array.isArray(tracks)) {
       if (!tracks.includes(null)) {
         if (tracks.length !== 0) {
