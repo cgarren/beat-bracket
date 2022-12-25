@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import { loadSpotifyRequest } from "../utilities/helpers";
 import BracketCard from "./BracketCard";
 import { openBracket } from "../utilities/helpers";
+import { deleteBracket } from "../utilities/backend";
+import { navigate } from "gatsby";
 
 const ArtistBracketCard = ({ bracket, userId }) => {
   const [cardImage, setCardImage] = useState(null);
-  const [cardName, setCardName] = useState("");
+  const [cardName, setCardName] = useState("Loading...");
 
   React.useEffect(() => {
     if (bracket.artistId) {
@@ -22,6 +24,22 @@ const ArtistBracketCard = ({ bracket, userId }) => {
     return response.images[0].url;
   }
 
+  async function removeBracket() {
+    if (
+      window.confirm(
+        "Are you sure you want to permanently delete this " +
+          bracket.artistName +
+          " bracket?"
+      )
+    ) {
+      console.log("removing bracket");
+      if ((await deleteBracket(bracket.id, userId)) === 0) {
+        window.location.reload();
+      } else {
+        //show error removing bracket alert
+      }
+    }
+  }
   function makeCardName() {
     return (
       <div className="inline-flex gap-0.5">
@@ -58,6 +76,7 @@ const ArtistBracketCard = ({ bracket, userId }) => {
     <BracketCard
       image={cardImage}
       cardText={cardName}
+      removeFunc={removeBracket}
       onClick={() => {
         openBracket(bracket.id, userId);
       }}

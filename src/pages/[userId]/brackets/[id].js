@@ -90,7 +90,17 @@ const App = ({ params, location }) => {
 
   // SAVE
 
-  async function saveBracket() { //Called on these occasions: user is about to exit page, user clicks save button, user completes bracket
+  //TODO: autosave, notification on save
+
+  useEffect(() => {
+    if (bracketId && user && artist && tracks && seedingMethod && bracketComplete && bracket && editable) {
+      if (readyToChange || bracketComplete) {
+        saveBracket();
+      }
+    }
+  }, [bracketComplete, readyToChange, editable]);
+
+  async function saveBracket() { // Called on these occasions: on initial bracket load, user clicks save button, user completes bracket
     const obj = Object.fromEntries(bracket);
     console.log(bracket, obj);
     const theBracket = {
@@ -278,7 +288,7 @@ const App = ({ params, location }) => {
               <div>
                 <span className="font-bold">{tracks ? tracks.length + " tracks displayed" : ""}</span>
               </div>
-              <div className="inline-flex items-center text-xs -space-x-px rounded-md">
+              {editable && !bracketComplete ? <div className="inline-flex items-center text-xs -space-x-px rounded-md">
                 {/* <GeneratePlaylistButton tracks={tracks} artist={artist} /> */}
                 <button
                   onClick={undo}
@@ -291,7 +301,7 @@ const App = ({ params, location }) => {
                 {/* <button onClick={share} hidden={!bracketComplete} className="border-l-gray-200 hover:disabled:border-l-gray-200">
                   Download Bracket
                 </button> */}
-              </div>
+              </div> : null}
             </div>
           </div>
           <Bracket bracket={bracket} setBracket={setBracket} tracks={tracks} setShowBracket={setShowBracket} showBracket={showBracket} saveCommand={saveCommand} playbackEnabled={playbackEnabled} bracketComplete={bracketComplete} setBracketComplete={setBracketComplete} />

@@ -36,19 +36,19 @@ const App = () => {
   }, []);
 
   return (
-    <Layout noChanges={true}>
+    <Layout noChanges={() => { return true }}>
       <div className="text-center">
         <h1 className="text-4xl font-extrabold mb-2">My Brackets</h1>
 
-        <div className="mb-3">
-          <nav className="inline-flex flex-col sm:flex-row ">
+        <div className="">
+          <nav className="inline-flex flex-col sm:flex-row">
             <Tab id={0} activeTab={activeTab} setActiveTab={setActiveTab} text="All" />
             <Tab id={1} activeTab={activeTab} setActiveTab={setActiveTab} text="In Progess" />
             <Tab id={2} activeTab={activeTab} setActiveTab={setActiveTab} text="Completed" />
           </nav>
         </div>
-        <div className="flex flex-row flex-wrap justify-center items-stretch gap-5 overflow-scroll mx-5">
-          {activeTab === 0 ? <CreateBracketCard userId={currentUserId} /> : null}
+        <div className="pt-3 flex flex-row flex-wrap justify-center items-stretch gap-5 overflow-scroll mx-5">
+          {activeTab === 0 && brackets.length < 10 ? <CreateBracketCard userId={currentUserId} /> : null}
           {shownBrackets.map((bracket) => (
             <ArtistBracketCard bracket={bracket} key={bracket.id} userId={currentUserId} />
           ))}
