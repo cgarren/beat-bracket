@@ -211,7 +211,7 @@ const SongButton = ({
         {paused ? <PlayIcon /> : <PauseIcon />}
       </button>
       <audio
-        src={song !== null && !disabled ? song.preview_url : blankAudio}
+        src={song !== null && !disabled ? song.preview_url : null}
         volume="1"
         className="hidden"
         ref={audioRef}
