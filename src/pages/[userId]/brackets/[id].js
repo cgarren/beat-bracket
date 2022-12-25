@@ -16,7 +16,7 @@ const App = ({ params, location }) => {
   const [bracketId, setBracketId] = useState(params.id);
   const [editable, setEditable] = useState(false);
   const [user, setUser] = useState({ "name": undefined, "id": params.userId });
-  const [tracks, setTracks] = useState([]);
+  const [tracks, setTracks] = useState(null);
   const [artist, setArtist] = useState({ "name": undefined, "id": undefined });
   const [bracket, setBracket] = useState(new Map());
   const [showBracket, setShowBracket] = useState(true);
@@ -73,7 +73,7 @@ const App = ({ params, location }) => {
             setLimit(loadedBracket.tracks);
             setBracketComplete(loadedBracket.completed);
             setShowBracket(true);
-            setTracks(new Array(loadedBracket.tracks));
+            setTracks(new Array(loadedBracket.tracks).fill(null));
           });
         } else {
           if (location.state) {
@@ -82,7 +82,7 @@ const App = ({ params, location }) => {
             console.log("Bracket", bracketId, "not found for user. Creating New Bracket");
             setArtist(location.state.artist);
             setShowBracket(false);
-            getTracks(location.state.artist); //kick off the bracket creationg process
+            getTracks(location.state.artist); //kick off the bracket creating process
             setEditable(true);
           } else {
             // Bracket doesn't exist and no artist was passed in
@@ -163,6 +163,7 @@ const App = ({ params, location }) => {
   }
 
   async function getTracks(providedArtist) {
+    console.log("getting tracks");
     setLoadingText("Gathering Spotify tracks for " + providedArtist.name + "...");
     let songs = await loadAlbums("https://api.spotify.com/v1/artists/" + providedArtist.id + "/albums?include_groups=album,single&limit=20");
     // load data for the songs
@@ -176,7 +177,7 @@ const App = ({ params, location }) => {
       templist.sort(popularitySort);
       // limit the list length to the nearest lesser power of 2 (for now)
       templist = seedBracket(templist.slice(0, (limit < power ? limit : power)), seedingMethod);
-      //console.table(templist);
+      console.table(templist);
       setTracks(templist);
     } else {
       alert(providedArtist.name + " doesn't have enough songs on Spotify! Returning to the profile page")
@@ -187,22 +188,29 @@ const App = ({ params, location }) => {
     setLoadingText("Generating bracket...");
   }
 
-  // useEffect(() => {
-  //   if (tracks.length === 0) {
-  //     getTracks(artist);
-  //   }
-  //   let templist = [...tracks];
-  //   setShowBracket(false);
-  //   clearCommands();
-  //   templist = seedBracket(templist);
-  //   setTracks(templist);
-  //   setShowBracket(true);
-  // }, [seedingMethod]);
+  useEffect(() => {
+    async function changeSeedingMethod(seedingMethod) {
+      if (artist.id && tracks) {
+        console.log("seeding changed");
+        if (tracks.includes(null)) {
+          await getTracks(artist);
+        } else {
+          setShowBracket(false);
+          setTracks(seedBracket([...tracks], seedingMethod));
+          clearCommands();
+          setShowBracket(true);
+        }
+      }
+    }
+
+    changeSeedingMethod(seedingMethod);
+  }, [seedingMethod]);
 
   // useEffect(() => {
-  //   if (artist.id) {
+  //   if (artist.id && tracks) {
   //     setShowBracket(false);
   //     clearCommands();
+  //     console.log("limit changed");
   //     getTracks(artist);
   //   }
   // }, [limit]);
@@ -253,7 +261,7 @@ const App = ({ params, location }) => {
           <div hidden={!showBracket || !artist.name}>
             <div className="inline-flex flex-col justify-center">
               <div>
-                <span className="font-bold">{tracks.length} tracks displayed</span>
+                <span className="font-bold">{tracks ? tracks.length + "tracks displayed" : ""}</span>
               </div>
               <div className="inline-flex items-center text-xs -space-x-px rounded-md">
                 <GeneratePlaylistButton tracks={tracks} artist={artist} />

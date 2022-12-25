@@ -99,19 +99,22 @@ const Bracket = ({
   useEffect(() => {
     async function kickOff() {
       // reset the undo chain
+      console.log("kicking off");
       setShowBracket(false);
       await fillBracket(tracks);
     }
-    if (bracket.size === 0) {
-      if (tracks && tracks.length !== 0) {
-        setBracketComplete(false);
-        kickOff();
+    console.log("tracks", tracks);
+    if (Array.isArray(tracks)) {
+      if (!tracks.includes(null)) {
+        if (tracks.length !== 0) {
+          setBracketComplete(false);
+          kickOff();
+        } else {
+          setRenderArray([]);
+        }
       } else {
-        setRenderArray([]);
+        setColumns(getNumberOfColumns(tracks.length));
       }
-    } else {
-      console.log(bracket);
-      setColumns(getNumberOfColumns(tracks.length));
     }
   }, [tracks]);
 
@@ -196,6 +199,7 @@ const Bracket = ({
   useEffect(() => {
     // show the bracket when the renderArray is ready
     setShowBracket(true);
+    console.log("renderArray", renderArray);
   }, [renderArray]);
 
   function modifyBracket(key, attribute, value) {
@@ -288,7 +292,7 @@ const Bracket = ({
         i--;
       }
     }
-    //console.log(temp);
+    console.log(tracks, tracks.length);
     setBracket(temp);
     setColumns(cols);
   }
