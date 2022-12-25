@@ -9,7 +9,7 @@ import { getUserInfo } from "../utilities/helpers";
 // markup
 const App = () => {
   const [brackets, setBrackets] = useState([
-    { id: 1, userId: undefined, artistName: undefined, artistId: undefined, tracks: undefined, seeding: undefined, lastModified: undefined, completed: false, bracketData: undefined },
+    { id: 1, userId: undefined, artistName: undefined, artistId: undefined, tracks: undefined, completed: false },
   ]);
   const [shownBrackets, setShownBrackets] = useState(brackets);
   const [activeTab, setActiveTab] = useState(0);
