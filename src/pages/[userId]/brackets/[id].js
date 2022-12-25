@@ -13,6 +13,7 @@ import Vibrant from "node-vibrant";
 
 // markup
 const App = ({ params, location }) => {
+  const [readyToChange, setReadyToChange] = useState(false);
   const [bracketId, setBracketId] = useState(params.id);
   const [editable, setEditable] = useState(false);
   const [user, setUser] = useState({ "name": undefined, "id": params.userId });
@@ -76,7 +77,7 @@ const App = ({ params, location }) => {
             setTracks(new Array(loadedBracket.tracks).fill(null));
           });
         } else {
-          if (location.state) {
+          if (location.state && location.state.artist) {
             console.log(location.state);
             // Bracket does not exist, make it editable for current user
             console.log("Bracket", bracketId, "not found for user. Creating New Bracket");
@@ -84,6 +85,7 @@ const App = ({ params, location }) => {
             setShowBracket(false);
             getTracks(location.state.artist); //kick off the bracket creating process
             setEditable(true);
+            setReadyToChange(true);
           } else {
             // Bracket doesn't exist and no artist was passed in
             // Display Bracket not found message
@@ -179,6 +181,7 @@ const App = ({ params, location }) => {
       templist = seedBracket(templist.slice(0, (limit < power ? limit : power)), seedingMethod);
       console.table(templist);
       setTracks(templist);
+      setShowBracket(true);
     } else {
       alert(providedArtist.name + " doesn't have enough songs on Spotify! Returning to the profile page")
       setTracks([]);
@@ -190,15 +193,13 @@ const App = ({ params, location }) => {
 
   useEffect(() => {
     async function changeSeedingMethod(seedingMethod) {
-      if (artist.id && tracks) {
+      if (artist.id && tracks && readyToChange) {
         console.log("seeding changed");
         if (tracks.includes(null)) {
           await getTracks(artist);
         } else {
-          setShowBracket(false);
           setTracks(seedBracket([...tracks], seedingMethod));
           clearCommands();
-          setShowBracket(true);
         }
       }
     }
@@ -206,14 +207,18 @@ const App = ({ params, location }) => {
     changeSeedingMethod(seedingMethod);
   }, [seedingMethod]);
 
-  // useEffect(() => {
-  //   if (artist.id && tracks) {
-  //     setShowBracket(false);
-  //     clearCommands();
-  //     console.log("limit changed");
-  //     getTracks(artist);
-  //   }
-  // }, [limit]);
+  useEffect(() => {
+    if (artist.id && tracks) {
+      if (readyToChange) {
+        setShowBracket(false);
+        clearCommands();
+        console.log("limit changed");
+        getTracks(artist);
+      } else {
+        setReadyToChange(true);
+      }
+    }
+  }, [limit]);
 
   useEffect(() => {
     console.log(bracket);
@@ -254,17 +259,21 @@ const App = ({ params, location }) => {
               </div>
             </div>
           </div>
-          : !editable ? <button onClick={() => { }} className="border-l-gray-200 hover:disabled:border-l-gray-200">Fill out this bracket</button> : <div>Bracket Complete</div>}
+          : !editable
+            ? user.name && artist.name
+              ? <button onClick={() => { }} className="border-l-gray-200 hover:disabled:border-l-gray-200">Fill out this bracket</button>
+              : null
+            : <div>Bracket Complete</div>}
         <hr />
         <div>
           <LoadingIndicator hidden={showBracket} loadingText={loadingText} />
           <div hidden={!showBracket || !artist.name}>
-            <div className="inline-flex flex-col justify-center">
+            <div className="text-center">
               <div>
-                <span className="font-bold">{tracks ? tracks.length + "tracks displayed" : ""}</span>
+                <span className="font-bold">{tracks ? tracks.length + " tracks displayed" : ""}</span>
               </div>
               <div className="inline-flex items-center text-xs -space-x-px rounded-md">
-                <GeneratePlaylistButton tracks={tracks} artist={artist} />
+                {/* <GeneratePlaylistButton tracks={tracks} artist={artist} /> */}
                 <button
                   onClick={undo}
                   hidden={commands.length === 0}
