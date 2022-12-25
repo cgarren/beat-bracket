@@ -64,4 +64,15 @@ async function updateBracket(id, artistName, artistId, tracks, seeding) {
 	return updatedBracket;
 }
 
-export { getBrackets, getBracket, writeBracket, updateBracket };
+async function deleteBracket(id, userId) {
+	const response = await loadBackendRequest("/item", "DELETE", { id: id, userId: userId });
+	if (response.ok) {
+		return 0;
+	} else if (response.status === 404) {
+		return null
+	} else {
+		throw new Error("Unknown request error. Code: " + response.status);
+	}
+}
+
+export { getBrackets, getBracket, writeBracket, deleteBracket };
