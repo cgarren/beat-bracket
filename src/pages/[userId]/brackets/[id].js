@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from "react"
-import Bracket from "../../../components/Bracket"
+import { navigate } from "gatsby";
+import Vibrant from "node-vibrant";
 import Mousetrap from "mousetrap";
-import { bracketSorter, isCurrentUser, nearestLesserPowerOf2, popularitySort, shareBracket } from "../../../utilities/helpers";
+import Bracket from "../../../components/Bracket"
 import Layout from "../../../components/Layout";
 import LoadingIndicator from "../../../components/LoadingIndicator";
 import GeneratePlaylistButton from "../../../components/GeneratePlaylistButton";
 import { getUserInfo } from "../../../utilities/helpers";
 import { writeBracket, getBracket } from "../../../utilities/backend";
 import { seedBracket, loadAlbums, processTracks } from "../../../utilities/songProcessing";
-import { navigate } from "gatsby";
-import Vibrant from "node-vibrant";
+import { bracketSorter, isCurrentUser, nearestLesserPowerOf2, popularitySort, shareBracket } from "../../../utilities/helpers";
 
-// markup
 const App = ({ params, location }) => {
+  const bracketId = params.id;
+
   const [readyToChange, setReadyToChange] = useState(false);
-  const [bracketId, setBracketId] = useState(params.id);
   const [editable, setEditable] = useState(false);
   const [user, setUser] = useState({ "name": undefined, "id": params.userId });
   const [tracks, setTracks] = useState(null);
@@ -28,21 +28,7 @@ const App = ({ params, location }) => {
   const [bracketComplete, setBracketComplete] = useState(false);
   const [commands, setCommands] = useState([]);
 
-  function limitChange(e) {
-    if (noChanges()) {
-      setLimit(parseInt(e.target.value));
-    }
-  }
-
-  function seedingChange(e) {
-    if (noChanges()) {
-      setSeedingMethod(e.target.value);
-    }
-  }
-
-  function playbackChange(e) {
-    setPlaybackEnabled(!playbackEnabled);
-  }
+  //INITIALIZE BRACKET
 
   useEffect(() => {
     if (bracketId) {
@@ -95,6 +81,14 @@ const App = ({ params, location }) => {
       });
     }
   }, []);
+
+  // SHARE
+
+  function share() {
+    shareBracket("bracket", artist.name);
+  }
+
+  // SAVE
 
   async function saveBracket() { //Called on these occasions: user is about to exit page, user clicks save button, user completes bracket
     const obj = Object.fromEntries(bracket);
@@ -164,6 +158,8 @@ const App = ({ params, location }) => {
     return false;
   }
 
+  // GET TRACKS
+
   async function getTracks(providedArtist) {
     console.log("getting tracks");
     setLoadingText("Gathering Spotify tracks for " + providedArtist.name + "...");
@@ -189,6 +185,24 @@ const App = ({ params, location }) => {
       navigate("/profile")
     }
     setLoadingText("Generating bracket...");
+  }
+
+  // CHANGE HANDLING
+
+  function limitChange(e) {
+    if (noChanges()) {
+      setLimit(parseInt(e.target.value));
+    }
+  }
+
+  function seedingChange(e) {
+    if (noChanges()) {
+      setSeedingMethod(e.target.value);
+    }
+  }
+
+  function playbackChange(e) {
+    setPlaybackEnabled(!playbackEnabled);
   }
 
   useEffect(() => {
@@ -219,14 +233,6 @@ const App = ({ params, location }) => {
       }
     }
   }, [limit]);
-
-  useEffect(() => {
-    console.log(bracket);
-  }, [bracket]);
-
-  function share() {
-    shareBracket("bracket", artist.name);
-  }
 
   return (
     <Layout noChanges={noChanges}>
