@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import guestProfileImage from "../assets/images/guestProfileImage.png";
 import { getUserInfo } from "../utilities/helpers";
 
-const ProfileDropdown = ({ loggedIn }) => {
+const ProfileDropdown = ({ loggedIn, noChanges }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [userInfo, setUserInfo] = useState({
     display_name: "Guest",
@@ -15,14 +15,23 @@ const ProfileDropdown = ({ loggedIn }) => {
     ],
   });
 
+  function handleNaviagtionAttempt(path) {
+    if (noChanges()) {
+      navigate(path);
+    }
+  }
+
   function signOut() {
-    setShowDropdown(false);
-    sessionStorage.clear();
+    if (noChanges()) {
+      setShowDropdown(false);
+      sessionStorage.clear();
+      navigate("/");
+    }
   }
 
   function navProfile() {
     setShowDropdown(false);
-    navigate("/profile");
+    handleNaviagtionAttempt("/profile");
   }
 
   useEffect(() => {
