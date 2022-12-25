@@ -17,7 +17,6 @@ const NavBar = ({ loggedIn, noChanges }) => {
         >
           🏛️ Song Colosseum
         </button>
-        <button>My Brackets</button>
         <ProfileDropdown loggedIn={loggedIn} noChanges={noChanges} />
       </div>
     </header>
