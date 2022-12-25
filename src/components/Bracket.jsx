@@ -78,7 +78,6 @@ const Bracket = ({
   }, []);
 
   useEffect(() => {
-    console.log("center bracket changed");
     updateCenterBracket();
   }, [bracket, showBracket, renderArray]);
 
@@ -198,7 +197,6 @@ const Bracket = ({
   useEffect(() => {
     // show the bracket when the renderArray is ready
     setShowBracket(true);
-    console.log("renderArray", renderArray);
   }, [renderArray]);
 
   function modifyBracket(key, attribute, value) {
