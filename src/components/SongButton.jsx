@@ -26,11 +26,9 @@ const SongButton = ({
   const [paused, setPaused] = useState(true);
   const thebutton = useRef(null);
   const audioRef = useRef(null);
-  const blankAudio =
-    "https://github.com/anars/blank-audio/raw/master/2-seconds-of-silence.mp3";
 
   const winnerStyle =
-    "before:box-border box-border before:content-[''] before:absolute before:left-[-50%] before:top-[-50%] before:w-[200%] before:h-[200%] before:bg-no-repeat before:bg-white before:[background-size:50%_50%,50%_50%] before:[background-position:0_0,100%_0,100%_100%,0_100%] before:[background-image:linear-gradient(#399953,#399953),linear-gradient(#fbb300,#fbb300),linear-gradient(#d53e33,#d53e33),linear-gradient(#377af5,#377af5)] before:animate-steam before:-z-20 before:rounded-2xl after:content-[''] after:absolute after:left-[6px] after:top-[6px] after:w-[calc(100%-12px)] after:h-[calc(100%-12px)] after:-z-10 after:bg-white after:rounded";
+    "overflow-hidden w-[calc(var(--buttonwidth)+6px)] h-[calc(var(--buttonheight)+6px)] before:box-border box-border before:content-[''] before:absolute before:left-[-50%] before:top-[-150%] before:w-[calc(2*var(--buttonwidth)+6px)] before:h-[calc(2*var(--buttonwidth)+6px)] before:bg-no-repeat before:bg-white before:[background-size:50%_50%,50%_50%] before:[background-position:0_0,100%_0,100%_100%,0_100%] before:[background-image:linear-gradient(black,black),linear-gradient(white,white),linear-gradient(black,black),linear-gradient(white,white)] before:animate-steam before:-z-20 before:rounded-2xl";
 
   // Recursive function to mark all previous instances of a song in a bracket as eliminated
   function eliminatePrevious(thisId) {
@@ -148,11 +146,11 @@ const SongButton = ({
   return (
     <div
       className={
-        "z-0 flex rounded-2xl shadow-md cursor-pointer w-[var(--buttonwidth)] min-w-[var(--buttonwidth)] h-[var(--buttonheight)] min-h-[var(--buttonheight) hover:h-auto hover:flex] disabled:cursor-default disabled:shadow-none disabled:w-[var(--buttonwidth)] relative" +
+        "z-0 flex rounded-2xl shadow-md cursor-pointer w-[var(--buttonwidth)] min-w-[var(--buttonwidth)] h-[var(--buttonheight)] min-h-[var(--buttonheight) disabled:cursor-default disabled:shadow-none disabled:w-[var(--buttonwidth)] relative" +
         (song == null
           ? " bg-white text-black shadow-md border-0 border-gray-400"
           : " ") +
-        (winner ? "opacity-100 " + winnerStyle : " ") +
+        (winner ? " opacity-100 " + winnerStyle : " hover:h-auto hover:flex ") +
         (side ? " flex-row-reverse " : "") +
         (eliminated ? " opacity-50 " : " ") +
         styling
@@ -175,6 +173,7 @@ const SongButton = ({
       <button
         disabled={disabled}
         onClick={songChosen}
+        hidden={false}
         style={
           color
             ? {
@@ -185,9 +184,11 @@ const SongButton = ({
             : {}
         }
         className={
-          "rounded-[inherit] disabled:rounded-[inherit] bg-red-500 text-white border-0 w-[70%] h-full min-h-[var(--buttonheight)] leading-[1.15em] p-0 text-center overflow-hidden break-words disabled:w-full disabled:px-[6px]" +
-          (song == null ? " w-full bg-transparent text-black" : "") +
-          (winner ? " opacity-100 " : "") +
+          "rounded-[inherit] disabled:rounded-[inherit] bg-red-500 text-white border-0 w-[70%] h-full min-h-[var(--buttonheight)] leading-[1.15em] p-0 text-center overflow-hidden break-words disabled:px-[6px]" +
+          (winner
+            ? " opacity-100 content-[''] absolute left-[3px] top-[3px] w-[calc(100%-6px)] h-[calc(100%-6px)] -z-10 bg-white rounded"
+            : " disabled:w-full ") +
+          (song == null ? " w-full bg-transparent text-black " : "") +
           (side ? " pr-[6px] rounded-l-[0] " : " pl-[6px] rounded-r-[0] ") +
           (eliminated ? " " : "")
         }
