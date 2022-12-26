@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunksong_colosseum=self.webpackChunksong_colosseum||[]).push([[678],{6558:function(e,t,l){l.r(t);var c=l(7294),n=l(539);t.default=function(){return c.createElement("div",{className:"block text-center"},c.createElement("div",null,"Welcome to Beat Bracket! Click below to login with Spotify"),c.createElement(n.Z,null))}}}]);
+//# sourceMappingURL=component---src-pages-index-js-fd8c0bfd33f40e442dc6.js.map
