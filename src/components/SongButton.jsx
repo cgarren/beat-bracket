@@ -29,6 +29,9 @@ const SongButton = ({
   const blankAudio =
     "https://github.com/anars/blank-audio/raw/master/2-seconds-of-silence.mp3";
 
+  const winnerStyle =
+    "before:box-border box-border before:content-[''] before:absolute before:left-[-50%] before:top-[-50%] before:w-[200%] before:h-[200%] before:bg-no-repeat before:bg-white before:[background-size:50%_50%,50%_50%] before:[background-position:0_0,100%_0,100%_100%,0_100%] before:[background-image:linear-gradient(#399953,#399953),linear-gradient(#fbb300,#fbb300),linear-gradient(#d53e33,#d53e33),linear-gradient(#377af5,#377af5)] before:animate-steam before:-z-20 before:rounded-2xl after:content-[''] after:absolute after:left-[6px] after:top-[6px] after:w-[calc(100%-12px)] after:h-[calc(100%-12px)] after:-z-10 after:bg-white after:rounded";
+
   // Recursive function to mark all previous instances of a song in a bracket as eliminated
   function eliminatePrevious(thisId) {
     let songInfo = getBracket(thisId);
@@ -145,11 +148,11 @@ const SongButton = ({
   return (
     <div
       className={
-        "flex rounded-2xl border-0 shadow-md cursor-pointer w-[var(--buttonwidth)] min-w-[var(--buttonwidth)] h-[var(--buttonheight)] min-h-[var(--buttonheight) hover:h-auto hover:flex] disabled:cursor-default disabled:shadow-none disabled:w-[var(--buttonwidth)]" +
+        "z-0 flex rounded-2xl shadow-md cursor-pointer w-[var(--buttonwidth)] min-w-[var(--buttonwidth)] h-[var(--buttonheight)] min-h-[var(--buttonheight) hover:h-auto hover:flex] disabled:cursor-default disabled:shadow-none disabled:w-[var(--buttonwidth)] relative" +
         (song == null
           ? " bg-white text-black shadow-md border-0 border-gray-400"
           : " ") +
-        (winner ? "opacity-100" : " ") +
+        (winner ? "opacity-100 " + winnerStyle : " ") +
         (side ? " flex-row-reverse " : "") +
         (eliminated ? " opacity-50 " : " ") +
         styling

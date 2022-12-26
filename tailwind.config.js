@@ -18,6 +18,27 @@ module.exports = {
     extend: {
       backgroundImage: {
         'colosseum': "url('./src/assets/images/colosseum.jpg')"
+      },
+      keyframes: {
+        steam: {
+          '0%': {
+            backgroundPosition: '0px 0px'
+          },
+          '50%': {
+            backgroundPosition: '0px 500px'
+          },
+          '100%': {
+            backgroundPosition: '0px 0px'
+          },
+        },
+        rotate: {
+          '100%': {
+            transform: 'rotate(1turn)'
+          }
+        }
+      },
+      animation: {
+        steam: 'rotate 6s linear infinite',
       }
     },
   },
