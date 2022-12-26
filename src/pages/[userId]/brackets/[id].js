@@ -27,6 +27,7 @@ const App = ({ params, location }) => {
   const [loadingText, setLoadingText] = useState("Loading...");
   const [bracketComplete, setBracketComplete] = useState(false);
   const [commands, setCommands] = useState([]);
+  const [lastSaved, setLastSaved] = useState(0);
 
   //INITIALIZE BRACKET
 
@@ -61,6 +62,7 @@ const App = ({ params, location }) => {
             setBracketComplete(loadedBracket.completed);
             setShowBracket(true);
             setTracks(new Array(loadedBracket.tracks).fill(null));
+            setLastSaved(Date.now());
           });
         } else {
           if (location.state && location.state.artist) {
@@ -93,12 +95,16 @@ const App = ({ params, location }) => {
   //TODO: autosave, notification on save
 
   useEffect(() => {
-    if (bracketId && user && artist && tracks && seedingMethod && bracketComplete && bracket && editable) {
-      if (readyToChange || bracketComplete) {
+    if (bracketId && user && artist && tracks && seedingMethod && bracket && editable) {
+      if (bracketComplete) {
         saveBracket();
+      } else if (readyToChange) {
+        if (lastSaved + 20000 < Date.now()) {
+          saveBracket();
+        }
       }
     }
-  }, [bracketComplete, readyToChange, editable]);
+  }, [bracketComplete, readyToChange, editable, bracket]);
 
   async function saveBracket() { // Called on these occasions: on initial bracket load, user clicks save button, user completes bracket
     const obj = Object.fromEntries(bracket);
@@ -118,6 +124,7 @@ const App = ({ params, location }) => {
     await writeBracket(theBracket);
     //show notification confirming the save
     console.log("Bracket Saved");
+    setLastSaved(Date.now());
   }
 
   // UNDO
@@ -142,7 +149,7 @@ const App = ({ params, location }) => {
   }
 
   function noChanges() {
-    if (commands.length !== 0) {
+    if (commands.length !== 0 && !bracketComplete) {
       if (
         window.confirm(
           "You have bracket changes that will be lost! Proceed anyways?"
