@@ -92,7 +92,7 @@ const App = ({ params, location }) => {
 
   // SAVE
 
-  //TODO: autosave, notification on save
+  //TODO: notification on save
 
   useEffect(() => {
     if (bracketId && user && artist && tracks && seedingMethod && bracket && editable) {
