@@ -289,7 +289,6 @@ const Bracket = ({
         i--;
       }
     }
-    console.log(tracks, tracks.length);
     setBracket(temp);
     setColumns(cols);
   }
