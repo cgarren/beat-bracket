@@ -106,6 +106,12 @@ const App = ({ params, location }) => {
     }
   }, [bracketComplete, readyToChange, editable, bracket]);
 
+  useEffect(() => {
+    if (bracketId && user && artist && tracks && seedingMethod && bracket && editable) {
+      saveBracket();
+    }
+  }, [tracks]);
+
   async function saveBracket() { // Called on these occasions: on initial bracket load, user clicks save button, user completes bracket
     const obj = Object.fromEntries(bracket);
     console.log(bracket, obj);
@@ -245,7 +251,8 @@ const App = ({ params, location }) => {
         clearCommands();
         console.log("limit changed");
         getTracks(artist);
-      } else {
+      }
+      else {
         setReadyToChange(true);
       }
     }
@@ -265,8 +272,8 @@ const App = ({ params, location }) => {
                   <option value="16">16</option>
                   <option value="32">32</option>
                   <option value="64">64</option>
-                  <option value="128">128</option>
-                  <option value="256">256</option>
+                  {/* <option value="128">128</option> */}
+                  {/* <option value="256">256</option> */}
                 </select>
               </div>
               <div className={""}>
