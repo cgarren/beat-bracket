@@ -15,7 +15,7 @@ const NavBar = ({ loggedIn, noChanges }) => {
           className="text-white text-2xl font-bold font-display bg-black border-0 hover:bg-black pl-0"
           onClick={handleNaviagtionAttempt}
         >
-          🏛️ Song Colosseum
+          Beat Bracket
         </button>
         <ProfileDropdown loggedIn={loggedIn} noChanges={noChanges} />
       </div>

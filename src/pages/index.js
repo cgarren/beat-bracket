@@ -5,10 +5,14 @@ import LoginButton from "../components/LoginButton";
 const App = () => {
 
   return (
-    <div className="block text-center">
-      <div>Welcome to Beat Bracket! Click below to login with Spotify</div>
-      <LoginButton />
-    </div>
+
+    <main className="flex flex-col items-center justify-center h-screen bg-zinc-300">
+      <div className="inline-flex flex-col justify-center items-center">
+        <div className="font-bold font-display text-8xl text-black">Beat Bracket</div>
+        {/* <div className="text-black">THE song bracket maker</div> */}
+        <LoginButton />
+      </div>
+    </main>
   )
 }
 

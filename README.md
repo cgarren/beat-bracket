@@ -1,4 +1,4 @@
-# Song Colosseum
+# Beat Bracket
 ## TODO
 ### High
 - Add a way to add songs to queue
