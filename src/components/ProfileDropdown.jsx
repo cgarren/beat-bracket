@@ -31,7 +31,7 @@ const ProfileDropdown = ({ loggedIn, noChanges }) => {
 
   function navProfile() {
     setShowDropdown(false);
-    handleNaviagtionAttempt("/profile");
+    handleNaviagtionAttempt("/my-brackets");
   }
 
   useEffect(() => {
@@ -112,7 +112,7 @@ const ProfileDropdown = ({ loggedIn, noChanges }) => {
             onClick={navProfile}
             className="py-2 px-4 items-center whitespace-nowrap flex gap-1 group-hover:bg-gray-200 border-0 w-full group"
           >
-            <span>Profile</span>
+            <span>My Brackets</span>
           </button>
           <button
             onClick={signOut}

@@ -10,7 +10,7 @@ const LoginButton = () => {
     let client_id = "fff2634975884bf88e3d3c9c2d77763d"; // Your client id
     //let redirect_uri = 'https://spotifydata.com/songdata'; // Your redirect uri
     console.log(window.location);
-    let redirect_uri = window.location.origin + "/profile"; // Your redirect uri
+    let redirect_uri = window.location.origin + "/my-brackets"; // Your redirect uri
 
     let state = generateRandomString(16);
 
