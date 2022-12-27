@@ -293,7 +293,7 @@ function openBracket(uuid, userId = undefined, state = {}) {
 	navigate("/" + (userId ? userId : getUserInfo().id) + "/brackets/" + uuid, { state: state });
 }
 
-function shareBracket(bracketId, artistName) {
+function downloadBracket(bracketId, artistName) {
 	let bracketEl = document.getElementById(bracketId);
 	html2canvas(bracketEl, {
 		scale: 4,
@@ -339,7 +339,7 @@ export {
 	createPlaylist,
 	addTracksToPlaylist,
 	addCoverImageToPlaylist,
-	shareBracket,
+	downloadBracket,
 	getUserInfo,
 	openBracket,
 	isCurrentUser,

@@ -9,7 +9,7 @@ import GeneratePlaylistButton from "../../../components/GeneratePlaylistButton";
 import { getUserInfo } from "../../../utilities/helpers";
 import { writeBracket, getBracket } from "../../../utilities/backend";
 import { seedBracket, loadAlbums, processTracks } from "../../../utilities/songProcessing";
-import { bracketSorter, isCurrentUser, nearestLesserPowerOf2, popularitySort, shareBracket } from "../../../utilities/helpers";
+import { bracketSorter, isCurrentUser, nearestLesserPowerOf2, popularitySort } from "../../../utilities/helpers";
 
 const App = ({ params, location }) => {
   const bracketId = params.id;
@@ -87,7 +87,8 @@ const App = ({ params, location }) => {
   // SHARE
 
   function share() {
-    shareBracket("bracket", artist.name);
+    navigator.clipboard.writeText(location.href);
+    console.log("copied link");
   }
 
   // SAVE
@@ -302,20 +303,23 @@ const App = ({ params, location }) => {
               <div>
                 <span className="font-bold">{tracks ? tracks.length + " tracks displayed" : ""}</span>
               </div>
-              {editable && !bracketComplete ? <div className="inline-flex items-center text-xs -space-x-px rounded-md">
-                {/* <GeneratePlaylistButton tracks={tracks} artist={artist} /> */}
-                <button
-                  onClick={undo}
-                  hidden={commands.length === 0}
-                  className="border-l-gray-200 hover:disabled:border-x-gray-200"
-                >
-                  Undo
+              <div className="inline-flex items-center text-xs -space-x-px rounded-md">
+                {editable && !bracketComplete ? <div>
+                  {/* <GeneratePlaylistButton tracks={tracks} artist={artist} /> */}
+                  <button
+                    onClick={undo}
+                    disabled={commands.length === 0}
+                    className="border-l-gray-200 hover:disabled:border-x-gray-200"
+                  >
+                    Undo
+                  </button>
+                  <button onClick={saveBracket} className="border-l-gray-200 hover:disabled:border-l-gray-200">Save</button>
+                </div>
+                  : null}
+                <button onClick={share} className="border-l-gray-200 hover:disabled:border-l-gray-200">
+                  Share
                 </button>
-                <button onClick={saveBracket} className="border-l-gray-200 hover:disabled:border-l-gray-200">Save</button>
-                {/* <button onClick={share} hidden={!bracketComplete} className="border-l-gray-200 hover:disabled:border-l-gray-200">
-                  Download Bracket
-                </button> */}
-              </div> : null}
+              </div>
             </div>
           </div>
           <Bracket bracket={bracket} setBracket={setBracket} tracks={tracks} setShowBracket={setShowBracket} showBracket={showBracket} saveCommand={saveCommand} playbackEnabled={playbackEnabled} bracketComplete={bracketComplete} setBracketComplete={setBracketComplete} />
