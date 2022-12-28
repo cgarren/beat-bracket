@@ -22,20 +22,20 @@ module.exports = {
       keyframes: {
         steam: {
           '0%': {
-            backgroundPosition: '0px 0px'
+            backgroundPosition: '0 0,100% 0,100% 100%,0 100%'
           },
           '50%': {
-            backgroundPosition: '0px 500px'
+            backgroundPosition: '100% 100%,100% 0,0 0,0 100%'
           },
           '100%': {
-            backgroundPosition: '0px 0px'
+            backgroundPosition: '0 0,100% 0,100% 100%,0 100%'
           },
         },
         rotate: {
           '100%': {
             transform: 'rotate(1turn)'
           }
-        }
+        },
       },
       animation: {
         steam: 'rotate 6s linear infinite',

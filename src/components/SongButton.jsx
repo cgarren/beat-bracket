@@ -28,7 +28,7 @@ const SongButton = ({
   const audioRef = useRef(null);
 
   const winnerStyle =
-    "overflow-hidden w-[calc(var(--buttonwidth))] h-[calc(var(--buttonheight))] before:box-border box-border before:content-[''] before:absolute before:left-[-50%] before:top-[-150%] before:w-[calc(2*var(--buttonwidth)+6px)] before:h-[calc(2*var(--buttonwidth)+6px)] before:bg-no-repeat before:bg-white before:[background-size:50%_50%,50%_50%] before:[background-position:0_0,100%_0,100%_100%,0_100%] before:[background-image:linear-gradient(black,black),linear-gradient(white,white),linear-gradient(black,black),linear-gradient(white,white)] before:animate-steam before:-z-20 before:rounded-2xl";
+    "overflow-hidden w-[calc(var(--buttonwidth))] h-[calc(var(--buttonheight))] before:box-border box-border before:content-[''] before:absolute before:left-[-50%] before:top-[calc(-1*var(--buttonwidth)+22px)] before:w-[calc(2*var(--buttonwidth)+6px)] before:h-[calc(2*var(--buttonwidth)+6px)] before:bg-no-repeat before:bg-white before:[background-size:50%_50%,50%_50%] before:[background-position:0_0,100%_0,100%_100%,0_100%] before:[background-image:linear-gradient(black,black),linear-gradient(white,white),linear-gradient(black,black),linear-gradient(white,white)] before:animate-steam before:-z-20 before:rounded-2xl";
 
   // Recursive function to mark all previous instances of a song in a bracket as eliminated
   function eliminatePrevious(thisId) {
