@@ -28,7 +28,7 @@ const SongButton = ({
   const audioRef = useRef(null);
 
   const winnerStyle =
-    "overflow-hidden w-[calc(var(--buttonwidth)+6px)] h-[calc(var(--buttonheight)+6px)] before:box-border box-border before:content-[''] before:absolute before:left-[-50%] before:top-[-150%] before:w-[calc(2*var(--buttonwidth)+6px)] before:h-[calc(2*var(--buttonwidth)+6px)] before:bg-no-repeat before:bg-white before:[background-size:50%_50%,50%_50%] before:[background-position:0_0,100%_0,100%_100%,0_100%] before:[background-image:linear-gradient(black,black),linear-gradient(white,white),linear-gradient(black,black),linear-gradient(white,white)] before:animate-steam before:-z-20 before:rounded-2xl";
+    "overflow-hidden w-[calc(var(--buttonwidth))] h-[calc(var(--buttonheight))] before:box-border box-border before:content-[''] before:absolute before:left-[-50%] before:top-[-150%] before:w-[calc(2*var(--buttonwidth)+6px)] before:h-[calc(2*var(--buttonwidth)+6px)] before:bg-no-repeat before:bg-white before:[background-size:50%_50%,50%_50%] before:[background-position:0_0,100%_0,100%_100%,0_100%] before:[background-image:linear-gradient(black,black),linear-gradient(white,white),linear-gradient(black,black),linear-gradient(white,white)] before:animate-steam before:-z-20 before:rounded-2xl";
 
   // Recursive function to mark all previous instances of a song in a bracket as eliminated
   function eliminatePrevious(thisId) {
@@ -184,12 +184,12 @@ const SongButton = ({
             : {}
         }
         className={
-          "rounded-[inherit] disabled:rounded-[inherit] bg-red-500 text-white border-0 w-[70%] h-full min-h-[var(--buttonheight)] leading-[1.15em] p-0 text-center overflow-hidden break-words disabled:px-[6px]" +
+          "rounded-[inherit] disabled:rounded-[inherit] bg-red-500 text-white border-0 leading-[1.15em] p-0 text-center overflow-hidden break-words disabled:px-[6px]" +
           (winner
-            ? " opacity-100 content-[''] absolute left-[3px] top-[3px] w-[calc(100%-6px)] h-[calc(100%-6px)] -z-10 bg-white rounded"
-            : " disabled:w-full ") +
+            ? " opacity-100 content-[''] absolute left-[3px] top-[3px] -z-10 bg-white rounded w-[calc(100%-6px)] h-[calc(100%-6px)] min-h-[calc(var(--buttonheight)-6px)]"
+            : " disabled:w-full w-[70%] h-full min-h-[var(--buttonheight)]") +
           (song == null ? " w-full bg-transparent text-black " : "") +
-          (side ? " pr-[6px] rounded-l-[0] " : " pl-[6px] rounded-r-[0] ") +
+          (side ? " pr-[6px] rounded-l-[0] " : " pl-[6px] rounded-r-[0]") +
           (eliminated ? " " : "")
         }
       >
