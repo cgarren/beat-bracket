@@ -33,7 +33,7 @@ async function getBrackets(userId) {
 	if (response.ok) {
 		return response.json();
 	} else {
-		throw new Error("Unknown request error. Code: " + response.status);
+		return 1;
 	}
 }
 
@@ -44,7 +44,7 @@ async function getBracket(id, userId) {
 	} else if (response.status === 404) {
 		return null
 	} else {
-		throw new Error("Unknown request error. Code: " + response.status);
+		return 1;
 	}
 }
 
@@ -54,7 +54,7 @@ async function writeBracket(bracket) {
 	if (response.ok) {
 		return 0;
 	} else {
-		throw new Error("Unknown request error. Code: " + response.status);
+		return 1;
 	}
 }
 
@@ -71,7 +71,7 @@ async function deleteBracket(id, userId) {
 	} else if (response.status === 404) {
 		return null
 	} else {
-		throw new Error("Unknown request error. Code: " + response.status);
+		return 1;
 	}
 }
 
