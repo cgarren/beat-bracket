@@ -36,7 +36,7 @@ const Layout = ({ children, noChanges }) => {
   }, []);
 
   return (
-    <main className="font-sans text-black min-h-screen bg-zinc-300">
+    <main className="font-sans text-black min-h-screen bg-zinc-300 relative">
       <Helmet>
         <title>Beat Bracket</title>
       </Helmet>

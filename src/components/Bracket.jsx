@@ -58,6 +58,7 @@ const Bracket = ({
   playbackEnabled,
   bracket,
   setBracket,
+  editable,
 }) => {
   const [columns, setColumns] = useState(0);
   const [renderArray, setRenderArray] = useState([]);
@@ -156,7 +157,7 @@ const Bracket = ({
                   color={value.color}
                   key={mykey}
                   eliminated={value.eliminated}
-                  disabled={value.disabled}
+                  disabled={editable ? value.disabled : true}
                   winner={value.winner}
                   setBracketComplete={setBracketComplete}
                 />

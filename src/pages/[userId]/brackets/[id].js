@@ -10,6 +10,7 @@ import { getUserInfo } from "../../../utilities/helpers";
 import { writeBracket, getBracket } from "../../../utilities/backend";
 import { seedBracket, loadAlbums, processTracks } from "../../../utilities/songProcessing";
 import { bracketSorter, isCurrentUser, nearestLesserPowerOf2, popularitySort } from "../../../utilities/helpers";
+import Alert from "../../../components/Alert";
 
 const App = ({ params, location }) => {
   const bracketId = params.id;
@@ -28,12 +29,18 @@ const App = ({ params, location }) => {
   const [bracketComplete, setBracketComplete] = useState(false);
   const [commands, setCommands] = useState([]);
   const [lastSaved, setLastSaved] = useState(0);
+  const [alertInfo, setAlertInfo] = useState({ show: false, message: null, type: null, timeoutId: null });
 
   //INITIALIZE BRACKET
 
   useEffect(() => {
     if (bracketId) {
       getBracket(bracketId, user.id).then((loadedBracket) => {
+        if (loadedBracket === 1) {
+          // Error
+          showAlert("Error loading bracket", "error", false);
+          return
+        }
         getUserInfo(user.id).then((userInfo) => {
           if (userInfo) {
             setUser({ id: userInfo.id, name: userInfo.display_name });
@@ -77,18 +84,38 @@ const App = ({ params, location }) => {
           } else {
             // Bracket doesn't exist and no artist was passed in
             // Display Bracket not found message
-            alert("No bracket found");
+            showAlert("Bracket does not exist", "error", false);
           }
         }
       });
     }
   }, []);
 
+  function showAlert(message, type = "info", timeout = true) {
+    if (alertInfo.timeoutId) {
+      clearTimeout(alertInfo.timeoutId);
+    }
+    let timeoutId = null;
+    if (timeout) {
+      timeoutId = setTimeout(() => {
+        setAlertInfo({ show: false, message: null, type: null, timeoutId: null });
+      }, 5000);
+    }
+    setAlertInfo({ show: true, message: message, type: type, timeoutId: timeoutId });
+  }
+
   // SHARE
 
   function share() {
     navigator.clipboard.writeText(location.href);
     console.log("copied link");
+    showAlert("Link copied to clipboard!", "success");
+  }
+
+  // DUPLICATE
+
+  function duplicateBracket() {
+    console.log("duplicate");
   }
 
   // SAVE
@@ -128,10 +155,15 @@ const App = ({ params, location }) => {
       bracketData: obj,
     };
     //write to database and stuff
-    await writeBracket(theBracket);
-    //show notification confirming the save
-    console.log("Bracket Saved");
-    setLastSaved(Date.now());
+    if (await writeBracket(theBracket) === 0) {
+      console.log("Bracket Saved");
+      //show notification confirming the save
+      showAlert("Bracket Saved", "success");
+      setLastSaved(Date.now());
+    } else {
+      showAlert("Error saving bracket", "error");
+    }
+
   }
 
   // UNDO
@@ -261,6 +293,7 @@ const App = ({ params, location }) => {
 
   return (
     <Layout noChanges={noChanges}>
+      <Alert show={alertInfo.show} message={alertInfo.message} type={alertInfo.type} />
       <div className="text-center">
         {user.name && artist.name ? <div className="font-bold mb-2">{artist.name} bracket by {user.name}</div> : <div>Loading...</div>}
         {editable && !bracketComplete ?
@@ -290,11 +323,8 @@ const App = ({ params, location }) => {
               </div>
             </div>
           </div>
-          : !editable
-            ? user.name && artist.name
-              ? <button onClick={() => { }} className="border-l-gray-200 hover:disabled:border-l-gray-200">Fill out this bracket</button>
-              : null
-            : <div>Bracket Complete</div>}
+          : editable
+            ? <div>Bracket Complete</div> : null}
         <hr />
         <div>
           <LoadingIndicator hidden={showBracket} loadingText={loadingText} />
@@ -319,10 +349,13 @@ const App = ({ params, location }) => {
                 <button onClick={share} className="border-l-gray-200 hover:disabled:border-l-gray-200">
                   Share
                 </button>
+                {!editable && user.name && artist.name && false
+                  ? <button onClick={duplicateBracket} className="border-l-gray-200 hover:disabled:border-l-gray-200">Fill out this bracket</button>
+                  : null}
               </div>
             </div>
           </div>
-          <Bracket bracket={bracket} setBracket={setBracket} tracks={tracks} setShowBracket={setShowBracket} showBracket={showBracket} saveCommand={saveCommand} playbackEnabled={playbackEnabled} bracketComplete={bracketComplete} setBracketComplete={setBracketComplete} />
+          <Bracket bracket={bracket} setBracket={setBracket} tracks={tracks} setShowBracket={setShowBracket} showBracket={showBracket} saveCommand={saveCommand} playbackEnabled={playbackEnabled} bracketComplete={bracketComplete} setBracketComplete={setBracketComplete} editable={editable} />
         </div>
       </div>
     </Layout>
