@@ -4,7 +4,7 @@ import {
   createPlaylist,
   addTracksToPlaylist,
   addCoverImageToPlaylist,
-} from "../utilities/helpers";
+} from "../utilities/spotify";
 
 import { useEffect } from "react";
 

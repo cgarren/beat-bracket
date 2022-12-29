@@ -1,9 +1,8 @@
 import React, { useState } from "react";
-import { loadSpotifyRequest } from "../utilities/helpers";
 import BracketCard from "./BracketCard";
 import { openBracket } from "../utilities/helpers";
 import { deleteBracket } from "../utilities/backend";
-import { navigate } from "gatsby";
+import { loadSpotifyRequest } from "../utilities/spotify";
 
 const ArtistBracketCard = ({ bracket, userId }) => {
   const [cardImage, setCardImage] = useState(null);

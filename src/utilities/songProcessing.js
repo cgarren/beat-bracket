@@ -1,4 +1,5 @@
-import { loadSpotifyRequest, popularitySort, shuffleArray } from "./helpers";
+import { popularitySort, shuffleArray } from "./helpers";
+import { loadSpotifyRequest } from "./spotify";
 
 function seedBracket(trackList, seedingMethod) {
 	switch (seedingMethod) {

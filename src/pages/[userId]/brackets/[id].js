@@ -5,12 +5,12 @@ import Mousetrap from "mousetrap";
 import Bracket from "../../../components/Bracket"
 import Layout from "../../../components/Layout";
 import LoadingIndicator from "../../../components/LoadingIndicator";
+import Alert from "../../../components/Alert";
 import GeneratePlaylistButton from "../../../components/GeneratePlaylistButton";
-import { getUserInfo } from "../../../utilities/helpers";
 import { writeBracket, getBracket } from "../../../utilities/backend";
 import { seedBracket, loadAlbums, processTracks } from "../../../utilities/songProcessing";
-import { bracketSorter, isCurrentUser, nearestLesserPowerOf2, popularitySort } from "../../../utilities/helpers";
-import Alert from "../../../components/Alert";
+import { bracketSorter, nearestLesserPowerOf2, popularitySort } from "../../../utilities/helpers";
+import { getUserInfo, isCurrentUser } from "../../../utilities/spotify";
 
 const App = ({ params, location }) => {
   const bracketId = params.id;

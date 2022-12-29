@@ -4,7 +4,7 @@ import ArtistBracketCard from "../components/ArtistBracketCard";
 import Tab from "../components/Tab";
 import CreateBracketCard from "../components/CreateBracketCard";
 import { getBrackets } from "../utilities/backend";
-import { getUserInfo } from "../utilities/helpers";
+import { getUserInfo } from "../utilities/spotify";
 
 // markup
 const App = () => {
