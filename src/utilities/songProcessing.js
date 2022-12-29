@@ -7,10 +7,27 @@ function seedBracket(trackList, seedingMethod) {
 		case "popularity":
 			trackList.sort(popularitySort);
 			//console.table(trackList);
-			return switchEveryOther(trackList);
+			return arrangeSeeds(trackList);
 		default:
 			return trackList;
 	}
+}
+
+function arrangeSeeds(bracketList) {
+	let slice = 1;
+	let temp;
+	while (slice < bracketList.length / 2) {
+		temp = bracketList;
+		bracketList = [];
+
+		while (temp.length > 0) {
+			bracketList = bracketList.concat(temp.splice(0, slice));  // n from the beginning
+			bracketList = bracketList.concat(temp.splice(-slice, slice));  // n from the end
+		}
+
+		slice = slice * 2;
+	}
+	return bracketList;
 }
 
 async function selectTrackVersion(numTracks, tracks) {

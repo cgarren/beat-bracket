@@ -115,12 +115,10 @@ const App = ({ params, location }) => {
   // DUPLICATE
 
   function duplicateBracket() {
-    console.log("duplicate");
+    console.log("duplicating bracket for another user...");
   }
 
   // SAVE
-
-  //TODO: notification on save
 
   useEffect(() => {
     if (bracketId && user && artist && tracks && seedingMethod && bracket && editable) {
@@ -136,7 +134,7 @@ const App = ({ params, location }) => {
 
   useEffect(() => {
     if (bracketId && user && artist && tracks && seedingMethod && bracket && editable) {
-      saveBracket();
+      setLastSaved(0); //when the tracks change reset the last saved time so that it will save immediately
     }
   }, [tracks]);
 
@@ -229,7 +227,7 @@ const App = ({ params, location }) => {
       setLoadingText("Seeding tracks by " + seedingMethod + "...");
       // sort the list by popularity
       templist.sort(popularitySort);
-      // limit the list length to the nearest lesser power of 2 (for now)
+      // limit the list length to the nearest lesser power of 2 (for now) and seed the bracket
       templist = seedBracket(templist.slice(0, (limit < power ? limit : power)), seedingMethod);
       console.table(templist);
       setTracks(templist);
