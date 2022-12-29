@@ -11,5 +11,5 @@ module.exports = {
       }
     }
   }],
-  pathPrefix: "/song-colosseum"
+  pathPrefix: "/beat-bracket"
 }

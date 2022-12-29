@@ -1,8 +1,8 @@
 {
-  "name": "song-colosseum",
+  "name": "beat-bracket",
   "version": "1.0.0",
   "private": true,
-  "description": "song-colosseum",
+  "description": "beat-bracket",
   "author": "Cooper Garren",
   "keywords": [
     "gatsby"
