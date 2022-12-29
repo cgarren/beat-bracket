@@ -140,7 +140,6 @@ const App = ({ params, location }) => {
 
   async function saveBracket() { // Called on these occasions: on initial bracket load, user clicks save button, user completes bracket
     const obj = Object.fromEntries(bracket);
-    console.log(bracket, obj);
     const theBracket = {
       id: bracketId,
       userId: user.id,
