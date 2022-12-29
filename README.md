@@ -4,10 +4,7 @@
 - Add a way to add songs to queue
 - Make a toggle for songs exclusively by the artist vs songs the artist is featured on
 - Better duplicate detection
-- Improve seeding so that the top four songs are in the four corners
 - Rename to Beat Bracket
-- Add error message for when loading tracks or bracket generation fails
-- Fix bracket centering on window size adjustment
 ### Medium
 - SEO for each artist (ex. if someone searches for "Kanye West bracket every song" they should see the Kanye West bracket)
 - Make styling on searchbar for both keyboard and mouse option select consistent (currently purple outline for keyboard select and gray background for mouse hover)
