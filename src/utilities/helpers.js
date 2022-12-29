@@ -17,10 +17,8 @@ async function loadSpotifyRequest(url, params) {
 
 	if (response.ok) {
 		return response.json(); // parses JSON response into native JavaScript objects
-	} else if (response.status === 429) {
-		throw new Error("Too many requests. Code: " + response.status);
 	} else {
-		throw new Error("Unknown request error. Code: " + response.status);
+		return 1;
 	}
 }
 

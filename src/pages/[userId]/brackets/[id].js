@@ -216,10 +216,18 @@ const App = ({ params, location }) => {
   async function getTracks(providedArtist) {
     console.log("getting tracks");
     setLoadingText("Gathering Spotify tracks for " + providedArtist.name + "...");
-    let songs = await loadAlbums("https://api.spotify.com/v1/artists/" + providedArtist.id + "/albums?include_groups=album,single&limit=20");
+    const songs = await loadAlbums("https://api.spotify.com/v1/artists/" + providedArtist.id + "/albums?include_groups=album,single&limit=20");
+    if (songs === 1) {
+      showAlert("Error loading tracks from Spotify", "error", false);
+      return;
+    }
     // load data for the songs
     setLoadingText("Gathering track information...");
     let templist = await processTracks(songs);
+    if (templist === 1) {
+      showAlert("Error loading tracks from Spotify", "error", false);
+      return;
+    }
     // if the artist has less than 8 songs, stop
     if (templist.length >= 8) {
       const power = nearestLesserPowerOf2(templist.length);
