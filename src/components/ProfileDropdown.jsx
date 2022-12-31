@@ -25,6 +25,7 @@ const ProfileDropdown = ({ loggedIn, noChanges }) => {
     if (noChanges()) {
       setShowDropdown(false);
       sessionStorage.clear();
+      localStorage.setItem("rememberMe", false);
       navigate("/");
     }
   }

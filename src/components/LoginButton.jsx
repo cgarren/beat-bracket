@@ -6,16 +6,20 @@ import spotifyLogo from "../assets/images/Spotify_Logo_RGB_Green.png";
 
 const LoginButton = () => {
   function login() {
-    let stateKey = "spotify_auth_state";
-    let client_id = "fff2634975884bf88e3d3c9c2d77763d"; // Your client id
+    const stateKey = "spotify_auth_state";
+    const client_id = "fff2634975884bf88e3d3c9c2d77763d"; // Your client id
     //let redirect_uri = 'https://spotifydata.com/songdata'; // Your redirect uri
     console.log(window.location);
-    let redirect_uri = window.location.origin + "/my-brackets"; // Your redirect uri
+    const redirect_uri = window.location.origin + "/my-brackets"; // Your redirect uri
 
-    let state = generateRandomString(16);
+    const state = generateRandomString(16);
+
+    const show_dialog =
+      localStorage.getItem("rememberMe") === "true" ? false : true;
 
     sessionStorage.setItem(stateKey, state);
-    let scope = "playlist-modify-private playlist-modify-public";
+    const scope =
+      "playlist-modify-private playlist-modify-public user-read-private";
 
     let url = "https://accounts.spotify.com/authorize";
     url += "?response_type=token";
@@ -23,6 +27,9 @@ const LoginButton = () => {
     url += "&scope=" + encodeURIComponent(scope);
     url += "&redirect_uri=" + encodeURIComponent(redirect_uri);
     url += "&state=" + encodeURIComponent(state);
+    url += "&show_dialog=" + encodeURIComponent(show_dialog);
+
+    localStorage.setItem("rememberMe", true);
     window.location = url;
   }
 
