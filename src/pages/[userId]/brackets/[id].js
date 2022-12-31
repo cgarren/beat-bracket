@@ -28,7 +28,7 @@ const App = ({ params, location }) => {
   const [loadingText, setLoadingText] = useState("Loading...");
   const [bracketComplete, setBracketComplete] = useState(false);
   const [commands, setCommands] = useState([]);
-  const [lastSaved, setLastSaved] = useState(0);
+  const [lastSaved, setLastSaved] = useState({ time: 0, commandsLength: 0 });
   const [alertInfo, setAlertInfo] = useState({ show: false, message: null, type: null, timeoutId: null });
 
   //INITIALIZE BRACKET
@@ -69,7 +69,7 @@ const App = ({ params, location }) => {
             setBracketComplete(loadedBracket.completed);
             setShowBracket(true);
             setTracks(new Array(loadedBracket.tracks).fill(null));
-            setLastSaved(Date.now());
+            setLastSaved({ commandsLength: commands.length, time: Date.now() });
           });
         } else {
           if (location.state && location.state.artist) {
@@ -125,7 +125,7 @@ const App = ({ params, location }) => {
       if (bracketComplete) {
         saveBracket();
       } else if (readyToChange) {
-        if (lastSaved + 20000 < Date.now()) {
+        if (lastSaved.time + 20000 < Date.now()) {
           saveBracket();
         }
       }
@@ -134,7 +134,7 @@ const App = ({ params, location }) => {
 
   useEffect(() => {
     if (bracketId && user && artist && tracks && seedingMethod && bracket && editable) {
-      setLastSaved(0); //when the tracks change reset the last saved time so that it will save immediately
+      setLastSaved({ commandsLength: commands.length, time: 0 }); //when the tracks change reset the last saved time so that it will save immediately
     }
   }, [tracks]);
 
@@ -156,7 +156,7 @@ const App = ({ params, location }) => {
       console.log("Bracket Saved");
       //show notification confirming the save
       showAlert("Bracket Saved", "success");
-      setLastSaved(Date.now());
+      setLastSaved({ commandsLength: commands.length, time: Date.now() });
     } else {
       showAlert("Error saving bracket", "error");
     }
@@ -185,7 +185,7 @@ const App = ({ params, location }) => {
   }
 
   function noChanges() {
-    if (commands.length !== 0 && !bracketComplete) {
+    if (commands.length !== 0 && commands.length !== lastSaved.commandsLength && !bracketComplete) {
       if (
         window.confirm(
           "You have bracket changes that will be lost! Proceed anyways?"
