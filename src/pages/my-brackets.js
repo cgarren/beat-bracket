@@ -8,12 +8,13 @@ import { getUserInfo } from "../utilities/spotify";
 
 // markup
 const App = () => {
-  const [brackets, setBrackets] = useState([
-    { id: 1, userId: undefined, artistName: undefined, artistId: undefined, tracks: undefined, completed: false },
-  ]);
+  const [brackets, setBrackets] = useState([]);
+  //  { id: 1, userId: undefined, artistName: undefined, artistId: undefined, tracks: undefined, completed: false },
+
   const [shownBrackets, setShownBrackets] = useState(brackets);
   const [activeTab, setActiveTab] = useState(0);
   const [currentUserId, setCurrentUserId] = useState(undefined);
+  const maxBrackets = 10;
 
   useEffect(() => {
     setShownBrackets(brackets.filter((bracket) => {
@@ -38,7 +39,8 @@ const App = () => {
   return (
     <Layout noChanges={() => { return true }}>
       <div className="text-center">
-        <h1 className="text-4xl font-extrabold mb-2">My Brackets</h1>
+        <h1 className="text-4xl font-extrabold">My Brackets</h1>
+        <p className="text-sm text-gray-500 mb-2">{brackets.length + "/" + maxBrackets + " brackets used"}</p>
 
         <div className="">
           <nav className="inline-flex flex-col sm:flex-row">
@@ -48,7 +50,7 @@ const App = () => {
           </nav>
         </div>
         <div className="pt-3 flex flex-row flex-wrap justify-center items-stretch gap-5 overflow-scroll mx-5">
-          {activeTab === 0 && brackets.length < 10 ? <CreateBracketCard userId={currentUserId} /> : null}
+          {activeTab === 0 && brackets.length < maxBrackets && currentUserId ? <CreateBracketCard userId={currentUserId} /> : null}
           {shownBrackets.map((bracket) => (
             <ArtistBracketCard bracket={bracket} key={bracket.id} userId={currentUserId} />
           ))}
