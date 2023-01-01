@@ -1,19 +1,24 @@
 // Guest profile pic
 import guestProfileImage from "../assets/images/guestProfileImage.png";
+import { checkAuth } from "./helpers";
 
 async function loadSpotifyRequest(url, params) {
-	if (params) {
-		url = url + "?" + new URLSearchParams(params);
-	}
-	const response = await fetch(url, {
-		headers: {
-			'Content-Type': 'application/json',
-			'Authorization': 'Bearer ' + sessionStorage.getItem('access_token')
+	if (checkAuth()) {
+		if (params) {
+			url = url + "?" + new URLSearchParams(params);
 		}
-	});
+		const response = await fetch(url, {
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': 'Bearer ' + sessionStorage.getItem('access_token')
+			}
+		});
 
-	if (response.ok) {
-		return response.json(); // parses JSON response into native JavaScript objects
+		if (response.ok) {
+			return response.json(); // parses JSON response into native JavaScript objects
+		} else {
+			return 1;
+		}
 	} else {
 		return 1;
 	}

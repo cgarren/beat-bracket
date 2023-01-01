@@ -20,7 +20,7 @@ async function loadBackendRequest(path, method, params, data = {}, headers = {})
 		method: method,
 		headers: headers,
 	}
-	if (method === "PUT" || method === "DELETE") {
+	if (method === "PUT" || method === "POST") {
 		requestOptions.body = JSON.stringify(data);
 	}
 	const response = await fetch(url, requestOptions);
@@ -29,7 +29,7 @@ async function loadBackendRequest(path, method, params, data = {}, headers = {})
 }
 
 async function getBrackets(userId) {
-	const response = await loadBackendRequest("/items", "GET", { userId: userId });
+	const response = await loadBackendRequest("/items", "GET", { userId: userId, sessionId: sessionStorage.getItem("spotify_auth_state") });
 	if (response.ok) {
 		return response.json();
 	} else {
@@ -38,7 +38,7 @@ async function getBrackets(userId) {
 }
 
 async function getBracket(id, userId) {
-	const response = await loadBackendRequest("/item", "GET", { id: id, userId: userId });
+	const response = await loadBackendRequest("/item", "GET", { id: id, userId: userId, sessionId: sessionStorage.getItem("spotify_auth_state"), });
 	if (response.ok) {
 		return response.json();
 	} else if (response.status === 404) {
@@ -50,7 +50,7 @@ async function getBracket(id, userId) {
 
 async function writeBracket(bracket) {
 	console.log(bracket);
-	const response = await loadBackendRequest("/item", "PUT", undefined, bracket);
+	const response = await loadBackendRequest("/item", "PUT", { sessionId: sessionStorage.getItem("spotify_auth_state") }, bracket);
 	if (response.ok) {
 		return 0;
 	} else {
@@ -65,7 +65,7 @@ async function updateBracket(id, artistName, artistId, tracks, seeding) {
 }
 
 async function deleteBracket(id, userId) {
-	const response = await loadBackendRequest("/item", "DELETE", { id: id, userId: userId });
+	const response = await loadBackendRequest("/item", "DELETE", { id: id, userId: userId, sessionId: sessionStorage.getItem("spotify_auth_state") });
 	if (response.ok) {
 		return 0;
 	} else if (response.status === 404) {
@@ -75,4 +75,18 @@ async function deleteBracket(id, userId) {
 	}
 }
 
-export { getBrackets, getBracket, writeBracket, deleteBracket };
+async function authenticate(userId) {
+	const response = await loadBackendRequest("/auth", "POST", undefined, {
+		userId: userId,
+		sessionId: sessionStorage.getItem("spotify_auth_state"),
+		expireTime: sessionStorage.getItem("expires_at"),
+		accessToken: sessionStorage.getItem("access_token")
+	});
+	if (response.ok) {
+		return 0;
+	} else {
+		return 1;
+	}
+}
+
+export { getBrackets, getBracket, writeBracket, deleteBracket, authenticate };

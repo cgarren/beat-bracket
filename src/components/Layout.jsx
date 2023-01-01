@@ -3,36 +3,38 @@ import { useEffect } from "react";
 import { Helmet } from "react-helmet";
 import AuthBanner from "../components/AuthBanner";
 import NavBar from "./NavBar";
-import { getParamsFromURL } from "../utilities/helpers";
+import { getParamsFromURL, checkAuth } from "../utilities/helpers";
+import { authenticate } from "../utilities/backend";
+import { getUserInfo } from "../utilities/spotify";
 
 const Layout = ({ children, noChanges }) => {
   const [loggedIn, setLoggedIn] = useState(false);
-
-  function checkAuth(timer = undefined) {
-    let mydate = new Date(parseInt(sessionStorage.getItem("expires_at")));
-    if (
-      sessionStorage.getItem("expires_at") === null ||
-      mydate.toString() === "Invalid Date" ||
-      Date.now() > mydate ||
-      sessionStorage.getItem("received_state") !==
-        sessionStorage.getItem("spotify_auth_state")
-    ) {
-      setLoggedIn(false);
-      if (timer) {
-        clearInterval(timer);
-      }
-    } else {
-      setLoggedIn(true);
-    }
-  }
+  const [userInfo, setUserInfo] = useState({});
 
   useEffect(() => {
-    getParamsFromURL(window.location.pathname);
-    checkAuth();
-    const timer = setInterval(() => {
-      checkAuth(timer);
-    }, 1000);
-    return () => clearInterval(timer);
+    getParamsFromURL(window.location.pathname).then(() => {
+      if (checkAuth()) {
+        setLoggedIn(true);
+      } else {
+        setLoggedIn(false);
+      }
+      getUserInfo().then((userInfo) => {
+        setUserInfo(userInfo);
+        authenticate(userInfo.id).then((success) => {
+          if (success !== 0) {
+            setLoggedIn(false);
+          }
+        });
+      });
+      const timer = setInterval(() => {
+        if (checkAuth(timer)) {
+          setLoggedIn(true);
+        } else {
+          setLoggedIn(false);
+        }
+      }, 1000);
+      return () => clearInterval(timer);
+    });
   }, []);
 
   return (
@@ -42,7 +44,7 @@ const Layout = ({ children, noChanges }) => {
       </Helmet>
       {/* <div className="fixed w-full h-full top-0 left-0 bg-repeat bg-scroll bg-slate-900 bg-colosseum bg-blend-screen bg-cover opacity-40 -z-10"></div> */}
       <AuthBanner show={!loggedIn} />
-      <NavBar loggedIn={loggedIn} noChanges={noChanges} />
+      <NavBar loggedIn={loggedIn} noChanges={noChanges} userInfo={userInfo} />
       <div className="">{children}</div>
     </main>
   );

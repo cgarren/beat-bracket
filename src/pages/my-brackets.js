@@ -8,9 +8,9 @@ import { getUserInfo } from "../utilities/spotify";
 
 // markup
 const App = () => {
-  const [brackets, setBrackets] = useState([]);
-  //  { id: 1, userId: undefined, artistName: undefined, artistId: undefined, tracks: undefined, completed: false },
-
+  const [brackets, setBrackets] = useState([
+    { id: 1, userId: undefined, artistName: undefined, artistId: undefined, tracks: undefined, completed: false },
+  ]);
   const [shownBrackets, setShownBrackets] = useState(brackets);
   const [activeTab, setActiveTab] = useState(0);
   const [currentUserId, setCurrentUserId] = useState(undefined);
@@ -27,11 +27,15 @@ const App = () => {
 
   useEffect(() => {
     getUserInfo().then((userInfo) => {
-      setCurrentUserId(userInfo.id);
       getBrackets(userInfo.id).then((loadedBrackets) => {
-        console.log(loadedBrackets);
-        setBrackets(loadedBrackets);
-        setShownBrackets(loadedBrackets);
+        if (loadedBrackets !== 1) {
+          console.log(loadedBrackets);
+          setCurrentUserId(userInfo.id);
+          setBrackets(loadedBrackets);
+          setShownBrackets(loadedBrackets);
+        } else {
+
+        }
       });
     });
   }, []);
@@ -40,7 +44,7 @@ const App = () => {
     <Layout noChanges={() => { return true }}>
       <div className="text-center">
         <h1 className="text-4xl font-extrabold">My Brackets</h1>
-        <p className="text-sm text-gray-500 mb-2">{brackets.length + "/" + maxBrackets + " brackets used"}</p>
+        {currentUserId ? <p className="text-sm text-gray-500 mb-2">{brackets.length + "/" + maxBrackets + " brackets used"}</p> : null}
 
         <div className="">
           <nav className="inline-flex flex-col sm:flex-row">

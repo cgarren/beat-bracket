@@ -3,9 +3,9 @@ import React, { useEffect, useState } from "react";
 import guestProfileImage from "../assets/images/guestProfileImage.png";
 import { getUserInfo } from "../utilities/spotify";
 
-const ProfileDropdown = ({ loggedIn, noChanges }) => {
+const ProfileDropdown = ({ loggedIn, noChanges, userInfo }) => {
   const [showDropdown, setShowDropdown] = useState(false);
-  const [userInfo, setUserInfo] = useState({
+  const [shownUserInfo, setShownUserInfo] = useState({
     display_name: "Guest",
     id: "",
     images: [
@@ -36,13 +36,10 @@ const ProfileDropdown = ({ loggedIn, noChanges }) => {
   }
 
   useEffect(() => {
-    async function getInfo() {
-      setUserInfo(await getUserInfo());
-    }
-    if (loggedIn) {
-      getInfo();
+    if (loggedIn && userInfo.id) {
+      setShownUserInfo(userInfo);
     } else {
-      setUserInfo({
+      setShownUserInfo({
         display_name: "Guest",
         id: "",
         images: [
@@ -52,7 +49,7 @@ const ProfileDropdown = ({ loggedIn, noChanges }) => {
         ],
       });
     }
-  }, [loggedIn]);
+  }, [loggedIn, userInfo]);
 
   return (
     <div className="inline-block relative">
@@ -71,15 +68,15 @@ const ProfileDropdown = ({ loggedIn, noChanges }) => {
       >
         <img
           className="object-cover w-10 h-10 rounded-full"
-          src={userInfo.images[0].url}
-          alt={userInfo.display_name}
+          src={shownUserInfo.images[0].url}
+          alt={shownUserInfo.display_name}
         />
         <p className="hidden ml-2 text-left sm:block">
           <strong className="block text-s font-bold text-white">
-            {userInfo.display_name}
+            {shownUserInfo.display_name}
           </strong>
           <span className="text-gray-300 text-xs transition sm:block group-hover:text-white">
-            {userInfo.id}
+            {shownUserInfo.id}
           </span>
         </p>
         <div hidden={!loggedIn}>

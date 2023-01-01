@@ -14,7 +14,7 @@ function generateRandomString(length) {
 	return text;
 }
 
-function getParamsFromURL(new_url) {
+async function getParamsFromURL(new_url) {
 	try {
 		let hashParams = getHashParams()
 		if (hashParams["raw_hash"] !== '') {
@@ -40,6 +40,24 @@ function getHashParams() {
 		hashParams[e[1]] = decodeURIComponent(e[2]);
 	}
 	return hashParams;
+}
+
+function checkAuth(timer = undefined) {
+	let mydate = new Date(parseInt(sessionStorage.getItem("expires_at")));
+	if (
+		sessionStorage.getItem("expires_at") === null ||
+		mydate.toString() === "Invalid Date" ||
+		Date.now() > mydate ||
+		sessionStorage.getItem("received_state") !==
+		sessionStorage.getItem("spotify_auth_state")
+	) {
+		return false;
+		if (timer) {
+			clearInterval(timer);
+		}
+	} else {
+		return true;
+	}
 }
 
 function popularitySort(track1, track2) {
@@ -217,5 +235,6 @@ export {
 	generateRandomString,
 	downloadBracket,
 	openBracket,
-	bracketSorter
+	bracketSorter,
+	checkAuth
 }
