@@ -5,7 +5,7 @@
 - Make a toggle for songs exclusively by the artist vs songs the artist is featured on
 - Better duplicate detection
 - Rename to Beat Bracket
-- Secure backend API
+- Make brackets viewable by anyone (change spotify login banner text to be a sign up promo, store artist name and anything else needed with bracket so that spotify auth isn't required for just viewing)
 ### Medium
 - SEO for each artist (ex. if someone searches for "Kanye West bracket every song" they should see the Kanye West bracket)
 - Make styling on searchbar for both keyboard and mouse option select consistent (currently purple outline for keyboard select and gray background for mouse hover)
