@@ -7,19 +7,19 @@ import { getParamsFromURL, checkAuth } from "../utilities/helpers";
 import { getUserInfo } from "../utilities/spotify";
 
 const Layout = ({ children, noChanges }) => {
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(true);
   const [userInfo, setUserInfo] = useState({});
 
   useEffect(() => {
     getParamsFromURL(window.location.pathname).then(() => {
+      if (checkAuth()) {
+        console.log("logged in");
+        setLoggedIn(true);
+      } else {
+        setLoggedIn(false);
+      }
       getUserInfo().then((userInfo) => {
         setUserInfo(userInfo);
-        if (checkAuth()) {
-          console.log("logged in");
-          setLoggedIn(true);
-        } else {
-          setLoggedIn(false);
-        }
       });
       const timer = setInterval(() => {
         if (checkAuth(timer)) {
