@@ -4,23 +4,22 @@
 - Add a way to add songs to queue
 - Make a toggle for songs exclusively by the artist vs songs the artist is featured on
 - Better duplicate detection
-- Rename to Beat Bracket
+- Rename to Beat Bracket (get domain)
 - Make brackets viewable by anyone (change spotify login banner text to be a sign up promo, store artist name and anything else needed with bracket so that spotify auth isn't required for just viewing)
 - shift to using update function on bracket pages expect on first write (if user has used all of their brakets it throws an error)
+- - Make a toggle which decides which songs to include in the bracket in the first place (random vs popularity vs custom - currently just the most popular)
 ### Medium
+- Make favicon
 - SEO for each artist (ex. if someone searches for "Kanye West bracket every song" they should see the Kanye West bracket)
 - Make styling on searchbar for both keyboard and mouse option select consistent (currently purple outline for keyboard select and gray background for mouse hover)
 - Allow user to delete certain songs
 - Break into smaller components
-- Get domain
 - Display seed number/popularity in badge on each song button with toggle to hide it (maybe a badge for album/single/feature and toggles for each)
 - Add metrics on generation like - number of songs, seconds it took to make, number from albums vs singles, etc...
-- Make a toggle which decides which songs to include in the bracket in the first place (random vs popularity vs custom)
 - Play from the beginning of songs (scrubber too maybe?)
 - USE REFS INSTEAD OF REDRAWING EVERY TIME ONE THING CHANGES
 - Make the bracket options more attractive/streamlined
 ### Low
-- Make favicon
 - Animation with one song knocking out or killing another song
 - Option to include/exclude remixes (would have to be word detection or regex based, beta first)
 - Make the bracket from a spotify playlist
