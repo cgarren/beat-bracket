@@ -6,6 +6,7 @@
 - Better duplicate detection
 - Rename to Beat Bracket
 - Make brackets viewable by anyone (change spotify login banner text to be a sign up promo, store artist name and anything else needed with bracket so that spotify auth isn't required for just viewing)
+- shift to using update function on bracket pages expect on first write (if user has used all of their brakets it throws an error)
 ### Medium
 - SEO for each artist (ex. if someone searches for "Kanye West bracket every song" they should see the Kanye West bracket)
 - Make styling on searchbar for both keyboard and mouse option select consistent (currently purple outline for keyboard select and gray background for mouse hover)
