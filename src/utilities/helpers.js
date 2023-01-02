@@ -51,10 +51,10 @@ function checkAuth(timer = undefined) {
 		sessionStorage.getItem("received_state") !==
 		sessionStorage.getItem("spotify_auth_state")
 	) {
-		return false;
 		if (timer) {
 			clearInterval(timer);
 		}
+		return false;
 	} else {
 		return true;
 	}
