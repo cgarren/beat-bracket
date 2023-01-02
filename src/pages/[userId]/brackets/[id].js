@@ -15,6 +15,7 @@ import { getUserInfo, isCurrentUser } from "../../../utilities/spotify";
 const App = ({ params, location }) => {
   const bracketId = params.id;
 
+  const [saveButtonDisabled, setSaveButtonDisabled] = useState(true);
   const [readyToChange, setReadyToChange] = useState(false);
   const [editable, setEditable] = useState(false);
   const [user, setUser] = useState({ "name": undefined, "id": params.userId });
@@ -125,9 +126,11 @@ const App = ({ params, location }) => {
       if (bracketComplete) {
         saveBracket();
       } else if (readyToChange) {
-        if (lastSaved.time + 20000 < Date.now()) {
+        if (lastSaved.time + 10000 < Date.now()) {
           saveBracket();
         }
+      } else {
+        setReadyToChange(true);
       }
     }
   }, [bracketComplete, readyToChange, editable, bracket]);
@@ -157,6 +160,7 @@ const App = ({ params, location }) => {
       //show notification confirming the save
       showAlert("Bracket Saved", "success");
       setLastSaved({ commandsLength: commands.length, time: Date.now() });
+      setSaveButtonDisabled(true);
     } else {
       showAlert("Error saving bracket", "error");
     }
@@ -171,6 +175,7 @@ const App = ({ params, location }) => {
 
   function clearCommands() {
     setCommands([]);
+    setSaveButtonDisabled(false);
   }
 
   function saveCommand(action, inverse) {
@@ -182,6 +187,7 @@ const App = ({ params, location }) => {
       },
     ];
     setCommands(temp);
+    setSaveButtonDisabled(false);
   }
 
   function noChanges() {
@@ -207,6 +213,7 @@ const App = ({ params, location }) => {
       setCommands(commands.splice(0, commands.length - 1));
       // run the function that was just popped
       lastCommand.inverse();
+      setSaveButtonDisabled(false);
     }
     return false;
   }
@@ -348,7 +355,7 @@ const App = ({ params, location }) => {
                   >
                     Undo
                   </button>
-                  <button onClick={saveBracket} className="border-l-gray-200 hover:disabled:border-l-gray-200">Save</button>
+                  <button onClick={saveBracket} disabled={saveButtonDisabled} className="border-l-gray-200 hover:disabled:border-l-gray-200">{saveButtonDisabled ? "Saved" : "Save"}</button>
                 </div>
                   : null}
                 <button onClick={share} className="border-l-gray-200 hover:disabled:border-l-gray-200">
