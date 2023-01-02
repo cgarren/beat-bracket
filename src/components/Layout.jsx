@@ -4,7 +4,6 @@ import { Helmet } from "react-helmet";
 import AuthBanner from "../components/AuthBanner";
 import NavBar from "./NavBar";
 import { getParamsFromURL, checkAuth } from "../utilities/helpers";
-import { authenticate } from "../utilities/backend";
 import { getUserInfo } from "../utilities/spotify";
 
 const Layout = ({ children, noChanges }) => {
@@ -13,18 +12,14 @@ const Layout = ({ children, noChanges }) => {
 
   useEffect(() => {
     getParamsFromURL(window.location.pathname).then(() => {
-      if (checkAuth()) {
-        setLoggedIn(true);
-      } else {
-        setLoggedIn(false);
-      }
       getUserInfo().then((userInfo) => {
         setUserInfo(userInfo);
-        authenticate(userInfo.id).then((success) => {
-          if (success !== 0) {
-            setLoggedIn(false);
-          }
-        });
+        if (checkAuth()) {
+          console.log("logged in");
+          setLoggedIn(true);
+        } else {
+          setLoggedIn(false);
+        }
       });
       const timer = setInterval(() => {
         if (checkAuth(timer)) {

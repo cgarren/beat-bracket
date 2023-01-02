@@ -11,7 +11,7 @@
 // 		"bracketData": "some data",
 // 	},
 
-async function loadBackendRequest(path, method, params, data = {}, headers = {}) {
+async function loadBackendRequest(path, method, params, data, headers = {}, credentials) {
 	let url = "https://hsadrgb5uxnxfsswuxpcdrfblq0cydjv.lambda-url.us-east-2.on.aws" + path
 	if (params) {
 		url = url + "?" + new URLSearchParams(params);
@@ -20,7 +20,10 @@ async function loadBackendRequest(path, method, params, data = {}, headers = {})
 		method: method,
 		headers: headers,
 	}
-	if (method === "PUT" || method === "POST") {
+	if (credentials) {
+		requestOptions.credentials = credentials;
+	}
+	if (data) {
 		requestOptions.body = JSON.stringify(data);
 	}
 	const response = await fetch(url, requestOptions);
@@ -81,7 +84,7 @@ async function authenticate(userId) {
 		sessionId: sessionStorage.getItem("spotify_auth_state"),
 		expireTime: sessionStorage.getItem("expires_at"),
 		accessToken: sessionStorage.getItem("access_token")
-	});
+	}, {}, 'include');
 	if (response.ok) {
 		return 0;
 	} else {

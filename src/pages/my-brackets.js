@@ -3,7 +3,7 @@ import Layout from "../components/Layout";
 import ArtistBracketCard from "../components/ArtistBracketCard";
 import Tab from "../components/Tab";
 import CreateBracketCard from "../components/CreateBracketCard";
-import { getBrackets } from "../utilities/backend";
+import { getBrackets, authenticate } from "../utilities/backend";
 import { getUserInfo } from "../utilities/spotify";
 
 // markup
@@ -27,14 +27,22 @@ const App = () => {
 
   useEffect(() => {
     getUserInfo().then((userInfo) => {
-      getBrackets(userInfo.id).then((loadedBrackets) => {
-        if (loadedBrackets !== 1) {
-          console.log(loadedBrackets);
-          setCurrentUserId(userInfo.id);
-          setBrackets(loadedBrackets);
-          setShownBrackets(loadedBrackets);
+      authenticate(userInfo.id).then((success) => {
+        if (success !== 1) {
+          getBrackets(userInfo.id).then((loadedBrackets) => {
+            if (loadedBrackets !== 1) {
+              console.log(loadedBrackets);
+              setCurrentUserId(userInfo.id);
+              setBrackets(loadedBrackets);
+              setShownBrackets(loadedBrackets);
+            } else {
+              console.log("Error loading brackets");
+              // show notification
+            }
+          });
         } else {
-
+          console.log("Error authenticating");
+          // show notification
         }
       });
     });
