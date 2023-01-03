@@ -6,10 +6,11 @@
 - Better duplicate detection
 - Rename to Beat Bracket (get domain)
 - Make a toggle that decides which songs to include in the bracket in the first place (random vs popularity vs custom - currently just the most popular)
+- Make it so that auth only happens when there is a token sent from spotify (auth should not use value in sessionstorage, that is for later requests)
+- Make it clear to the user that the session is not valid and they must reauthenticate when that happens
 ### Medium
 - Write function to purge sessions that are expired every hour
 - SEO for each artist (ex. if someone searches for "Kanye West bracket every song" they should see the Kanye West bracket)
-- Make styling on searchbar for both keyboard and mouse option select consistent (currently purple outline for keyboard select and gray background for mouse hover)
 - Allow user to delete certain songs
 - Break into smaller components
 - Display seed number/popularity in badge on each song button with toggle to hide it (maybe a badge for album/single/feature and toggles for each)
@@ -18,6 +19,7 @@
 - USE REFS INSTEAD OF REDRAWING EVERY TIME ONE THING CHANGES
 - Make the bracket options more attractive/streamlined
 - Use update function instead of put on the backend to eliminate unnecessary writes
+- Put backend code on github (maybe consider making it private)
 ### Low
 - Animation with one song knocking out or killing another song
 - Option to include/exclude remixes (would have to be word detection or regex based, beta first)
