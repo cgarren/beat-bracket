@@ -8,7 +8,6 @@
 - Make a toggle that decides which songs to include in the bracket in the first place (random vs popularity vs custom - currently just the most popular)
 ### Medium
 - Write function to purge sessions that are expired every hour
-- Make favicon
 - SEO for each artist (ex. if someone searches for "Kanye West bracket every song" they should see the Kanye West bracket)
 - Make styling on searchbar for both keyboard and mouse option select consistent (currently purple outline for keyboard select and gray background for mouse hover)
 - Allow user to delete certain songs
