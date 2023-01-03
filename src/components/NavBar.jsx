@@ -4,7 +4,7 @@ import ProfileDropdown from "./ProfileDropdown";
 
 const NavBar = ({ loggedIn, noChanges, userInfo }) => {
   function handleNaviagtionAttempt() {
-    if (noChanges()) {
+    if (noChanges(true)) {
       navigate("/");
     }
   }

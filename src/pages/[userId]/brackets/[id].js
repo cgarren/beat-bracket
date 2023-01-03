@@ -42,13 +42,9 @@ const App = ({ params, location }) => {
           showAlert("Error loading bracket", "error", false);
           return
         }
-        getUserInfo(user.id).then((userInfo) => {
-          if (userInfo) {
-            setUser({ id: userInfo.id, name: userInfo.display_name });
-          }
-        });
         if (loadedBracket) {
           console.log(loadedBracket);
+          setUser({ id: loadedBracket.userId, name: loadedBracket.userName });
           // Bracket already exists, now check if it belongs to the current user or not
           isCurrentUser(loadedBracket.userId).then((isCurrentUser) => {
             if (isCurrentUser) {
@@ -74,6 +70,9 @@ const App = ({ params, location }) => {
           });
         } else {
           if (location.state && location.state.artist) {
+            getUserInfo(user.id).then((userInfo) => {
+              setUser({ id: userInfo.id, name: userInfo.display_name });
+            });
             console.log(location.state);
             // Bracket does not exist, make it editable for current user
             console.log("Bracket", bracketId, "not found for user. Creating New Bracket");
@@ -84,8 +83,7 @@ const App = ({ params, location }) => {
             setReadyToChange(true);
           } else {
             // Bracket doesn't exist and no artist was passed in
-            // Display Bracket not found message
-            showAlert("Bracket does not exist", "error", false);
+            setBracket(null);
           }
         }
       });
@@ -146,6 +144,7 @@ const App = ({ params, location }) => {
     const theBracket = {
       id: bracketId,
       userId: user.id,
+      userName: user.name,
       artistName: artist.name,
       artistId: artist.id,
       tracks: tracks.length,
@@ -190,8 +189,8 @@ const App = ({ params, location }) => {
     setSaveButtonDisabled(false);
   }
 
-  function noChanges() {
-    if (commands.length !== 0 && commands.length !== lastSaved.commandsLength && !bracketComplete) {
+  function noChanges(naviagteAway) {
+    if ((naviagteAway && commands.length !== lastSaved.commandsLength && !bracketComplete) || (!naviagteAway && commands.length !== 0 && !bracketComplete)) {
       if (
         window.confirm(
           "You have bracket changes that will be lost! Proceed anyways?"
@@ -258,13 +257,13 @@ const App = ({ params, location }) => {
   // CHANGE HANDLING
 
   function limitChange(e) {
-    if (noChanges()) {
+    if (noChanges(false)) {
       setLimit(parseInt(e.target.value));
     }
   }
 
   function seedingChange(e) {
-    if (noChanges()) {
+    if (noChanges(false)) {
       setSeedingMethod(e.target.value);
     }
   }
@@ -307,7 +306,7 @@ const App = ({ params, location }) => {
     <Layout noChanges={noChanges}>
       <Alert show={alertInfo.show} message={alertInfo.message} type={alertInfo.type} />
       <div className="text-center">
-        {user.name && artist.name ? <div className="font-bold mb-2">{artist.name} bracket by {user.name}</div> : <div>Loading...</div>}
+        {user.name && artist.name ? <div className="font-bold mb-2">{artist.name} bracket by {user.name}</div> : (bracket ? <div>Loading...</div> : <div className="font-bold mb-2">Bracket not found</div>)}
         {editable && !bracketComplete ?
           <div className="inline-flex flex-col gap-1 max-w-[800px] items-center">
             <div className="rounded-lg mb-2 flex flex-col">
