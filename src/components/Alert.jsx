@@ -41,7 +41,10 @@ const Alert = ({ show, message, type }) => {
   };
 
   return (
-    <div className="sticky left-full top-[10%] h-0 w-fit z-30" role="alert">
+    <div
+      className="sticky left-[50%] -translate-x-1/2 top-0 h-0 w-fit z-30"
+      role="alert"
+    >
       <div
         className={
           "w-fit h-fit rounded-lg text-sm p-4 " +
