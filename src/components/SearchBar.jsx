@@ -105,21 +105,22 @@ const SearchBar = ({ setArtist, disabled }) => {
 
   return (
     // <div className="mb-2 max-w-[800px] min-w-[25%] flex flex-col">
-    <div className="inline-flex flex-col justify-items-center mb-2 place-items-center border-black border-2 rounded-md">
+    <div className="inline-flex flex-col justify-items-center mb-2 place-items-center border-black border-0 rounded-md ">
       <input
         placeholder="Search for an artist..."
         aria-label="Search for an artist..."
         size="search"
         id="searchbar"
         type="search"
-        spellCheck="false"
+        spellCheck={false}
         autoComplete="off"
         autoCorrect="off"
         autoCapitalize="off"
+        autoFocus={true}
         value={searchText}
         onChange={(e) => setSearchText(e.target.value)}
         className={
-          "text-black text-2xl font-bar w-full p-1 border-0 rounded focus:z-10 pl-3 mousetrap"
+          "text-black text-2xl font-bar w-full p-1 border-2 border-gray-500 rounded focus:z-10 pl-3 mousetrap focus-visible:outline-none focus-visible:border-blue-500 focus-visible:border-1"
         }
         disabled={disabled}
       />
