@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import LoadingIndicator from "./LoadingIndicator";
 
 const BracketCard = ({
@@ -30,6 +30,7 @@ const BracketCard = ({
               className="w-[320px] h-[320px]"
               width="320px"
               height="320px"
+              alt={cardText}
             />
           ) : (
             <LoadingIndicator loadingText="" hidden={false} />
