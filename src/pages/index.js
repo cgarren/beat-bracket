@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React from "react"
 import LoginButton from "../components/LoginButton";
 
 // markup
@@ -17,3 +17,9 @@ const App = () => {
 }
 
 export default App
+
+export function Head() {
+  return (
+    <title>Beat Bracket</title>
+  )
+}

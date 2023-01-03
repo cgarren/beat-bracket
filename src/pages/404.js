@@ -14,3 +14,9 @@ const NotFoundPage = () => {
 }
 
 export default NotFoundPage
+
+export function Head() {
+  return (
+    <title>Page not found</title>
+  )
+}

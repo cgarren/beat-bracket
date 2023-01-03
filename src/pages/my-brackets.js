@@ -75,3 +75,9 @@ const App = () => {
 }
 
 export default App
+
+export function Head() {
+  return (
+    <title>Beat Bracket</title>
+  )
+}
