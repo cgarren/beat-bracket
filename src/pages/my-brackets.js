@@ -5,6 +5,7 @@ import Tab from "../components/Tab";
 import CreateBracketCard from "../components/CreateBracketCard";
 import { getBrackets, authenticate } from "../utilities/backend";
 import { getUserInfo } from "../utilities/spotify";
+import { navigate } from "gatsby";
 
 // markup
 const App = () => {
@@ -43,6 +44,7 @@ const App = () => {
         } else {
           console.log("Error authenticating");
           // show notification
+          navigate("/");
         }
       });
     });
