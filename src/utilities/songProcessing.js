@@ -100,6 +100,15 @@ async function processTracks(songs) {
 	return templist;
 }
 
+function checkTaylorSwift(trackName, artistId) {
+	// Gotta account for Taylor's Version
+	if (artistId === "06HL4z0CvFAxyc27GXpf02") {
+		return trackName.replace(" (Taylor’s Version)", "").replace(" (Taylor's Version)", "")
+	} else {
+		return trackName;
+	}
+}
+
 async function loadTracks(url, songs) {
 	let response = await loadSpotifyRequest(url);
 	if (response !== 1) {
@@ -108,10 +117,13 @@ async function loadTracks(url, songs) {
 				if (album.images.length > 0) {
 					// Iterate through the tracks
 					album.tracks.items.forEach((track) => {
+						track.name = checkTaylorSwift(track.name, album.artists[0].id);
 						// Check if the track already exists
 						if (track.name in songs) {
+							// If it does, add the id to the list
 							songs[track.name].push(track.id);
 						} else {
+							// If it doesn't, create a new entry
 							songs[track.name] = [track.id];
 						}
 					})
