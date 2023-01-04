@@ -14,7 +14,7 @@ const SearchBar = ({ setArtist, disabled }) => {
         new URLSearchParams(params).toString();
       let response = await loadSpotifyRequest(url);
 
-      if (!response["error"] && response.artists.items.length > 0) {
+      if (response !== 1 && response.artists.items.length > 0) {
         let templist = [];
         response.artists.items.forEach((item) => {
           if (item.images.length > 0) {
