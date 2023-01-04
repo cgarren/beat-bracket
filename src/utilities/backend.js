@@ -79,7 +79,6 @@ async function deleteBracket(id, userId) {
 }
 
 async function authenticate(userId, sessionId, expireTime, accessToken) {
-	console.log(userId, sessionId, expireTime, accessToken);
 	const response = await loadBackendRequest("/auth", "POST", null, {
 		userId: userId,
 		sessionId: sessionId,
