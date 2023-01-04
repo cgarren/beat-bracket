@@ -3,6 +3,7 @@ import Layout from "../components/Layout";
 import ArtistBracketCard from "../components/ArtistBracketCard";
 import Tab from "../components/Tab";
 import CreateBracketCard from "../components/CreateBracketCard";
+import Alert from "../components/Alert";
 import { getBrackets, authenticate } from "../utilities/backend";
 import { getUserInfo } from "../utilities/spotify";
 import { navigate } from "gatsby";
@@ -16,6 +17,8 @@ const App = () => {
   const [shownBrackets, setShownBrackets] = useState(brackets);
   const [activeTab, setActiveTab] = useState(0);
   const [currentUserId, setCurrentUserId] = useState(undefined);
+  const [alertInfo, setAlertInfo] = useState({ show: false, message: null, type: null, timeoutId: null });
+  const [error, setError] = useState(false);
   const maxBrackets = 10;
 
   useEffect(() => {
@@ -54,6 +57,8 @@ const App = () => {
           if (success === 1) {
             console.log("Error authenticating");
             // show notification
+            showAlert("Error authenticating", "error", false);
+            // redirect to home page
             navigate("/");
             return;
           } else {
@@ -64,6 +69,11 @@ const App = () => {
             // remove spotify auth state
             sessionStorage.removeItem("spotify_auth_state");
           }
+        } else {
+          console.log("Error getting user info");
+          // show notification
+          showAlert("Error getting user info", "error", false);
+          return;
         }
       }
     }
@@ -80,14 +90,30 @@ const App = () => {
         } else {
           console.log("Error loading brackets");
           // show notification
+          showAlert("Error loading brackets, try logging in again", "error", false);
+          setError(true);
         }
       });
     });
   }, []);
 
+  function showAlert(message, type = "info", timeout = true) {
+    if (alertInfo.timeoutId) {
+      clearTimeout(alertInfo.timeoutId);
+    }
+    let timeoutId = null;
+    if (timeout) {
+      timeoutId = setTimeout(() => {
+        setAlertInfo({ show: false, message: null, type: null, timeoutId: null });
+      }, 5000);
+    }
+    setAlertInfo({ show: true, message: message, type: type, timeoutId: timeoutId });
+  }
+
   return (
     <Layout noChanges={() => { return true }}>
-      <div className="text-center">
+      <Alert show={alertInfo.show} message={alertInfo.message} type={alertInfo.type} />
+      <div className="text-center" hidden={error}>
         <h1 className="text-4xl font-extrabold">My Brackets</h1>
         {currentUserId ? <p className="text-sm text-gray-500 mb-2">{brackets.length + "/" + maxBrackets + " brackets used"}</p> : null}
 
