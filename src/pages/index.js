@@ -5,7 +5,6 @@ import LoginButton from "../components/LoginButton";
 const App = () => {
 
   return (
-
     <main className="flex flex-col items-center justify-center h-screen bg-zinc-300">
       <div className="inline-flex flex-col justify-center items-center">
         <div className="font-bold font-display text-8xl text-black">Beat Bracket</div>
