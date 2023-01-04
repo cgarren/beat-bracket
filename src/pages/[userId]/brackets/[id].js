@@ -90,6 +90,8 @@ const App = ({ params, location }) => {
     }
   }, []);
 
+  // ALERTS
+
   function showAlert(message, type = "info", timeout = true) {
     if (alertInfo.timeoutId) {
       clearTimeout(alertInfo.timeoutId);
@@ -101,6 +103,13 @@ const App = ({ params, location }) => {
       }, 5000);
     }
     setAlertInfo({ show: true, message: message, type: type, timeoutId: timeoutId });
+  }
+
+  function closeAlert() {
+    if (alertInfo.timeoutId) {
+      clearTimeout(alertInfo.timeoutId);
+    }
+    setAlertInfo({ show: false, message: null, type: null, timeoutId: null });
   }
 
   // SHARE
@@ -304,7 +313,7 @@ const App = ({ params, location }) => {
 
   return (
     <Layout noChanges={noChanges}>
-      <Alert show={alertInfo.show} message={alertInfo.message} type={alertInfo.type} />
+      <Alert show={alertInfo.show} close={closeAlert} message={alertInfo.message} type={alertInfo.type} />
       <div className="text-center">
         {user.name && artist.name ? <div className="font-bold mb-2">{artist.name} bracket by {user.name}</div> : (bracket ? <div>Loading...</div> : <div className="font-bold mb-2">Bracket not found</div>)}
         {editable && !bracketComplete ?

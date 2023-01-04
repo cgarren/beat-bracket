@@ -110,9 +110,16 @@ const App = () => {
     setAlertInfo({ show: true, message: message, type: type, timeoutId: timeoutId });
   }
 
+  function closeAlert() {
+    if (alertInfo.timeoutId) {
+      clearTimeout(alertInfo.timeoutId);
+    }
+    setAlertInfo({ show: false, message: null, type: null, timeoutId: null });
+  }
+
   return (
     <Layout noChanges={() => { return true }}>
-      <Alert show={alertInfo.show} message={alertInfo.message} type={alertInfo.type} />
+      <Alert show={alertInfo.show} close={closeAlert} message={alertInfo.message} type={alertInfo.type} />
       <div className="text-center" hidden={error}>
         <h1 className="text-4xl font-extrabold">My Brackets</h1>
         {currentUserId ? <p className="text-sm text-gray-500 mb-2">{brackets.length + "/" + maxBrackets + " brackets used"}</p> : null}

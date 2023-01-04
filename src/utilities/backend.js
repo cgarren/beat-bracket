@@ -40,8 +40,8 @@ async function getBrackets() {
 	}
 }
 
-async function getBracket(id) {
-	const response = await loadBackendRequest("/item", "GET", { id: id, userId: sessionStorage.getItem("userId"), sessionId: sessionStorage.getItem("sessionId") });
+async function getBracket(id, userId) {
+	const response = await loadBackendRequest("/item", "GET", { id: id, userId: userId });
 	if (response.ok) {
 		return response.json();
 	} else if (response.status === 404) {
