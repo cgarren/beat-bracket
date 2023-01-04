@@ -6,7 +6,6 @@
 - Rename to Beat Bracket (get domain)
 - Make a toggle that decides which songs to include in the bracket in the first place (random vs popularity vs custom - currently just the most popular)
 ### Medium
-- Write function to purge sessions that are expired every hour
 - SEO for each artist (ex. if someone searches for "Kanye West bracket every song" they should see the Kanye West bracket)
 - Allow user to delete certain songs
 - Break into smaller components
@@ -19,6 +18,7 @@
 - Put backend code on github (maybe consider making it private)
 - - Better duplicate detection
 ### Low
+- Write function to purge sessions that are expired every hour
 - Animation with one song knocking out or killing another song
 - Option to include/exclude remixes (would have to be word detection or regex based, beta first)
 - Make the bracket from a spotify playlist
