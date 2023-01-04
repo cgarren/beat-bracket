@@ -41,7 +41,7 @@ function getHashParams() {
 	return hashParams;
 }
 
-function checkAuth(timer = undefined) {
+function checkSpotifyAuth(timer = undefined) {
 	let mydate = new Date(parseInt(sessionStorage.getItem("expireTime")));
 	if (
 		sessionStorage.getItem("expireTime") === null ||
@@ -234,5 +234,5 @@ export {
 	downloadBracket,
 	openBracket,
 	bracketSorter,
-	checkAuth
+	checkSpotifyAuth
 }

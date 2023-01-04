@@ -2,20 +2,20 @@ import React, { useState } from "react";
 import { useEffect } from "react";
 import AuthBanner from "../components/AuthBanner";
 import NavBar from "./NavBar";
-import { checkAuth } from "../utilities/helpers";
+import { checkSpotifyAuth } from "../utilities/helpers";
 
 const Layout = ({ children, noChanges }) => {
   const [loggedIn, setLoggedIn] = useState(true);
 
   useEffect(() => {
-    if (checkAuth()) {
+    if (checkSpotifyAuth()) {
       console.log("logged in");
       setLoggedIn(true);
     } else {
       setLoggedIn(false);
     }
     const timer = setInterval(() => {
-      if (checkAuth(timer)) {
+      if (checkSpotifyAuth(timer)) {
         setLoggedIn(true);
       } else {
         setLoggedIn(false);

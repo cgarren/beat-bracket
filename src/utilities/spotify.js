@@ -1,9 +1,9 @@
 // Guest profile pic
 import guestProfileImage from "../assets/images/guestProfileImage.png";
-import { checkAuth } from "./helpers";
+import { checkSpotifyAuth } from "./helpers";
 
 async function loadSpotifyRequest(url, params) {
-	if (checkAuth()) {
+	if (checkSpotifyAuth()) {
 		if (params) {
 			url = url + "?" + new URLSearchParams(params);
 		}
