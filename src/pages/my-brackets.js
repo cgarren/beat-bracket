@@ -6,6 +6,7 @@ import CreateBracketCard from "../components/CreateBracketCard";
 import { getBrackets, authenticate } from "../utilities/backend";
 import { getUserInfo } from "../utilities/spotify";
 import { navigate } from "gatsby";
+import { getParamsFromURL } from "../utilities/helpers";
 
 // markup
 const App = () => {
@@ -26,25 +27,59 @@ const App = () => {
     }));
   }, [activeTab, brackets]);
 
+  async function processLogin() {
+    const params = await getParamsFromURL(window.location.pathname)
+    // check to see if the user just logged in
+    if (params && Object.keys(params).length > 0) {
+      // make sure the state matches
+      if (
+        params.state === sessionStorage.getItem("spotify_auth_state") &&
+        params.access_token &&
+        params.expires_at
+      ) {
+        sessionStorage.setItem("accessToken", params.access_token);
+        sessionStorage.setItem("expireTime", params.expires_at);
+        // get user info in order to authenticate with backend
+        const userInfo = await getUserInfo();
+        if (userInfo !== 1) {
+          // authenticate with backend
+          console.log(userInfo);
+          const success = await authenticate(
+            userInfo.id,
+            params.state,
+            params.expires_at,
+            params.access_token
+          );
+          // if there's an error, redirect to home page
+          if (success === 1) {
+            console.log("Error authenticating");
+            // show notification
+            navigate("/");
+            return;
+          } else {
+            // set sessionId
+            sessionStorage.setItem("sessionId", params.state);
+            // set userId
+            sessionStorage.setItem("userId", userInfo.id);
+            // remove spotify auth state
+            sessionStorage.removeItem("spotify_auth_state");
+          }
+        }
+      }
+    }
+  }
+
   useEffect(() => {
-    getUserInfo().then((userInfo) => {
-      authenticate(userInfo.id).then((success) => {
-        if (success !== 1) {
-          getBrackets(userInfo.id).then((loadedBrackets) => {
-            if (loadedBrackets !== 1) {
-              console.log(loadedBrackets);
-              setCurrentUserId(userInfo.id);
-              setBrackets(loadedBrackets);
-              setShownBrackets(loadedBrackets);
-            } else {
-              console.log("Error loading brackets");
-              // show notification
-            }
-          });
+    processLogin().then(() => {
+      setCurrentUserId(sessionStorage.getItem("userId"));
+      getBrackets().then((loadedBrackets) => {
+        if (loadedBrackets !== 1) {
+          console.log(loadedBrackets);
+          setBrackets(loadedBrackets);
+          setShownBrackets(loadedBrackets);
         } else {
-          console.log("Error authenticating");
+          console.log("Error loading brackets");
           // show notification
-          navigate("/");
         }
       });
     });

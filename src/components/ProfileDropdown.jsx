@@ -1,9 +1,10 @@
 import { navigate } from "gatsby";
 import React, { useEffect, useState } from "react";
 import guestProfileImage from "../assets/images/guestProfileImage.png";
+import { getUserInfo } from "../utilities/spotify";
 import LoginButton from "./LoginButton";
 
-const ProfileDropdown = ({ loggedIn, noChanges, userInfo }) => {
+const ProfileDropdown = ({ loggedIn, noChanges }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [shownUserInfo, setShownUserInfo] = useState({
     display_name: "Guest",
@@ -36,8 +37,10 @@ const ProfileDropdown = ({ loggedIn, noChanges, userInfo }) => {
   }
 
   useEffect(() => {
-    if (loggedIn && userInfo.id) {
-      setShownUserInfo(userInfo);
+    if (loggedIn && sessionStorage.getItem("userId")) {
+      getUserInfo().then((userInfo) => {
+        setShownUserInfo(userInfo);
+      });
     } else {
       setShownUserInfo({
         display_name: "Guest",
@@ -49,7 +52,7 @@ const ProfileDropdown = ({ loggedIn, noChanges, userInfo }) => {
         ],
       });
     }
-  }, [loggedIn, userInfo]);
+  }, [loggedIn]);
 
   return (
     <div>

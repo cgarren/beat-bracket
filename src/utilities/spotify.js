@@ -10,7 +10,7 @@ async function loadSpotifyRequest(url, params) {
 		const response = await fetch(url, {
 			headers: {
 				'Content-Type': 'application/json',
-				'Authorization': 'Bearer ' + sessionStorage.getItem('access_token')
+				'Authorization': 'Bearer ' + sessionStorage.getItem('accessToken')
 			}
 		});
 
@@ -32,7 +32,7 @@ async function postRequest(url, params, data) {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
-			'Authorization': 'Bearer ' + sessionStorage.getItem('access_token')
+			'Authorization': 'Bearer ' + sessionStorage.getItem('accessToken')
 		},
 		body: JSON.stringify(data)
 	});
@@ -54,7 +54,7 @@ async function putRequest(url, params, data) {
 		method: 'PUT',
 		headers: {
 			'Content-Type': 'image/jpeg',
-			'Authorization': 'Bearer ' + sessionStorage.getItem('access_token')
+			'Authorization': 'Bearer ' + sessionStorage.getItem('accessToken')
 		},
 		///body: data
 	});

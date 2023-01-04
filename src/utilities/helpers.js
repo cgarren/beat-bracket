@@ -17,17 +17,16 @@ function generateRandomString(length) {
 async function getParamsFromURL(new_url) {
 	try {
 		let hashParams = getHashParams()
-		if (hashParams["raw_hash"] !== '') {
-			sessionStorage.setItem('access_token', hashParams["access_token"]);
-			sessionStorage.setItem('received_state', hashParams["state"]);
-			sessionStorage.setItem('raw_hash', hashParams["raw_hash"]);
-			sessionStorage.setItem('expires_at', Date.now() + (parseInt(hashParams["expires_in"]) * 1000));
+		if (hashParams.raw_hash !== '') {
+			window.history.replaceState({}, document.title, new_url);
+			hashParams.expires_at = Date.now() + (parseInt(hashParams.expires_in) * 1000);
+			delete hashParams.expires_in;
+			return hashParams;
 		}
-		window.history.replaceState({}, document.title, new_url);
-		return true;
+		return {};
 	} catch (err) {
-		console.log(err.message)
-		return false;
+		console.error(err.message);
+		return {};
 	}
 }
 
@@ -43,13 +42,12 @@ function getHashParams() {
 }
 
 function checkAuth(timer = undefined) {
-	let mydate = new Date(parseInt(sessionStorage.getItem("expires_at")));
+	let mydate = new Date(parseInt(sessionStorage.getItem("expireTime")));
 	if (
-		sessionStorage.getItem("expires_at") === null ||
+		sessionStorage.getItem("expireTime") === null ||
+		sessionStorage.getItem("accessToken") === null ||
 		mydate.toString() === "Invalid Date" ||
-		Date.now() > mydate ||
-		sessionStorage.getItem("received_state") !==
-		sessionStorage.getItem("spotify_auth_state")
+		Date.now() > mydate
 	) {
 		if (timer) {
 			clearInterval(timer);

@@ -11,7 +11,7 @@
 // 		"bracketData": "some data",
 // 	},
 
-async function loadBackendRequest(path, method, params, data, headers = {}, credentials) {
+async function loadBackendRequest(path, method, params = { userId: sessionStorage.getItem("userId"), sessionId: sessionStorage.getItem("sessionId") }, data, headers = {}, credentials) {
 	let url = "https://hsadrgb5uxnxfsswuxpcdrfblq0cydjv.lambda-url.us-east-2.on.aws" + path
 	if (params) {
 		url = url + "?" + new URLSearchParams(params);
@@ -31,8 +31,8 @@ async function loadBackendRequest(path, method, params, data, headers = {}, cred
 	return response; // parses JSON response into native JavaScript objects
 }
 
-async function getBrackets(userId) {
-	const response = await loadBackendRequest("/items", "GET", { userId: userId, sessionId: sessionStorage.getItem("spotify_auth_state") });
+async function getBrackets() {
+	const response = await loadBackendRequest("/items", "GET");
 	if (response.ok) {
 		return response.json();
 	} else {
@@ -40,8 +40,8 @@ async function getBrackets(userId) {
 	}
 }
 
-async function getBracket(id, userId) {
-	const response = await loadBackendRequest("/item", "GET", { id: id, userId: userId, sessionId: sessionStorage.getItem("spotify_auth_state"), });
+async function getBracket(id) {
+	const response = await loadBackendRequest("/item", "GET", { id: id, userId: sessionStorage.getItem("userId"), sessionId: sessionStorage.getItem("sessionId") });
 	if (response.ok) {
 		return response.json();
 	} else if (response.status === 404) {
@@ -53,7 +53,7 @@ async function getBracket(id, userId) {
 
 async function writeBracket(bracket) {
 	console.log(bracket);
-	const response = await loadBackendRequest("/item", "PUT", { sessionId: sessionStorage.getItem("spotify_auth_state") }, bracket);
+	const response = await loadBackendRequest("/item", "PUT", { sessionId: sessionStorage.getItem("sessionId") }, bracket);
 	if (response.ok) {
 		return 0;
 	} else {
@@ -68,7 +68,7 @@ async function updateBracket(id, artistName, artistId, tracks, seeding) {
 }
 
 async function deleteBracket(id, userId) {
-	const response = await loadBackendRequest("/item", "DELETE", { id: id, userId: userId, sessionId: sessionStorage.getItem("spotify_auth_state") });
+	const response = await loadBackendRequest("/item", "DELETE", { id: id, userId: sessionStorage.getItem("userId"), sessionId: sessionStorage.getItem("sessionId") });
 	if (response.ok) {
 		return 0;
 	} else if (response.status === 404) {
@@ -78,12 +78,13 @@ async function deleteBracket(id, userId) {
 	}
 }
 
-async function authenticate(userId) {
-	const response = await loadBackendRequest("/auth", "POST", undefined, {
+async function authenticate(userId, sessionId, expireTime, accessToken) {
+	console.log(userId, sessionId, expireTime, accessToken);
+	const response = await loadBackendRequest("/auth", "POST", null, {
 		userId: userId,
-		sessionId: sessionStorage.getItem("spotify_auth_state"),
-		expireTime: sessionStorage.getItem("expires_at"),
-		accessToken: sessionStorage.getItem("access_token")
+		sessionId: sessionId,
+		expireTime: expireTime,
+		accessToken: accessToken
 	}, {}, 'include');
 	if (response.ok) {
 		return 0;

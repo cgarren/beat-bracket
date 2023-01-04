@@ -2,7 +2,7 @@ import { navigate } from "gatsby";
 import React from "react";
 import ProfileDropdown from "./ProfileDropdown";
 
-const NavBar = ({ loggedIn, noChanges, userInfo }) => {
+const NavBar = ({ loggedIn, noChanges }) => {
   function handleNaviagtionAttempt() {
     if (noChanges(true)) {
       navigate("/");
@@ -20,7 +20,6 @@ const NavBar = ({ loggedIn, noChanges, userInfo }) => {
         <ProfileDropdown
           loggedIn={loggedIn}
           noChanges={noChanges}
-          userInfo={userInfo}
         />
       </div>
     </header>

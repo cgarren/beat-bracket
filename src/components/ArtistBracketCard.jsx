@@ -20,6 +20,9 @@ const ArtistBracketCard = ({ bracket, userId }) => {
   async function getArtistImage() {
     const url = "https://api.spotify.com/v1/artists/" + bracket.artistId;
     const response = await loadSpotifyRequest(url);
+    if (response === 1) {
+      return null;
+    }
     return response.images[0].url;
   }
 
