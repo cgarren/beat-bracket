@@ -1,9 +1,10 @@
 # Beat Bracket
 ## TODO
 ### High
+- Publish site and get some beta feeddback
+- MAke this page better/shit todos to another tracking system/file
 - Add a way to add songs to queue
 - Make a toggle for songs exclusively by the artist vs songs the artist is featured on
-- Rename to Beat Bracket (get domain)
 - Make a toggle that decides which songs to include in the bracket in the first place (random vs popularity vs custom - currently just the most popular)
 ### Medium
 - SEO for each artist (ex. if someone searches for "Kanye West bracket every song" they should see the Kanye West bracket)
