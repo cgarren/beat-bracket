@@ -2,7 +2,8 @@
 ## TODO
 ### High
 - Publish site and get some beta feeddback
-- MAke this page better/shit todos to another tracking system/file
+- Make this page better/shift todos to another tracking system or file
+- Make cgarren.github.io slightly more attractive
 - Add a way to add songs to queue
 - Make a toggle for songs exclusively by the artist vs songs the artist is featured on
 - Make a toggle that decides which songs to include in the bracket in the first place (random vs popularity vs custom - currently just the most popular)
