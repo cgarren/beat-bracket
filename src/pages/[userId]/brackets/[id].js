@@ -249,8 +249,10 @@ const App = ({ params, location }) => {
       setLoadingText("Seeding tracks by " + seedingMethod + "...");
       // sort the list by popularity
       templist.sort(popularitySort);
+      const numTracks = (limit < power ? limit : power);
+      templist = templist.slice(0, numTracks);
       // limit the list length to the nearest lesser power of 2 (for now) and seed the bracket
-      templist = seedBracket(templist.slice(0, (limit < power ? limit : power)), seedingMethod);
+      templist = seedBracket(templist, seedingMethod);
       console.table(templist);
       setTracks(templist);
       setShowBracket(true);
