@@ -37,9 +37,21 @@ const ProfileDropdown = ({ loggedIn, noChanges }) => {
   }
 
   useEffect(() => {
-    if (loggedIn && sessionStorage.getItem("userId")) {
+    if (loggedIn) {
       getUserInfo().then((userInfo) => {
-        setShownUserInfo(userInfo);
+        if (userInfo !== 1) {
+          setShownUserInfo(userInfo);
+        } else {
+          setShownUserInfo({
+            display_name: "Guest",
+            id: "",
+            images: [
+              {
+                url: guestProfileImage,
+              },
+            ],
+          });
+        }
       });
     } else {
       setShownUserInfo({
