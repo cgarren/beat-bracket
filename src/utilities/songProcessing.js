@@ -93,7 +93,7 @@ async function processTracks(songs) {
 	}
 	const temp = await loadTrackData(runningList, trackOptionsAmounts);
 	if (temp !== 1) {
-		templist.push(temp);
+		templist.concat(temp);
 	} else {
 		return 1;
 	}
