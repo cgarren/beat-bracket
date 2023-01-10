@@ -1,7 +1,10 @@
 # Beat Bracket
 ## TODO
 ### High
-- Publish site and get some beta feeddback
+- **Make undo button or all buttons floating**
+- **Add social features like following user profiles and sharing entire profiles instead of just brackets**
+- **Add stats like “10 people also ranked xxx song first" or percentage of people maybe. Show artist stats when the user finishes a bracket**
+- Publish site and get some beta feedback
 - Make this page better/shift todos to another tracking system or file
 - Make cgarren.github.io slightly more attractive
 - Add a way to add songs to queue
