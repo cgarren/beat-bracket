@@ -13,11 +13,32 @@ module.exports = {
       serif: ['Merriweather', 'serif'],
       display: ['Righteous', 'sans-serif'],
       //bar: ['"Helvetica Neue"', '"Helvetica"', '"Arial"', 'sans-serif'], //'"SF Pro Text"','"Myriad Set Pro"','"SF Pro Icons"',
-      bar: ['system-ui','-apple-system','"Segoe UI"','Roboto','"Helvetica Neue"','Arial','"Noto Sans"','"Liberation Sans"','sans-serif','"Apple Color Emoji"','"Segoe UI Emoji"','"Segoe UI Symbol"','"Noto Color Emoji"']
+      bar: ['system-ui', '-apple-system', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', '"Noto Sans"', '"Liberation Sans"', 'sans-serif', '"Apple Color Emoji"', '"Segoe UI Emoji"', '"Segoe UI Symbol"', '"Noto Color Emoji"']
     },
     extend: {
       backgroundImage: {
         'colosseum': "url('./src/assets/images/colosseum.jpg')"
+      },
+      keyframes: {
+        steam: {
+          '0%': {
+            backgroundPosition: '0 0,100% 0,100% 100%,0 100%'
+          },
+          '50%': {
+            backgroundPosition: '100% 100%,100% 0,0 0,0 100%'
+          },
+          '100%': {
+            backgroundPosition: '0 0,100% 0,100% 100%,0 100%'
+          },
+        },
+        rotate: {
+          '100%': {
+            transform: 'rotate(1turn)'
+          }
+        },
+      },
+      animation: {
+        steam: 'rotate 6s linear infinite',
       }
     },
   },

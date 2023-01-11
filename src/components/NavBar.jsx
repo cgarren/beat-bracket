@@ -1,10 +1,11 @@
+import { navigate } from "gatsby";
 import React from "react";
 import ProfileDropdown from "./ProfileDropdown";
 
 const NavBar = ({ loggedIn, noChanges }) => {
   function handleNaviagtionAttempt() {
-    if (noChanges()) {
-      window.location = window.location.href;
+    if (noChanges(true)) {
+      navigate("/");
     }
   }
   return (
@@ -14,9 +15,12 @@ const NavBar = ({ loggedIn, noChanges }) => {
           className="text-white text-2xl font-bold font-display bg-black border-0 hover:bg-black pl-0"
           onClick={handleNaviagtionAttempt}
         >
-          🏛️ Song Colosseum
+          Beat Bracket
         </button>
-        <ProfileDropdown loggedIn={loggedIn} noChanges={noChanges} />
+        <ProfileDropdown
+          loggedIn={loggedIn}
+          noChanges={noChanges}
+        />
       </div>
     </header>
   );

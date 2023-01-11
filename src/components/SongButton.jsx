@@ -26,8 +26,9 @@ const SongButton = ({
   const [paused, setPaused] = useState(true);
   const thebutton = useRef(null);
   const audioRef = useRef(null);
-  const blankAudio =
-    "https://github.com/anars/blank-audio/raw/master/2-seconds-of-silence.mp3";
+
+  const winnerStyle =
+    "overflow-hidden w-[calc(var(--buttonwidth))] h-[calc(var(--buttonheight))] before:box-border box-border before:content-[''] before:absolute before:left-[-50%] before:top-[calc(-1*var(--buttonwidth)+22px)] before:w-[calc(2*var(--buttonwidth)+6px)] before:h-[calc(2*var(--buttonwidth)+6px)] before:bg-no-repeat before:bg-white before:[background-size:50%_50%,50%_50%] before:[background-position:0_0,100%_0,100%_100%,0_100%] before:[background-image:linear-gradient(black,black),linear-gradient(white,white),linear-gradient(black,black),linear-gradient(white,white)] before:animate-steam before:-z-20 before:rounded-2xl";
 
   // Recursive function to mark all previous instances of a song in a bracket as eliminated
   function eliminatePrevious(thisId) {
@@ -126,7 +127,18 @@ const SongButton = ({
       setPaused(true);
     } else {
       try {
-        audioRef.current.play();
+        audioRef.current.play().catch((error) => {
+          console.log(error.name);
+          if (error.name === "NotAllowedError") {
+            alert(
+              "It looks like you haven't given this site permission to play audio. If you are using Safari, please enable autoplay and try again. If that doesn't work, try using Chrome instead!"
+            );
+          } else {
+            console.log(error);
+          }
+          setCurrentlyPlayingId(null);
+          setPaused(true);
+        });
         setPaused(false);
       } catch (error) {
         console.log(error);
@@ -145,11 +157,11 @@ const SongButton = ({
   return (
     <div
       className={
-        "flex rounded-2xl border-0 shadow-md cursor-pointer w-[var(--buttonwidth)] min-w-[var(--buttonwidth)] h-[var(--buttonheight)] min-h-[var(--buttonheight) hover:h-auto hover:flex] disabled:cursor-default disabled:shadow-none disabled:w-[var(--buttonwidth)]" +
+        "z-0 flex rounded-2xl shadow-md cursor-pointer w-[var(--buttonwidth)] min-w-[var(--buttonwidth)] h-[var(--buttonheight)] min-h-[var(--buttonheight) disabled:cursor-default disabled:shadow-none disabled:w-[var(--buttonwidth)] relative" +
         (song == null
           ? " bg-white text-black shadow-md border-0 border-gray-400"
           : " ") +
-        (winner ? "opacity-100" : " ") +
+        (winner ? " opacity-100 " + winnerStyle : " hover:h-auto hover:flex ") +
         (side ? " flex-row-reverse " : "") +
         (eliminated ? " opacity-50 " : " ") +
         styling
@@ -172,6 +184,7 @@ const SongButton = ({
       <button
         disabled={disabled}
         onClick={songChosen}
+        hidden={false}
         style={
           color
             ? {
@@ -182,10 +195,12 @@ const SongButton = ({
             : {}
         }
         className={
-          "rounded-[inherit] disabled:rounded-[inherit] bg-red-500 text-white border-0 w-[70%] h-full min-h-[var(--buttonheight)] leading-[1.15em] p-0 text-center overflow-hidden break-words disabled:w-full disabled:px-[6px]" +
-          (song == null ? " w-full bg-transparent text-black" : "") +
-          (winner ? " opacity-100 " : "") +
-          (side ? " pr-[6px] rounded-l-[0] " : " pl-[6px] rounded-r-[0] ") +
+          "rounded-[inherit] disabled:rounded-[inherit] bg-white text-black border-0 leading-[1.15em] p-0 text-center overflow-hidden break-words disabled:px-[6px]" +
+          (winner
+            ? " opacity-100 active:opacity-100 content-[''] absolute left-[3px] top-[3px] -z-10 bg-white rounded w-[calc(100%-6px)] h-[calc(100%-6px)] min-h-[calc(var(--buttonheight)-6px)]"
+            : " disabled:w-full w-[70%] h-full min-h-[var(--buttonheight)]") +
+          (song == null ? " w-full bg-transparent text-black " : "") +
+          (side ? " pr-[6px] rounded-l-[0] " : " pl-[6px] rounded-r-[0]") +
           (eliminated ? " " : "")
         }
       >
@@ -211,7 +226,7 @@ const SongButton = ({
         {paused ? <PlayIcon /> : <PauseIcon />}
       </button>
       <audio
-        src={song !== null && !disabled ? song.preview_url : blankAudio}
+        src={song !== null && !disabled ? song.preview_url : null}
         volume="1"
         className="hidden"
         ref={audioRef}

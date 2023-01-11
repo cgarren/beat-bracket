@@ -4,7 +4,7 @@ import {
   createPlaylist,
   addTracksToPlaylist,
   addCoverImageToPlaylist,
-} from "../utilities/helpers";
+} from "../utilities/spotify";
 
 import { useEffect } from "react";
 
@@ -60,14 +60,16 @@ const GeneratePlaylistButton = ({ tracks, artist, hidden }) => {
           : "Make Spotify"}
       </span>
       <span>
-        {playlistId
-          ? ""
-          : loading
-          ? "Working..."
-          : String.fromCharCode(160) +
-            "playlist with " +
-            tracks.length +
-            " tracks"}
+        {tracks
+          ? playlistId
+            ? ""
+            : loading
+            ? "Working..."
+            : String.fromCharCode(160) +
+              "playlist with " +
+              tracks.length +
+              " tracks"
+          : ""}
       </span>
     </button>
   );

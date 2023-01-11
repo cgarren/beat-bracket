@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import ArtistSuggestion from "./ArtistSuggestion";
-import { loadRequest } from "../utilities/helpers";
+import { loadSpotifyRequest } from "../utilities/spotify";
 
-const SearchBar = ({ setArtist, noChanges, disabled }) => {
+const SearchBar = ({ setArtist, disabled }) => {
   const [searchText, setSearchText] = useState("");
   const [artistSuggestionList, setArtistSuggestionList] = useState([]);
 
@@ -12,9 +12,9 @@ const SearchBar = ({ setArtist, noChanges, disabled }) => {
       var url =
         "https://api.spotify.com/v1/search/?" +
         new URLSearchParams(params).toString();
-      let response = await loadRequest(url);
+      let response = await loadSpotifyRequest(url);
 
-      if (!response["error"] && response.artists.items.length > 0) {
+      if (response !== 1 && response.artists.items.length > 0) {
         let templist = [];
         response.artists.items.forEach((item) => {
           if (item.images.length > 0) {
@@ -23,14 +23,12 @@ const SearchBar = ({ setArtist, noChanges, disabled }) => {
               art: item.images[2].url,
               id: item.id,
               onClick: () => {
-                if (noChanges()) {
-                  setArtist({
-                    name: item.name,
-                    id: item.id,
-                    art: item.images[2].url,
-                  });
-                  setSearchText("");
-                }
+                setArtist({
+                  name: item.name,
+                  id: item.id,
+                  art: item.images[2].url,
+                });
+                setSearchText("");
               },
             });
           }
@@ -107,18 +105,22 @@ const SearchBar = ({ setArtist, noChanges, disabled }) => {
 
   return (
     // <div className="mb-2 max-w-[800px] min-w-[25%] flex flex-col">
-    <div className="inline-flex flex-col justify-items-center mb-2 place-items-center sm:min-w-[400px] md:min-w-[700px] lg:min-w-[800px] border-black border-2 rounded-md">
+    <div className="inline-flex flex-col justify-items-center mb-2 place-items-center border-black border-0 rounded-md ">
       <input
         placeholder="Search for an artist..."
         aria-label="Search for an artist..."
         size="search"
         id="searchbar"
         type="search"
-        spellCheck="false"
+        spellCheck={false}
+        autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="off"
+        autoFocus={true}
         value={searchText}
         onChange={(e) => setSearchText(e.target.value)}
         className={
-          "text-black text-2xl font-bar w-full p-1 border-0 rounded focus:z-10 pl-3 mousetrap"
+          "text-black text-2xl font-bar w-full p-1 border-2 border-gray-500 rounded focus:z-10 pl-3 mousetrap focus-visible:outline-none focus-visible:border-blue-500 focus-visible:border-1"
         }
         disabled={disabled}
       />

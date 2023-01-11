@@ -1,99 +1,9 @@
 // Screnshot library
 import html2canvas from "html2canvas";
 
-async function loadRequest(url, params) {
-	if (params) {
-		url = url + "?" + new URLSearchParams(params);
-	}
-	const response = await fetch(url, {
-		headers: {
-			'Content-Type': 'application/json',
-			'Authorization': 'Bearer ' + sessionStorage.getItem('access_token')
-		}
-	});
+import { navigate } from "gatsby";
 
-	if (response.ok) {
-		return response.json(); // parses JSON response into native JavaScript objects
-	} else if (response.status === 429) {
-		throw new Error("Too many requests. Code: " + response.status);
-	} else {
-		throw new Error("Unknown request error. Code: " + response.status);
-	}
-}
-
-async function postRequest(url, params, data) {
-	if (params) {
-		url = url + "?" + new URLSearchParams(params);
-	}
-	const response = await fetch(url, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			'Authorization': 'Bearer ' + sessionStorage.getItem('access_token')
-		},
-		body: JSON.stringify(data)
-	});
-
-	if (response.ok) {
-		return response.json(); // parses JSON response into native JavaScript objects
-	} else if (response.status === 429) {
-		throw new Error("Too many requests. Code: " + response.status);
-	} else {
-		throw new Error("Unknown request error. Code: " + response.status);
-	}
-}
-
-async function putRequest(url, params, data) {
-	if (params) {
-		url = url + "?" + new URLSearchParams(params);
-	}
-	const response = await fetch(url, {
-		method: 'PUT',
-		headers: {
-			'Content-Type': 'image/jpeg',
-			'Authorization': 'Bearer ' + sessionStorage.getItem('access_token')
-		},
-		///body: data
-	});
-
-	if (response.ok) {
-		return response.json(); // parses JSON response into native JavaScript objects
-	} else if (response.status === 429) {
-		throw new Error("Too many requests. Code: " + response.status);
-	} else {
-		throw new Error("Unknown request error. Code: " + response.status);
-	}
-}
-
-async function createPlaylist(name = "New Playlist", description = "", isPublic = true, isCollaborative = false) {
-	const response = await loadRequest("https://api.spotify.com/v1/me");
-	if (!response["error"]) {
-		const url = "https://api.spotify.com/v1/users/" + response.id + "/playlists"
-		return await postRequest(url, {}, {
-			"name": name,
-			"public": isPublic,
-			"collaborative": isCollaborative,
-			"description": description
-		})
-	}
-	return response;
-}
-
-async function addTracksToPlaylist(playlistId, trackUris) {
-	const url = "https://api.spotify.com/v1/playlists/" + playlistId + "/tracks"
-	return await postRequest(url, {
-		"uris": trackUris
-	})
-}
-
-async function addCoverImageToPlaylist(playlistId, imageUrl) {
-	const url = "https://api.spotify.com/v1/playlists/" + playlistId + "/images"
-	return await putRequest(url, {}, base64FromImageUrl(imageUrl))
-}
-
-function base64FromImageUrl(url) {
-	return "iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=="
-}
+import { getUserInfo } from "./spotify";
 
 function generateRandomString(length) {
 	let text = '';
@@ -104,20 +14,19 @@ function generateRandomString(length) {
 	return text;
 }
 
-function getParamsFromURL(new_url) {
+async function getParamsFromURL(new_url) {
 	try {
 		let hashParams = getHashParams()
-		if (hashParams["raw_hash"] !== '') {
-			sessionStorage.setItem('access_token', hashParams["access_token"]);
-			sessionStorage.setItem('received_state', hashParams["state"]);
-			sessionStorage.setItem('raw_hash', hashParams["raw_hash"]);
-			sessionStorage.setItem('expires_at', Date.now() + (parseInt(hashParams["expires_in"]) * 1000));
+		if (hashParams.raw_hash !== '') {
+			window.history.replaceState({}, document.title, new_url);
+			hashParams.expires_at = Date.now() + (parseInt(hashParams.expires_in) * 1000);
+			delete hashParams.expires_in;
+			return hashParams;
 		}
-		window.history.replaceState({}, document.title, new_url);
-		return true;
+		return {};
 	} catch (err) {
-		console.log(err.message)
-		return false;
+		console.error(err.message);
+		return {};
 	}
 }
 
@@ -130,6 +39,23 @@ function getHashParams() {
 		hashParams[e[1]] = decodeURIComponent(e[2]);
 	}
 	return hashParams;
+}
+
+function checkSpotifyAuth(timer = undefined) {
+	let mydate = new Date(parseInt(sessionStorage.getItem("expireTime")));
+	if (
+		sessionStorage.getItem("expireTime") === null ||
+		sessionStorage.getItem("accessToken") === null ||
+		mydate.toString() === "Invalid Date" ||
+		Date.now() > mydate
+	) {
+		if (timer) {
+			clearInterval(timer);
+		}
+		return false;
+	} else {
+		return true;
+	}
 }
 
 function popularitySort(track1, track2) {
@@ -213,7 +139,59 @@ function nearestLesserPowerOf2(num) {
 	return last;
 }
 
-function shareBracket(bracketId, artistName) {
+function bracketSorter(a, b) {
+	const value1 = a[1];
+	const value2 = b[1];
+
+	// r > l
+	// for r, sort col increasing
+	// for l, sort col decreasing
+	// always sort row increasing
+
+	if (value1.side === "r" && value2.side === "l") {
+		return -1;
+	} else if (value1.side === "l" && value2.side === "r") {
+		return 1;
+	} else if (value1.side === "l" && value2.side === "l") {
+		if (value1.col > value2.col) {
+			return -1;
+		} else if (value1.col < value2.col) {
+			return 1;
+		} else {
+			if (value1.index > value2.index) {
+				return 1;
+			} else if (value1.index < value2.index) {
+				return -1;
+			} else {
+				return 0;
+			}
+		}
+	} else if (value1.side === "r" && value2.side === "r") {
+		if (value1.col > value2.col) {
+			return 1;
+		} else if (value1.col < value2.col) {
+			return -1;
+		} else {
+			if (value1.index > value2.index) {
+				return 1;
+			} else if (value1.index < value2.index) {
+				return -1;
+			} else {
+				return 0;
+			}
+		}
+	} else {
+		throw new Error("Found bracket with invalid side: " + value1.side + " or " + value2.side);
+	}
+}
+
+function openBracket(uuid, userId = undefined, state = {}) {
+	console.log("Opening Bracket: " + uuid);
+	//open the bracket editor and pass the bracket id off
+	navigate("/user/" + (userId ? userId : getUserInfo().id) + "/bracket/" + uuid, { state: state });
+}
+
+function downloadBracket(bracketId, artistName) {
 	let bracketEl = document.getElementById(bracketId);
 	html2canvas(bracketEl, {
 		scale: 4,
@@ -245,9 +223,6 @@ function shareBracket(bracketId, artistName) {
 }
 
 export {
-	loadRequest,
-	postRequest,
-	putRequest,
 	popularitySort,
 	removeDuplicatesWithKey,
 	nearestGreaterPowerOf2,
@@ -256,8 +231,8 @@ export {
 	shuffleArray,
 	getParamsFromURL,
 	generateRandomString,
-	createPlaylist,
-	addTracksToPlaylist,
-	addCoverImageToPlaylist,
-	shareBracket
+	downloadBracket,
+	openBracket,
+	bracketSorter,
+	checkSpotifyAuth
 }

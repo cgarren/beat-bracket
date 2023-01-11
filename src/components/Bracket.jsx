@@ -56,8 +56,10 @@ const Bracket = ({
   setBracketComplete,
   saveCommand,
   playbackEnabled,
+  bracket,
+  setBracket,
+  editable,
 }) => {
-  const [bracket, setBracket] = useState(new Map());
   const [columns, setColumns] = useState(0);
   const [renderArray, setRenderArray] = useState([]);
   const [currentlyPlayingId, setCurrentlyPlayingId] = useState(null);
@@ -78,7 +80,7 @@ const Bracket = ({
 
   useEffect(() => {
     updateCenterBracket();
-  }, [bracket, showBracket]);
+  }, [bracket, showBracket, renderArray]);
 
   function updateCenterBracket() {
     // console.log("called", bracketRef);
@@ -97,22 +99,34 @@ const Bracket = ({
   useEffect(() => {
     async function kickOff() {
       // reset the undo chain
+      console.log("kicking off");
       setShowBracket(false);
       await fillBracket(tracks);
     }
-    if (tracks && tracks.length !== 0) {
-      setBracketComplete(false);
-      kickOff();
-    } else {
-      setRenderArray([]);
+    if (Array.isArray(tracks)) {
+      if (!tracks.includes(null)) {
+        if (tracks.length !== 0) {
+          setBracketComplete(false);
+          kickOff();
+        } else {
+          setRenderArray([]);
+        }
+      } else {
+        setColumns(getNumberOfColumns(tracks.length));
+      }
     }
   }, [tracks]);
+
+  useEffect(() => {
+    regenerateRenderArray();
+  }, [columns]);
 
   function generateComponentArray(side) {
     return Array.apply(null, { length: columns }).map((e, i) => (
       <div className="flex flex-col" key={side + i}>
         {Array.from(bracket.entries()).map((entry) => {
           const [mykey, value] = entry;
+          //console.log(mykey, value);
           const colExpression = side === "l" ? i : columns - 1 - i;
           if (value.side === side && value.col === colExpression) {
             return (
@@ -130,16 +144,20 @@ const Bracket = ({
                   setCurrentlyPlayingId={setCurrentlyPlayingId}
                   side={side}
                   styling={
-                    value.index === 0
+                    (value.index === 0
                       ? topStyles[colExpression]
                       : value.index % 2 === 0
                       ? styles[colExpression]
-                      : ""
+                      : "") +
+                    " " +
+                    colExpression +
+                    " " +
+                    value.index
                   }
                   color={value.color}
                   key={mykey}
                   eliminated={value.eliminated}
-                  disabled={value.disabled}
+                  disabled={editable ? value.disabled : true}
                   winner={value.winner}
                   setBracketComplete={setBracketComplete}
                 />
@@ -174,6 +192,7 @@ const Bracket = ({
   // rerender the bracket when certain events happen
   useEffect(() => {
     regenerateRenderArray();
+    setShowBracket(true);
   }, [bracket, playbackEnabled, currentlyPlayingId]);
 
   useEffect(() => {
@@ -271,7 +290,6 @@ const Bracket = ({
         i--;
       }
     }
-    //console.log(temp);
     setBracket(temp);
     setColumns(cols);
   }
