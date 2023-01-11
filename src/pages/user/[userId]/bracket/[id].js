@@ -257,7 +257,7 @@ const App = ({ params, location }) => {
       setTracks(templist);
       setShowBracket(true);
     } else {
-      alert(providedArtist.name + " doesn't have enough songs on Spotify! Returning to your brackets")
+      alert(providedArtist.name + " doesn't have enough songs on Spotify! Try another artist.");
       setTracks([]);
       setArtist({ "name": undefined, "id": undefined });
       navigate("/my-brackets")
