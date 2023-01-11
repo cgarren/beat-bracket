@@ -25,5 +25,5 @@ module.exports = {
         icon: "src/assets/images/beat_bracket_logo.png", // This path is relative to the root of the site.
       },
     },],
-  pathPrefix: "/beat-bracket"
+  pathPrefix: ""
 }
