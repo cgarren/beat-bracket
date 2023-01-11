@@ -6,7 +6,6 @@
 - Publish site and get some beta feedback
 - Make this page better/shift todos to another tracking system or file
 - Make cgarren.github.io slightly more attractive
-- Add a way to add songs to queue
 - Make a toggle for songs exclusively by the artist vs songs the artist is featured on
 - Make a toggle that decides which songs to include in the bracket in the first place (random vs popularity vs custom - currently just the most popular)
 ### Medium
@@ -20,7 +19,7 @@
 - Make the bracket options more attractive/streamlined
 - Use update function instead of put on the backend to eliminate unnecessary writes
 - Put backend code on github (maybe consider making it private)
-- - Better duplicate detection
+- Better duplicate detection
 ### Low
 - Write function to purge sessions that are expired every hour
 - Animation with one song knocking out or killing another song

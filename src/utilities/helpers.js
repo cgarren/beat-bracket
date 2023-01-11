@@ -188,7 +188,7 @@ function bracketSorter(a, b) {
 function openBracket(uuid, userId = undefined, state = {}) {
 	console.log("Opening Bracket: " + uuid);
 	//open the bracket editor and pass the bracket id off
-	navigate("/" + (userId ? userId : getUserInfo().id) + "/brackets/" + uuid, { state: state });
+	navigate("/user/" + (userId ? userId : getUserInfo().id) + "/bracket/" + uuid, { state: state });
 }
 
 function downloadBracket(bracketId, artistName) {

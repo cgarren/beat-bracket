@@ -2,15 +2,15 @@ import React, { useEffect, useState } from "react"
 import { navigate } from "gatsby";
 import Vibrant from "node-vibrant";
 import Mousetrap from "mousetrap";
-import Bracket from "../../../components/Bracket"
-import Layout from "../../../components/Layout";
-import LoadingIndicator from "../../../components/LoadingIndicator";
-import Alert from "../../../components/Alert";
-import GeneratePlaylistButton from "../../../components/GeneratePlaylistButton";
-import { writeBracket, getBracket } from "../../../utilities/backend";
-import { seedBracket, loadAlbums, processTracks } from "../../../utilities/songProcessing";
-import { bracketSorter, nearestLesserPowerOf2, popularitySort } from "../../../utilities/helpers";
-import { getUserInfo, isCurrentUser } from "../../../utilities/spotify";
+import Bracket from "../../../../components/Bracket"
+import Layout from "../../../../components/Layout";
+import LoadingIndicator from "../../../../components/LoadingIndicator";
+import Alert from "../../../../components/Alert";
+import GeneratePlaylistButton from "../../../../components/GeneratePlaylistButton";
+import { writeBracket, getBracket } from "../../../../utilities/backend";
+import { seedBracket, loadAlbums, processTracks } from "../../../../utilities/songProcessing";
+import { bracketSorter, nearestLesserPowerOf2, popularitySort } from "../../../../utilities/helpers";
+import { getUserInfo, isCurrentUser } from "../../../../utilities/spotify";
 
 const App = ({ params, location }) => {
   const bracketId = params.id;
