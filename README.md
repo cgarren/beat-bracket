@@ -2,7 +2,7 @@
 ## TODO
 ### High
 - **Add social features like following user profiles and sharing entire profiles instead of just brackets**
-- ***Social Feature: Let people vote on tracks to make a communal bracket when they aren't at the same computer (bracket permissions required). Also maybe have like 24 hours for the first rounds, another day for the second round etc... Basically let people maker a brackt together***
+- **Social Feature: Let people vote on tracks to make a communal bracket when they aren't at the same computer (bracket permissions required). Also maybe have like 24 hours for the first rounds, another day for the second round etc... Basically let people maker a brackt together**
 - **Add stats like “10 people also ranked xxx song first" or percentage of people maybe. Show artist stats when the user finishes a bracket**
 - Publish site and get some beta feedback
 - Make this page better/shift todos to another tracking system or file
