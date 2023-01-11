@@ -1,2 +1,0 @@
-"use strict";(self.webpackChunksong_colosseum=self.webpackChunksong_colosseum||[]).push([[486],{1647:function(e,t,n){n.r(t);var l=n(7294),s=n(8228);t.default=function(){return l.createElement(s.Z,{noChanges:!0},l.createElement("div",{className:"text-center"},l.createElement("div",{className:"inline-flex flex-col gap-1 max-w-[800px] items-center"},l.createElement("h1",{className:"text-3xl font-bold"},"Profile"))))}}}]);
-//# sourceMappingURL=component---src-pages-profile-js-ff669042e5992e26a476.js.map
