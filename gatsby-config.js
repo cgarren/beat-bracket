@@ -1,7 +1,7 @@
 module.exports = {
   siteMetadata: {
     title: `Beat Bracket`,
-    siteUrl: `https://www.yourdomain.tld`,
+    siteUrl: `https://www.beatbracket.com`,
   },
   plugins: ['gatsby-plugin-postcss', {
     resolve: "gatsby-plugin-react-svg",
