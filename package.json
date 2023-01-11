@@ -1,8 +1,8 @@
 {
-  "name": "beat-bracket",
+  "name": "beatbracket",
   "version": "1.0.0",
   "private": true,
-  "description": "beat-bracket",
+  "description": "beatbracket",
   "author": "Cooper Garren",
   "keywords": [
     "gatsby"
