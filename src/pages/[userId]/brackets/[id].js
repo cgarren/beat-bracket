@@ -347,38 +347,36 @@ const App = ({ params, location }) => {
           </div>
           : editable
             ? <div>Bracket Complete</div> : null}
-        <hr />
-        <div>
-          <LoadingIndicator hidden={showBracket} loadingText={loadingText} />
-          <div hidden={!showBracket || !artist.name}>
-            <div className="text-center">
-              <div>
-                <span className="font-bold">{tracks ? tracks.length + " tracks displayed" : ""}</span>
-              </div>
-              <div className="inline-flex items-center text-xs -space-x-px rounded-md">
-                {editable && !bracketComplete ? <div>
-                  {/* <GeneratePlaylistButton tracks={tracks} artist={artist} /> */}
-                  <button
-                    onClick={undo}
-                    disabled={commands.length === 0}
-                    className="border-l-gray-200 hover:disabled:border-x-gray-200"
-                  >
-                    Undo
-                  </button>
-                  <button onClick={saveBracket} disabled={saveButtonDisabled} className="border-l-gray-200 hover:disabled:border-l-gray-200">{saveButtonDisabled ? "Saved" : "Save"}</button>
-                </div>
-                  : null}
-                <button onClick={share} className="border-l-gray-200 hover:disabled:border-l-gray-200">
-                  Share
-                </button>
-                {!editable && user.name && artist.name && false
-                  ? <button onClick={duplicateBracket} className="border-l-gray-200 hover:disabled:border-l-gray-200">Fill out this bracket</button>
-                  : null}
-              </div>
-            </div>
+      </div>
+      <hr />
+      <LoadingIndicator hidden={showBracket} loadingText={loadingText} />
+      <div hidden={!showBracket || !artist.name}>
+        <div className="text-center">
+          <div>
+            <span className="font-bold">{tracks ? tracks.length + " tracks displayed" : ""}</span>
           </div>
-          <Bracket bracket={bracket} setBracket={setBracket} tracks={tracks} setShowBracket={setShowBracket} showBracket={showBracket} saveCommand={saveCommand} playbackEnabled={playbackEnabled} bracketComplete={bracketComplete} setBracketComplete={setBracketComplete} editable={editable} />
         </div>
+        <div className="items-center text-xs -space-x-px rounded-md sticky left-[50%] -translate-x-1/2 top-0 w-fit z-30">
+          {editable && !bracketComplete ? <div>
+            {/* <GeneratePlaylistButton tracks={tracks} artist={artist} /> */}
+            <button
+              onClick={undo}
+              disabled={commands.length === 0}
+              className="border-l-gray-200 hover:disabled:border-x-gray-200"
+            >
+              Undo
+            </button>
+            <button onClick={saveBracket} disabled={saveButtonDisabled} className="border-l-gray-200 hover:disabled:border-l-gray-200">{saveButtonDisabled ? "Saved" : "Save"}</button>
+          </div>
+            : null}
+          <button onClick={share} className="border-l-gray-200 hover:disabled:border-l-gray-200">
+            Share
+          </button>
+          {!editable && user.name && artist.name && false
+            ? <button onClick={duplicateBracket} className="border-l-gray-200 hover:disabled:border-l-gray-200">Fill out this bracket</button>
+            : null}
+        </div>
+        <Bracket bracket={bracket} setBracket={setBracket} tracks={tracks} setShowBracket={setShowBracket} showBracket={showBracket} saveCommand={saveCommand} playbackEnabled={playbackEnabled} bracketComplete={bracketComplete} setBracketComplete={setBracketComplete} editable={editable} />
       </div>
     </Layout>
   )

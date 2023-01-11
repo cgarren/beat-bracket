@@ -1,7 +1,6 @@
 # Beat Bracket
 ## TODO
 ### High
-- **Make undo button or all buttons floating**
 - **Add social features like following user profiles and sharing entire profiles instead of just brackets**
 - **Add stats like “10 people also ranked xxx song first" or percentage of people maybe. Show artist stats when the user finishes a bracket**
 - Publish site and get some beta feedback

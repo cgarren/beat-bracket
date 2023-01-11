@@ -41,10 +41,7 @@ const Alert = ({ show, close, message, type }) => {
   };
 
   return (
-    <div
-      className="sticky left-[50%] -translate-x-1/2 top-0 h-0 w-fit z-30"
-      role="alert"
-    >
+    <div className="sticky left-[100%] top-0 h-0 w-fit z-30" role="alert">
       <div
         className={
           "w-fit h-fit rounded-lg text-sm p-4 " +
@@ -66,7 +63,7 @@ const Alert = ({ show, close, message, type }) => {
         </svg>
         <span className="sr-only">Info</span>
         <div>
-          <span className="font-bold mr-1">{message}</span>
+          <span className="font-bold mr-1 whitespace-nowrap">{message}</span>
         </div>
         {/* <button onClick={() => close()}>✖</button> */}
         <button
