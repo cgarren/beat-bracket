@@ -96,7 +96,7 @@ const SongButton = ({
   }
 
   useEffect(() => {
-    if (playbackEnabled) {
+    if (playbackEnabled && !disabled) {
       const songButton = thebutton.current;
       songButton.addEventListener("mouseenter", playSnippet, true);
       return () => {
@@ -105,7 +105,7 @@ const SongButton = ({
         }
       };
     }
-  }, [playbackEnabled]);
+  }, [playbackEnabled, disabled]);
 
   function playPauseAudio() {
     if (paused) {
