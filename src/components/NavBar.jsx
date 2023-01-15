@@ -10,17 +10,14 @@ const NavBar = ({ loggedIn, noChanges }) => {
   }
   return (
     <header className="bg-black mb-4">
-      <div className="flex items-center h-14 px-4 mx-auto sm:px-6 lg:px-4 justify-between">
+      <div className="flex items-center min-h-fit px-4 mx-auto sm:px-6 lg:px-4 justify-between">
         <button
           className="text-white text-2xl font-bold font-display bg-black border-0 hover:bg-black pl-0"
           onClick={handleNaviagtionAttempt}
         >
           Beat Bracket
         </button>
-        <ProfileDropdown
-          loggedIn={loggedIn}
-          noChanges={noChanges}
-        />
+        <ProfileDropdown loggedIn={loggedIn} noChanges={noChanges} />
       </div>
     </header>
   );
