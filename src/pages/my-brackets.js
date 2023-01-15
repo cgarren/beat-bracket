@@ -125,13 +125,13 @@ const App = () => {
         {currentUserId ? <p className="text-sm text-gray-500 mb-2">{brackets.length + "/" + maxBrackets + " brackets used"}</p> : null}
 
         <div className="">
-          <nav className="inline-flex flex-col sm:flex-row">
+          <nav className="inline-flex flex-row">
             <Tab id={0} activeTab={activeTab} setActiveTab={setActiveTab} text="All" />
             <Tab id={1} activeTab={activeTab} setActiveTab={setActiveTab} text="In Progess" />
             <Tab id={2} activeTab={activeTab} setActiveTab={setActiveTab} text="Completed" />
           </nav>
         </div>
-        <div className="pt-3 flex flex-row flex-wrap justify-center items-stretch gap-5 overflow-scroll mx-5">
+        <div className="pt-3 flex flex-row flex-wrap justify-center items-stretch gap-5 overflow-scroll sm:mx-5">
           {activeTab === 0 && brackets.length < maxBrackets && currentUserId ? <CreateBracketCard userId={currentUserId} /> : null}
           {shownBrackets.map((bracket) => (
             <ArtistBracketCard bracket={bracket} key={bracket.id} userId={currentUserId} />
