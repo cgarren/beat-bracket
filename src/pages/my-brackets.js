@@ -125,7 +125,7 @@ const App = () => {
         {currentUserId ? <p className="text-sm text-gray-500 mb-2">{brackets.length + "/" + maxBrackets + " brackets used"}</p> : null}
 
         <div className="">
-          <nav className="inline-flex flex-col sm:flex-row">
+          <nav className="inline-flex flex-row">
             <Tab id={0} activeTab={activeTab} setActiveTab={setActiveTab} text="All" />
             <Tab id={1} activeTab={activeTab} setActiveTab={setActiveTab} text="In Progess" />
             <Tab id={2} activeTab={activeTab} setActiveTab={setActiveTab} text="Completed" />
