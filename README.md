@@ -1,7 +1,10 @@
 # Beat Bracket
 ## TODO
 ### High
+- **undo a song selction when you clicm on it again (also stop adding to the undo list when the user clicks on a song but it doesn't advance due to the not being a competitor yet)**
 - **Add social features like following user profiles and sharing entire profiles instead of just brackets**
+- **Remove user id in corner**
+- **Remove expire time check in backend**
 - **Social Feature: Let people vote on tracks to make a communal bracket when they aren't at the same computer (bracket permissions required). Also maybe have like 24 hours for the first rounds, another day for the second round etc... Basically let people make a bracket together. If this is implemented correctly, it should basically let all of sigep vote on songs and make a bracket together. You could even do global brackets with millions of votes**
 - **Add stats like “10 people also ranked xxx song first" or percentage of people maybe. Show artist stats when the user finishes a bracket**
 - **Add a winner line with album art and better animation**
