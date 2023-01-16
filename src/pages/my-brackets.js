@@ -131,7 +131,7 @@ const App = () => {
             <Tab id={2} activeTab={activeTab} setActiveTab={setActiveTab} text="Completed" />
           </nav>
         </div>
-        <div className="pt-3 flex flex-row flex-wrap justify-center items-stretch gap-5 overflow-scroll sm:mx-5">
+        <div className="pt-3 flex flex-row flex-wrap justify-center items-stretch gap-5 sm:mx-5">
           {activeTab === 0 && brackets.length < maxBrackets && currentUserId ? <CreateBracketCard userId={currentUserId} /> : null}
           {shownBrackets.map((bracket) => (
             <ArtistBracketCard bracket={bracket} key={bracket.id} userId={currentUserId} />
