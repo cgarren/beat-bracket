@@ -60,10 +60,12 @@ const SongButton = ({
         modifyBracket(nextId, "song", song);
         modifyBracket(nextId, "disabled", false);
         modifyBracket(nextId, "color", color);
+        setCurrentlyPlayingId(null);
       } else {
         console.log("Winner is " + song.name);
         modifyBracket(id, "winner", true);
         setBracketComplete(true);
+        setCurrentlyPlayingId(id);
       }
     }
   }
@@ -72,6 +74,7 @@ const SongButton = ({
     modifyBracket(id, "disabled", false);
     modifyBracket(opponentId, "disabled", false);
     modifyBracket(opponentId, "eliminated", false);
+    setCurrentlyPlayingId(null);
     //undoEliminatePrevious(opponentId);
     if (nextId) {
       modifyBracket(nextId, "song", null);
@@ -147,12 +150,6 @@ const SongButton = ({
       }
     }
   }, [currentlyPlayingId]);
-
-  useEffect(() => {
-    if (disabled) {
-      setCurrentlyPlayingId(null);
-    }
-  }, [disabled]);
 
   return (
     <div
