@@ -53,7 +53,7 @@ const Bracket = ({
   tracks,
   showBracket,
   setShowBracket,
-  setBracketComplete,
+  setBracketWinner,
   saveCommand,
   playbackEnabled,
   bracket,
@@ -106,7 +106,7 @@ const Bracket = ({
     if (Array.isArray(tracks)) {
       if (!tracks.includes(null)) {
         if (tracks.length !== 0) {
-          setBracketComplete(false);
+          setBracketWinner(null);
           kickOff();
         } else {
           setRenderArray([]);
@@ -159,7 +159,7 @@ const Bracket = ({
                   eliminated={value.eliminated}
                   disabled={editable ? value.disabled : true}
                   winner={value.winner}
-                  setBracketComplete={setBracketComplete}
+                  setBracketWinner={setBracketWinner}
                 />
                 {value.index % 2 === 0 && value.nextId != null ? (
                   <div

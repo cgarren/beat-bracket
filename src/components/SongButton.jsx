@@ -19,7 +19,7 @@ const SongButton = ({
   getBracket,
   eliminated,
   winner,
-  setBracketComplete,
+  setBracketWinner,
   color,
   playbackEnabled,
 }) => {
@@ -27,8 +27,7 @@ const SongButton = ({
   const thebutton = useRef(null);
   const audioRef = useRef(null);
 
-  const winnerStyle =
-    "overflow-hidden w-[calc(var(--buttonwidth))] h-[calc(var(--buttonheight))] before:box-border box-border before:content-[''] before:absolute before:left-[-50%] before:top-[calc(-1*var(--buttonwidth)+22px)] before:w-[calc(2*var(--buttonwidth)+6px)] before:h-[calc(2*var(--buttonwidth)+6px)] before:bg-no-repeat before:bg-white before:[background-size:50%_50%,50%_50%] before:[background-position:0_0,100%_0,100%_100%,0_100%] before:[background-image:linear-gradient(black,black),linear-gradient(white,white),linear-gradient(black,black),linear-gradient(white,white)] before:animate-steam before:-z-20 before:rounded-2xl";
+  const winnerStyle = ""; //"overflow-hidden w-[calc(var(--buttonwidth))] h-[calc(var(--buttonheight))] before:box-border box-border before:content-[''] before:absolute before:left-[-50%] before:top-[calc(-1*var(--buttonwidth)+22px)] before:w-[calc(2*var(--buttonwidth)+6px)] before:h-[calc(2*var(--buttonwidth)+6px)] before:bg-no-repeat before:bg-white before:[background-size:50%_50%,50%_50%] before:[background-position:0_0,100%_0,100%_100%,0_100%] before:[background-image:linear-gradient(black,black),linear-gradient(white,white),linear-gradient(black,black),linear-gradient(white,white)] before:animate-steam before:-z-20 before:rounded-2xl";
 
   // Recursive function to mark all previous instances of a song in a bracket as eliminated
   function eliminatePrevious(thisId) {
@@ -64,7 +63,7 @@ const SongButton = ({
       } else {
         console.log("Winner is " + song.name);
         modifyBracket(id, "winner", true);
-        setBracketComplete(true);
+        setBracketWinner(song);
         setCurrentlyPlayingId(id);
       }
     }
@@ -82,7 +81,7 @@ const SongButton = ({
       modifyBracket(nextId, "color", null);
     } else {
       modifyBracket(id, "winner", false);
-      setBracketComplete(false);
+      setBracketWinner(null);
     }
   }
 
@@ -154,11 +153,11 @@ const SongButton = ({
   return (
     <div
       className={
-        "z-0 flex rounded-2xl shadow-md cursor-pointer w-[var(--buttonwidth)] min-w-[var(--buttonwidth)] h-[var(--buttonheight)] min-h-[var(--buttonheight) disabled:cursor-default disabled:shadow-none disabled:w-[var(--buttonwidth)] relative" +
+        "z-0 flex rounded-2xl shadow-md cursor-pointer w-[var(--buttonwidth)] min-w-[var(--buttonwidth)] h-[var(--buttonheight)] min-h-[var(--buttonheight) disabled:cursor-default disabled:shadow-none disabled:w-[var(--buttonwidth)] relative hover:h-auto " +
         (song == null
           ? " bg-white text-black shadow-md border-0 border-gray-400"
           : " ") +
-        (winner ? " opacity-100 " + winnerStyle : " hover:h-auto hover:flex ") +
+        (winner ? " opacity-100 " : " ") +
         (side ? " flex-row-reverse " : "") +
         (eliminated ? " opacity-50 " : " ") +
         styling
@@ -194,7 +193,7 @@ const SongButton = ({
         className={
           "rounded-[inherit] disabled:rounded-[inherit] bg-white text-black border-0 leading-[1.15em] p-0 text-center overflow-hidden break-words disabled:px-[6px]" +
           (winner
-            ? " opacity-100 active:opacity-100 content-[''] absolute left-[3px] top-[3px] -z-10 bg-white rounded w-[calc(100%-6px)] h-[calc(100%-6px)] min-h-[calc(var(--buttonheight)-6px)]"
+            ? " opacity-100 active:opacity-100"
             : " disabled:w-full w-[70%] h-full min-h-[var(--buttonheight)]") +
           (song == null ? " w-full bg-transparent text-black " : "") +
           (side ? " pr-[6px] rounded-l-[0] " : " pl-[6px] rounded-r-[0]") +

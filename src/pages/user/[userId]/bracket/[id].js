@@ -28,6 +28,7 @@ const App = ({ params, location }) => {
   const [playbackEnabled, setPlaybackEnabled] = useState(false);
   const [loadingText, setLoadingText] = useState("Loading...");
   const [bracketComplete, setBracketComplete] = useState(false);
+  const [bracketWinner, setBracketWinner] = useState(null);
   const [commands, setCommands] = useState([]);
   const [lastSaved, setLastSaved] = useState({ time: 0, commandsLength: 0 });
   const [alertInfo, setAlertInfo] = useState({ show: false, message: null, type: null, timeoutId: null });
@@ -64,6 +65,7 @@ const App = ({ params, location }) => {
             setSeedingMethod(loadedBracket.seeding);
             setLimit(loadedBracket.tracks);
             setBracketComplete(loadedBracket.completed);
+            setBracketWinner(loadedBracket.winner);
             setShowBracket(true);
             setTracks(new Array(loadedBracket.tracks).fill(null));
             setLastSaved({ commandsLength: commands.length, time: Date.now() });
@@ -160,6 +162,7 @@ const App = ({ params, location }) => {
       seeding: seedingMethod,
       lastModifiedDate: Date.now(),
       completed: bracketComplete,
+      winner: bracketWinner,
       bracketData: obj,
     };
     //write to database and stuff
@@ -284,6 +287,15 @@ const App = ({ params, location }) => {
   }
 
   useEffect(() => {
+    if (bracketWinner === null) {
+      setBracketComplete(false);
+    } else {
+      setBracketComplete(true);
+    }
+    console.log(bracketWinner);
+  }, [bracketWinner]);
+
+  useEffect(() => {
     async function changeSeedingMethod(seedingMethod) {
       if (artist.id && tracks && readyToChange) {
         console.log("seeding changed");
@@ -317,7 +329,7 @@ const App = ({ params, location }) => {
     <Layout noChanges={noChanges}>
       <Alert show={alertInfo.show} close={closeAlert} message={alertInfo.message} type={alertInfo.type} />
       <div className="text-center">
-        {user.name && artist.name ? <div className="font-bold mb-2">{artist.name} bracket by {user.name}</div> : (bracket ? <div>Loading...</div> : <div className="font-bold mb-2">Bracket not found</div>)}
+        {user.name && artist.name ? <div className="font-bold mb-2 text-xl">{artist.name} bracket by {user.name}</div> : (bracket ? <div>Loading...</div> : <div className="font-bold mb-2">Bracket not found</div>)}
         {editable && !bracketComplete ?
           <div className="inline-flex flex-col gap-1 max-w-[800px] items-center">
             <div className="rounded-lg mb-2 flex flex-col">
@@ -345,15 +357,21 @@ const App = ({ params, location }) => {
               </div>
             </div>
           </div>
-          : editable
-            ? <div>Bracket Complete</div> : null}
+          : bracketComplete && bracketWinner
+            ? <div className="text-center text-lg"><img
+              src={bracketWinner.art}
+              className="w-[120px] h-[120px] mx-auto rounded"
+              width="120px"
+              height="120px"
+              alt={bracketWinner.name}
+            /><span className="font-bold">Winner: </span>{bracketWinner.name}</div> : null}
       </div>
       <hr />
       <LoadingIndicator hidden={showBracket} loadingText={loadingText} />
       <div hidden={!showBracket || !artist.name}>
         <div className="text-center">
           <div>
-            <span className="font-bold">{tracks ? tracks.length + " tracks displayed" : ""}</span>
+            <span className="">{tracks ? tracks.length + " tracks displayed" : ""}</span>
           </div>
         </div>
         <div className="items-center text-xs -space-x-px rounded-md sticky left-[50%] -translate-x-1/2 top-0 w-fit z-30">
@@ -376,7 +394,7 @@ const App = ({ params, location }) => {
             ? <button onClick={duplicateBracket} className="border-l-gray-200 hover:disabled:border-l-gray-200">Fill out this bracket</button>
             : null}
         </div>
-        <Bracket bracket={bracket} setBracket={setBracket} tracks={tracks} setShowBracket={setShowBracket} showBracket={showBracket} saveCommand={saveCommand} playbackEnabled={playbackEnabled} bracketComplete={bracketComplete} setBracketComplete={setBracketComplete} editable={editable} />
+        <Bracket bracket={bracket} setBracket={setBracket} tracks={tracks} setShowBracket={setShowBracket} showBracket={showBracket} saveCommand={saveCommand} playbackEnabled={playbackEnabled} setBracketWinner={setBracketWinner} editable={editable} />
       </div>
     </Layout>
   )

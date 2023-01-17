@@ -47,7 +47,7 @@ async function selectTrackVersion(numTracks, tracks) {
 async function makeTrackObject(track) {
 	return {
 		name: track.name,
-		art: track.album.images[2].url,
+		art: track.album.images[0].url,
 		id: track.id,
 		popularity: track.popularity,
 		preview_url: track.preview_url
