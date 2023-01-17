@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react"
 import { navigate } from "gatsby";
 import Vibrant from "node-vibrant";
 import Mousetrap from "mousetrap";
+import Confetti from "react-confetti";
+import useWindowSize from 'react-use/lib/useWindowSize'
 import Bracket from "../../../../components/Bracket"
 import Layout from "../../../../components/Layout";
 import LoadingIndicator from "../../../../components/LoadingIndicator";
@@ -32,6 +34,8 @@ const App = ({ params, location }) => {
   const [commands, setCommands] = useState([]);
   const [lastSaved, setLastSaved] = useState({ time: 0, commandsLength: 0 });
   const [alertInfo, setAlertInfo] = useState({ show: false, message: null, type: null, timeoutId: null });
+  const [confetti, setConfetti] = useState(true);
+  const { width, height } = useWindowSize()
 
   //INITIALIZE BRACKET
 
@@ -65,7 +69,11 @@ const App = ({ params, location }) => {
             setSeedingMethod(loadedBracket.seeding);
             setLimit(loadedBracket.tracks);
             setBracketComplete(loadedBracket.completed);
-            setBracketWinner(loadedBracket.winner);
+            if (loadedBracket.winner === undefined && !loadedBracket.completed) {
+              setBracketWinner(null);
+            } else {
+              setBracketWinner(loadedBracket.winner);
+            }
             setShowBracket(true);
             setTracks(new Array(loadedBracket.tracks).fill(null));
             setLastSaved({ commandsLength: commands.length, time: Date.now() });
@@ -131,18 +139,24 @@ const App = ({ params, location }) => {
   // SAVE
 
   useEffect(() => {
-    if (bracketId && user && artist && tracks && seedingMethod && bracket && editable) {
-      if (bracketComplete) {
+    if (readyToChange) {
+      if (lastSaved.time + 10000 < Date.now()) {
         saveBracket();
-      } else if (readyToChange) {
-        if (lastSaved.time + 10000 < Date.now()) {
-          saveBracket();
-        }
-      } else {
-        setReadyToChange(true);
       }
     }
-  }, [bracketComplete, readyToChange, editable, bracket]);
+  }, [readyToChange, editable, bracket]);
+
+  useEffect(() => {
+    if (bracketId && user && artist && tracks && seedingMethod && bracket && editable) {
+      setReadyToChange(true);
+    }
+  }, [bracketId, user, artist, tracks, seedingMethod, bracket, editable]);
+
+  useEffect(() => {
+    if (readyToChange) {
+      saveBracket();
+    }
+  }, [bracketComplete]);
 
   useEffect(() => {
     if (bracketId && user && artist && tracks && seedingMethod && bracket && editable) {
@@ -151,29 +165,31 @@ const App = ({ params, location }) => {
   }, [tracks]);
 
   async function saveBracket() { // Called on these occasions: on initial bracket load, user clicks save button, user completes bracket
-    const obj = Object.fromEntries(bracket);
-    const theBracket = {
-      id: bracketId,
-      userId: user.id,
-      userName: user.name,
-      artistName: artist.name,
-      artistId: artist.id,
-      tracks: tracks.length,
-      seeding: seedingMethod,
-      lastModifiedDate: Date.now(),
-      completed: bracketComplete,
-      winner: bracketWinner,
-      bracketData: obj,
-    };
-    //write to database and stuff
-    if (await writeBracket(theBracket) === 0) {
-      console.log("Bracket Saved");
-      //show notification confirming the save
-      showAlert("Bracket Saved", "success");
-      setLastSaved({ commandsLength: commands.length, time: Date.now() });
-      setSaveButtonDisabled(true);
-    } else {
-      showAlert("Error saving bracket", "error");
+    if (bracketId && user && artist && tracks && seedingMethod && bracket && editable && readyToChange) {
+      const obj = Object.fromEntries(bracket);
+      const theBracket = {
+        id: bracketId,
+        userId: user.id,
+        userName: user.name,
+        artistName: artist.name,
+        artistId: artist.id,
+        tracks: tracks.length,
+        seeding: seedingMethod,
+        lastModifiedDate: Date.now(),
+        completed: bracketComplete,
+        winner: bracketWinner,
+        bracketData: obj,
+      };
+      //write to database and stuff
+      if (await writeBracket(theBracket) === 0) {
+        console.log("Bracket Saved");
+        //show notification confirming the save
+        showAlert("Bracket Saved", "success");
+        setLastSaved({ commandsLength: commands.length, time: Date.now() });
+        setSaveButtonDisabled(true);
+      } else {
+        showAlert("Error saving bracket", "error");
+      }
     }
 
   }
@@ -287,12 +303,17 @@ const App = ({ params, location }) => {
   }
 
   useEffect(() => {
+    console.log(bracketWinner);
     if (bracketWinner === null) {
       setBracketComplete(false);
+      setConfetti(false);
     } else {
       setBracketComplete(true);
+      if (editable && readyToChange) {
+        setConfetti(true);
+      }
     }
-    console.log(bracketWinner);
+    saveBracket();
   }, [bracketWinner]);
 
   useEffect(() => {
@@ -327,6 +348,12 @@ const App = ({ params, location }) => {
 
   return (
     <Layout noChanges={noChanges}>
+      {confetti ? <Confetti
+        width={width}
+        height={height}
+        recycle={false}
+        onConfettiComplete={() => setConfetti(false)}
+      /> : null}
       <Alert show={alertInfo.show} close={closeAlert} message={alertInfo.message} type={alertInfo.type} />
       <div className="text-center">
         {user.name && artist.name ? <div className="font-bold mb-2 text-xl">{artist.name} bracket by {user.name}</div> : (bracket ? <div>Loading...</div> : <div className="font-bold mb-2">Bracket not found</div>)}
