@@ -96,9 +96,6 @@ const ProfileDropdown = ({ loggedIn, noChanges }) => {
               <strong className="block text-s font-bold text-white">
                 {shownUserInfo.display_name}
               </strong>
-              <span className="text-gray-300 text-xs transition sm:block group-hover:text-white">
-                {shownUserInfo.id}
-              </span>
             </p>
             <div hidden={!loggedIn}>
               <svg
