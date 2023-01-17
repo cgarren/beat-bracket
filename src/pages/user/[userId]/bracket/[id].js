@@ -356,7 +356,7 @@ const App = ({ params, location }) => {
       /> : null}
       <Alert show={alertInfo.show} close={closeAlert} message={alertInfo.message} type={alertInfo.type} />
       <div className="text-center">
-        {user.name && artist.name ? <div className="font-bold mb-2 text-xl">{artist.name} bracket by {user.name}</div> : (bracket ? <div>Loading...</div> : <div className="font-bold mb-2">Bracket not found</div>)}
+        {user.name && artist.name ? <div className="font-bold mb-2 text-xl">{artist.name} bracket by {user.name} {tracks ? "(" + tracks.length + " tracks)" : null}</div> : (bracket ? <div>Loading...</div> : <div className="font-bold mb-2">Bracket not found</div>)}
         {editable && !bracketComplete ?
           <div className="inline-flex flex-col gap-1 max-w-[800px] items-center">
             <div className="rounded-lg mb-2 flex flex-col">
@@ -396,11 +396,6 @@ const App = ({ params, location }) => {
       <hr />
       <LoadingIndicator hidden={showBracket} loadingText={loadingText} />
       <div hidden={!showBracket || !artist.name}>
-        <div className="text-center">
-          <div>
-            <span className="">{tracks ? tracks.length + " tracks displayed" : ""}</span>
-          </div>
-        </div>
         <div className="items-center text-xs -space-x-px rounded-md sticky left-[50%] -translate-x-1/2 top-0 w-fit z-30">
           {editable && !bracketComplete ? <div>
             {/* <GeneratePlaylistButton tracks={tracks} artist={artist} /> */}
