@@ -191,10 +191,8 @@ const SongButton = ({
             : {}
         }
         className={
-          "rounded-[inherit] disabled:rounded-[inherit] bg-white text-black border-0 leading-[1.15em] p-0 text-center overflow-hidden break-words disabled:px-[6px]" +
-          (winner
-            ? " opacity-100 active:opacity-100"
-            : " disabled:w-full w-[70%] h-full min-h-[var(--buttonheight)]") +
+          "rounded-[inherit] disabled:rounded-[inherit] bg-white text-black border-0 leading-[1.15em] p-0 text-center overflow-hidden break-words disabled:px-[6px] h-full min-h-[var(--buttonheight)] disabled:w-full " +
+          (winner ? " opacity-100 active:opacity-100" : " w-[70%]") +
           (song == null ? " w-full bg-transparent text-black " : "") +
           (side ? " pr-[6px] rounded-l-[0] " : " pl-[6px] rounded-r-[0]") +
           (eliminated ? " " : "")
