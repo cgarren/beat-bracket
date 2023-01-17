@@ -45,27 +45,27 @@ const SongButton = ({
   }
 
   function songChosen() {
-    makeChoice();
-    saveCommand(makeChoice, undoChoice);
+    if (opponentId && getBracket(opponentId).song !== null) {
+      makeChoice();
+      saveCommand(makeChoice, undoChoice);
+    }
   }
 
   function makeChoice() {
-    if (opponentId && getBracket(opponentId).song !== null) {
-      modifyBracket(id, "disabled", true);
-      modifyBracket(opponentId, "disabled", true);
-      modifyBracket(opponentId, "eliminated", true);
-      //eliminatePrevious(opponentId);
-      if (nextId) {
-        modifyBracket(nextId, "song", song);
-        modifyBracket(nextId, "disabled", false);
-        modifyBracket(nextId, "color", color);
-        setCurrentlyPlayingId(null);
-      } else {
-        console.log("Winner is " + song.name);
-        modifyBracket(id, "winner", true);
-        setBracketWinner(song);
-        setCurrentlyPlayingId(id);
-      }
+    modifyBracket(id, "disabled", true);
+    modifyBracket(opponentId, "disabled", true);
+    modifyBracket(opponentId, "eliminated", true);
+    //eliminatePrevious(opponentId);
+    if (nextId) {
+      modifyBracket(nextId, "song", song);
+      modifyBracket(nextId, "disabled", false);
+      modifyBracket(nextId, "color", color);
+      setCurrentlyPlayingId(null);
+    } else {
+      console.log("Winner is " + song.name);
+      modifyBracket(id, "winner", true);
+      setBracketWinner(song);
+      setCurrentlyPlayingId(id);
     }
   }
 
