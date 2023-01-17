@@ -13,6 +13,7 @@ import { writeBracket, getBracket } from "../../../../utilities/backend";
 import { seedBracket, loadAlbums, processTracks } from "../../../../utilities/songProcessing";
 import { bracketSorter, nearestLesserPowerOf2, popularitySort } from "../../../../utilities/helpers";
 import { getUserInfo, isCurrentUser } from "../../../../utilities/spotify";
+import BracketOptions from "../../../../components/BracketOptions";
 
 const App = ({ params, location }) => {
   const bracketId = params.id;
@@ -358,32 +359,14 @@ const App = ({ params, location }) => {
       <div className="text-center">
         {user.name && artist.name ? <div className="font-bold mb-2 text-xl">{artist.name} bracket by {user.name} {tracks ? "(" + tracks.length + " tracks)" : null}</div> : (bracket ? <div>Loading...</div> : <div className="font-bold mb-2">Bracket not found</div>)}
         {editable && !bracketComplete ?
-          <div className="inline-flex flex-col gap-1 max-w-[800px] items-center">
-            <div className="rounded-lg mb-2 flex flex-col">
-              <div className={""}>
-                <label htmlFor="limit-select">Maximum tracks: </label>
-                <select name="limit" id="limit-select" value={limit} onChange={limitChange} disabled={!showBracket} className="border-0 rounded border-black">
-                  <option value="8">8</option>
-                  <option value="16">16</option>
-                  <option value="32">32</option>
-                  <option value="64">64</option>
-                  {/* <option value="128">128</option> */}
-                  {/* <option value="256">256</option> */}
-                </select>
-              </div>
-              <div className={""}>
-                <label htmlFor="seeding-select">Seed by: </label>
-                <select name="seeding" id="seeding-select" value={seedingMethod} onChange={seedingChange} disabled={!showBracket} className="border-0 rounded border-black">
-                  <option value="random">Random</option>
-                  <option value="popularity">Popularity</option>
-                </select>
-              </div>
-              <div className={""}>
-                <label htmlFor="playback-select">Hover preview (beta): </label>
-                <input type="checkbox" id="playback-select" checked={playbackEnabled} onChange={playbackChange} disabled={!showBracket} name="playback-select"></input>
-              </div>
-            </div>
-          </div>
+          <BracketOptions
+            limitChange={limitChange}
+            showBracket={showBracket}
+            limit={limit}
+            seedingChange={seedingChange}
+            seedingMethod={seedingMethod}
+            playbackChange={playbackChange}
+            playbackEnabled={playbackEnabled} />
           : bracketComplete && bracketWinner
             ? <div className="text-center text-lg"><img
               src={bracketWinner.art}
