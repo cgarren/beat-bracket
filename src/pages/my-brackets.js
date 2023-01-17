@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react"
 import Layout from "../components/Layout";
-import ArtistBracketCard from "../components/ArtistBracketCard";
+import ArtistBracketCard from "../components/BracketCard/ArtistBracketCard";
 import Tab from "../components/Tab";
-import CreateBracketCard from "../components/CreateBracketCard";
+import CreateBracketCard from "../components/BracketCard/CreateBracketCard";
 import Alert from "../components/Alert";
 import { getBrackets, authenticate } from "../utilities/backend";
 import { getUserInfo } from "../utilities/spotify";

@@ -1,7 +1,7 @@
 import React from "react";
 import { useEffect, useRef, useState } from "react";
-import PlayIcon from "../assets/svgs/playIcon.svg";
-import PauseIcon from "../assets/svgs/pauseIcon.svg";
+import PlayIcon from "../../assets/svgs/playIcon.svg";
+import PauseIcon from "../../assets/svgs/pauseIcon.svg";
 
 const SongButton = ({
   styling,

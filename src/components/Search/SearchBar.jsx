@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ArtistSuggestion from "./ArtistSuggestion";
-import { loadSpotifyRequest } from "../utilities/spotify";
+import { loadSpotifyRequest } from "../../utilities/spotify";
 
 const SearchBar = ({ setArtist, disabled }) => {
   const [searchText, setSearchText] = useState("");

@@ -10,7 +10,7 @@ import useWindowSize from "react-use/lib/useWindowSize";
 import {
   nearestGreaterPowerOf2,
   nearestLesserPowerOf2,
-} from "../utilities/helpers";
+} from "../../utilities/helpers";
 
 const styles = [
   "mt-[var(--firstColumnSpacing)]",

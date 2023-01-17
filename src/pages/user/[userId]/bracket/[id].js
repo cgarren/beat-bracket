@@ -4,7 +4,7 @@ import Vibrant from "node-vibrant";
 import Mousetrap from "mousetrap";
 import Confetti from "react-confetti";
 import useWindowSize from 'react-use/lib/useWindowSize'
-import Bracket from "../../../../components/Bracket"
+import Bracket from "../../../../components/Bracket/Bracket"
 import Layout from "../../../../components/Layout";
 import LoadingIndicator from "../../../../components/LoadingIndicator";
 import Alert from "../../../../components/Alert";
@@ -13,7 +13,8 @@ import { writeBracket, getBracket } from "../../../../utilities/backend";
 import { seedBracket, loadAlbums, processTracks } from "../../../../utilities/songProcessing";
 import { bracketSorter, nearestLesserPowerOf2, popularitySort } from "../../../../utilities/helpers";
 import { getUserInfo, isCurrentUser } from "../../../../utilities/spotify";
-import BracketOptions from "../../../../components/BracketOptions";
+import BracketOptions from "../../../../components/Bracket/BracketOptions";
+import BracketWinnerInfo from "../../../../components/Bracket/BracketWinnerInfo";
 
 const App = ({ params, location }) => {
   const bracketId = params.id;
@@ -357,7 +358,7 @@ const App = ({ params, location }) => {
       /> : null}
       <Alert show={alertInfo.show} close={closeAlert} message={alertInfo.message} type={alertInfo.type} />
       <div className="text-center">
-        {user.name && artist.name ? <div className="font-bold mb-2 text-xl">{artist.name} bracket by {user.name} {tracks ? "(" + tracks.length + " tracks)" : null}</div> : (bracket ? <div>Loading...</div> : <div className="font-bold mb-2">Bracket not found</div>)}
+        {user.name && artist.name ? <div className="font-bold mb-2 text-xl">{artist.name} bracket by {user.name} {tracks ? "(" + tracks.length + " tracks)" : null}</div> : (bracket ? <div>Finding bracket...</div> : <div className="font-bold mb-2">Bracket not found</div>)}
         {editable && !bracketComplete ?
           <BracketOptions
             limitChange={limitChange}
@@ -367,14 +368,9 @@ const App = ({ params, location }) => {
             seedingMethod={seedingMethod}
             playbackChange={playbackChange}
             playbackEnabled={playbackEnabled} />
-          : bracketComplete && bracketWinner
-            ? <div className="text-center text-lg"><img
-              src={bracketWinner.art}
-              className="w-[120px] h-[120px] mx-auto rounded"
-              width="120px"
-              height="120px"
-              alt={bracketWinner.name}
-            /><span className="font-bold">Winner: </span>{bracketWinner.name}<div><span>Popularity:</span> {bracketWinner.popularity}</div></div> : null}
+          : null}
+        {bracketComplete && bracketWinner
+          ? <BracketWinnerInfo bracketWinner={bracketWinner} /> : null}
       </div>
       <hr />
       <LoadingIndicator hidden={showBracket} loadingText={loadingText} />
