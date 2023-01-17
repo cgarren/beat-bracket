@@ -1,18 +1,16 @@
 # Beat Bracket
 ## TODO
 ### High
-- **undo a song selction when you clicm on it again (also stop adding to the undo list when the user clicks on a song but it doesn't advance due to the not being a competitor yet)**
+- **MAYBE: undo a song selction when you click on it again**
 - **Add social features like following user profiles and sharing entire profiles instead of just brackets**
+- **make it possible to go to beatbracket.com with out the www**
 - **add new bracket/my brckets links to navbar and just have sign out under profile**
 - **Remove user id in corner**
 - **Remove expire time check in backend**
 - **Social Feature: Let people vote on tracks to make a communal bracket when they aren't at the same computer (bracket permissions required). Also maybe have like 24 hours for the first rounds, another day for the second round etc... Basically let people make a bracket together. If this is implemented correctly, it should basically let all of sigep vote on songs and make a bracket together. You could even do global brackets with millions of votes**
 - **Add stats like “10 people also ranked xxx song first" or percentage of people maybe. Show artist stats when the user finishes a bracket**
-- **Add a winner line with album art and better animation**
-- **Play winning song when bracket is complete**
 - **Let people reseed brackets by drag and drop**
 - Let people fill out a bracket that someone else made
-- Publish site and get some beta feedback
 - Make this page better/shift todos to another tracking system or file
 - Make cgarren.github.io slightly more attractive
 - Make a toggle for songs exclusively by the artist vs songs the artist is featured on
