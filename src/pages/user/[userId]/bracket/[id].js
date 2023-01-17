@@ -396,7 +396,7 @@ const App = ({ params, location }) => {
       <hr />
       <LoadingIndicator hidden={showBracket} loadingText={loadingText} />
       <div hidden={!showBracket || !artist.name}>
-        <div className="items-center text-xs -space-x-px rounded-md sticky left-[50%] -translate-x-1/2 top-0 w-fit z-30">
+        <div className="items-center text-xs -space-x-px rounded-md sticky left-1/2 -translate-x-1/2 top-0 w-fit z-30">
           {editable && !bracketComplete ? <div>
             {/* <GeneratePlaylistButton tracks={tracks} artist={artist} /> */}
             <button
