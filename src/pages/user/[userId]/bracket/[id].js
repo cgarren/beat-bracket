@@ -391,7 +391,7 @@ const App = ({ params, location }) => {
               width="120px"
               height="120px"
               alt={bracketWinner.name}
-            /><span className="font-bold">Winner: </span>{bracketWinner.name}</div> : null}
+            /><span className="font-bold">Winner: </span>{bracketWinner.name}<div><span>Popularity:</span> {bracketWinner.popularity}</div></div> : null}
       </div>
       <hr />
       <LoadingIndicator hidden={showBracket} loadingText={loadingText} />
