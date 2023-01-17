@@ -3,6 +3,7 @@
 ### High
 - **MAYBE: undo a song selction when you click on it again**
 - **Add social features like following user profiles and sharing entire profiles instead of just brackets**
+- **make button arrangement better**
 - **make it possible to go to beatbracket.com with out the www**
 - **add new bracket/my brckets links to navbar and just have sign out under profile**
 - **Social Feature: Let people vote on tracks to make a communal bracket when they aren't at the same computer (bracket permissions required). Also maybe have like 24 hours for the first rounds, another day for the second round etc... Basically let people make a bracket together. If this is implemented correctly, it should basically let all of sigep vote on songs and make a bracket together. You could even do global brackets with millions of votes**
