@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react"
 import { navigate } from "gatsby";
 import Vibrant from "node-vibrant";
 import Mousetrap from "mousetrap";
+import Confetti from "react-confetti";
+import useWindowSize from 'react-use/lib/useWindowSize'
 import Bracket from "../../../../components/Bracket"
 import Layout from "../../../../components/Layout";
 import LoadingIndicator from "../../../../components/LoadingIndicator";
@@ -28,9 +30,12 @@ const App = ({ params, location }) => {
   const [playbackEnabled, setPlaybackEnabled] = useState(false);
   const [loadingText, setLoadingText] = useState("Loading...");
   const [bracketComplete, setBracketComplete] = useState(false);
+  const [bracketWinner, setBracketWinner] = useState(null);
   const [commands, setCommands] = useState([]);
   const [lastSaved, setLastSaved] = useState({ time: 0, commandsLength: 0 });
   const [alertInfo, setAlertInfo] = useState({ show: false, message: null, type: null, timeoutId: null });
+  const [confetti, setConfetti] = useState(true);
+  const { width, height } = useWindowSize()
 
   //INITIALIZE BRACKET
 
@@ -64,6 +69,11 @@ const App = ({ params, location }) => {
             setSeedingMethod(loadedBracket.seeding);
             setLimit(loadedBracket.tracks);
             setBracketComplete(loadedBracket.completed);
+            if (loadedBracket.winner === undefined && !loadedBracket.completed) {
+              setBracketWinner(null);
+            } else {
+              setBracketWinner(loadedBracket.winner);
+            }
             setShowBracket(true);
             setTracks(new Array(loadedBracket.tracks).fill(null));
             setLastSaved({ commandsLength: commands.length, time: Date.now() });
@@ -129,18 +139,24 @@ const App = ({ params, location }) => {
   // SAVE
 
   useEffect(() => {
-    if (bracketId && user && artist && tracks && seedingMethod && bracket && editable) {
-      if (bracketComplete) {
+    if (readyToChange) {
+      if (lastSaved.time + 10000 < Date.now()) {
         saveBracket();
-      } else if (readyToChange) {
-        if (lastSaved.time + 10000 < Date.now()) {
-          saveBracket();
-        }
-      } else {
-        setReadyToChange(true);
       }
     }
-  }, [bracketComplete, readyToChange, editable, bracket]);
+  }, [readyToChange, editable, bracket]);
+
+  useEffect(() => {
+    if (bracketId && user && artist && tracks && seedingMethod && bracket && editable) {
+      setReadyToChange(true);
+    }
+  }, [bracketId, user, artist, tracks, seedingMethod, bracket, editable]);
+
+  useEffect(() => {
+    if (readyToChange) {
+      saveBracket();
+    }
+  }, [bracketComplete]);
 
   useEffect(() => {
     if (bracketId && user && artist && tracks && seedingMethod && bracket && editable) {
@@ -149,28 +165,31 @@ const App = ({ params, location }) => {
   }, [tracks]);
 
   async function saveBracket() { // Called on these occasions: on initial bracket load, user clicks save button, user completes bracket
-    const obj = Object.fromEntries(bracket);
-    const theBracket = {
-      id: bracketId,
-      userId: user.id,
-      userName: user.name,
-      artistName: artist.name,
-      artistId: artist.id,
-      tracks: tracks.length,
-      seeding: seedingMethod,
-      lastModifiedDate: Date.now(),
-      completed: bracketComplete,
-      bracketData: obj,
-    };
-    //write to database and stuff
-    if (await writeBracket(theBracket) === 0) {
-      console.log("Bracket Saved");
-      //show notification confirming the save
-      showAlert("Bracket Saved", "success");
-      setLastSaved({ commandsLength: commands.length, time: Date.now() });
-      setSaveButtonDisabled(true);
-    } else {
-      showAlert("Error saving bracket", "error");
+    if (bracketId && user && artist && tracks && seedingMethod && bracket && editable && readyToChange) {
+      const obj = Object.fromEntries(bracket);
+      const theBracket = {
+        id: bracketId,
+        userId: user.id,
+        userName: user.name,
+        artistName: artist.name,
+        artistId: artist.id,
+        tracks: tracks.length,
+        seeding: seedingMethod,
+        lastModifiedDate: Date.now(),
+        completed: bracketComplete,
+        winner: bracketWinner,
+        bracketData: obj,
+      };
+      //write to database and stuff
+      if (await writeBracket(theBracket) === 0) {
+        console.log("Bracket Saved");
+        //show notification confirming the save
+        showAlert("Bracket Saved", "success");
+        setLastSaved({ commandsLength: commands.length, time: Date.now() });
+        setSaveButtonDisabled(true);
+      } else {
+        showAlert("Error saving bracket", "error");
+      }
     }
 
   }
@@ -284,6 +303,20 @@ const App = ({ params, location }) => {
   }
 
   useEffect(() => {
+    console.log(bracketWinner);
+    if (bracketWinner === null) {
+      setBracketComplete(false);
+      setConfetti(false);
+    } else {
+      setBracketComplete(true);
+      if (editable && readyToChange) {
+        setConfetti(true);
+      }
+    }
+    saveBracket();
+  }, [bracketWinner]);
+
+  useEffect(() => {
     async function changeSeedingMethod(seedingMethod) {
       if (artist.id && tracks && readyToChange) {
         console.log("seeding changed");
@@ -315,9 +348,15 @@ const App = ({ params, location }) => {
 
   return (
     <Layout noChanges={noChanges}>
+      {confetti ? <Confetti
+        width={width}
+        height={height}
+        recycle={false}
+        onConfettiComplete={() => setConfetti(false)}
+      /> : null}
       <Alert show={alertInfo.show} close={closeAlert} message={alertInfo.message} type={alertInfo.type} />
       <div className="text-center">
-        {user.name && artist.name ? <div className="font-bold mb-2">{artist.name} bracket by {user.name}</div> : (bracket ? <div>Loading...</div> : <div className="font-bold mb-2">Bracket not found</div>)}
+        {user.name && artist.name ? <div className="font-bold mb-2 text-xl">{artist.name} bracket by {user.name}</div> : (bracket ? <div>Loading...</div> : <div className="font-bold mb-2">Bracket not found</div>)}
         {editable && !bracketComplete ?
           <div className="inline-flex flex-col gap-1 max-w-[800px] items-center">
             <div className="rounded-lg mb-2 flex flex-col">
@@ -345,15 +384,21 @@ const App = ({ params, location }) => {
               </div>
             </div>
           </div>
-          : editable
-            ? <div>Bracket Complete</div> : null}
+          : bracketComplete && bracketWinner
+            ? <div className="text-center text-lg"><img
+              src={bracketWinner.art}
+              className="w-[120px] h-[120px] mx-auto rounded"
+              width="120px"
+              height="120px"
+              alt={bracketWinner.name}
+            /><span className="font-bold">Winner: </span>{bracketWinner.name}</div> : null}
       </div>
       <hr />
       <LoadingIndicator hidden={showBracket} loadingText={loadingText} />
       <div hidden={!showBracket || !artist.name}>
         <div className="text-center">
           <div>
-            <span className="font-bold">{tracks ? tracks.length + " tracks displayed" : ""}</span>
+            <span className="">{tracks ? tracks.length + " tracks displayed" : ""}</span>
           </div>
         </div>
         <div className="items-center text-xs -space-x-px rounded-md sticky left-[50%] -translate-x-1/2 top-0 w-fit z-30">
@@ -376,7 +421,7 @@ const App = ({ params, location }) => {
             ? <button onClick={duplicateBracket} className="border-l-gray-200 hover:disabled:border-l-gray-200">Fill out this bracket</button>
             : null}
         </div>
-        <Bracket bracket={bracket} setBracket={setBracket} tracks={tracks} setShowBracket={setShowBracket} showBracket={showBracket} saveCommand={saveCommand} playbackEnabled={playbackEnabled} bracketComplete={bracketComplete} setBracketComplete={setBracketComplete} editable={editable} />
+        <Bracket bracket={bracket} setBracket={setBracket} tracks={tracks} setShowBracket={setShowBracket} showBracket={showBracket} saveCommand={saveCommand} playbackEnabled={playbackEnabled} setBracketWinner={setBracketWinner} editable={editable} />
       </div>
     </Layout>
   )

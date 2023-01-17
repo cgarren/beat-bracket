@@ -5,6 +5,8 @@ import React, { useEffect, useState, useCallback } from "react";
 
 import SongButton from "./SongButton";
 
+import useWindowSize from "react-use/lib/useWindowSize";
+
 import {
   nearestGreaterPowerOf2,
   nearestLesserPowerOf2,
@@ -53,7 +55,7 @@ const Bracket = ({
   tracks,
   showBracket,
   setShowBracket,
-  setBracketComplete,
+  setBracketWinner,
   saveCommand,
   playbackEnabled,
   bracket,
@@ -64,6 +66,7 @@ const Bracket = ({
   const [renderArray, setRenderArray] = useState([]);
   const [currentlyPlayingId, setCurrentlyPlayingId] = useState(null);
   const [centerBracket, setCenterBracket] = useState(false);
+  const { width, height } = useWindowSize();
   const [bracketRef, setBracketRef] = useState(null);
   const bracketCallback = useCallback((node) => {
     // console.log("setting bracket ref");
@@ -72,25 +75,18 @@ const Bracket = ({
   }, []);
 
   useEffect(() => {
-    window.addEventListener("resize", updateCenterBracket);
-    return () => {
-      window.removeEventListener("resize", updateCenterBracket);
-    };
-  }, []);
-
-  useEffect(() => {
     updateCenterBracket();
-  }, [bracket, showBracket, renderArray]);
+  }, [bracket, showBracket, renderArray, width, height]);
 
   function updateCenterBracket() {
     // console.log("called", bracketRef);
-    if (bracketRef && window) {
-      // console.log("inner", bracketRef.current);
-      if (bracketRef.current.offsetWidth <= window.innerWidth) {
-        // console.log("center on");
+    if (bracketRef) {
+      //console.log(bracketRef.current, width);
+      if (bracketRef.current.offsetWidth <= width) {
+        //console.log("center on");
         setCenterBracket(true);
       } else {
-        // console.log("center off");
+        //console.log("center off");
         setCenterBracket(false);
       }
     }
@@ -106,7 +102,7 @@ const Bracket = ({
     if (Array.isArray(tracks)) {
       if (!tracks.includes(null)) {
         if (tracks.length !== 0) {
-          setBracketComplete(false);
+          setBracketWinner(null);
           kickOff();
         } else {
           setRenderArray([]);
@@ -159,7 +155,7 @@ const Bracket = ({
                   eliminated={value.eliminated}
                   disabled={editable ? value.disabled : true}
                   winner={value.winner}
-                  setBracketComplete={setBracketComplete}
+                  setBracketWinner={setBracketWinner}
                 />
                 {value.index % 2 === 0 && value.nextId != null ? (
                   <div
@@ -199,6 +195,14 @@ const Bracket = ({
     // show the bracket when the renderArray is ready
     setShowBracket(true);
   }, [renderArray]);
+
+  // useEffect(() => {
+  //   if (bracketWinner) {
+  //     setConfetti(true);
+  //   } else {
+  //     setConfetti(false);
+  //   }
+  // }, [bracketWinner]);
 
   function modifyBracket(key, attribute, value) {
     let payload = bracket.get(key);
