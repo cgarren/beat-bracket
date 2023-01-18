@@ -1,7 +1,6 @@
 import React from "react";
-import { useEffect, useRef, useState } from "react";
-import PlayIcon from "../assets/svgs/playIcon.svg";
-import PauseIcon from "../assets/svgs/pauseIcon.svg";
+import { useRef } from "react";
+import PlayPauseButton from "./PlayPauseButton";
 
 const SongButton = ({
   styling,
@@ -23,11 +22,8 @@ const SongButton = ({
   color,
   playbackEnabled,
 }) => {
-  const [paused, setPaused] = useState(true);
-  const thebutton = useRef(null);
+  const buttonRef = useRef(null);
   const audioRef = useRef(null);
-
-  const winnerStyle = ""; //"overflow-hidden w-[calc(var(--buttonwidth))] h-[calc(var(--buttonheight))] before:box-border box-border before:content-[''] before:absolute before:left-[-50%] before:top-[calc(-1*var(--buttonwidth)+22px)] before:w-[calc(2*var(--buttonwidth)+6px)] before:h-[calc(2*var(--buttonwidth)+6px)] before:bg-no-repeat before:bg-white before:[background-size:50%_50%,50%_50%] before:[background-position:0_0,100%_0,100%_100%,0_100%] before:[background-image:linear-gradient(black,black),linear-gradient(white,white),linear-gradient(black,black),linear-gradient(white,white)] before:animate-steam before:-z-20 before:rounded-2xl";
 
   // Recursive function to mark all previous instances of a song in a bracket as eliminated
   function eliminatePrevious(thisId) {
@@ -85,71 +81,6 @@ const SongButton = ({
     }
   }
 
-  function playSnippet() {
-    thebutton.current.removeEventListener("mouseenter", playSnippet, true);
-    setCurrentlyPlayingId(id);
-    thebutton.current.addEventListener("mouseleave", pauseSnippet, true);
-  }
-
-  function pauseSnippet() {
-    thebutton.current.removeEventListener("mouseleave", pauseSnippet, true);
-    setCurrentlyPlayingId(null);
-    thebutton.current.addEventListener("mouseenter", playSnippet, true);
-  }
-
-  useEffect(() => {
-    if (playbackEnabled && !disabled) {
-      const songButton = thebutton.current;
-      songButton.addEventListener("mouseenter", playSnippet, true);
-      return () => {
-        if (songButton) {
-          songButton.removeEventListener("mouseenter", playSnippet, true);
-        }
-      };
-    }
-  }, [playbackEnabled, disabled]);
-
-  function playPauseAudio() {
-    if (paused) {
-      setCurrentlyPlayingId(id);
-    } else {
-      setCurrentlyPlayingId(null);
-    }
-  }
-
-  useEffect(() => {
-    audioRef.current.addEventListener("ended", () => {
-      setCurrentlyPlayingId(null);
-    });
-  }, []);
-
-  useEffect(() => {
-    if (currentlyPlayingId !== id) {
-      audioRef.current.pause();
-      setPaused(true);
-    } else {
-      try {
-        audioRef.current.play().catch((error) => {
-          console.log(error.name);
-          if (error.name === "NotAllowedError") {
-            alert(
-              "It looks like you haven't given this site permission to play audio. If you are using Safari, please enable autoplay and try again. If that doesn't work, try using Chrome instead!"
-            );
-          } else {
-            console.log(error);
-          }
-          setCurrentlyPlayingId(null);
-          setPaused(true);
-        });
-        setPaused(false);
-      } catch (error) {
-        console.log(error);
-        setCurrentlyPlayingId(null);
-        setPaused(true);
-      }
-    }
-  }, [currentlyPlayingId]);
-
   return (
     <div
       className={
@@ -175,7 +106,7 @@ const SongButton = ({
       disabled={disabled}
       data-opponentid={opponentId}
       data-nextid={nextId}
-      ref={thebutton}
+      ref={buttonRef}
     >
       <button
         disabled={disabled}
@@ -200,25 +131,18 @@ const SongButton = ({
       >
         {song !== null ? song.name : ""}
       </button>
-      <button
-        onClick={playPauseAudio}
-        className={
-          "rounded-[inherit] bg-green-500 text-white border-0 w-[30%] h-full min-h-[var(--buttonheight)] cursor-[inherit] text-center p-0" +
-          (side ? " rounded-r-[0] " : " rounded-l-[0] ")
-        }
-        style={
-          color
-            ? {
-                backgroundColor: color.getHex(),
-                color: color.getBodyTextColor(),
-                borderColor: color.getHex(),
-              }
-            : {}
-        }
-        hidden={song === null || disabled}
-      >
-        {paused ? <PlayIcon /> : <PauseIcon />}
-      </button>
+      <PlayPauseButton
+        id={id}
+        song={song}
+        side={side}
+        disabled={disabled}
+        currentlyPlayingId={currentlyPlayingId}
+        setCurrentlyPlayingId={setCurrentlyPlayingId}
+        color={color}
+        playbackEnabled={playbackEnabled}
+        buttonRef={buttonRef}
+        audioRef={audioRef}
+      />
       <audio
         src={song !== null && !disabled ? song.preview_url : null}
         volume="1"

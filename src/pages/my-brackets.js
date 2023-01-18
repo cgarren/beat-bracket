@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react"
 import Layout from "../components/Layout";
-import ArtistBracketCard from "../components/ArtistBracketCard";
+import ArtistBracketCard from "../components/BracketCard/ArtistBracketCard";
 import Tab from "../components/Tab";
-import CreateBracketCard from "../components/CreateBracketCard";
+import CreateBracketCard from "../components/BracketCard/CreateBracketCard";
 import Alert from "../components/Alert";
 import { getBrackets, authenticate } from "../utilities/backend";
 import { getUserInfo } from "../utilities/spotify";
@@ -56,6 +56,7 @@ const App = () => {
           // if there's an error, redirect to home page
           if (success === 1) {
             console.log("Error authenticating");
+            setError(true);
             // show notification
             showAlert("Error authenticating", "error", false);
             // redirect to home page
@@ -71,8 +72,9 @@ const App = () => {
           }
         } else {
           console.log("Error getting user info");
+          setError(true);
           // show notification
-          showAlert("Error getting user info", "error", false);
+          showAlert("Error getting user information", "error", false);
           return;
         }
       }
@@ -92,6 +94,7 @@ const App = () => {
           // show notification
           showAlert("Error loading brackets, try logging in again", "error", false);
           setError(true);
+          navigate("/");
         }
       });
     });

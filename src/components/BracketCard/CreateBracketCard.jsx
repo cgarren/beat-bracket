@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import BracketCard from "./BracketCard";
-import createBracketPic from "../assets/images/createBracket.png";
+import createBracketPic from "../../assets/images/createBracket.png";
 import { v4 as uuidv4 } from "uuid";
-import SearchBar from "./SearchBar";
-import { openBracket } from "../utilities/helpers";
+import SearchBar from "../Search/SearchBar";
+import { openBracket } from "../../utilities/helpers";
 
 const CreateBracketCard = ({ userId }) => {
   const [artist, setArtist] = useState(undefined);

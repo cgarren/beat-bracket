@@ -1,8 +1,8 @@
 import { navigate } from "gatsby";
 import React, { useEffect, useState } from "react";
-import guestProfileImage from "../assets/images/guestProfileImage.png";
-import { getUserInfo } from "../utilities/spotify";
-import LoginButton from "./LoginButton";
+import guestProfileImage from "../../assets/images/guestProfileImage.png";
+import { getUserInfo } from "../../utilities/spotify";
+import LoginButton from "../LoginButton";
 
 const ProfileDropdown = ({ loggedIn, noChanges }) => {
   const [showDropdown, setShowDropdown] = useState(false);
