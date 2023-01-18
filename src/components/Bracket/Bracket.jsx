@@ -1,16 +1,10 @@
-// Library to get prominent colors from images (for coloring bracket spaces according to album art)
-import Vibrant from "node-vibrant";
-
 import React, { useEffect, useState, useCallback } from "react";
-
 import SongButton from "./SongButton";
-
 import useWindowSize from "react-use/lib/useWindowSize";
-
 import {
-  nearestGreaterPowerOf2,
-  nearestLesserPowerOf2,
-} from "../../utilities/helpers";
+  getNumberOfColumns,
+  fillBracket,
+} from "../../utilities/bracketGeneration";
 
 const styles = [
   "mt-[var(--firstColumnSpacing)]",
@@ -97,7 +91,10 @@ const Bracket = ({
       // reset the undo chain
       console.log("kicking off");
       setShowBracket(false);
-      await fillBracket(tracks);
+      const cols = getNumberOfColumns(tracks.length);
+      const temp = await fillBracket(tracks, cols);
+      setBracket(temp);
+      setColumns(cols);
     }
     if (Array.isArray(tracks)) {
       if (!tracks.includes(null)) {
@@ -196,14 +193,6 @@ const Bracket = ({
     setShowBracket(true);
   }, [renderArray]);
 
-  // useEffect(() => {
-  //   if (bracketWinner) {
-  //     setConfetti(true);
-  //   } else {
-  //     setConfetti(false);
-  //   }
-  // }, [bracketWinner]);
-
   function modifyBracket(key, attribute, value) {
     let payload = bracket.get(key);
     payload[attribute] = value;
@@ -212,97 +201,6 @@ const Bracket = ({
 
   function getBracket(key) {
     return bracket.get(key);
-  }
-
-  async function relateSongs(len, theTracks, col, side, otherSide) {
-    let colMap = new Map();
-    for (let i = 0; i < len; i++) {
-      colMap.set(side + col + i, {
-        song: theTracks ? (theTracks[i] ? theTracks[i] : null) : null,
-        opponentId:
-          len <= 1
-            ? otherSide + col + 0
-            : side + col + (i % 2 === 0 ? i + 1 : i - 1),
-        nextId: len <= 1 ? null : side + (col + 1) + Math.floor(i / 2),
-        previousIds:
-          col === 0
-            ? []
-            : [
-                side + (col - 1) + Math.ceil(i * 2),
-                side + (col - 1) + (Math.ceil(i * 2) + 1),
-              ],
-        id: side + col + i,
-        col: col,
-        side: side,
-        index: i,
-        disabled: col === 0 && theTracks[i] ? false : true,
-        winner: false,
-        eliminated: false,
-        color: theTracks
-          ? theTracks[i]
-            ? (await Vibrant.from(theTracks[i].art).getPalette()).Vibrant
-            : null
-          : null,
-      });
-    }
-    return colMap;
-  }
-
-  async function fillBracket() {
-    const cols = getNumberOfColumns(tracks.length);
-    let i = 0;
-    let forward = true;
-    let repeated = false;
-    let temp = new Map();
-
-    while (i >= 0) {
-      const len = nearestGreaterPowerOf2(tracks.length) / 2 ** (i + 1) / 2;
-      let theTracks = new Array(len);
-      if (i >= cols - 1) {
-        if (!repeated) {
-          repeated = true;
-          temp = new Map([
-            ...(await relateSongs(len, theTracks, i, "l", "r")),
-            ...temp,
-          ]);
-          forward = false;
-          continue;
-        }
-      }
-
-      if (i === 0) {
-        if (forward) {
-          theTracks = tracks.slice(0, Math.ceil(tracks.length / 2));
-          //console.log(theTracks);
-        } else {
-          theTracks = tracks.slice(-Math.floor(tracks.length / 2));
-          //console.log(theTracks);
-        }
-      }
-
-      if (forward) {
-        temp = new Map([
-          ...(await relateSongs(len, theTracks, i, "l", "r")),
-          ...temp,
-        ]);
-        i++;
-      } else {
-        temp = new Map([
-          ...(await relateSongs(len, theTracks, i, "r", "l")),
-          ...temp,
-        ]);
-        i--;
-      }
-    }
-    setBracket(temp);
-    setColumns(cols);
-  }
-
-  function getNumberOfColumns(numItems) {
-    let cols = Math.ceil(
-      Math.log(nearestLesserPowerOf2(numItems)) / Math.log(2)
-    );
-    return cols;
   }
 
   return (
