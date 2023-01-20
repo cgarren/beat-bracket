@@ -91,6 +91,7 @@ const Bracket = ({
       // reset the undo chain
       console.log("kicking off");
       setShowBracket(false);
+      setCurrentlyPlayingId(null);
       const cols = getNumberOfColumns(tracks.length);
       const temp = await fillBracket(tracks, cols);
       setBracket(temp);
