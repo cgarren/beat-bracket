@@ -10,7 +10,7 @@ const PlayPauseButton = ({
   disabled,
   currentlyPlayingId,
   setCurrentlyPlayingId,
-  color,
+  colorStyle,
   playbackEnabled,
   buttonRef,
   audioRef,
@@ -89,15 +89,7 @@ const PlayPauseButton = ({
         "rounded-[inherit] bg-green-500 text-white border-0 w-[30%] h-full min-h-[var(--buttonheight)] cursor-[inherit] text-center p-0" +
         (side ? " rounded-r-[0] " : " rounded-l-[0] ")
       }
-      style={
-        color
-          ? {
-              backgroundColor: color.getHex(),
-              color: color.getBodyTextColor(),
-              borderColor: color.getHex(),
-            }
-          : {}
-      }
+      style={song ? colorStyle : {}}
       hidden={song === null || disabled}
     >
       {paused ? <PlayIcon /> : <PauseIcon />}

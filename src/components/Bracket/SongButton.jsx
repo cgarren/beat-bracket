@@ -1,6 +1,7 @@
-import React from "react";
-import { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import PlayPauseButton from "./PlayPauseButton";
+
+import Vibrant from "node-vibrant";
 
 const SongButton = ({
   styling,
@@ -24,6 +25,11 @@ const SongButton = ({
 }) => {
   const buttonRef = useRef(null);
   const audioRef = useRef(null);
+  const [colorStyle, setColorStyle] = useState({
+    backgroundColor: "#fff",
+    color: "#000",
+    borderColor: "#fff",
+  });
 
   // Recursive function to mark all previous instances of a song in a bracket as eliminated
   function eliminatePrevious(thisId) {
@@ -46,6 +52,26 @@ const SongButton = ({
       saveCommand(makeChoice, undoChoice);
     }
   }
+
+  useEffect(() => {
+    if (color) {
+      if (color.backgroundColor && color.textColor) {
+        setColorStyle({
+          backgroundColor: color.backgroundColor,
+          color: color.textColor,
+          borderColor: color.backgroundColor,
+        });
+      } else {
+        // provide support for legacy brackets using old color system
+        const tempColor = new Vibrant.Swatch(color.rgb, color.population);
+        setColorStyle({
+          backgroundColor: tempColor.getHex(),
+          color: tempColor.getBodyTextColor(),
+          borderColor: tempColor.getHex(),
+        });
+      }
+    }
+  }, [color]);
 
   function makeChoice() {
     modifyBracket(id, "disabled", true);
@@ -93,15 +119,7 @@ const SongButton = ({
         (eliminated ? " opacity-50 " : " ") +
         styling
       }
-      style={
-        color
-          ? {
-              backgroundColor: color.getHex(),
-              color: color.getBodyTextColor(),
-              borderColor: color.getHex(),
-            }
-          : {}
-      }
+      style={song ? colorStyle : {}}
       id={id}
       disabled={disabled}
       data-opponentid={opponentId}
@@ -112,15 +130,7 @@ const SongButton = ({
         disabled={disabled}
         onClick={songChosen}
         hidden={false}
-        style={
-          color
-            ? {
-                backgroundColor: color.getHex(),
-                color: color.getBodyTextColor(),
-                borderColor: color.getHex(),
-              }
-            : {}
-        }
+        style={song ? colorStyle : {}}
         className={
           "rounded-[inherit] disabled:rounded-[inherit] bg-white text-black border-0 leading-[1.15em] p-0 text-center overflow-hidden break-words disabled:px-[6px] h-full min-h-[var(--buttonheight)] disabled:w-full " +
           (winner ? " opacity-100 active:opacity-100" : " w-[70%]") +
@@ -138,7 +148,7 @@ const SongButton = ({
         disabled={disabled}
         currentlyPlayingId={currentlyPlayingId}
         setCurrentlyPlayingId={setCurrentlyPlayingId}
-        color={color}
+        colorStyle={colorStyle}
         playbackEnabled={playbackEnabled}
         buttonRef={buttonRef}
         audioRef={audioRef}

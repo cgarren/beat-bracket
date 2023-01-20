@@ -61,11 +61,6 @@ const App = ({ params, location }) => {
             }
             let mymap = new Map(Object.entries(loadedBracket.bracketData));
             mymap = new Map([...mymap].sort(bracketSorter));
-            mymap.forEach((value, key) => {
-              if (value.color) {
-                value.color = new Vibrant.Swatch(value.color.rgb, value.color.population);
-              }
-            });
             setBracket(mymap);
             setArtist({ name: loadedBracket.artistName, id: loadedBracket.artistId });
             setSeedingMethod(loadedBracket.seeding);
