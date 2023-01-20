@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react"
 import { navigate } from "gatsby";
-import Vibrant from "node-vibrant";
 import Mousetrap from "mousetrap";
 import Confetti from "react-confetti";
 import useWindowSize from 'react-use/lib/useWindowSize'
@@ -8,13 +7,17 @@ import Bracket from "../../../../components/Bracket/Bracket"
 import Layout from "../../../../components/Layout";
 import LoadingIndicator from "../../../../components/LoadingIndicator";
 import Alert from "../../../../components/Alert";
+import BracketOptions from "../../../../components/Bracket/BracketOptions";
+import BracketWinnerInfo from "../../../../components/Bracket/BracketWinnerInfo";
+import ActionButton from "../../../../components/Bracket/ActionButton";
 import GeneratePlaylistButton from "../../../../components/GeneratePlaylistButton";
 import { writeBracket, getBracket } from "../../../../utilities/backend";
 import { seedBracket, loadAlbums, processTracks } from "../../../../utilities/songProcessing";
 import { bracketSorter, nearestLesserPowerOf2, popularitySort } from "../../../../utilities/helpers";
 import { getUserInfo, isCurrentUser } from "../../../../utilities/spotify";
-import BracketOptions from "../../../../components/Bracket/BracketOptions";
-import BracketWinnerInfo from "../../../../components/Bracket/BracketWinnerInfo";
+import UndoIcon from "../../../../assets/svgs/undoIcon.svg";
+import SaveIcon from "../../../../assets/svgs/saveIcon.svg";
+import ShareIcon from "../../../../assets/svgs/shareIcon.svg";
 
 const App = ({ params, location }) => {
   const bracketId = params.id;
@@ -186,6 +189,7 @@ const App = ({ params, location }) => {
         setSaveButtonDisabled(true);
       } else {
         showAlert("Error saving bracket", "error");
+        setSaveButtonDisabled(false);
       }
     }
 
@@ -369,30 +373,35 @@ const App = ({ params, location }) => {
       </div>
       <hr />
       <LoadingIndicator hidden={showBracket} loadingText={loadingText} />
-      <div hidden={!showBracket || !artist.name}>
-        <div className="items-center text-xs -space-x-px rounded-md sticky left-1/2 -translate-x-1/2 top-0 w-fit z-30">
-          {editable && !bracketComplete ? <div>
+      <div hidden={!showBracket || !artist.name} className="text-center">
+        <div className="text-xs -space-x-px rounded-md sticky mx-auto top-0 w-fit z-30">
+          <div className="flex items-center">
             {/* <GeneratePlaylistButton tracks={tracks} artist={artist} /> */}
-            <button
-              onClick={undo}
-              disabled={commands.length === 0}
-              className="border-l-gray-200 hover:disabled:border-x-gray-200"
-            >
-              Undo
-            </button>
-            <button onClick={saveBracket} disabled={saveButtonDisabled} className="border-l-gray-200 hover:disabled:border-l-gray-200">{saveButtonDisabled ? "Saved" : "Save"}</button>
+            {editable && !bracketComplete ?
+              (<ActionButton
+                onClick={undo}
+                disabled={commands.length === 0}
+                icon={<UndoIcon />}
+                text="Undo"
+              />)
+              : null}
+            {editable && !bracketComplete ?
+              (<ActionButton
+                onClick={saveBracket}
+                disabled={saveButtonDisabled}
+                icon={<SaveIcon />}
+                text={saveButtonDisabled ? "Saved" : "Save"} />)
+              : null}
+            <ActionButton onClick={share} icon={<ShareIcon />} text="Share" />
+            {/* future button to let users duplicate the bracket to their account */}
+            {!editable && user.name && artist.name && false
+              ? <button onClick={duplicateBracket} className="border-l-gray-200 hover:disabled:border-l-gray-200">Fill out this bracket</button>
+              : null}
           </div>
-            : null}
-          <button onClick={share} className="border-l-gray-200 hover:disabled:border-l-gray-200">
-            Share
-          </button>
-          {!editable && user.name && artist.name && false
-            ? <button onClick={duplicateBracket} className="border-l-gray-200 hover:disabled:border-l-gray-200">Fill out this bracket</button>
-            : null}
         </div>
         <Bracket bracket={bracket} setBracket={setBracket} tracks={tracks} setShowBracket={setShowBracket} showBracket={showBracket} saveCommand={saveCommand} playbackEnabled={playbackEnabled} setBracketWinner={setBracketWinner} editable={editable} />
       </div>
-    </Layout>
+    </Layout >
   )
 }
 
