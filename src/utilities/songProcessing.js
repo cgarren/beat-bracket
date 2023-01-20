@@ -137,12 +137,12 @@ async function loadTracks(url, songs) {
 
 async function loadAlbums(url, songs = {}) {
 	let response = await loadSpotifyRequest(url);
-	//console.log(response);
 	if (response !== 1) {
 		if (response.items.length > 0) {
 			let albumIds = [];
 			response.items.forEach((item) => {
 				albumIds.push(item.id);
+				console.log(item.name);
 			});
 			let tracksurl =
 				"https://api.spotify.com/v1/albums?ids=" + albumIds.join();
