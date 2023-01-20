@@ -41,7 +41,7 @@ const Alert = ({ show, close, message, type }) => {
   };
 
   return (
-    <div className="sticky left-[100%] top-0 h-0 w-fit z-30" role="alert">
+    <div className="fixed right-0 top-[38px] h-0 w-fit z-30" role="alert">
       <div
         className={
           "w-fit h-fit rounded-lg text-sm p-4 " +
