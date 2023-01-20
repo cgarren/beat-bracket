@@ -219,7 +219,7 @@ const App = ({ params, location }) => {
   }
 
   function noChanges(naviagteAway) {
-    if ((naviagteAway && commands.length !== lastSaved.commandsLength && !bracketComplete) || (!naviagteAway && commands.length !== 0 && !bracketComplete)) {
+    if ((naviagteAway && !saveButtonDisabled) || (!naviagteAway && commands.length !== 0 && !bracketComplete)) {
       if (
         window.confirm(
           "You have bracket changes that will be lost! Proceed anyways?"
