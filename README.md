@@ -9,7 +9,8 @@
 - **Social Feature: Let people vote on tracks to make a communal bracket when they aren't at the same computer (bracket permissions required). Also maybe have like 24 hours for the first rounds, another day for the second round etc... Basically let people make a bracket together. If this is implemented correctly, it should basically let all of sigep vote on songs and make a bracket together. You could even do global brackets with millions of votes**
 - **Add stats like “10 people also ranked xxx song first" or percentage of people maybe. Show artist stats when the user finishes a bracket**
 - **Let people reseed brackets by drag and drop**
-- Let people fill out a bracket that someone else made
+- Addd start over button with prompt
+- Let people fill out a bracket that someone else made (clone bracket button)
 - Make this page better/shift todos to another tracking system or file
 - Make cgarren.github.io slightly more attractive
 - Make a toggle for songs exclusively by the artist vs songs the artist is featured on
