@@ -37,7 +37,7 @@ const BracketCard = ({
           )}
         </div>
         {children}
-        <div className="">{cardText}</div>
+        <div className="w-[320px]">{cardText}</div>
       </button>
     </div>
   );
