@@ -42,6 +42,8 @@ const App = ({ params, location }) => {
   const [confetti, setConfetti] = useState(true);
   const { width, height } = useWindowSize()
 
+  //Save, Undo, Bracket content, Bracket Options (maybe with edit mode), User, Confetti, Playback
+
   //INITIALIZE BRACKET
 
   useEffect(() => {
