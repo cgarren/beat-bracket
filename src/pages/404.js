@@ -17,6 +17,6 @@ export default NotFoundPage
 
 export function Head() {
   return (
-    <title>Page not found</title>
+    <title>Beat Bracket - Page not found</title>
   )
 }

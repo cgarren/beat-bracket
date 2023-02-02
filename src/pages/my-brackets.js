@@ -149,6 +149,6 @@ export default App
 
 export function Head() {
   return (
-    <title>Beat Bracket</title>
+    <title>Beat Bracket - My Brackets</title>
   )
 }

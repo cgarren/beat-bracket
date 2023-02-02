@@ -408,3 +408,9 @@ const App = ({ params, location }) => {
 }
 
 export default App
+
+export function Head() {
+  return (
+    <title>Beat Bracket - View Bracket</title>
+  )
+}
