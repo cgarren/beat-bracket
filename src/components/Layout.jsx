@@ -25,6 +25,17 @@ const Layout = ({ children, noChanges }) => {
 
   return (
     <div className="text-center clear-both">
+      <script async src="//static.getclicky.com/101396268.js"></script>
+      <noscript>
+        <p>
+          <img
+            alt="Clicky"
+            width="1"
+            height="1"
+            src="//in.getclicky.com/101396268ns.gif"
+          />
+        </p>
+      </noscript>
       <main className="font-sans text-black bg-zinc-300 relative text-center min-h-screen pb-[24px]">
         {/* <div className="fixed w-full h-full top-0 left-0 bg-repeat bg-scroll bg-slate-900 bg-colosseum bg-blend-screen bg-cover opacity-40 -z-10"></div> */}
         <NavBar loggedIn={loggedIn} noChanges={noChanges} />
