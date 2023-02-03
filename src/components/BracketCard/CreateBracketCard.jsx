@@ -6,31 +6,26 @@ import SearchBar from "../Search/SearchBar";
 import { openBracket } from "../../utilities/helpers";
 
 const CreateBracketCard = ({ userId }) => {
-  const [artist, setArtist] = useState(undefined);
   const [showSearchBar, setShowSearchBar] = useState(false);
-  function createNewBracket() {
-    setShowSearchBar(true);
-  }
 
-  useEffect(() => {
+  function handleArtistChange(artist) {
     if (artist) {
       // Generate unique id for new bracket
       const uuid = uuidv4();
       console.log("Create New Bracket with id: " + uuid);
       openBracket(uuid, userId, { artist: artist });
     }
-  }, [artist]);
+  }
 
   return (
     <div>
       <BracketCard
         image={createBracketPic}
         cardText={"Create Bracket"}
-        onClick={createNewBracket}
+        onClick={() => {
+          setShowSearchBar(true);
+        }}
       ></BracketCard>
-      {/* <div className="absolute top-0 left-0">
-        <SearchBar setArtist={setArtist} />
-      </div> */}
       {showSearchBar ? (
         <div
           tabIndex="-1"
@@ -58,7 +53,7 @@ const CreateBracketCard = ({ userId }) => {
                 <span className="sr-only">Close modal</span>
               </button>
               <div className="p-6 text-center">
-                <SearchBar setArtist={setArtist} />
+                <SearchBar setArtist={handleArtistChange} />
               </div>
             </div>
           </div>
