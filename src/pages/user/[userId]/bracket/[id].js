@@ -1,8 +1,11 @@
+// React
 import React, { useEffect, useState } from "react"
 import { navigate } from "gatsby";
+// Third Party
 import Mousetrap from "mousetrap";
 import Confetti from "react-confetti";
 import useWindowSize from 'react-use/lib/useWindowSize'
+// Components
 import Bracket from "../../../../components/Bracket/Bracket"
 import Layout from "../../../../components/Layout";
 import LoadingIndicator from "../../../../components/LoadingIndicator";
@@ -11,13 +14,16 @@ import BracketOptions from "../../../../components/Bracket/BracketOptions";
 import BracketWinnerInfo from "../../../../components/Bracket/BracketWinnerInfo";
 import ActionButton from "../../../../components/Bracket/ActionButton";
 import GeneratePlaylistButton from "../../../../components/GeneratePlaylistButton";
+// Utilities
 import { writeBracket, getBracket } from "../../../../utilities/backend";
 import { seedBracket, loadAlbums, processTracks } from "../../../../utilities/songProcessing";
 import { bracketSorter, nearestLesserPowerOf2, popularitySort } from "../../../../utilities/helpers";
 import { getUserInfo, isCurrentUser } from "../../../../utilities/spotify";
+// Assets
 import UndoIcon from "../../../../assets/svgs/undoIcon.svg";
 import SaveIcon from "../../../../assets/svgs/saveIcon.svg";
 import ShareIcon from "../../../../assets/svgs/shareIcon.svg";
+import RocketIcon from "../../../../assets/svgs/rocketIcon.svg";
 
 const App = ({ params, location }) => {
   const bracketId = params.id;
@@ -25,6 +31,7 @@ const App = ({ params, location }) => {
   const [saveButtonDisabled, setSaveButtonDisabled] = useState(true);
   const [readyToChange, setReadyToChange] = useState(false);
   const [editable, setEditable] = useState(false);
+  const [editMode, setEditMode] = useState(true);
   const [user, setUser] = useState({ "name": undefined, "id": params.userId });
   const [tracks, setTracks] = useState(null);
   const [artist, setArtist] = useState({ "name": undefined, "id": undefined });
@@ -122,6 +129,12 @@ const App = ({ params, location }) => {
       clearTimeout(alertInfo.timeoutId);
     }
     setAlertInfo({ show: false, message: null, type: null, timeoutId: null });
+  }
+
+  // EDIT MODE
+
+  function toggleEditMode() {
+    setEditMode(!editMode);
   }
 
   // SHARE
@@ -360,16 +373,6 @@ const App = ({ params, location }) => {
       <Alert show={alertInfo.show} close={closeAlert} message={alertInfo.message} type={alertInfo.type} />
       <div className="text-center">
         {user.name && artist.name ? <div className="font-bold mb-2 text-xl">{artist.name} bracket by {user.name} {tracks ? "(" + tracks.length + " tracks)" : null}</div> : (bracket ? <div>Finding bracket...</div> : <div className="font-bold mb-2">Bracket not found</div>)}
-        {editable && !bracketComplete ?
-          <BracketOptions
-            limitChange={limitChange}
-            showBracket={showBracket}
-            limit={limit}
-            seedingChange={seedingChange}
-            seedingMethod={seedingMethod}
-            playbackChange={playbackChange}
-            playbackEnabled={playbackEnabled} />
-          : null}
         {bracketComplete && bracketWinner
           ? <BracketWinnerInfo bracketWinner={bracketWinner} /> : null}
       </div>
@@ -379,29 +382,49 @@ const App = ({ params, location }) => {
         <div className="text-xs -space-x-px rounded-md sticky mx-auto top-0 w-fit z-30">
           <div className="flex items-center">
             {/* <GeneratePlaylistButton tracks={tracks} artist={artist} /> */}
-            {editable && !bracketComplete ?
-              (<ActionButton
-                onClick={undo}
-                disabled={commands.length === 0}
-                icon={<UndoIcon />}
-                text="Undo"
-              />)
+            {editable && !bracketComplete && !editMode ?
+              <>
+                <ActionButton
+                  onClick={undo}
+                  disabled={commands.length === 0}
+                  icon={<UndoIcon />}
+                  text="Undo"
+                />
+                <ActionButton
+                  onClick={saveBracket}
+                  disabled={saveButtonDisabled}
+                  icon={<SaveIcon />}
+                  text={saveButtonDisabled ? "Saved" : "Save"}
+                />
+              </>
               : null}
-            {editable && !bracketComplete ?
-              (<ActionButton
-                onClick={saveBracket}
-                disabled={saveButtonDisabled}
-                icon={<SaveIcon />}
-                text={saveButtonDisabled ? "Saved" : "Save"} />)
+            {!editMode ? <ActionButton onClick={share} icon={<ShareIcon />} text="Share" /> : null}
+            {editable && !bracketComplete && editMode ?
+              <>
+                <BracketOptions
+                  limitChange={limitChange}
+                  showBracket={showBracket}
+                  limit={limit}
+                  seedingChange={seedingChange}
+                  seedingMethod={seedingMethod}
+                  playbackChange={playbackChange}
+                  playbackEnabled={playbackEnabled}
+                />
+                <ActionButton
+                  onClick={toggleEditMode}
+                  disabled={false}
+                  icon={<RocketIcon />}
+                  text={"Start Bracket"}
+                />
+              </>
               : null}
-            <ActionButton onClick={share} icon={<ShareIcon />} text="Share" />
             {/* future button to let users duplicate the bracket to their account */}
             {!editable && user.name && artist.name && false
               ? <button onClick={duplicateBracket} className="border-l-gray-200 hover:disabled:border-l-gray-200">Fill out this bracket</button>
               : null}
           </div>
         </div>
-        <Bracket bracket={bracket} setBracket={setBracket} tracks={tracks} setShowBracket={setShowBracket} showBracket={showBracket} saveCommand={saveCommand} playbackEnabled={playbackEnabled} setBracketWinner={setBracketWinner} editable={editable} />
+        <Bracket bracket={bracket} setBracket={setBracket} tracks={tracks} setShowBracket={setShowBracket} showBracket={showBracket} saveCommand={saveCommand} playbackEnabled={playbackEnabled} setBracketWinner={setBracketWinner} editable={editable} editMode={editMode} />
       </div>
     </Layout >
   )
