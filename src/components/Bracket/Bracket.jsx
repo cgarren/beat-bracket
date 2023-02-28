@@ -55,8 +55,9 @@ const Bracket = ({
   bracket,
   setBracket,
   editable,
+  editMode,
 }) => {
-  const [columns, setColumns] = useState(0);
+  const columns = Array.isArray(tracks) ? getNumberOfColumns(tracks.length) : 0;
   const [renderArray, setRenderArray] = useState([]);
   const [currentlyPlayingId, setCurrentlyPlayingId] = useState(null);
   const [centerBracket, setCenterBracket] = useState(false);
@@ -92,10 +93,8 @@ const Bracket = ({
       console.log("kicking off");
       setShowBracket(false);
       setCurrentlyPlayingId(null);
-      const cols = getNumberOfColumns(tracks.length);
-      const temp = await fillBracket(tracks, cols);
+      const temp = await fillBracket(tracks, columns);
       setBracket(temp);
-      setColumns(cols);
     }
     if (Array.isArray(tracks)) {
       if (!tracks.includes(null)) {
@@ -105,15 +104,13 @@ const Bracket = ({
         } else {
           setRenderArray([]);
         }
-      } else {
-        setColumns(getNumberOfColumns(tracks.length));
       }
     }
   }, [tracks]);
 
   useEffect(() => {
     regenerateRenderArray();
-  }, [columns]);
+  }, [columns, editMode]);
 
   function generateComponentArray(side) {
     return Array.apply(null, { length: columns }).map((e, i) => (
@@ -126,6 +123,7 @@ const Bracket = ({
             return (
               <div key={mykey}>
                 <SongButton
+                  editMode={editMode}
                   playbackEnabled={playbackEnabled}
                   modifyBracket={modifyBracket}
                   saveCommand={saveCommand}
@@ -208,7 +206,7 @@ const Bracket = ({
     <div hidden={!showBracket || renderArray.length === 0}>
       <div
         className={
-          "overflow-x-scroll flex" +
+          "overflow-x-scroll flex" + //border-4 border-blue-600
           (centerBracket ? " justify-center" : " justify-start")
         }
       >

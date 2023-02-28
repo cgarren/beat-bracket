@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef } from "react";
 import PlayPauseButton from "./PlayPauseButton";
 
 import Vibrant from "node-vibrant";
@@ -22,14 +22,37 @@ const SongButton = ({
   setBracketWinner,
   color,
   playbackEnabled,
+  editMode,
 }) => {
   const buttonRef = useRef(null);
   const audioRef = useRef(null);
-  const [colorStyle, setColorStyle] = useState({
-    backgroundColor: "#fff",
-    color: "#000",
-    borderColor: "#fff",
-  });
+  const colorStyle = getColorStyle(color);
+
+  function getColorStyle(color) {
+    if (color) {
+      if (color.backgroundColor && color.textColor) {
+        return {
+          backgroundColor: color.backgroundColor,
+          color: color.textColor,
+          borderColor: color.backgroundColor,
+        };
+      } else {
+        // provide support for legacy brackets using old color system
+        const tempColor = new Vibrant.Swatch(color.rgb, color.population);
+        return {
+          backgroundColor: tempColor.getHex(),
+          color: tempColor.getBodyTextColor(),
+          borderColor: tempColor.getHex(),
+        };
+      }
+    } else {
+      return {
+        backgroundColor: "#fff",
+        color: "#000",
+        borderColor: "#fff",
+      };
+    }
+  }
 
   // Recursive function to mark all previous instances of a song in a bracket as eliminated
   function eliminatePrevious(thisId) {
@@ -52,26 +75,6 @@ const SongButton = ({
       saveCommand(makeChoice, undoChoice);
     }
   }
-
-  useEffect(() => {
-    if (color) {
-      if (color.backgroundColor && color.textColor) {
-        setColorStyle({
-          backgroundColor: color.backgroundColor,
-          color: color.textColor,
-          borderColor: color.backgroundColor,
-        });
-      } else {
-        // provide support for legacy brackets using old color system
-        const tempColor = new Vibrant.Swatch(color.rgb, color.population);
-        setColorStyle({
-          backgroundColor: tempColor.getHex(),
-          color: tempColor.getBodyTextColor(),
-          borderColor: tempColor.getHex(),
-        });
-      }
-    }
-  }, [color]);
 
   function makeChoice() {
     modifyBracket(id, "disabled", true);
@@ -107,12 +110,71 @@ const SongButton = ({
     }
   }
 
+  // Darg and drop functionality
+
+  function handleDragStart(event) {
+    // This method runs when the dragging starts
+    console.log("Started", event);
+    event.dataTransfer.clearData();
+    // Set the drag's format and data.
+    // Use the event target's id for the data
+    event.dataTransfer.setData("text/plain", id);
+    // event.dataTransfer.effectAllowed = "move";
+    // event.target.style.cursor = "move";
+  }
+
+  function handleDrag(event) {
+    // This method runs when the component is being dragged
+    //console.log("Dragging...", event);
+  }
+
+  function handleDragEnd(event) {
+    //console.log(event.dataTransfer.getData("text"));
+    // This method runs when the dragging stops
+    //console.log("Ended", event);
+  }
+
+  function handleDragEnter(event) {
+    //console.log("Entered", event);
+    //event.target.style.backgroundColor = "orange";
+    event.dataTransfer.dropEffect = "move";
+    return false;
+  }
+
+  function handleDragExit(event) {
+    //console.log("Exited", event);
+    //event.target.style.backgroundColor = colorStyle.backgroundColor;
+    return false;
+  }
+
+  function handleDragOver(event) {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+    return false;
+  }
+
+  function handleDrop(event) {
+    event.preventDefault();
+    // Get the id of the target and add the moved element to the target's DOM
+    const switchId = event.dataTransfer.getData("text/plain");
+    console.log("drop", switchId);
+    // switch the songs
+    let tempSong = getBracket(switchId).song;
+    modifyBracket(switchId, "song", song);
+    modifyBracket(id, "song", tempSong);
+    // switch the colors
+    let tempColor = getBracket(switchId).color;
+    modifyBracket(switchId, "color", color);
+    modifyBracket(id, "color", tempColor);
+  }
+
   return (
     <div
       className={
         "z-0 flex rounded-2xl shadow-md cursor-pointer w-[var(--buttonwidth)] min-w-[var(--buttonwidth)] h-[var(--buttonheight)] min-h-[var(--buttonheight) disabled:cursor-default disabled:shadow-none disabled:w-[var(--buttonwidth)] relative hover:h-auto " +
+        (editMode ? " cursor-move " : " ") +
         (song == null
-          ? " bg-white text-black shadow-md border-0 border-gray-400"
+          ? " bg-white text-black shadow-md border-0 border-gray-400 cursor-default"
           : " ") +
         (winner ? " opacity-100 " : " ") +
         (side ? " flex-row-reverse " : "") +
@@ -125,17 +187,33 @@ const SongButton = ({
       data-opponentid={opponentId}
       data-nextid={nextId}
       ref={buttonRef}
+      draggable={editMode}
+      onDragStart={handleDragStart}
+      onDrag={handleDrag}
+      onDragEnd={handleDragEnd}
+      onDrop={song ? handleDrop : null}
+      onDragOver={song ? handleDragOver : null}
+      onDragEnter={song ? handleDragEnter : null}
+      onDragExit={song ? handleDragExit : null}
     >
       <button
         disabled={disabled}
-        onClick={songChosen}
+        onClick={editMode ? null : songChosen}
         hidden={false}
         style={song ? colorStyle : {}}
         className={
-          "rounded-[inherit] disabled:rounded-[inherit] bg-white text-black border-0 leading-[1.15em] p-0 text-center overflow-hidden break-words disabled:px-[6px] h-full min-h-[var(--buttonheight)] disabled:w-full " +
-          (winner ? " opacity-100 active:opacity-100" : " w-[70%]") +
+          "rounded-[inherit] cursor-[inherit] disabled:rounded-[inherit] bg-white text-black border-0 leading-[1.15em] p-0 text-center overflow-hidden break-words disabled:px-[6px] h-full min-h-[var(--buttonheight)] disabled:w-full " +
+          (winner
+            ? " opacity-100 active:opacity-100 "
+            : editMode
+            ? " w-full "
+            : " w-[70%] ") +
           (song == null ? " w-full bg-transparent text-black " : "") +
-          (side ? " pr-[6px] rounded-l-[0] " : " pl-[6px] rounded-r-[0]") +
+          (editMode
+            ? " rounded-[inherit]"
+            : side
+            ? " pr-[6px] rounded-l-[0] "
+            : " pl-[6px] rounded-r-[0]") +
           (eliminated ? " " : "")
         }
       >
@@ -152,6 +230,7 @@ const SongButton = ({
         playbackEnabled={playbackEnabled}
         buttonRef={buttonRef}
         audioRef={audioRef}
+        editMode={editMode}
       />
       <audio
         src={song !== null && !disabled ? song.preview_url : null}

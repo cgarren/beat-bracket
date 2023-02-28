@@ -44,7 +44,7 @@ const BracketOptions = ({
             <option value="popularity">Popularity</option>
           </select>
         </div>
-        <div className={""}>
+        {/* <div className={""}>
           <label htmlFor="playback-select">Hover preview (beta): </label>
           <input
             type="checkbox"
@@ -54,7 +54,7 @@ const BracketOptions = ({
             disabled={!showBracket}
             name="playback-select"
           ></input>
-        </div>
+        </div> */}
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useMemo } from "react"
 import Layout from "../components/Layout";
 import ArtistBracketCard from "../components/BracketCard/ArtistBracketCard";
 import Tab from "../components/Tab";
@@ -11,23 +11,22 @@ import { getParamsFromURL } from "../utilities/helpers";
 
 // markup
 const App = () => {
+  const maxBrackets = 10;
   const [brackets, setBrackets] = useState([
     { id: 1, userId: undefined, artistName: undefined, artistId: undefined, tracks: undefined, completed: false },
   ]);
-  const [shownBrackets, setShownBrackets] = useState(brackets);
   const [activeTab, setActiveTab] = useState(0);
   const [currentUserId, setCurrentUserId] = useState(undefined);
   const [alertInfo, setAlertInfo] = useState({ show: false, message: null, type: null, timeoutId: null });
   const [error, setError] = useState(false);
-  const maxBrackets = 10;
-
-  useEffect(() => {
-    setShownBrackets(brackets.filter((bracket) => {
+  const shownBrackets = useMemo(() => {
+    console.log(brackets);
+    return brackets.filter((bracket) => {
       if (activeTab === 0) return true;
       if (activeTab === 1) return !bracket.completed;
       if (activeTab === 2) return bracket.completed;
       return true;
-    }));
+    })
   }, [activeTab, brackets]);
 
   async function processLogin() {
@@ -88,7 +87,6 @@ const App = () => {
         if (loadedBrackets !== 1) {
           console.log(loadedBrackets);
           setBrackets(loadedBrackets);
-          setShownBrackets(loadedBrackets);
         } else {
           console.log("Error loading brackets");
           // show notification
