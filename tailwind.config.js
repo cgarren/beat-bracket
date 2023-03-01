@@ -36,9 +36,14 @@ module.exports = {
             transform: 'rotate(1turn)'
           }
         },
+        wiggle: {
+          '0%, 100%': { transform: 'rotate(-2deg)' },
+          '50%': { transform: 'rotate(2deg)' },
+        }
       },
       animation: {
-        steam: 'rotate 6s linear infinite',
+        rotate: 'rotate 6s linear infinite',
+        wiggle: 'wiggle .5s ease-in-out infinite',
       }
     },
   },
