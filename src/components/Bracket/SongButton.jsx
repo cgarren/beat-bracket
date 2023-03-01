@@ -122,7 +122,6 @@ const SongButton = ({
     event.dataTransfer.setData("application/plain", id);
     //event.dataTransfer.effectAllowed = "move";
     //event.target.style.backgroundColor = "blue";
-    //event.target.style.cursor = "move";
   }
 
   function handleDrag(event) {
@@ -135,24 +134,12 @@ const SongButton = ({
     // This method runs when the dragging stops
     //console.log("Ended", event);
     //event.target.style.backgroundColor = "";
-    //event.target.style.cursor = "";
     setDragging(false);
   }
 
-  // function handleDragEnter(event) {
-  //   event.target.style.backgroundColor = "orange";
-  //   //event.dataTransfer.dropEffect = "move";
-  //   return false;
-  // }
-
-  // function handleDragLeave(event) {
-  //   event.target.style.backgroundColor = colorStyle.backgroundColor;
-  //   return false;
-  // }
-
   function handleDragOver(event) {
     event.preventDefault();
-    //event.dataTransfer.dropEffect = "link";
+    //event.dataTransfer.dropEffect = "move";
     //return false;
   }
 
@@ -200,8 +187,6 @@ const SongButton = ({
       onDragEnd={handleDragEnd}
       onDrop={song && !dragging ? handleDrop : null}
       onDragOver={song && !dragging ? handleDragOver : null}
-      // onDragEnter={song && !dragging ? handleDragEnter : null}
-      // onDragLeave={song && !dragging ? handleDragLeave : null}
     >
       <button
         disabled={disabled}
