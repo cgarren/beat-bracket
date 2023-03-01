@@ -6,7 +6,7 @@ const Modal = ({ onClose, children }) => {
       tabIndex="-1"
       className="fixed top-0 left-0 right-0 z-50 p-4 overflow-x-hidden overflow-y-auto inset-0 h-modal h-full bg-black bg-opacity-50"
     >
-      <div className="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-full max-w-md h-auto">
+      <div className="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-full max-w-md h-auto max-h-screen">
         <div className="relative bg-white rounded-lg shadow">
           <button
             type="button"
