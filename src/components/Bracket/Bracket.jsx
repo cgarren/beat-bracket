@@ -19,15 +19,15 @@ const styles = [
 ];
 
 const topStyles = [
-  "mt-[var(--firstColumnSpacing)]",
-  "mt-[calc(var(--buttonheight)*1.25)]",
-  "mt-[calc(var(--buttonheight)*2.75)]",
-  "mt-[calc(var(--buttonheight)*5.75)]",
-  "mt-[calc(var(--buttonheight)*11.75)]",
-  "mt-[calc(var(--buttonheight)*23.75)]",
-  "mt-[calc(var(--buttonheight)*47.75)]",
-  "mt-[calc(var(--buttonheight)*95.75)]",
-  "mt-[calc(var(--buttonheight)*191.75)]",
+  "0",
+  "mt-[calc(var(--buttonheight)*.75)]",
+  "mt-[calc(var(--buttonheight)*2.25)]",
+  "mt-[calc(var(--buttonheight)*5.25)]",
+  "mt-[calc(var(--buttonheight)*11.25)]",
+  "mt-[calc(var(--buttonheight)*23.25)]",
+  "mt-[calc(var(--buttonheight)*47.25)]",
+  "mt-[calc(var(--buttonheight)*95.25)]",
+  "mt-[calc(var(--buttonheight)*191.25)]",
 ];
 
 const lineStyles = [
@@ -206,11 +206,17 @@ const Bracket = ({
     <div hidden={!showBracket || renderArray.length === 0}>
       <div
         className={
-          "overflow-x-scroll flex" + //border-4 border-blue-600
+          "overflow-x-scroll flex " + //border-4 border-blue-600
           (centerBracket ? " justify-center" : " justify-start")
         }
       >
-        <div ref={bracketCallback} className="block w-fit flex-col">
+        <div
+          ref={bracketCallback}
+          className={
+            "block w-fit flex-col " +
+            (editMode ? " bg-gray-800/25 rounded-2xl" : "")
+          }
+        >
           <div
             className="flex flex-row gap-[10px] justify-start p-[5px]"
             id="bracket"
