@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import PlayPauseButton from "./PlayPauseButton";
 
 import Vibrant from "node-vibrant";
@@ -24,6 +24,7 @@ const SongButton = ({
   playbackEnabled,
   editMode,
 }) => {
+  const [dragging, setDragging] = useState(false);
   const buttonRef = useRef(null);
   const audioRef = useRef(null);
   const colorStyle = getColorStyle(color);
@@ -114,13 +115,14 @@ const SongButton = ({
 
   function handleDragStart(event) {
     // This method runs when the dragging starts
-    console.log("Started", event);
+    setDragging(true);
     event.dataTransfer.clearData();
     // Set the drag's format and data.
     // Use the event target's id for the data
-    event.dataTransfer.setData("text/plain", id);
-    // event.dataTransfer.effectAllowed = "move";
-    // event.target.style.cursor = "move";
+    event.dataTransfer.setData("application/plain", id);
+    //event.dataTransfer.effectAllowed = "move";
+    //event.target.style.backgroundColor = "blue";
+    //event.target.style.cursor = "move";
   }
 
   function handleDrag(event) {
@@ -132,31 +134,32 @@ const SongButton = ({
     //console.log(event.dataTransfer.getData("text"));
     // This method runs when the dragging stops
     //console.log("Ended", event);
+    //event.target.style.backgroundColor = "";
+    //event.target.style.cursor = "";
+    setDragging(false);
   }
 
-  function handleDragEnter(event) {
-    //console.log("Entered", event);
-    //event.target.style.backgroundColor = "orange";
-    event.dataTransfer.dropEffect = "move";
-    return false;
-  }
+  // function handleDragEnter(event) {
+  //   event.target.style.backgroundColor = "orange";
+  //   //event.dataTransfer.dropEffect = "move";
+  //   return false;
+  // }
 
-  function handleDragExit(event) {
-    //console.log("Exited", event);
-    //event.target.style.backgroundColor = colorStyle.backgroundColor;
-    return false;
-  }
+  // function handleDragLeave(event) {
+  //   event.target.style.backgroundColor = colorStyle.backgroundColor;
+  //   return false;
+  // }
 
   function handleDragOver(event) {
     event.preventDefault();
-    event.dataTransfer.dropEffect = "move";
-    return false;
+    //event.dataTransfer.dropEffect = "link";
+    //return false;
   }
 
   function handleDrop(event) {
     event.preventDefault();
     // Get the id of the target and add the moved element to the target's DOM
-    const switchId = event.dataTransfer.getData("text/plain");
+    const switchId = event.dataTransfer.getData("application/plain");
     console.log("drop", switchId);
     // switch the songs
     let tempSong = getBracket(switchId).song;
@@ -171,14 +174,18 @@ const SongButton = ({
   return (
     <div
       className={
-        "z-0 flex rounded-2xl shadow-md cursor-pointer w-[var(--buttonwidth)] min-w-[var(--buttonwidth)] h-[var(--buttonheight)] min-h-[var(--buttonheight) disabled:cursor-default disabled:shadow-none disabled:w-[var(--buttonwidth)] relative hover:h-auto " +
-        (editMode ? " cursor-move " : " ") +
+        "z-0 flex rounded-2xl cursor-pointer shadow-md w-[var(--buttonwidth)] min-w-[var(--buttonwidth)] h-[var(--buttonheight)] min-h-[var(--buttonheight) disabled:w-[var(--buttonwidth)] relative hover:h-auto " +
+        (editMode && song
+          ? " cursor-grab animate-wiggle active:cursor-grabbing "
+          : " ") +
         (song == null
           ? " bg-white text-black shadow-md border-0 border-gray-400 cursor-default"
           : " ") +
         (winner ? " opacity-100 " : " ") +
         (side ? " flex-row-reverse " : "") +
-        (eliminated ? " opacity-50 " : " ") +
+        (disabled ? " cursor-default " : " ") +
+        (eliminated ? " opacity-50 cursor-default shadow-none " : " ") +
+        //(dragging ? " cursor-grabbing " : " ") +
         styling
       }
       style={song ? colorStyle : {}}
@@ -191,10 +198,10 @@ const SongButton = ({
       onDragStart={handleDragStart}
       onDrag={handleDrag}
       onDragEnd={handleDragEnd}
-      onDrop={song ? handleDrop : null}
-      onDragOver={song ? handleDragOver : null}
-      onDragEnter={song ? handleDragEnter : null}
-      onDragExit={song ? handleDragExit : null}
+      onDrop={song && !dragging ? handleDrop : null}
+      onDragOver={song && !dragging ? handleDragOver : null}
+      // onDragEnter={song && !dragging ? handleDragEnter : null}
+      // onDragLeave={song && !dragging ? handleDragLeave : null}
     >
       <button
         disabled={disabled}
@@ -210,11 +217,11 @@ const SongButton = ({
             : " w-[70%] ") +
           (song == null ? " w-full bg-transparent text-black " : "") +
           (editMode
-            ? " rounded-[inherit]"
+            ? " rounded-[inherit] pr-[6px] pl-[6px]"
             : side
             ? " pr-[6px] rounded-l-[0] "
-            : " pl-[6px] rounded-r-[0]") +
-          (eliminated ? " " : "")
+            : " pl-[6px] rounded-r-[0] ") +
+          (eliminated ? " " : " ")
         }
       >
         {song !== null ? song.name : ""}
