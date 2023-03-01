@@ -24,6 +24,7 @@ import UndoIcon from "../../../../assets/svgs/undoIcon.svg";
 import SaveIcon from "../../../../assets/svgs/saveIcon.svg";
 import ShareIcon from "../../../../assets/svgs/shareIcon.svg";
 import RocketIcon from "../../../../assets/svgs/rocketIcon.svg";
+import EditIcon from "../../../../assets/svgs/editIcon.svg";
 
 const App = ({ params, location }) => {
   const bracketId = params.id;
@@ -378,6 +379,7 @@ const App = ({ params, location }) => {
       </div>
       <hr />
       <LoadingIndicator hidden={showBracket} loadingText={loadingText} />
+      <div hidden={!editMode || !showBracket} className="font-medium text-lg">Drag and drop to rearrange songs as you like</div>
       <div hidden={!showBracket || !artist.name} className="text-center">
         <div className="text-xs -space-x-px rounded-md sticky mx-auto top-0 w-fit z-30">
           <div className="flex items-center">
@@ -395,6 +397,12 @@ const App = ({ params, location }) => {
                   disabled={saveButtonDisabled}
                   icon={<SaveIcon />}
                   text={saveButtonDisabled ? "Saved" : "Save"}
+                />
+                <ActionButton
+                  onClick={() => { setEditMode(true); setReadyToChange(false); }}
+                  disabled={commands.length != 0}
+                  icon={<EditIcon />}
+                  text="Edit Layout"
                 />
               </>
               : null}
