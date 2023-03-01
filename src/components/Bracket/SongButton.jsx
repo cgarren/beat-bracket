@@ -23,6 +23,7 @@ const SongButton = ({
   color,
   playbackEnabled,
   editMode,
+  handleReplacement,
 }) => {
   const [dragging, setDragging] = useState(false);
   const buttonRef = useRef(null);
@@ -188,6 +189,16 @@ const SongButton = ({
       onDrop={song && !dragging ? handleDrop : null}
       onDragOver={song && !dragging ? handleDragOver : null}
     >
+      {editMode && song ? (
+        <button
+          onClick={() => {
+            handleReplacement(id);
+          }}
+          className="border-0 p-0 w-[20px] h-[20px] bg-white text-black absolute -top-2 -right-2 rounded-full z-50"
+        >
+          {"✕"}
+        </button>
+      ) : null}
       <button
         disabled={disabled}
         onClick={editMode ? null : songChosen}

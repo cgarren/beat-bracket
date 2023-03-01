@@ -35,6 +35,7 @@ const App = ({ params, location }) => {
   const [editMode, setEditMode] = useState(false);
   const [user, setUser] = useState({ "name": undefined, "id": params.userId });
   const [tracks, setTracks] = useState(null);
+  const [allTracks, setAllTracks] = useState(null);
   const [artist, setArtist] = useState({ "name": undefined, "id": undefined });
   const [bracket, setBracket] = useState(new Map());
   const [showBracket, setShowBracket] = useState(true);
@@ -285,6 +286,7 @@ const App = ({ params, location }) => {
       setLoadingText("Seeding tracks by " + seedingMethod + "...");
       // sort the list by popularity
       templist.sort(popularitySort);
+      setAllTracks(templist);
       const numTracks = (limit < power ? limit : power);
       templist = templist.slice(0, numTracks);
       // limit the list length to the nearest lesser power of 2 (for now) and seed the bracket
@@ -432,7 +434,7 @@ const App = ({ params, location }) => {
               : null}
           </div>
         </div>
-        <Bracket bracket={bracket} setBracket={setBracket} tracks={tracks} setShowBracket={setShowBracket} showBracket={showBracket} saveCommand={saveCommand} playbackEnabled={playbackEnabled} setBracketWinner={setBracketWinner} editable={editable} editMode={editMode} />
+        <Bracket bracket={bracket} setBracket={setBracket} allTracks={allTracks} tracks={tracks} setShowBracket={setShowBracket} showBracket={showBracket} saveCommand={saveCommand} playbackEnabled={playbackEnabled} setBracketWinner={setBracketWinner} editable={editable} editMode={editMode} />
       </div>
     </Layout >
   )
