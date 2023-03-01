@@ -6,19 +6,24 @@ import {
 	nearestLesserPowerOf2,
 } from "./helpers";
 
+// Function to get the prominent colors from an image
+async function getColorsFromImage(image) {
+	//const color = await new FastAverageColor().getColorAsync(image)
+	const color = (await Vibrant.from(image).getPalette()).Vibrant
+	return {
+		// backgroundColor: color.hex,
+		// textColor: color.isDark ? 'white' : 'black'
+		backgroundColor: color.getHex(),
+		textColor: color.getBodyTextColor()
+	}
+}
+
 async function relateSongs(len, theTracks, col, side, otherSide) {
 	let colMap = new Map();
 	for (let i = 0; i < len; i++) {
 		let colorObj = null;
 		if (theTracks && theTracks[i]) {
-			//const color = await new FastAverageColor().getColorAsync(theTracks[i].art)
-			const color = (await Vibrant.from(theTracks[i].art).getPalette()).Vibrant
-			colorObj = {
-				// backgroundColor: color.hex,
-				// textColor: color.isDark ? 'white' : 'black'
-				backgroundColor: color.getHex(),
-				textColor: color.getBodyTextColor()
-			}
+			colorObj = await getColorsFromImage(theTracks[i].art)
 		}
 		colMap.set(side + col + i, {
 			song: theTracks ? (theTracks[i] ? theTracks[i] : null) : null,
@@ -106,4 +111,5 @@ export {
 	relateSongs,
 	fillBracket,
 	getNumberOfColumns,
+	getColorsFromImage
 }

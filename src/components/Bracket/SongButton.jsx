@@ -1,7 +1,10 @@
 import React, { useRef, useState } from "react";
 import PlayPauseButton from "./PlayPauseButton";
+import Modal from "../Modal";
+import ArtistSuggestion from "../Search/ArtistSuggestion";
 
 import Vibrant from "node-vibrant";
+import { getColorsFromImage } from "../../utilities/bracketGeneration";
 
 const SongButton = ({
   styling,
@@ -23,9 +26,10 @@ const SongButton = ({
   color,
   playbackEnabled,
   editMode,
-  handleReplacement,
+  allTracks,
 }) => {
   const [dragging, setDragging] = useState(false);
+  const [showTrackSelector, setShowTrackSelector] = useState(false);
   const buttonRef = useRef(null);
   const audioRef = useRef(null);
   const colorStyle = getColorStyle(color);
@@ -159,89 +163,126 @@ const SongButton = ({
     modifyBracket(id, "color", tempColor);
   }
 
+  // song replacement functionality
+
+  async function handleReplacement(newSong) {
+    console.log("removing", id);
+    const newColor = await getColorsFromImage(newSong.art);
+    modifyBracket(id, "song", newSong);
+    modifyBracket(id, "color", newColor);
+  }
+
   return (
-    <div
-      className={
-        "z-0 flex rounded-2xl cursor-pointer shadow-md w-[var(--buttonwidth)] min-w-[var(--buttonwidth)] h-[var(--buttonheight)] min-h-[var(--buttonheight) disabled:w-[var(--buttonwidth)] relative hover:h-auto " +
-        (editMode && song
-          ? " cursor-grab animate-wiggle active:cursor-grabbing "
-          : " ") +
-        (song == null
-          ? " bg-white text-black shadow-md border-0 border-gray-400 cursor-default"
-          : " ") +
-        (winner ? " opacity-100 " : " ") +
-        (side ? " flex-row-reverse " : "") +
-        (disabled ? " cursor-default " : " ") +
-        (eliminated ? " opacity-50 cursor-default shadow-none " : " ") +
-        //(dragging ? " cursor-grabbing " : " ") +
-        styling
-      }
-      style={song ? colorStyle : {}}
-      id={id}
-      disabled={disabled}
-      data-opponentid={opponentId}
-      data-nextid={nextId}
-      ref={buttonRef}
-      draggable={editMode}
-      onDragStart={handleDragStart}
-      onDrag={handleDrag}
-      onDragEnd={handleDragEnd}
-      onDrop={song && !dragging ? handleDrop : null}
-      onDragOver={song && !dragging ? handleDragOver : null}
-    >
-      {editMode && song ? (
-        <button
-          onClick={() => {
-            handleReplacement(id);
+    <>
+      {allTracks && showTrackSelector ? (
+        <Modal
+          onClose={() => {
+            setShowTrackSelector(false);
           }}
-          className="border-0 p-0 w-[20px] h-[20px] bg-white text-black absolute -top-2 -right-2 rounded-full z-50"
         >
-          {"✕"}
-        </button>
-      ) : null}
-      <button
-        disabled={disabled}
-        onClick={editMode ? null : songChosen}
-        hidden={false}
-        style={song ? colorStyle : {}}
+          <div className="m-0 mt-5 p-0 list-none flex-nowrap gap-0 inline-flex flex-col text-center w-full rounded max-h-[70vh] overflow-scroll">
+            {allTracks.map((track) => {
+              return (
+                <ArtistSuggestion
+                  artistName={track.name + " - " + track.popularity}
+                  art={track.art}
+                  key={track.id}
+                  onClick={() => {
+                    console.log(allTracks);
+                    handleReplacement(track);
+                    setShowTrackSelector(false);
+                  }}
+                />
+              );
+            })}
+          </div>
+        </Modal>
+      ) : (
+        ""
+      )}
+      <div
         className={
-          "rounded-[inherit] cursor-[inherit] disabled:rounded-[inherit] bg-white text-black border-0 leading-[1.15em] p-0 text-center overflow-hidden break-words disabled:px-[6px] h-full min-h-[var(--buttonheight)] disabled:w-full " +
-          (winner
-            ? " opacity-100 active:opacity-100 "
-            : editMode
-            ? " w-full "
-            : " w-[70%] ") +
-          (song == null ? " w-full bg-transparent text-black " : "") +
-          (editMode
-            ? " rounded-[inherit] pr-[6px] pl-[6px]"
-            : side
-            ? " pr-[6px] rounded-l-[0] "
-            : " pl-[6px] rounded-r-[0] ") +
-          (eliminated ? " " : " ")
+          "z-0 flex rounded-2xl cursor-pointer shadow-md w-[var(--buttonwidth)] min-w-[var(--buttonwidth)] h-[var(--buttonheight)] min-h-[var(--buttonheight) disabled:w-[var(--buttonwidth)] relative hover:h-auto " +
+          (editMode && song
+            ? " cursor-grab animate-wiggle active:cursor-grabbing "
+            : " ") +
+          (song == null
+            ? " bg-white text-black shadow-md border-0 border-gray-400 cursor-default"
+            : " ") +
+          (winner ? " opacity-100 " : " ") +
+          (side ? " flex-row-reverse " : "") +
+          (disabled ? " cursor-default " : " ") +
+          (eliminated ? " opacity-50 cursor-default shadow-none " : " ") +
+          //(dragging ? " cursor-grabbing " : " ") +
+          styling
         }
-      >
-        {song !== null ? song.name : ""}
-      </button>
-      <PlayPauseButton
+        style={song ? colorStyle : {}}
         id={id}
-        song={song}
-        side={side}
         disabled={disabled}
-        currentlyPlayingId={currentlyPlayingId}
-        setCurrentlyPlayingId={setCurrentlyPlayingId}
-        colorStyle={colorStyle}
-        playbackEnabled={playbackEnabled}
-        buttonRef={buttonRef}
-        audioRef={audioRef}
-        editMode={editMode}
-      />
-      <audio
-        src={song !== null && !disabled ? song.preview_url : null}
-        volume="1"
-        className="hidden"
-        ref={audioRef}
-      ></audio>
-    </div>
+        data-opponentid={opponentId}
+        data-nextid={nextId}
+        ref={buttonRef}
+        draggable={editMode}
+        onDragStart={handleDragStart}
+        onDrag={handleDrag}
+        onDragEnd={handleDragEnd}
+        onDrop={song && !dragging ? handleDrop : null}
+        onDragOver={song && !dragging ? handleDragOver : null}
+      >
+        {editMode && song ? (
+          <button
+            onClick={() => {
+              setShowTrackSelector(true);
+            }}
+            className="border-0 p-0 w-[20px] h-[20px] bg-white text-black absolute -top-2 -right-2 rounded-full z-50"
+          >
+            {"✕"}
+          </button>
+        ) : null}
+        <button
+          disabled={disabled}
+          onClick={editMode ? null : songChosen}
+          hidden={false}
+          style={song ? colorStyle : {}}
+          className={
+            "rounded-[inherit] cursor-[inherit] disabled:rounded-[inherit] bg-white text-black border-0 leading-[1.15em] p-0 text-center overflow-hidden break-words disabled:px-[6px] h-full min-h-[var(--buttonheight)] disabled:w-full " +
+            (winner
+              ? " opacity-100 active:opacity-100 "
+              : editMode
+              ? " w-full "
+              : " w-[70%] ") +
+            (song == null ? " w-full bg-transparent text-black " : "") +
+            (editMode
+              ? " rounded-[inherit] pr-[6px] pl-[6px]"
+              : side
+              ? " pr-[6px] rounded-l-[0] "
+              : " pl-[6px] rounded-r-[0] ") +
+            (eliminated ? " " : " ")
+          }
+        >
+          {song !== null ? song.name : ""}
+        </button>
+        <PlayPauseButton
+          id={id}
+          song={song}
+          side={side}
+          disabled={disabled}
+          currentlyPlayingId={currentlyPlayingId}
+          setCurrentlyPlayingId={setCurrentlyPlayingId}
+          colorStyle={colorStyle}
+          playbackEnabled={playbackEnabled}
+          buttonRef={buttonRef}
+          audioRef={audioRef}
+          editMode={editMode}
+        />
+        <audio
+          src={song !== null && !disabled ? song.preview_url : null}
+          volume="1"
+          className="hidden"
+          ref={audioRef}
+        ></audio>
+      </div>
+    </>
   );
 };
 
