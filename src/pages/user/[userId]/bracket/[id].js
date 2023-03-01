@@ -32,7 +32,7 @@ const App = ({ params, location }) => {
   const [saveButtonDisabled, setSaveButtonDisabled] = useState(true);
   const [readyToChange, setReadyToChange] = useState(false);
   const [editable, setEditable] = useState(false);
-  const [editMode, setEditMode] = useState(true);
+  const [editMode, setEditMode] = useState(false);
   const [user, setUser] = useState({ "name": undefined, "id": params.userId });
   const [tracks, setTracks] = useState(null);
   const [artist, setArtist] = useState({ "name": undefined, "id": undefined });
