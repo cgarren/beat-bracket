@@ -47,6 +47,7 @@ const lineStyles = [
 
 const Bracket = ({
   tracks,
+  allTracks,
   showBracket,
   setShowBracket,
   setBracketWinner,
@@ -152,6 +153,7 @@ const Bracket = ({
                   disabled={editable ? value.disabled : true}
                   winner={value.winner}
                   setBracketWinner={setBracketWinner}
+                  handleReplacement={handleReplacement}
                 />
                 {value.index % 2 === 0 && value.nextId != null ? (
                   <div
@@ -200,6 +202,19 @@ const Bracket = ({
 
   function getBracket(key) {
     return bracket.get(key);
+  }
+
+  // song replacement functionality
+
+  function handleReplacement(id) {
+    console.log("removing", id);
+    // show list of songs with search bar
+    console.log(allTracks);
+    let newSong = null;
+    let newColor = null;
+    // on select, replace the song
+    modifyBracket(id, "song", newSong);
+    modifyBracket(id, "color", newColor);
   }
 
   return (
