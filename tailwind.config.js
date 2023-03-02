@@ -30,33 +30,9 @@ module.exports = {
           '100%': {
             backgroundPosition: '0 0,100% 0,100% 100%,0 100%'
           },
-        },
-        rotate: {
-          '100%': {
-            transform: 'rotate(1turn)'
-          }
-        },
-        flipy: {
-          '0%': {
-            transform: 'rotateY(360deg)'
-          },
-          '30%': {
-            transform: 'rotateY(0deg)'
-          }
-        },
-        flipx: {
-          '0%': {
-            transform: 'rotateX(360deg)'
-          },
-          '30%': {
-            transform: 'rotateX(0deg)'
-          }
-        },
+        }
       },
       animation: {
-        steam: 'rotate 6s linear infinite',
-        flipy: 'flipy 4s linear 0s infinite',
-        flipx: 'flipx 4s linear 0s infinite'
       }
     },
   },
