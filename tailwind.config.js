@@ -20,17 +20,6 @@ module.exports = {
         'colosseum': "url('./src/assets/images/colosseum.jpg')"
       },
       keyframes: {
-        steam: {
-          '0%': {
-            backgroundPosition: '0 0,100% 0,100% 100%,0 100%'
-          },
-          '50%': {
-            backgroundPosition: '100% 100%,100% 0,0 0,0 100%'
-          },
-          '100%': {
-            backgroundPosition: '0 0,100% 0,100% 100%,0 100%'
-          },
-        },
         rotate: {
           '100%': {
             transform: 'rotate(1turn)'
