@@ -31,13 +31,15 @@ function arrangeSeeds(bracketList) {
 	return bracketList;
 }
 
-async function selectTrackVersion(numTracks, tracks) {
+async function selectTrackVersion(numTracks, tracks, featuredList) {
 	let highestPop = 0;
 	let selectedTrack = null;
 	for (let i = 0; i < numTracks; i++) {
 		const track = tracks.shift();
+		const feature = featuredList.shift();
 		if (track.popularity >= highestPop) {
 			selectedTrack = track;
+			selectedTrack.feature = feature;
 			highestPop = track.popularity;
 		}
 	}
@@ -47,22 +49,33 @@ async function selectTrackVersion(numTracks, tracks) {
 async function makeTrackObject(track) {
 	return {
 		name: track.name,
+		feature: track.feature,
 		art: track.album.images[0].url,
 		id: track.id,
 		popularity: track.popularity,
-		preview_url: track.preview_url
+		preview_url: track.preview_url,
 	}
 }
 
 async function loadTrackData(idList, trackOptionsAmounts) {
 	let templist = [];
 	if (idList.length !== 0) {
-		const url = "https://api.spotify.com/v1/tracks?ids=" + idList.join();
+		let idString = "";
+		let featuredList = [];
+		for (let i = 0; i < idList.length; i++) {
+			idString += idList[i][0];
+			if (i != idList.length - 1) {
+				idString += ",";
+			}
+			featuredList.push(idList[i][1]);
+
+		}
+		const url = "https://api.spotify.com/v1/tracks?ids=" + idString;
 		const response = await loadSpotifyRequest(url);
 		if (response !== 1) {
 			if (response.tracks.length > 0) {
 				for (let numTracks of trackOptionsAmounts) {
-					const selectedTrack = await selectTrackVersion(numTracks, response.tracks)
+					const selectedTrack = await selectTrackVersion(numTracks, response.tracks, featuredList);
 					templist.push(await makeTrackObject(selectedTrack));
 				}
 			}
@@ -109,7 +122,7 @@ function checkTaylorSwift(trackName, artistId) {
 	}
 }
 
-async function loadTracks(url, songs) {
+async function loadTracks(url, songs, artistId) {
 	let response = await loadSpotifyRequest(url);
 	if (response !== 1) {
 		if (response.albums.length > 0) {
@@ -117,15 +130,30 @@ async function loadTracks(url, songs) {
 				if (album.images.length > 0) {
 					// Iterate through the tracks
 					album.tracks.items.forEach((track) => {
-						track.name = checkTaylorSwift(track.name, album.artists[0].id);
-						// Check if the track already exists
-						if (track.name in songs) {
-							// If it does, add the id to the list
-							songs[track.name].push(track.id);
-						} else {
-							// If it doesn't, create a new entry
-							songs[track.name] = [track.id];
+						// Iterate through the artists to make sure the artist in the bracket is acutally on the track
+						for (let i = 0; i < track.artists.length; i++) {
+							// Check if the artist is the one we're looking for
+							if (track.artists[i].id === artistId) {
+								let feature = false;
+								if (i != 0) {
+									// Main artist
+									feature = true;
+								}
+
+								// Check if the track is a Taylor's Version
+								track.name = checkTaylorSwift(track.name, artistId);
+								// Check if the track already exists
+								if (track.name in songs) {
+									// If it does, add the id to the list
+									songs[track.name].push([track.id, feature]);
+								} else {
+									// If it doesn't, create a new entry
+									songs[track.name] = [[track.id, feature]];
+								}
+								break;
+							}
 						}
+
 					})
 				}
 			});
@@ -135,23 +163,23 @@ async function loadTracks(url, songs) {
 	}
 }
 
-async function loadAlbums(url, songs = {}) {
+async function loadAlbums(url, artistId, songs = {}) {
 	let response = await loadSpotifyRequest(url);
 	if (response !== 1) {
 		if (response.items.length > 0) {
 			let albumIds = [];
 			response.items.forEach((item) => {
 				albumIds.push(item.id);
-				console.log(item.name);
+				//console.log(item.name);
 			});
 			let tracksurl =
 				"https://api.spotify.com/v1/albums?ids=" + albumIds.join();
-			if (await loadTracks(tracksurl, songs) === 1) {
+			if (await loadTracks(tracksurl, songs, artistId) === 1) {
 				return 1;
 			}
 		}
 		if (response.next) {
-			if (await loadAlbums(response.next, songs) === 1) {
+			if (await loadAlbums(response.next, artistId, songs) === 1) {
 				return 1;
 			}
 		}
