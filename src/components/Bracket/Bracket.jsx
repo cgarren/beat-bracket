@@ -113,7 +113,7 @@ const Bracket = ({
     regenerateRenderArray();
   }, [columns, editMode]);
 
-  function generateComponentArray(side) {
+  async function generateComponentArray(side) {
     return Array.apply(null, { length: columns }).map((e, i) => (
       <div className="flex flex-col" key={side + i}>
         {Array.from(bracket.entries()).map((entry) => {
@@ -177,21 +177,22 @@ const Bracket = ({
     ));
   }
 
-  function regenerateRenderArray() {
-    let leftSide = generateComponentArray("l");
-    let rightSide = generateComponentArray("r");
+  async function regenerateRenderArray() {
+    const leftSide = await generateComponentArray("l");
+    const rightSide = await generateComponentArray("r");
     setRenderArray([...leftSide, ...rightSide]);
   }
 
   // rerender the bracket when certain events happen
   useEffect(() => {
     regenerateRenderArray();
-    setShowBracket(true);
   }, [bracket, playbackEnabled, currentlyPlayingId]);
 
   useEffect(() => {
     // show the bracket when the renderArray is ready
-    setShowBracket(true);
+    if (renderArray.length > 0) {
+      setShowBracket(true);
+    }
   }, [renderArray]);
 
   function modifyBracket(key, attribute, value) {
