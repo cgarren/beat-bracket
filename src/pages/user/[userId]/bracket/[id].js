@@ -38,7 +38,7 @@ const App = ({ params, location }) => {
   const [allTracks, setAllTracks] = useState(null);
   const [artist, setArtist] = useState({ "name": undefined, "id": undefined });
   const [bracket, setBracket] = useState(new Map());
-  const [showBracket, setShowBracket] = useState(true);
+  const [showBracket, setShowBracket] = useState(false);
   const [limit, setLimit] = useState(32);
   const [seedingMethod, setSeedingMethod] = useState("popularity");
   const [playbackEnabled, setPlaybackEnabled] = useState(false);
@@ -85,7 +85,7 @@ const App = ({ params, location }) => {
             } else {
               setBracketWinner(loadedBracket.winner);
             }
-            setShowBracket(true);
+            //setShowBracket(true);
             setTracks(new Array(loadedBracket.tracks).fill(null));
             setLastSaved({ commandsLength: commands.length, time: Date.now() });
           });
@@ -282,18 +282,18 @@ const App = ({ params, location }) => {
     }
     // if the artist has less than 8 songs, stop
     if (templist.length >= 8) {
+      setAllTracks(templist);
       const power = nearestLesserPowerOf2(templist.length);
       setLoadingText("Seeding tracks by " + seedingMethod + "...");
       // sort the list by popularity
       templist.sort(popularitySort);
-      setAllTracks(templist);
       const numTracks = (limit < power ? limit : power);
       templist = templist.slice(0, numTracks);
       // limit the list length to the nearest lesser power of 2 (for now) and seed the bracket
       templist = seedBracket(templist, seedingMethod);
       console.table(templist);
       setTracks(templist);
-      setShowBracket(true);
+      //setShowBracket(true);
     } else {
       alert(providedArtist.name + " doesn't have enough songs on Spotify! Try another artist.");
       setTracks([]);
@@ -401,7 +401,7 @@ const App = ({ params, location }) => {
                   text={saveButtonDisabled ? "Saved" : "Save"}
                 />
                 <ActionButton
-                  onClick={() => { setEditMode(true); setReadyToChange(false); }}
+                  onClick={() => { setEditMode(true) }}
                   disabled={commands.length != 0}
                   icon={<EditIcon />}
                   text="Edit Layout"

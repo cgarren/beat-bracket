@@ -180,7 +180,8 @@ const SongButton = ({
             setShowTrackSelector(false);
           }}
         >
-          <div className="m-0 mt-5 p-0 list-none flex-nowrap gap-0 inline-flex flex-col text-center w-full rounded max-h-[70vh] overflow-scroll">
+          <h1 className="font-bold text-xl">Select a replacement track:</h1>
+          <div className="m-0 mt-1 p-0 list-none flex-nowrap gap-0 inline-flex flex-col text-center w-full rounded max-h-[70vh] overflow-scroll">
             {allTracks.map((track) => {
               return (
                 <ArtistSuggestion
