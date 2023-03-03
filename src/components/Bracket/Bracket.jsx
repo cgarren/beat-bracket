@@ -58,62 +58,56 @@ const Bracket = ({
   editable,
   editMode,
 }) => {
-  const columns = Array.isArray(tracks) ? getNumberOfColumns(tracks.length) : 0;
-  const [renderArray, setRenderArray] = useState([]);
-  const [currentlyPlayingId, setCurrentlyPlayingId] = useState(null);
-  const [centerBracket, setCenterBracket] = useState(false);
   const { width, height } = useWindowSize();
+  const [currentlyPlayingId, setCurrentlyPlayingId] = useState(null);
+  const renderArray =
+    Array.isArray(tracks) && !tracks.includes(null) && tracks.length === 0
+      ? []
+      : [
+          generateComponentArray(
+            "l",
+            currentlyPlayingId,
+            setCurrentlyPlayingId
+          ),
+          generateComponentArray(
+            "r",
+            currentlyPlayingId,
+            setCurrentlyPlayingId
+          ),
+        ];
   const [bracketRef, setBracketRef] = useState(null);
   const bracketCallback = useCallback((node) => {
-    // console.log("setting bracket ref");
     setBracketRef({ current: node });
-    updateCenterBracket();
   }, []);
 
   useEffect(() => {
-    updateCenterBracket();
-  }, [bracket, showBracket, renderArray, width, height]);
-
-  function updateCenterBracket() {
-    // console.log("called", bracketRef);
-    if (bracketRef) {
-      //console.log(bracketRef.current, width);
-      if (bracketRef.current.offsetWidth <= width) {
-        //console.log("center on");
-        setCenterBracket(true);
-      } else {
-        //console.log("center off");
-        setCenterBracket(false);
-      }
-    }
-  }
-
-  useEffect(() => {
     async function kickOff() {
-      // reset the undo chain
       console.log("kicking off");
-      setShowBracket(false);
       setCurrentlyPlayingId(null);
-      const temp = await fillBracket(tracks, columns);
+      const temp = await fillBracket(tracks, getNumberOfColumns(tracks.length));
       setBracket(temp);
     }
     if (Array.isArray(tracks)) {
       if (!tracks.includes(null)) {
         if (tracks.length !== 0) {
           setBracketWinner(null);
+          setShowBracket(false);
           kickOff();
-        } else {
-          setRenderArray([]);
+          // } else {
+          //   setRenderArray([]);
         }
       }
     }
   }, [tracks]);
 
-  useEffect(() => {
-    regenerateRenderArray();
-  }, [columns, editMode]);
-
-  async function generateComponentArray(side) {
+  function generateComponentArray(
+    side,
+    mycurrentlyPlayingId,
+    mysetCurrentlyPlayingId
+  ) {
+    const columns = Array.isArray(tracks)
+      ? getNumberOfColumns(tracks.length)
+      : 0;
     return Array.apply(null, { length: columns }).map((e, i) => (
       <div className="flex flex-col" key={side + i}>
         {Array.from(bracket.entries()).map((entry) => {
@@ -133,8 +127,8 @@ const Bracket = ({
                   nextId={value.nextId}
                   song={value.song}
                   id={value.id}
-                  currentlyPlayingId={currentlyPlayingId}
-                  setCurrentlyPlayingId={setCurrentlyPlayingId}
+                  currentlyPlayingId={mycurrentlyPlayingId}
+                  setCurrentlyPlayingId={mysetCurrentlyPlayingId}
                   side={side}
                   styling={
                     (value.index === 0
@@ -177,17 +171,6 @@ const Bracket = ({
     ));
   }
 
-  async function regenerateRenderArray() {
-    const leftSide = await generateComponentArray("l");
-    const rightSide = await generateComponentArray("r");
-    setRenderArray([...leftSide, ...rightSide]);
-  }
-
-  // rerender the bracket when certain events happen
-  useEffect(() => {
-    regenerateRenderArray();
-  }, [bracket, playbackEnabled, currentlyPlayingId]);
-
   useEffect(() => {
     // show the bracket when the renderArray is ready
     if (renderArray.length > 0) {
@@ -210,7 +193,9 @@ const Bracket = ({
       <div
         className={
           "overflow-x-scroll flex " + //border-4 border-blue-600
-          (centerBracket ? " justify-center" : " justify-start")
+          (bracketRef && bracketRef.current.offsetWidth <= width
+            ? " justify-center"
+            : " justify-start")
         }
       >
         <div
