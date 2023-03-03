@@ -268,14 +268,14 @@ const App = ({ params, location }) => {
   async function getTracks(providedArtist) {
     console.log("getting tracks");
     setLoadingText("Gathering Spotify tracks for " + providedArtist.name + "...");
-    const songs = await loadAlbums("https://api.spotify.com/v1/artists/" + providedArtist.id + "/albums?include_groups=album,single&limit=20", providedArtist.id);
-    if (songs === 1) {
+    const songPossibilities = await loadAlbums("https://api.spotify.com/v1/artists/" + providedArtist.id + "/albums?include_groups=album,single&limit=20", providedArtist.id);
+    if (songPossibilities === 1) {
       showAlert("Error loading tracks from Spotify", "error", false);
       return;
     }
     // load data for the songs
     setLoadingText("Gathering track information...");
-    let templist = await processTracks(songs);
+    let templist = await processTracks(songPossibilities);
     if (templist === 1) {
       showAlert("Error loading tracks from Spotify", "error", false);
       return;
@@ -283,16 +283,7 @@ const App = ({ params, location }) => {
     // if the artist has less than 8 songs, stop
     if (templist.length >= 8) {
       setAllTracks(templist);
-      const power = nearestLesserPowerOf2(templist.length);
-      setLoadingText("Seeding tracks by " + seedingMethod + "...");
-      // sort the list by popularity
-      templist.sort(popularitySort);
-      const numTracks = (limit < power ? limit : power);
-      templist = templist.slice(0, numTracks);
-      // limit the list length to the nearest lesser power of 2 (for now) and seed the bracket
-      templist = seedBracket(templist, seedingMethod);
-      console.table(templist);
-      setTracks(templist);
+      setTracks(await prepareTracks(templist));
       //setShowBracket(true);
     } else {
       alert(providedArtist.name + " doesn't have enough songs on Spotify! Try another artist.");
@@ -301,6 +292,20 @@ const App = ({ params, location }) => {
       navigate("/my-brackets")
     }
     setLoadingText("Generating bracket...");
+  }
+
+  async function prepareTracks(allTracks) {
+    let templist = allTracks;
+    const power = nearestLesserPowerOf2(templist.length);
+    setLoadingText("Seeding tracks by " + seedingMethod + "...");
+    // sort the list by popularity
+    templist.sort(popularitySort);
+    const numTracks = (limit < power ? limit : power);
+    templist = templist.slice(0, numTracks);
+    // limit the list length to the nearest lesser power of 2 (for now) and seed the bracket
+    templist = seedBracket(templist, seedingMethod);
+    console.table(templist);
+    return templist;
   }
 
   // CHANGE HANDLING
@@ -352,18 +357,32 @@ const App = ({ params, location }) => {
   }, [seedingMethod]);
 
   useEffect(() => {
+
+    async function changeLimit() {
+      console.log("limit changed");
+      if (allTracks) {
+        setTracks(await prepareTracks(allTracks));
+      } else {
+        await getTracks(artist);
+      }
+    }
+
     if (artist.id && tracks) {
       if (readyToChange) {
         setShowBracket(false);
+        console.log("show to false");
         clearCommands();
-        console.log("limit changed");
-        getTracks(artist);
+        changeLimit();
       }
       else {
         setReadyToChange(true);
       }
     }
   }, [limit]);
+
+  useEffect(() => {
+    console.log("showBracket:", showBracket);
+  }, [showBracket]);
 
   return (
     <Layout noChanges={noChanges}>
