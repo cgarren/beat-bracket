@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import ArtistSuggestion from "./ArtistSuggestion";
+import Suggestion from "./Suggestion";
 import { loadSpotifyRequest } from "../../utilities/spotify";
 
 const SearchBar = ({ setArtist, disabled }) => {
@@ -130,7 +130,7 @@ const SearchBar = ({ setArtist, disabled }) => {
       >
         {artistSuggestionList.map((item) => {
           return (
-            <ArtistSuggestion
+            <Suggestion
               artistName={item.name}
               art={item.art}
               onClick={item.onClick}

@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import PlayPauseButton from "./PlayPauseButton";
 import Modal from "../Modal";
-import ArtistSuggestion from "../Search/ArtistSuggestion";
+import Suggestion from "../Search/Suggestion";
 
 import Vibrant from "node-vibrant";
 import { getColorsFromImage } from "../../utilities/bracketGeneration";
@@ -22,11 +22,10 @@ const SongButton = ({
   getBracket,
   eliminated,
   winner,
-  setBracketWinner,
   color,
   playbackEnabled,
   editMode,
-  allTracks,
+  replacementTracks,
 }) => {
   const [dragging, setDragging] = useState(false);
   const [showTrackSelector, setShowTrackSelector] = useState(false);
@@ -95,7 +94,7 @@ const SongButton = ({
     } else {
       console.log("Winner is " + song.name);
       modifyBracket(id, "winner", true);
-      setBracketWinner(song);
+      //setBracketWinner(song);
       setCurrentlyPlayingId(id);
     }
   }
@@ -112,7 +111,7 @@ const SongButton = ({
       modifyBracket(nextId, "color", null);
     } else {
       modifyBracket(id, "winner", false);
-      setBracketWinner(null);
+      //setBracketWinner(null);
     }
   }
 
@@ -174,7 +173,7 @@ const SongButton = ({
 
   return (
     <>
-      {allTracks && showTrackSelector ? (
+      {replacementTracks && showTrackSelector ? (
         <Modal
           onClose={() => {
             setShowTrackSelector(false);
@@ -182,14 +181,13 @@ const SongButton = ({
         >
           <h1 className="font-bold text-xl">Select a replacement track:</h1>
           <div className="m-0 mt-1 p-0 list-none flex-nowrap gap-0 inline-flex flex-col text-center w-full rounded max-h-[70vh] overflow-scroll">
-            {allTracks.map((track) => {
+            {replacementTracks.map((track) => {
               return (
-                <ArtistSuggestion
-                  artistName={track.name + " - " + track.popularity}
+                <Suggestion
+                  artistName={`${track.name}`}
                   art={track.art}
                   key={track.id}
                   onClick={() => {
-                    console.log(allTracks);
                     handleReplacement(track);
                     setShowTrackSelector(false);
                   }}
@@ -230,7 +228,7 @@ const SongButton = ({
         onDrop={song && !dragging ? handleDrop : null}
         onDragOver={song && !dragging ? handleDragOver : null}
       >
-        {editMode && song ? (
+        {editMode && song && replacementTracks ? (
           <button
             onClick={() => {
               setShowTrackSelector(true);

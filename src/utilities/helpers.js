@@ -5,7 +5,7 @@ import { navigate } from "gatsby";
 
 import { getUserInfo } from "./spotify";
 
-function generateRandomString(length) {
+export function generateRandomString(length) {
 	let text = '';
 	let possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 	for (let i = 0; i < length; i++) {
@@ -14,7 +14,7 @@ function generateRandomString(length) {
 	return text;
 }
 
-async function getParamsFromURL(new_url) {
+export async function getParamsFromURL(new_url) {
 	try {
 		let hashParams = getHashParams()
 		if (hashParams.raw_hash !== '') {
@@ -41,7 +41,7 @@ function getHashParams() {
 	return hashParams;
 }
 
-function checkSpotifyAuth(timer = undefined) {
+export function checkSpotifyAuth(timer = undefined) {
 	let mydate = new Date(parseInt(sessionStorage.getItem("expireTime")));
 	if (
 		sessionStorage.getItem("expireTime") === null ||
@@ -58,14 +58,14 @@ function checkSpotifyAuth(timer = undefined) {
 	}
 }
 
-function popularitySort(track1, track2) {
+export function popularitySort(track1, track2) {
 	if (track1.popularity > track2.popularity) { return -1 };
 	if (track1.popularity < track2.popularity) { return 1 };
 	// sort alphabetically for consistency if popularity is the same
 	return track1.name < track2.name ? -1 : track1.name > track2.name;
 }
 
-function switchEveryOther(array) {
+export function switchEveryOther(array) {
 	for (let i = 1; i < array.length / 2; i += 2) {
 		if (i % 2 !== 0) {
 			//console.log("switching", array[array.length - i].name, "AND", array[i].name);
@@ -78,7 +78,7 @@ function switchEveryOther(array) {
 }
 
 // removes duplicates in an array of objects if a certain key/value is repeated
-function removeDuplicatesWithKey(theArray, key) {
+export function removeDuplicatesWithKey(theArray, key) {
 	console.log(theArray);
 	// init tracking array
 	let tempArray = [];
@@ -103,7 +103,7 @@ function removeDuplicatesWithKey(theArray, key) {
 	return theArray;
 }
 
-function shuffleArray(array) {
+export async function shuffleArray(array) {
 	let currentIndex = array.length, randomIndex;
 	// While there remain elements to shuffle.
 	while (currentIndex !== 0) {
@@ -117,7 +117,7 @@ function shuffleArray(array) {
 	return array;
 }
 
-function nearestGreaterPowerOf2(num) {
+export function nearestGreaterPowerOf2(num) {
 	let current = 0;
 	let j = 0;
 	while (current <= num) {
@@ -127,7 +127,7 @@ function nearestGreaterPowerOf2(num) {
 	return current;
 }
 
-function nearestLesserPowerOf2(num) {
+export function nearestLesserPowerOf2(num) {
 	let last = 0;
 	let current = 0;
 	let j = 0;
@@ -139,7 +139,7 @@ function nearestLesserPowerOf2(num) {
 	return last;
 }
 
-function bracketSorter(a, b) {
+export function bracketSorter(a, b) {
 	const value1 = a[1];
 	const value2 = b[1];
 
@@ -185,13 +185,13 @@ function bracketSorter(a, b) {
 	}
 }
 
-function openBracket(uuid, userId = undefined, state = {}) {
+export function openBracket(uuid, userId = undefined, state = {}) {
 	console.log("Opening Bracket: " + uuid);
 	//open the bracket editor and pass the bracket id off
 	navigate("/user/" + (userId ? userId : getUserInfo().id) + "/bracket/" + uuid, { state: state });
 }
 
-function downloadBracket(bracketId, artistName) {
+export function downloadBracket(bracketId, artistName) {
 	let bracketEl = document.getElementById(bracketId);
 	html2canvas(bracketEl, {
 		scale: 4,
@@ -216,23 +216,18 @@ function downloadBracket(bracketId, artistName) {
 		);
 		const createEl = document.createElement("a");
 		createEl.href = canvas.toDataURL("image/svg+xml");
-		createEl.download = artistName + " bracket from Song Coliseum";
+		createEl.download = artistName + " bracket from Beat Bracket";
 		createEl.click();
 		createEl.remove();
 	});
 }
 
-export {
-	popularitySort,
-	removeDuplicatesWithKey,
-	nearestGreaterPowerOf2,
-	nearestLesserPowerOf2,
-	switchEveryOther,
-	shuffleArray,
-	getParamsFromURL,
-	generateRandomString,
-	downloadBracket,
-	openBracket,
-	bracketSorter,
-	checkSpotifyAuth
+export function bracketUnchanged(bracket) {
+	if (!bracket instanceof Map) return false;
+	for (let element of bracket.values()) {
+		if (element.col !== 0 && element.song) {
+			return false;
+		}
+	}
+	return true;
 }

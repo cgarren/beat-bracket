@@ -1,20 +1,20 @@
 import { popularitySort, shuffleArray } from "./helpers";
 import { loadSpotifyRequest } from "./spotify";
 
-function seedBracket(trackList, seedingMethod) {
+async function seedBracket(trackList, seedingMethod) {
 	switch (seedingMethod) {
 		case "random":
-			return shuffleArray(trackList);
+			return await shuffleArray(trackList);
 		case "popularity":
 			trackList.sort(popularitySort);
 			//console.table(trackList);
-			return arrangeSeeds(trackList);
+			return await arrangeSeeds(trackList);
 		default:
 			return trackList;
 	}
 }
 
-function arrangeSeeds(bracketList) {
+async function arrangeSeeds(bracketList) {
 	let slice = 1;
 	let temp;
 	while (slice < bracketList.length / 2) {

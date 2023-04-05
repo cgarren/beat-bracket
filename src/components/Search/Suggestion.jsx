@@ -1,6 +1,6 @@
 import * as React from "react";
 
-const ArtistSuggestion = ({ artistName, art, onClick }) => {
+const Suggestion = ({ artistName, art, onClick }) => {
   return (
     <button
       onClick={onClick}
@@ -12,4 +12,4 @@ const ArtistSuggestion = ({ artistName, art, onClick }) => {
   );
 };
 
-export default ArtistSuggestion;
+export default Suggestion;

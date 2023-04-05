@@ -1,10 +1,11 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import SongButton from "./SongButton";
 import useWindowSize from "react-use/lib/useWindowSize";
 import {
   getNumberOfColumns,
-  fillBracket,
+  getNumberOfSongs,
 } from "../../utilities/bracketGeneration";
+import { popularitySort } from "../../utilities/helpers";
 
 const styles = [
   "mt-[var(--firstColumnSpacing)]",
@@ -46,68 +47,67 @@ const lineStyles = [
 /*   4  8  16  32  64*/
 
 const Bracket = ({
-  tracks,
   allTracks,
   showBracket,
   setShowBracket,
-  setBracketWinner,
   saveCommand,
   playbackEnabled,
   bracket,
   setBracket,
   editable,
   editMode,
+  bracketTracks,
 }) => {
   const { width, height } = useWindowSize();
   const [currentlyPlayingId, setCurrentlyPlayingId] = useState(null);
-  const renderArray =
-    Array.isArray(tracks) && !tracks.includes(null) && tracks.length === 0
-      ? []
-      : [
-          generateComponentArray(
-            "l",
-            currentlyPlayingId,
-            setCurrentlyPlayingId
-          ),
-          generateComponentArray(
-            "r",
-            currentlyPlayingId,
-            setCurrentlyPlayingId
-          ),
-        ];
+  const replacementTracks = useMemo(() => {
+    const bracketIds = [];
+    for (let track of bracketTracks) {
+      bracketIds.push(track.id);
+    }
+    return allTracks
+      .filter((track) => !bracketIds.includes(track.id))
+      .sort(popularitySort);
+  }, [allTracks, bracketTracks]);
+  const renderArray = useMemo(
+    () =>
+      bracket instanceof Map && bracket.size !== 0
+        ? [
+            generateComponentArray(
+              "l",
+              currentlyPlayingId,
+              setCurrentlyPlayingId
+            ),
+            generateComponentArray(
+              "r",
+              currentlyPlayingId,
+              setCurrentlyPlayingId
+            ),
+          ]
+        : [],
+    [
+      bracket,
+      currentlyPlayingId,
+      editMode,
+      editable,
+      replacementTracks,
+      playbackEnabled,
+    ]
+  );
   const [bracketRef, setBracketRef] = useState(null);
-  const bracketCallback = useCallback((node) => {
-    setBracketRef({ current: node });
-  }, []);
-
-  useEffect(() => {
-    async function kickOff() {
-      console.log("kicking off");
-      setCurrentlyPlayingId(null);
-      const temp = await fillBracket(tracks, getNumberOfColumns(tracks.length));
-      setBracket(temp);
-    }
-    if (Array.isArray(tracks)) {
-      if (!tracks.includes(null)) {
-        if (tracks.length !== 0) {
-          setBracketWinner(null);
-          setShowBracket(false);
-          kickOff();
-          // } else {
-          //   setRenderArray([]);
-        }
-      }
-    }
-  }, [tracks]);
+  const bracketCallback = useCallback(
+    (node) => {
+      setBracketRef({ current: node });
+    },
+    [bracket]
+  );
 
   function generateComponentArray(
     side,
     mycurrentlyPlayingId,
     mysetCurrentlyPlayingId
   ) {
-    const columns = Array.isArray(tracks)
-      ? getNumberOfColumns(tracks.length)
-      : 0;
+    const columns = getNumberOfColumns(getNumberOfSongs(bracket.size));
     return Array.apply(null, { length: columns }).map((e, i) => (
       <div className="flex flex-col" key={side + i}>
         {Array.from(bracket.entries()).map((entry) => {
@@ -146,8 +146,8 @@ const Bracket = ({
                   eliminated={value.eliminated}
                   disabled={editable ? value.disabled : true}
                   winner={value.winner}
-                  setBracketWinner={setBracketWinner}
-                  allTracks={allTracks}
+                  //setBracketWinner={setBracketWinner}
+                  replacementTracks={replacementTracks}
                 />
                 {value.index % 2 === 0 && value.nextId != null ? (
                   <div
@@ -172,7 +172,6 @@ const Bracket = ({
   }
 
   useEffect(() => {
-    // show the bracket when the renderArray is ready
     if (renderArray.length > 0) {
       setShowBracket(true);
     }
@@ -202,7 +201,7 @@ const Bracket = ({
           ref={bracketCallback}
           className={
             "block w-fit flex-col " +
-            (editMode ? " bg-gray-800/25 rounded-2xl" : "")
+            (editMode ? " bg-gray-800/25 rounded-2xl p-2" : "")
           }
         >
           <div
