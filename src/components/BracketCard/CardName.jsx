@@ -8,7 +8,7 @@ export default function CardName({ bracket }) {
           ? bracket.artistName + " (" + bracket.tracks + " tracks)"
           : "Getting brackets..."}
       </span>
-      {bracket.completed ? (
+      {bracket.winner || bracket.completed ? (
         <span className="text-green-600 text-xs font-medium inline-flex items-center px-0.5 py-0.5 rounded-md">
           <svg
             className="w-4 h-4"

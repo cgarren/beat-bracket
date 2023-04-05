@@ -1,7 +1,9 @@
 module.exports = {
   siteMetadata: {
     title: `Beat Bracket`,
+    description: `Beat Bracket allows you to make a bracket of your favorite artist's songs and share it with your friends.`,
     siteUrl: `https://www.beatbracket.com`,
+    image: `/beat_bracket_logo.png`
   },
   plugins: ['gatsby-plugin-postcss', {
     resolve: "gatsby-plugin-react-svg",

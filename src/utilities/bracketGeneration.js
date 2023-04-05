@@ -6,19 +6,24 @@ import {
 	nearestLesserPowerOf2,
 } from "./helpers";
 
-async function relateSongs(len, theTracks, col, side, otherSide) {
+// Function to get the prominent colors from an image
+export async function getColorsFromImage(image) {
+	//const color = await new FastAverageColor().getColorAsync(image)
+	const color = (await Vibrant.from(image).getPalette()).Vibrant
+	return {
+		// backgroundColor: color.hex,
+		// textColor: color.isDark ? 'white' : 'black'
+		backgroundColor: color.getHex(),
+		textColor: color.getBodyTextColor()
+	}
+}
+
+export async function relateSongs(len, theTracks, col, side, otherSide) {
 	let colMap = new Map();
 	for (let i = 0; i < len; i++) {
 		let colorObj = null;
 		if (theTracks && theTracks[i]) {
-			//const color = await new FastAverageColor().getColorAsync(theTracks[i].art)
-			const color = (await Vibrant.from(theTracks[i].art).getPalette()).Vibrant
-			colorObj = {
-				// backgroundColor: color.hex,
-				// textColor: color.isDark ? 'white' : 'black'
-				backgroundColor: color.getHex(),
-				textColor: color.getBodyTextColor()
-			}
+			colorObj = await getColorsFromImage(theTracks[i].art)
 		}
 		colMap.set(side + col + i, {
 			song: theTracks ? (theTracks[i] ? theTracks[i] : null) : null,
@@ -47,7 +52,7 @@ async function relateSongs(len, theTracks, col, side, otherSide) {
 	return colMap;
 }
 
-async function fillBracket(tracks, cols) {
+export async function fillBracket(tracks, cols) {
 	let i = 0;
 	let forward = true;
 	let repeated = false;
@@ -95,15 +100,18 @@ async function fillBracket(tracks, cols) {
 	return temp;
 }
 
-function getNumberOfColumns(numItems) {
+export function getNumberOfColumns(numItems) {
 	let cols = Math.ceil(
 		Math.log(nearestLesserPowerOf2(numItems)) / Math.log(2)
 	);
 	return cols;
 }
 
-export {
-	relateSongs,
-	fillBracket,
-	getNumberOfColumns,
+export function getNumberOfSongs(bracketSize) {
+	//return 2 ** bracketSize - 1;
+	for (let i = 0; i < bracketSize; i++) {
+		if (2 ** i > bracketSize) {
+			return 2 ** (i - 1);
+		}
+	}
 }

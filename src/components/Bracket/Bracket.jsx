@@ -1,10 +1,11 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import SongButton from "./SongButton";
 import useWindowSize from "react-use/lib/useWindowSize";
 import {
   getNumberOfColumns,
-  fillBracket,
+  getNumberOfSongs,
 } from "../../utilities/bracketGeneration";
+import { popularitySort } from "../../utilities/helpers";
 
 const styles = [
   "mt-[var(--firstColumnSpacing)]",
@@ -19,15 +20,15 @@ const styles = [
 ];
 
 const topStyles = [
-  "mt-[var(--firstColumnSpacing)]",
-  "mt-[calc(var(--buttonheight)*1.25)]",
-  "mt-[calc(var(--buttonheight)*2.75)]",
-  "mt-[calc(var(--buttonheight)*5.75)]",
-  "mt-[calc(var(--buttonheight)*11.75)]",
-  "mt-[calc(var(--buttonheight)*23.75)]",
-  "mt-[calc(var(--buttonheight)*47.75)]",
-  "mt-[calc(var(--buttonheight)*95.75)]",
-  "mt-[calc(var(--buttonheight)*191.75)]",
+  "0",
+  "mt-[calc(var(--buttonheight)*.75)]",
+  "mt-[calc(var(--buttonheight)*2.25)]",
+  "mt-[calc(var(--buttonheight)*5.25)]",
+  "mt-[calc(var(--buttonheight)*11.25)]",
+  "mt-[calc(var(--buttonheight)*23.25)]",
+  "mt-[calc(var(--buttonheight)*47.25)]",
+  "mt-[calc(var(--buttonheight)*95.25)]",
+  "mt-[calc(var(--buttonheight)*191.25)]",
 ];
 
 const lineStyles = [
@@ -46,76 +47,67 @@ const lineStyles = [
 /*   4  8  16  32  64*/
 
 const Bracket = ({
-  tracks,
+  allTracks,
   showBracket,
   setShowBracket,
-  setBracketWinner,
   saveCommand,
   playbackEnabled,
   bracket,
   setBracket,
   editable,
+  editMode,
+  bracketTracks,
 }) => {
-  const [columns, setColumns] = useState(0);
-  const [renderArray, setRenderArray] = useState([]);
-  const [currentlyPlayingId, setCurrentlyPlayingId] = useState(null);
-  const [centerBracket, setCenterBracket] = useState(false);
   const { width, height } = useWindowSize();
+  const [currentlyPlayingId, setCurrentlyPlayingId] = useState(null);
+  const replacementTracks = useMemo(() => {
+    const bracketIds = [];
+    for (let track of bracketTracks) {
+      bracketIds.push(track.id);
+    }
+    return allTracks
+      .filter((track) => !bracketIds.includes(track.id))
+      .sort(popularitySort);
+  }, [allTracks, bracketTracks]);
+  const renderArray = useMemo(
+    () =>
+      bracket instanceof Map && bracket.size !== 0
+        ? [
+            generateComponentArray(
+              "l",
+              currentlyPlayingId,
+              setCurrentlyPlayingId
+            ),
+            generateComponentArray(
+              "r",
+              currentlyPlayingId,
+              setCurrentlyPlayingId
+            ),
+          ]
+        : [],
+    [
+      bracket,
+      currentlyPlayingId,
+      editMode,
+      editable,
+      replacementTracks,
+      playbackEnabled,
+    ]
+  );
   const [bracketRef, setBracketRef] = useState(null);
-  const bracketCallback = useCallback((node) => {
-    // console.log("setting bracket ref");
-    setBracketRef({ current: node });
-    updateCenterBracket();
-  }, []);
+  const bracketCallback = useCallback(
+    (node) => {
+      setBracketRef({ current: node });
+    },
+    [bracket]
+  );
 
-  useEffect(() => {
-    updateCenterBracket();
-  }, [bracket, showBracket, renderArray, width, height]);
-
-  function updateCenterBracket() {
-    // console.log("called", bracketRef);
-    if (bracketRef) {
-      //console.log(bracketRef.current, width);
-      if (bracketRef.current.offsetWidth <= width) {
-        //console.log("center on");
-        setCenterBracket(true);
-      } else {
-        //console.log("center off");
-        setCenterBracket(false);
-      }
-    }
-  }
-
-  useEffect(() => {
-    async function kickOff() {
-      // reset the undo chain
-      console.log("kicking off");
-      setShowBracket(false);
-      setCurrentlyPlayingId(null);
-      const cols = getNumberOfColumns(tracks.length);
-      const temp = await fillBracket(tracks, cols);
-      setBracket(temp);
-      setColumns(cols);
-    }
-    if (Array.isArray(tracks)) {
-      if (!tracks.includes(null)) {
-        if (tracks.length !== 0) {
-          setBracketWinner(null);
-          kickOff();
-        } else {
-          setRenderArray([]);
-        }
-      } else {
-        setColumns(getNumberOfColumns(tracks.length));
-      }
-    }
-  }, [tracks]);
-
-  useEffect(() => {
-    regenerateRenderArray();
-  }, [columns]);
-
-  function generateComponentArray(side) {
+  function generateComponentArray(
+    side,
+    mycurrentlyPlayingId,
+    mysetCurrentlyPlayingId
+  ) {
+    const columns = getNumberOfColumns(getNumberOfSongs(bracket.size));
     return Array.apply(null, { length: columns }).map((e, i) => (
       <div className="flex flex-col" key={side + i}>
         {Array.from(bracket.entries()).map((entry) => {
@@ -126,6 +118,7 @@ const Bracket = ({
             return (
               <div key={mykey}>
                 <SongButton
+                  editMode={editMode}
                   playbackEnabled={playbackEnabled}
                   modifyBracket={modifyBracket}
                   saveCommand={saveCommand}
@@ -134,8 +127,8 @@ const Bracket = ({
                   nextId={value.nextId}
                   song={value.song}
                   id={value.id}
-                  currentlyPlayingId={currentlyPlayingId}
-                  setCurrentlyPlayingId={setCurrentlyPlayingId}
+                  currentlyPlayingId={mycurrentlyPlayingId}
+                  setCurrentlyPlayingId={mysetCurrentlyPlayingId}
                   side={side}
                   styling={
                     (value.index === 0
@@ -153,7 +146,8 @@ const Bracket = ({
                   eliminated={value.eliminated}
                   disabled={editable ? value.disabled : true}
                   winner={value.winner}
-                  setBracketWinner={setBracketWinner}
+                  //setBracketWinner={setBracketWinner}
+                  replacementTracks={replacementTracks}
                 />
                 {value.index % 2 === 0 && value.nextId != null ? (
                   <div
@@ -177,21 +171,10 @@ const Bracket = ({
     ));
   }
 
-  function regenerateRenderArray() {
-    let leftSide = generateComponentArray("l");
-    let rightSide = generateComponentArray("r");
-    setRenderArray([...leftSide, ...rightSide]);
-  }
-
-  // rerender the bracket when certain events happen
   useEffect(() => {
-    regenerateRenderArray();
-    setShowBracket(true);
-  }, [bracket, playbackEnabled, currentlyPlayingId]);
-
-  useEffect(() => {
-    // show the bracket when the renderArray is ready
-    setShowBracket(true);
+    if (renderArray.length > 0) {
+      setShowBracket(true);
+    }
   }, [renderArray]);
 
   function modifyBracket(key, attribute, value) {
@@ -208,11 +191,19 @@ const Bracket = ({
     <div hidden={!showBracket || renderArray.length === 0}>
       <div
         className={
-          "overflow-x-scroll flex" +
-          (centerBracket ? " justify-center" : " justify-start")
+          "overflow-x-scroll flex " + //border-4 border-blue-600
+          (bracketRef && bracketRef.current.offsetWidth <= width
+            ? " justify-center"
+            : " justify-start")
         }
       >
-        <div ref={bracketCallback} className="block w-fit flex-col">
+        <div
+          ref={bracketCallback}
+          className={
+            "block w-fit flex-col " +
+            (editMode ? " bg-gray-800/25 rounded-2xl p-2" : "")
+          }
+        >
           <div
             className="flex flex-row gap-[10px] justify-start p-[5px]"
             id="bracket"

@@ -19,6 +19,21 @@ module.exports = {
       backgroundImage: {
         'colosseum': "url('./src/assets/images/colosseum.jpg')"
       },
+      keyframes: {
+        rotate: {
+          '100%': {
+            transform: 'rotate(1turn)'
+          }
+        },
+        wiggle: {
+          '0%, 100%': { transform: 'rotate(-2deg)' },
+          '50%': { transform: 'rotate(2deg)' },
+        }
+      },
+      animation: {
+        rotate: 'rotate 6s linear infinite',
+        wiggle: 'wiggle .5s ease-in-out infinite',
+      }
     },
   },
   plugins: [],

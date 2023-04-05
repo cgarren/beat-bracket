@@ -114,7 +114,7 @@ const ProfileDropdown = ({ loggedIn, noChanges }) => {
           </button>
           <ul
             id="dropdownNavbar"
-            className="absolute right-0 bg-white text-base z-10 list-none divide-y divide-gray-100 rounded shadow w-full cursor-pointer min-w-fit"
+            className="absolute right-0 bg-white text-base z-40 list-none divide-y divide-gray-100 rounded shadow w-full cursor-pointer min-w-fit"
             aria-labelledby="dropdownDefault"
             hidden={!showDropdown}
           >

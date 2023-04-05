@@ -14,6 +14,7 @@ const PlayPauseButton = ({
   playbackEnabled,
   buttonRef,
   audioRef,
+  editMode,
 }) => {
   const [paused, setPaused] = useState(true);
 
@@ -90,7 +91,7 @@ const PlayPauseButton = ({
         (side ? " rounded-r-[0] " : " rounded-l-[0] ")
       }
       style={song ? colorStyle : {}}
-      hidden={song === null || disabled}
+      hidden={song === null || disabled || editMode}
     >
       {paused ? <PlayIcon /> : <PauseIcon />}
     </button>
