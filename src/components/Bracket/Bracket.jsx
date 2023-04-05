@@ -57,9 +57,10 @@ const Bracket = ({
   editable,
   editMode,
   bracketTracks,
+  currentlyPlayingId,
+  setCurrentlyPlayingId,
 }) => {
   const { width, height } = useWindowSize();
-  const [currentlyPlayingId, setCurrentlyPlayingId] = useState(null);
   const replacementTracks = useMemo(() => {
     const bracketIds = [];
     for (let track of bracketTracks) {

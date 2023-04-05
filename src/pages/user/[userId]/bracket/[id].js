@@ -37,6 +37,7 @@ const App = ({ params, location }) => {
   const [lastSaved, setLastSaved] = useState({ time: 0, commandsLength: 0 });
   const [bracket, setBracket] = useState(new Map());
   const [artist, setArtist] = useState({ "name": undefined, "id": undefined });
+  const [currentlyPlayingId, setCurrentlyPlayingId] = useState(null);
 
   const [owner, setOwner] = useState({ "name": undefined, "id": params.userId });
 
@@ -393,6 +394,7 @@ const App = ({ params, location }) => {
                 <ActionButton
                   onClick={() => {
                     setEditMode(true);
+                    setCurrentlyPlayingId(null);
                     if (!allTracks.length && readyToChange) {
                       getTracks(artist);
                     }
@@ -429,7 +431,7 @@ const App = ({ params, location }) => {
               : null}
           </div>
         </div>
-        <Bracket bracket={bracket} bracketTracks={bracketTracks} setBracket={setBracket} allTracks={allTracks} setShowBracket={setShowBracket} showBracket={showBracket} saveCommand={saveCommand} playbackEnabled={playbackEnabled} editable={editable} editMode={editMode} />
+        <Bracket bracket={bracket} bracketTracks={bracketTracks} setBracket={setBracket} allTracks={allTracks} setShowBracket={setShowBracket} showBracket={showBracket} currentlyPlayingId={currentlyPlayingId} setCurrentlyPlayingId={setCurrentlyPlayingId} saveCommand={saveCommand} playbackEnabled={playbackEnabled} editable={editable} editMode={editMode} />
       </div>
     </Layout >
   )
