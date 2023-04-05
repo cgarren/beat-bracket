@@ -306,7 +306,7 @@ const App = ({ params, location }) => {
   async function getTracks(providedArtist) {
     console.log("getting tracks");
     setLoadingText("Gathering Spotify tracks for " + providedArtist.name + "...");
-    const songPossibilities = await loadAlbums("https://api.spotify.com/v1/artists/" + providedArtist.id + "/albums?include_groups=album,single&limit=20", providedArtist.id);
+    const songPossibilities = await loadAlbums("https://api.spotify.com/v1/artists/" + providedArtist.id + "/albums?include_groups=album,single,compilation&limit=20", providedArtist.id);
     if (songPossibilities === 1) {
       showAlert("Error loading tracks from Spotify", "error", false);
       return;
