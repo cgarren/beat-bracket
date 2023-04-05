@@ -64,7 +64,7 @@ async function loadTrackData(idList, trackOptionsAmounts) {
 		let featuredList = [];
 		for (let i = 0; i < idList.length; i++) {
 			idString += idList[i][0];
-			if (i != idList.length - 1) {
+			if (i !== idList.length - 1) {
 				idString += ",";
 			}
 			featuredList.push(idList[i][1]);
@@ -135,7 +135,7 @@ async function loadTracks(url, songs, artistId) {
 							// Check if the artist is the one we're looking for
 							if (track.artists[i].id === artistId) {
 								let feature = false;
-								if (i != 0) {
+								if (i !== 0) {
 									// Main artist
 									feature = true;
 								}

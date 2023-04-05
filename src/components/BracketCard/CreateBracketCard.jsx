@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import BracketCard from "./BracketCard";
 import createBracketPic from "../../assets/images/createBracket.png";
 import { v4 as uuidv4 } from "uuid";

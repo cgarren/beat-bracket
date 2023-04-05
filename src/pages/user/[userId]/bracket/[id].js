@@ -62,7 +62,6 @@ const App = ({ params, location }) => {
     const cols = getNumberOfColumns(bracketTracks.length) - 1;
     const left = bracket.get("l" + cols + "0");
     const right = bracket.get("r" + cols + "0");
-    console.log(left, right);
     if (left && left.winner && left.song) {
       return left.song;
     } else if (right && right.winner && right.song) {
@@ -394,7 +393,7 @@ const App = ({ params, location }) => {
                       getTracks(artist);
                     }
                   }}
-                  disabled={commands.length != 0 || !bracketUnchanged(bracket)}
+                  disabled={commands.length !== 0 || !bracketUnchanged(bracket)}
                   icon={<EditIcon />}
                   text="Edit Layout"
                 />
