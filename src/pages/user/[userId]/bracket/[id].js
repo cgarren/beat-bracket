@@ -50,22 +50,26 @@ const App = ({ params, location }) => {
 
   const bracketTracks = useMemo(() => {
     let tracks = [];
-    for (let item of bracket.values()) {
-      if (item.song && item.col === 0) {
-        tracks.push(item.song);
+    if (bracket) {
+      for (let item of bracket.values()) {
+        if (item.song && item.col === 0) {
+          tracks.push(item.song);
+        }
       }
     }
     return tracks;
   }, [bracket]);
-  const readyToChange = bracket.size > 0;
+  const readyToChange = bracket ? bracket.size > 0 : false;
   const bracketWinner = useMemo(() => {
-    const cols = getNumberOfColumns(bracketTracks.length) - 1;
-    const left = bracket.get("l" + cols + "0");
-    const right = bracket.get("r" + cols + "0");
-    if (left && left.winner && left.song) {
-      return left.song;
-    } else if (right && right.winner && right.song) {
-      return right.song;
+    if (bracket) {
+      const cols = getNumberOfColumns(bracketTracks.length) - 1;
+      const left = bracket.get("l" + cols + "0");
+      const right = bracket.get("r" + cols + "0");
+      if (left && left.winner && left.song) {
+        return left.song;
+      } else if (right && right.winner && right.song) {
+        return right.song;
+      }
     }
     return null;
   }, [bracket, bracketTracks]);
@@ -366,7 +370,7 @@ const App = ({ params, location }) => {
           ? <BracketWinnerInfo bracketWinner={bracketWinner} /> : null}
       </div>
       <hr />
-      <LoadingIndicator hidden={showBracket} loadingText={loadingText} />
+      <LoadingIndicator hidden={showBracket || !owner.name || !artist.name} loadingText={loadingText} />
       <div hidden={!editMode || !showBracket} className="font-medium text-lg">Drag and drop to rearrange songs as you like</div>
       <div hidden={!showBracket || !artist.name} className="text-center">
         <div className="text-xs -space-x-px rounded-md sticky mx-auto top-0 w-fit z-30">
