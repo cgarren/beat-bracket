@@ -23,8 +23,8 @@ const App = () => {
     console.log(brackets);
     return brackets.filter((bracket) => {
       if (activeTab === 0) return true;
-      if (activeTab === 1) return !bracket.completed;
-      if (activeTab === 2) return bracket.completed;
+      if (activeTab === 1) return !bracket.completed && !bracket.winner;
+      if (activeTab === 2) return bracket.completed || bracket.winner;
       return true;
     })
   }, [activeTab, brackets]);
