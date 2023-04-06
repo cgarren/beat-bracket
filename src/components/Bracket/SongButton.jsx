@@ -249,8 +249,8 @@ const SongButton = ({
           >
             <img
               src={spotifyIcon}
-              alt="Open with Spotify"
-              title="Open with Spotify"
+              alt="Spotify Icon"
+              title="Open in Spotify"
               className="h-[20px] text-white"
             />
           </button>
