@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import NavBar from "./NavBar/NavBar";
 import { checkSpotifyAuth } from "../utilities/helpers";
+import spotifyLogo from "../assets/images/Spotify_Logo_RGB_Black.png";
 import Clicky from "./Clicky";
 
 const Layout = ({ children, noChanges }) => {
@@ -25,14 +26,25 @@ const Layout = ({ children, noChanges }) => {
 
   return (
     <>
-      <Clicky/>
+      <Clicky />
       <div className="text-center clear-both">
         <main className="font-sans text-black bg-zinc-300 relative text-center min-h-screen pb-[24px]">
           {/* <div className="fixed w-full h-full top-0 left-0 bg-repeat bg-scroll bg-slate-900 bg-colosseum bg-blend-screen bg-cover opacity-40 -z-10"></div> */}
           <NavBar loggedIn={loggedIn} noChanges={noChanges} />
           {children}
         </main>
-        <div className="relative h-[24px] -mt-[24px]">© Cooper Garren 2023</div>
+        <div className="relative h-[24px] -mt-[24px]">
+          <span className="inline-flex items-center">
+            © Cooper Garren 2023 | Content provided by&nbsp;
+            <a href="https://spotify.com">
+              <img
+                src={spotifyLogo}
+                alt="Spotify"
+                className="h-[22px] text-white"
+              />
+            </a>
+          </span>
+        </div>
       </div>
     </>
   );
