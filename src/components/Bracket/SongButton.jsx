@@ -3,6 +3,8 @@ import PlayPauseButton from "./PlayPauseButton";
 import Modal from "../Modal";
 import Suggestion from "../Search/Suggestion";
 
+import spotifyIcon from "../../assets/images/Spotify_Icon_RGB_Green.png";
+
 import Vibrant from "node-vibrant";
 import { getColorsFromImage } from "../../utilities/bracketGeneration";
 
@@ -238,6 +240,21 @@ const SongButton = ({
             {"✕"}
           </button>
         ) : null}
+        {!editMode && song && !disabled ? (
+          <button
+            onClick={() => {
+              window.open(`http://open.spotify.com/track/${song.id}`);
+            }}
+            className="border-0 p-0 w-[20px] h-[20px] hover:bg-white bg-black text-white absolute -top-2 -right-2 rounded-full z-50"
+          >
+            <img
+              src={spotifyIcon}
+              alt="Open with Spotify"
+              title="Open with Spotify"
+              className="h-[20px] text-white"
+            />
+          </button>
+        ) : null}
         <button
           disabled={disabled}
           onClick={editMode ? null : songChosen}
@@ -249,8 +266,12 @@ const SongButton = ({
               ? " opacity-100 active:opacity-100 "
               : editMode
               ? " w-full "
-              : " w-[70%] ") +
-            (song == null ? " w-full bg-transparent text-black " : "") +
+              : " w-[75%]") +
+            (song == null
+              ? " w-full bg-transparent text-black "
+              : !disabled
+              ? " hover:brightness-95 "
+              : " ") +
             (editMode
               ? " rounded-[inherit] pr-[6px] pl-[6px]"
               : side
@@ -261,19 +282,21 @@ const SongButton = ({
         >
           {song !== null ? song.name : ""}
         </button>
-        <PlayPauseButton
-          id={id}
-          song={song}
-          side={side}
-          disabled={disabled}
-          currentlyPlayingId={currentlyPlayingId}
-          setCurrentlyPlayingId={setCurrentlyPlayingId}
-          colorStyle={colorStyle}
-          playbackEnabled={playbackEnabled}
-          buttonRef={buttonRef}
-          audioRef={audioRef}
-          editMode={editMode}
-        />
+        {song && !disabled && !editMode ? (
+          <PlayPauseButton
+            id={id}
+            song={song}
+            side={side}
+            disabled={disabled}
+            currentlyPlayingId={currentlyPlayingId}
+            setCurrentlyPlayingId={setCurrentlyPlayingId}
+            colorStyle={colorStyle}
+            playbackEnabled={playbackEnabled}
+            buttonRef={buttonRef}
+            audioRef={audioRef}
+            editMode={editMode}
+          />
+        ) : null}
         <audio
           src={song !== null && !disabled ? song.preview_url : null}
           volume="1"

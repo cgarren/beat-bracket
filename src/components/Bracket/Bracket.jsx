@@ -201,8 +201,8 @@ const Bracket = ({
         <div
           ref={bracketCallback}
           className={
-            "block w-fit flex-col " +
-            (editMode ? " bg-gray-800/25 rounded-2xl p-2" : "")
+            "block w-fit flex-col p-2" +
+            (editMode ? " bg-gray-800/25 rounded-2xl" : "")
           }
         >
           <div

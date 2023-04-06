@@ -87,11 +87,10 @@ const PlayPauseButton = ({
     <button
       onClick={playPauseAudio}
       className={
-        "rounded-[inherit] bg-green-500 text-white border-0 w-[30%] h-full min-h-[var(--buttonheight)] cursor-[inherit] text-center p-0" +
+        "rounded-[inherit] bg-green-500 text-white border-0 w-[25%] h-full min-h-[var(--buttonheight)] cursor-[inherit] text-center p-0 hover:brightness-95" +
         (side ? " rounded-r-[0] " : " rounded-l-[0] ")
       }
       style={song ? colorStyle : {}}
-      hidden={song === null || disabled || editMode}
     >
       {paused ? <PlayIcon /> : <PauseIcon />}
     </button>
