@@ -35,7 +35,7 @@ const Layout = ({ children, noChanges }) => {
         </main>
         <div className="relative h-[24px] -mt-[24px]">
           <span className="inline-flex items-center">
-            © Cooper Garren 2023 | Content provided by&nbsp;
+            © Cooper Garren 2023 | Content from&nbsp;
             <a href="https://spotify.com">
               <img
                 src={spotifyLogo}
