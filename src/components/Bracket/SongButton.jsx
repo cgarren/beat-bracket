@@ -282,21 +282,19 @@ const SongButton = ({
         >
           {song !== null ? song.name : ""}
         </button>
-        {song && !disabled && !editMode ? (
-          <PlayPauseButton
-            id={id}
-            song={song}
-            side={side}
-            disabled={disabled}
-            currentlyPlayingId={currentlyPlayingId}
-            setCurrentlyPlayingId={setCurrentlyPlayingId}
-            colorStyle={colorStyle}
-            playbackEnabled={playbackEnabled}
-            buttonRef={buttonRef}
-            audioRef={audioRef}
-            editMode={editMode}
-          />
-        ) : null}
+        <PlayPauseButton
+          id={id}
+          song={song}
+          side={side}
+          disabled={disabled}
+          currentlyPlayingId={currentlyPlayingId}
+          setCurrentlyPlayingId={setCurrentlyPlayingId}
+          colorStyle={colorStyle}
+          playbackEnabled={playbackEnabled}
+          buttonRef={buttonRef}
+          audioRef={audioRef}
+          editMode={editMode}
+        />
         <audio
           src={song !== null && !disabled ? song.preview_url : null}
           volume="1"
