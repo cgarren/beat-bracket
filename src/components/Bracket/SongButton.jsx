@@ -268,7 +268,7 @@ const SongButton = ({
               ? " w-full "
               : song && song.preview_url
               ? " w-[75%] "
-              : " ") +
+              : " w-full ") +
             (song == null
               ? " w-full bg-transparent text-black "
               : !disabled
