@@ -266,14 +266,16 @@ const SongButton = ({
               ? " opacity-100 active:opacity-100 "
               : editMode
               ? " w-full "
-              : " w-[75%]") +
+              : song && song.preview_url
+              ? " w-[75%] "
+              : " !rounded-[inherit] pr-[6px] pl-[6px] ") +
             (song == null
               ? " w-full bg-transparent text-black "
               : !disabled
               ? " hover:brightness-95 "
               : " ") +
             (editMode
-              ? " rounded-[inherit] pr-[6px] pl-[6px]"
+              ? " rounded-[inherit] pr-[6px] pl-[6px] "
               : side
               ? " pr-[6px] rounded-l-[0] "
               : " pl-[6px] rounded-r-[0] ") +
@@ -282,25 +284,29 @@ const SongButton = ({
         >
           {song !== null ? song.name : ""}
         </button>
-        <PlayPauseButton
-          id={id}
-          song={song}
-          side={side}
-          disabled={disabled}
-          currentlyPlayingId={currentlyPlayingId}
-          setCurrentlyPlayingId={setCurrentlyPlayingId}
-          colorStyle={colorStyle}
-          playbackEnabled={playbackEnabled}
-          buttonRef={buttonRef}
-          audioRef={audioRef}
-          editMode={editMode}
-        />
-        <audio
-          src={song !== null && !disabled ? song.preview_url : null}
-          volume="1"
-          className="hidden"
-          ref={audioRef}
-        ></audio>
+        {song && song.preview_url ? (
+          <>
+            <PlayPauseButton
+              id={id}
+              song={song}
+              side={side}
+              disabled={disabled}
+              currentlyPlayingId={currentlyPlayingId}
+              setCurrentlyPlayingId={setCurrentlyPlayingId}
+              colorStyle={colorStyle}
+              playbackEnabled={playbackEnabled}
+              buttonRef={buttonRef}
+              audioRef={audioRef}
+              editMode={editMode}
+            />
+            <audio
+              src={song !== null && !disabled ? song.preview_url : null}
+              volume="1"
+              className="hidden"
+              ref={audioRef}
+            ></audio>
+          </>
+        ) : null}
       </div>
     </>
   );
