@@ -194,8 +194,8 @@ const Bracket = ({
         className={
           "overflow-x-scroll flex " + //border-4 border-blue-600
           (bracketRef && bracketRef.current.offsetWidth <= width
-            ? " justify-center"
-            : " justify-start")
+            ? "justify-center"
+            : "justify-start")
         }
       >
         <div
