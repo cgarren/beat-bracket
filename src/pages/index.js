@@ -13,18 +13,7 @@ const App = () => {
         <div className="flex flex-col justify-center items-center h-full">
           <div className="inline-flex flex-col justify-center items-center">
             <div className="relative">
-              <LandingLetter letter={"B"} animation={"animate-flipy"} />
-              <LandingLetter letter={"e"} animation={"animate-flipx"} />
-              <LandingLetter letter={"a"} animation={"animate-flipy"} />
-              <LandingLetter letter={"t"} animation={"animate-flipx"} />
-              &nbsp;&nbsp;&nbsp;&nbsp;
-              <LandingLetter letter={"B"} animation={"animate-flipy"} />
-              <LandingLetter letter={"r"} animation={"animate-flipx"} />
-              <LandingLetter letter={"a"} animation={"animate-flipy"} />
-              <LandingLetter letter={"c"} animation={"animate-flipx"} />
-              <LandingLetter letter={"k"} animation={"animate-flipy"} />
-              <LandingLetter letter={"e"} animation={"animate-flipx"} />
-              <LandingLetter letter={"t"} animation={"animate-flipy"} />
+              <LandingLetter letter={"Beat Bracket"} animation={"animate-flipy"} />
             </div>
             {/* <div className="mb-0.5 text-black font-bar font-bold text-xl">THE song bracket maker</div> */}
             <span className="mt-1.5"><LoginButton /></span>
