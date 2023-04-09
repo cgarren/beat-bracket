@@ -268,13 +268,13 @@ const SongButton = ({
               ? " w-full "
               : song && song.preview_url
               ? " w-[75%] "
-              : " !rounded-[inherit] pr-[6px] pl-[6px] ") +
+              : " ") +
             (song == null
               ? " w-full bg-transparent text-black "
               : !disabled
               ? " hover:brightness-95 "
               : " ") +
-            (editMode
+            (editMode || (song && !song.preview_url)
               ? " rounded-[inherit] pr-[6px] pl-[6px] "
               : side
               ? " pr-[6px] rounded-l-[0] "
