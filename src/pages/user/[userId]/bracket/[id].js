@@ -401,7 +401,7 @@ const App = ({ params, location }) => {
                   }}
                   disabled={commands.length !== 0 || !bracketUnchanged(bracket)}
                   icon={<EditIcon />}
-                  text="Edit Layout"
+                  text="Edit"
                 />
               </>
               : null}
