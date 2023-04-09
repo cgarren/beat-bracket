@@ -58,7 +58,9 @@ const PlayPauseButton = ({
 
   useEffect(() => {
     if (currentlyPlayingId !== id) {
-      audioRef.current.pause();
+      if (!audioRef.current.paused) {
+        audioRef.current.pause();
+      }
       setPaused(true);
     } else {
       try {
