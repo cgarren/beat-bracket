@@ -37,10 +37,15 @@ async function selectTrackVersion(numTracks, tracks, featuredList) {
 	for (let i = 0; i < numTracks; i++) {
 		const track = tracks.shift();
 		const feature = featuredList.shift();
-		if (track.popularity >= highestPop) {
-			selectedTrack = track;
-			selectedTrack.feature = feature;
-			highestPop = track.popularity;
+		try {
+			if (track.popularity >= highestPop) {
+				selectedTrack = track;
+				selectedTrack.feature = feature;
+				highestPop = track.popularity;
+			}
+		} catch (error) {
+			console.log(track, tracks, numTracks);
+			throw (error)
 		}
 	}
 	return selectedTrack;
@@ -90,7 +95,7 @@ async function processTracks(songs) {
 	let templist = [];
 	let runningList = [];
 	let trackOptionsAmounts = [];
-	for (const idList of Object.values(songs)) {
+	for (let idList of Object.values(songs)) {
 		if (runningList.length + idList.length > 50) {
 			const temp = await loadTrackData(runningList, trackOptionsAmounts);
 			if (temp !== 1) {
@@ -101,6 +106,8 @@ async function processTracks(songs) {
 				return 1;
 			}
 		}
+		//limit to 50 potential tracks per song so that we don't break the API
+		idList = idList.slice(0, 50);
 		runningList.push(...idList);
 		trackOptionsAmounts.push(idList.length);
 	}
