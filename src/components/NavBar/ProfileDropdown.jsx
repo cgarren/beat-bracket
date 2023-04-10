@@ -69,9 +69,7 @@ const ProfileDropdown = ({ loggedIn, noChanges }) => {
   return (
     <div>
       {!loggedIn ? (
-        <div className="border rounded">
-          <LoginButton />
-        </div>
+        <LoginButton variant="bordered" />
       ) : (
         <div className="inline-block relative">
           <button
@@ -90,7 +88,8 @@ const ProfileDropdown = ({ loggedIn, noChanges }) => {
             <img
               className="object-cover w-10 h-10 rounded-full"
               src={shownUserInfo.images[0].url}
-              alt={shownUserInfo.display_name}
+              alt="Profile picture"
+              title={`${shownUserInfo.display_name}'s Profile picture from Spotify`}
             />
             <p className="hidden ml-2 text-left sm:block">
               <strong className="block text-s font-bold text-white">

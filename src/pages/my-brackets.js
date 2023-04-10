@@ -8,6 +8,7 @@ import { getBrackets, authenticate } from "../utilities/backend";
 import { getUserInfo } from "../utilities/spotify";
 import { navigate } from "gatsby";
 import { getParamsFromURL } from "../utilities/helpers";
+import { SEO } from "../components/SEO";
 
 // markup
 const App = () => {
@@ -123,7 +124,7 @@ const App = () => {
       <Alert show={alertInfo.show} close={closeAlert} message={alertInfo.message} type={alertInfo.type} />
       <div className="text-center" hidden={error}>
         <h1 className="text-4xl font-extrabold font-display">My Brackets</h1>
-        {currentUserId ? <p className="text-sm text-gray-500 mb-2">{brackets.length + "/" + maxBrackets + " brackets used"}</p> : null}
+        {currentUserId ? <p className="text-sm text-gray-600 mb-2">{brackets.length + "/" + maxBrackets + " brackets used"}</p> : null}
 
         <div className="">
           <nav className="inline-flex flex-row">
@@ -147,6 +148,6 @@ export default App
 
 export function Head() {
   return (
-    <title>Beat Bracket - My Brackets</title>
+    <SEO title="Beat Bracket - My brackets" />
   )
 }

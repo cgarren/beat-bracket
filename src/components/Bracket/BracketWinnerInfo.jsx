@@ -8,13 +8,14 @@ const BracketWinnerInfo = ({ bracketWinner }) => {
         className="w-[120px] h-[120px] mx-auto rounded"
         width="120px"
         height="120px"
-        alt={bracketWinner.name}
+        alt="Album art"
+        title={`Album art for ${bracketWinner.name}`}
       />
       <span className="font-bold">Winner: </span>
       {bracketWinner.name}
-      <div>
-        <span>Popularity:</span> {bracketWinner.popularity}
-      </div>
+      {/* <div>
+        <span>Popularity on Spotify:</span> {bracketWinner.popularity}/100
+      </div> */}
     </div>
   );
 };

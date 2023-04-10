@@ -43,6 +43,7 @@ const ArtistBracketCard = ({ bracket, userId }) => {
   return (
     <BracketCard
       image={cardImage}
+      imageAlt={`Picture of ${bracket.artistName}`}
       cardText={
         bracket.artistId ? <CardName bracket={bracket} /> : "Loading..."
       }

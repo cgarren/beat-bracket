@@ -22,6 +22,7 @@ const CreateBracketCard = ({ userId }) => {
     <div>
       <BracketCard
         image={createBracketPic}
+        imageAlt="Plus sign"
         cardText={"Create Bracket"}
         onClick={() => {
           setShowSearchBar(true);

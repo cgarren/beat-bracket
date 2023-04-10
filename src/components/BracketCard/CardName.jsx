@@ -9,7 +9,10 @@ export default function CardName({ bracket }) {
           : "Getting brackets..."}
       </span>
       {bracket.winner || bracket.completed ? (
-        <span className="text-green-600 text-xs font-medium inline-flex items-center px-0.5 py-0.5 rounded-md">
+        <span
+          title="Completed"
+          className="text-green-600 text-xs font-medium inline-flex items-center px-0.5 py-0.5 rounded-md"
+        >
           <svg
             className="w-4 h-4"
             fill="none"

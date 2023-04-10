@@ -2,9 +2,9 @@ import React from "react";
 
 import { generateRandomString } from "../utilities/helpers";
 
-import spotifyLogo from "../assets/images/Spotify_Logo_RGB_Green.png";
+import spotifyLogoGreen from "../assets/images/Spotify_Logo_RGB_Green.png";
 
-const LoginButton = () => {
+const LoginButton = ({ variant = "borderless" }) => {
   function login() {
     const stateKey = "spotify_auth_state";
     const client_id = "fff2634975884bf88e3d3c9c2d77763d"; // Your client id
@@ -36,10 +36,18 @@ const LoginButton = () => {
   return (
     <button
       onClick={login}
-      className="bg-black hover:bg-zinc-800 text-white border-black hover:border-zinc-800 inline-flex flex-row items-center justify-center"
+      className={`${
+        variant === "bordered"
+          ? "bg-black hover:bg-zinc-800 border-white hover:border-zinc-200 text-white"
+          : "bg-black hover:bg-zinc-800 border-black hover:border-zinc-800 text-white"
+      } inline-flex flex-row items-center justify-center`}
     >
       <span>Login with&nbsp;</span>
-      <img src={spotifyLogo} alt="Spotify" className="h-6 text-white"></img>
+      <img
+        src={spotifyLogoGreen}
+        alt="Spotify"
+        className="h-6 text-white"
+      ></img>
     </button>
   );
 };

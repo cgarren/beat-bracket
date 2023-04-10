@@ -4,6 +4,7 @@ import LoadingIndicator from "../LoadingIndicator";
 const BracketCard = ({
   children,
   image,
+  imageAlt,
   cardText,
   onClick = () => {},
   removeFunc = null,
@@ -14,6 +15,7 @@ const BracketCard = ({
         <button
           onClick={removeFunc}
           className="border-0 p-0 w-[30px] h-[30px] bg-white text-black absolute -top-2 -right-2 rounded-full"
+          title="Delete bracket"
         >
           {"✕"}
         </button>
@@ -30,7 +32,7 @@ const BracketCard = ({
               className="w-[320px] h-[320px]"
               width="320px"
               height="320px"
-              alt={cardText}
+              alt={imageAlt ? imageAlt : "Bracket image"}
             />
           ) : (
             <LoadingIndicator loadingText="" hidden={false} />
