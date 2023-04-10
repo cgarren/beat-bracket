@@ -367,7 +367,7 @@ const App = ({ params, location }) => {
       /> : null}
       <Alert show={alertInfo.show} close={closeAlert} message={alertInfo.message} type={alertInfo.type} />
       <div className="text-center">
-        {owner.name && artist.name ? <div className="font-bold mb-2 text-xl">{artist.name} bracket by {owner.name} {bracketTracks.length ? "(" + bracketTracks.length + " tracks)" : null}</div> : (bracket ? <div>Finding bracket...</div> : <div className="font-bold mb-2">Bracket not found</div>)}
+        <h1>{owner.name && artist.name ? <div className="font-bold mb-2 text-xl">{artist.name} bracket by {owner.name} {bracketTracks.length ? "(" + bracketTracks.length + " tracks)" : null}</div> : (bracket ? <div>Finding bracket...</div> : <div className="font-bold mb-2">Bracket not found</div>)}</h1>
         {bracketWinner
           ? <BracketWinnerInfo bracketWinner={bracketWinner} /> : null}
       </div>
