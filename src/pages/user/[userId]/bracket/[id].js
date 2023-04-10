@@ -5,7 +5,7 @@ import { navigate } from "gatsby";
 import Mousetrap from "mousetrap";
 import Confetti from "react-confetti";
 // Components
-import { SEO } from "../../../../components/SEO";
+import { Seo } from "../../../../components/SEO";
 import Bracket from "../../../../components/Bracket/Bracket"
 import Layout from "../../../../components/Layout";
 import LoadingIndicator from "../../../../components/LoadingIndicator";
@@ -442,6 +442,6 @@ export default App
 
 export function Head() {
   return (
-    <SEO title="Beat Bracket - View bracket" />
+    <Seo title="Beat Bracket - View bracket" />
   )
 }

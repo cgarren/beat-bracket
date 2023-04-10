@@ -1,9 +1,8 @@
 import React from "react"
 import Clicky from "../components/Clicky";
-import LandingLetter from "../components/LandingLetter";
 import LoginButton from "../components/LoginButton";
 import Footer from "../components/Footer";
-import { SEO } from "../components/SEO";
+import { Seo } from "../components/SEO";
 
 const App = () => {
 
@@ -30,7 +29,7 @@ export default App
 
 export function Head() {
   return (
-    <SEO>
+    <Seo>
       <script type="application/ld+json">
         {`
           {
@@ -46,6 +45,6 @@ export function Head() {
           }
         `}
       </script>
-    </SEO>
+    </Seo>
   )
 }
