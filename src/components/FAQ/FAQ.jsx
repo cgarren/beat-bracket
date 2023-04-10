@@ -4,7 +4,7 @@ import LoginButton from "../LoginButton";
 
 const FAQ = ({ loggedIn }) => {
   return (
-    <div className="text-left">
+    <div className="text-left" aria-label="Frequently asked questions">
       <FAQSection
         question={"What is Beat Bracket?"}
         answer={
