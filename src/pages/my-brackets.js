@@ -8,6 +8,7 @@ import { getBrackets, authenticate } from "../utilities/backend";
 import { getUserInfo } from "../utilities/spotify";
 import { navigate } from "gatsby";
 import { getParamsFromURL } from "../utilities/helpers";
+import { SEO } from "../components/SEO";
 
 // markup
 const App = () => {
@@ -147,6 +148,6 @@ export default App
 
 export function Head() {
   return (
-    <title>Beat Bracket - My Brackets</title>
+    <SEO title="Beat Bracket - My brackets" />
   )
 }

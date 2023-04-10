@@ -11,7 +11,7 @@ const FAQ = ({ loggedIn }) => {
           <>
             Beat Bracket allows you to create and share brackets for any artist
             on Spotify. You can automatically fill and seed brackets of
-            different sizes and then fine-tune manually by moving and replacing
+            different sizes and then fine-tune manually by moving or replacing
             individual songs
           </>
         }

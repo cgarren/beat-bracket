@@ -1,7 +1,7 @@
 module.exports = {
   siteMetadata: {
     title: `Beat Bracket`,
-    description: `Beat Bracket allows you to make a bracket of your favorite artist's songs and share it with your friends.`,
+    description: `Make and share interactive music brackets for your favorite artists`,
     siteUrl: `https://www.beatbracket.com`,
     image: `/beat_bracket_logo.png`
   },
