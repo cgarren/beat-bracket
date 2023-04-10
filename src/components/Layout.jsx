@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import NavBar from "./NavBar/NavBar";
 import { checkSpotifyAuth } from "../utilities/helpers";
-import spotifyLogo from "../assets/images/Spotify_Logo_RGB_Black.png";
 import Clicky from "./Clicky";
+import Footer from "./Footer";
 
 const Layout = ({ children, noChanges }) => {
   const [loggedIn, setLoggedIn] = useState(true);
@@ -33,18 +33,7 @@ const Layout = ({ children, noChanges }) => {
           <NavBar loggedIn={loggedIn} noChanges={noChanges} />
           {children}
         </main>
-        <div className="relative h-[24px] -mt-[24px]">
-          <span className="inline-flex items-center">
-            © Cooper Garren 2023 | Content from&nbsp;
-            <a href="https://spotify.com">
-              <img
-                src={spotifyLogo}
-                alt="Spotify"
-                className="h-[22px] text-white"
-              />
-            </a>
-          </span>
-        </div>
+        <Footer loggedIn={loggedIn} />
       </div>
     </>
   );

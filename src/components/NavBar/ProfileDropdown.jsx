@@ -69,9 +69,7 @@ const ProfileDropdown = ({ loggedIn, noChanges }) => {
   return (
     <div>
       {!loggedIn ? (
-        <div className="border rounded">
-          <LoginButton />
-        </div>
+        <LoginButton variant="bordered" />
       ) : (
         <div className="inline-block relative">
           <button

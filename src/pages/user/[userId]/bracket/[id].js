@@ -372,7 +372,7 @@ const App = ({ params, location }) => {
       </div>
       <hr />
       <LoadingIndicator hidden={showBracket || !owner.name || !artist.name} loadingText={loadingText} />
-      <div hidden={!editMode || !showBracket} className="font-medium text-lg">Drag and drop to rearrange songs as you like</div>
+      <div hidden={!editMode || !showBracket} className="font-medium text-lg">Drag and drop to rearrange songs</div>
       <div hidden={!showBracket || !artist.name} className="text-center">
         <div className="text-xs -space-x-px rounded-md sticky mx-auto top-0 w-fit z-30">
           <div className="flex items-center">
