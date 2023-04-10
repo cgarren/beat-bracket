@@ -13,7 +13,7 @@ const App = () => {
         {/* <nav className="absolute w-full z-50 p-2 bg-black"></nav> */}
         <div className="flex flex-col justify-center items-center h-5/6 px-4">
           <div className="inline-flex flex-col justify-center items-center text-center">
-            <h1 className="inline-block mb-0.5 font-bold font-display text-8xl text-black ">Beat Bracket</h1>
+            <h1 className="inline-block mb-0.5 font-bold font-display sm:text-8xl text-7xl text-black ">Beat Bracket</h1>
             <h2 className="mb-0.5 text-black font-bar font-bold text-xl">Make interactive music brackets for your favorite artists!</h2>
             <span className="mt-1.5"><LoginButton /></span>
             <p className="text-sm text-gray-600">A Spotify account is required to create and save brackets</p>
