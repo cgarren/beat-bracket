@@ -88,6 +88,7 @@ const PlayPauseButton = ({
   return (
     <button
       onClick={playPauseAudio}
+      title={song ? (paused ? "Play" : "Pause") : "No song selected"}
       className={
         "rounded-[inherit] bg-green-500 text-white border-0 w-[25%] h-full min-h-[var(--buttonheight)] cursor-[inherit] text-center p-0 hover:brightness-95" +
         (side ? " rounded-r-[0] " : " rounded-l-[0] ")
