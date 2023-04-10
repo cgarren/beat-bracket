@@ -12,9 +12,9 @@ const BracketWinnerInfo = ({ bracketWinner }) => {
       />
       <span className="font-bold">Winner: </span>
       {bracketWinner.name}
-      <div>
-        <span>Popularity:</span> {bracketWinner.popularity}
-      </div>
+      {/* <div>
+        <span>Popularity on Spotify:</span> {bracketWinner.popularity}/100
+      </div> */}
     </div>
   );
 };
