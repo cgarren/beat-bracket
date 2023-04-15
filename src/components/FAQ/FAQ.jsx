@@ -32,7 +32,7 @@ const FAQ = ({ loggedIn }) => {
                 <LoginButton variant="bordered" />
               </li>
             ) : null}
-            <li>Click "Create Bracket"</li>
+            <li>Click "Create Bracket" on the my-brackets page</li>
             <li>
               Select an artist from the popup and a bracket will be created
               containing the artist's most listened to tracks seeded by
@@ -59,7 +59,7 @@ const FAQ = ({ loggedIn }) => {
           "Why is there a limit on the number of brackets that I can have?"
         }
         answer={
-          "Storage can be expensive! Beat Bracket currently has limited storage space and is only able to support a certain number of brackets per account. In the future I may add a way to upgrade your account to support more brackets!"
+          "Storage can be expensive! Beat Bracket currently has limited storage space and is only able to support a certain number of brackets per account. In the future I may add a way to upgrade your account to support more brackets"
         }
       />
       <FAQSection
@@ -68,9 +68,9 @@ const FAQ = ({ loggedIn }) => {
           <>
             Spotify makes it difficult to consolidate all versions of the same
             song (especially when they are titled slightly differently eg.
-            "Remastered" or "Radio edit"). Beat Bracket uses a custom algorithm
-            to avoid showing duplicates but there are still some cases where it
-            happens. If you notice this, please{" "}
+            "Remastered" or "Radio edit"). This application uses a custom
+            algorithm to avoid showing duplicates but there are still some cases
+            where it happens. If you notice this, please{" "}
             <a
               className="text-green-500 hover:text-green-700 underline"
               href="mailto:feedback@beatbracket.com"
@@ -85,7 +85,7 @@ const FAQ = ({ loggedIn }) => {
       <FAQSection
         question={"How do I sign out or switch accounts?"}
         answer={
-          'Click your profile in the top right corner and select "Sign Out". You will be re-prompted to authorize Beat Bracket\'s access to your account on the next sign in'
+          'Click your profile in the top right corner and select "Sign Out". You will be re-prompted to authorize Beat Bracket to access your account on the next sign in'
         }
       />
       <FAQSection
