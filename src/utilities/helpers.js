@@ -42,19 +42,23 @@ function getHashParams() {
 }
 
 export function checkSpotifyAuth(timer = undefined) {
-	let mydate = new Date(parseInt(sessionStorage.getItem("expireTime")));
-	if (
-		sessionStorage.getItem("expireTime") === null ||
-		sessionStorage.getItem("accessToken") === null ||
-		mydate.toString() === "Invalid Date" ||
-		Date.now() > mydate
-	) {
-		if (timer) {
-			clearInterval(timer);
+	if (typeof window !== 'undefined') {
+		let mydate = new Date(parseInt(sessionStorage.getItem("expireTime")));
+		if (
+			sessionStorage.getItem("expireTime") === null ||
+			sessionStorage.getItem("accessToken") === null ||
+			mydate.toString() === "Invalid Date" ||
+			Date.now() > mydate
+		) {
+			if (timer) {
+				clearInterval(timer);
+			}
+			return false;
+		} else {
+			return true;
 		}
-		return false;
 	} else {
-		return true;
+		return false;
 	}
 }
 
