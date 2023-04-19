@@ -10,7 +10,7 @@ const App = () => {
   return (
     <>
       <Clicky />
-      <main className="h-screen bg-zinc-300">
+      <main className="h-screen bg-gradient-radial from-zinc-100 from-40% to-zinc-400">
         {/* <nav className="absolute w-full z-50 p-2 bg-black"></nav> */}
         <div className="flex flex-col justify-center items-center h-5/6 px-4">
           <div className="inline-flex flex-col justify-center items-center text-center">

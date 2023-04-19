@@ -17,7 +17,8 @@ module.exports = {
     },
     extend: {
       backgroundImage: {
-        'colosseum': "url('./src/assets/images/colosseum.jpg')"
+        'colosseum': "url('./src/assets/images/colosseum.jpg')",
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))'
       },
       keyframes: {
         rotate: {
