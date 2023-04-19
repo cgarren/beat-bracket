@@ -5,7 +5,7 @@ import FAQ from "./FAQ/FAQ";
 const Footer = ({ heightClass, loggedIn }) => {
   return (
     <footer className={heightClass}>
-      <div className="bg-zinc-800">
+      <div className="bg-black">
         <FAQ loggedIn={loggedIn} />
         <div className="relative text-center">
           <span className="inline-flex items-center text-white">
