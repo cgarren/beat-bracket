@@ -164,7 +164,6 @@ const FAQ = ({ loggedIn, path }) => {
       <div className="mx-4 text-left">
         {/* <h1 className="pt-5 pl-5 text-4xl text-white font-bold">FAQs</h1> */}
         {questions.map((question, index) => {
-          console.log(path);
           for (let i = 0; i < question.paths.length; i++) {
             const regex = new RegExp(question.paths[i].replace("*", ".*"));
             if (regex.test(path)) {
