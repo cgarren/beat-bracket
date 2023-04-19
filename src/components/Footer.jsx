@@ -9,7 +9,11 @@ const Footer = ({ heightClass, loggedIn, path }) => {
         <FAQ loggedIn={loggedIn} path={path} />
         <div className="relative text-center">
           <span className="inline-flex items-center text-white">
-            © Cooper Garren 2023 | Content from&nbsp;
+            © Cooper Garren 2023 |&nbsp;
+            <a className="hover:underline" href="/privacy-policy">
+              Privacy Policy
+            </a>
+            &nbsp;| Content from&nbsp;
             <a href="https://spotify.com">
               <img
                 src={spotifyLogo}
