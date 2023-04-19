@@ -32,7 +32,7 @@ const FAQ = ({ loggedIn }) => {
                 <LoginButton variant="bordered" />
               </li>
             ) : null}
-            <li>Click "Create Bracket" on the my-brackets page</li>
+            <li>Click "Create Bracket" on the My Brackets page</li>
             <li>
               Select an artist from the popup and a bracket will be created
               containing the artist's most listened to tracks seeded by
