@@ -5,7 +5,8 @@ import ProfileDropdown from "./ProfileDropdown";
 const NavBar = ({ loggedIn, noChanges }) => {
   function handleNaviagtionAttempt() {
     if (noChanges(true)) {
-      navigate("/my-brackets");
+      if (!loggedIn) navigate("/");
+      else navigate("/my-brackets/");
     }
   }
   return (
