@@ -11,7 +11,7 @@ import { getParamsFromURL } from "../utilities/helpers";
 import { Seo } from "../components/SEO";
 
 // markup
-const App = () => {
+const App = ({ location }) => {
   const maxBrackets = 10;
   const [brackets, setBrackets] = useState([
     { id: 1, userId: undefined, artistName: undefined, artistId: undefined, tracks: undefined, completed: false },
@@ -123,7 +123,7 @@ const App = () => {
   }
 
   return (
-    <Layout noChanges={() => { return true }}>
+    <Layout noChanges={() => { return true }} path={location.pathname}>
       <Alert show={alertInfo.show} close={closeAlert} message={alertInfo.message} type={alertInfo.type} />
       <div className="text-center" hidden={error}>
         <h1 className="text-4xl font-extrabold font-display">My Brackets</h1>

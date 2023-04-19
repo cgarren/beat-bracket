@@ -1,5 +1,6 @@
 import React from "react";
 import LoadingIndicator from "../LoadingIndicator";
+import CornerButton from "./CornerButton";
 
 const BracketCard = ({
   children,
@@ -11,15 +12,7 @@ const BracketCard = ({
 }) => {
   return (
     <div className="relative">
-      {removeFunc && image ? (
-        <button
-          onClick={removeFunc}
-          className="border-0 p-0 w-[30px] h-[30px] bg-white text-black absolute -top-2 -right-2 rounded-full"
-          title="Delete bracket"
-        >
-          {"✕"}
-        </button>
-      ) : null}
+      {removeFunc && image ? <CornerButton removeFunc={removeFunc} /> : null}
       <button
         className="text-center p-3"
         onClick={onClick}

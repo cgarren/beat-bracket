@@ -4,7 +4,7 @@ import LoginButton from "../components/LoginButton";
 import Footer from "../components/Footer";
 import { Seo } from "../components/SEO";
 
-const App = () => {
+const App = ({ location }) => {
   //scroll to top of window on page load
   useEffect(() => window.scrollTo(0, 0), []);
   return (
@@ -21,7 +21,7 @@ const App = () => {
           </div>
 
         </div>
-        <Footer heightClass="" />
+        <Footer heightClass="" path={location.pathname} />
       </main>
     </>
   )

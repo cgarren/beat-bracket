@@ -359,7 +359,7 @@ const App = ({ params, location }) => {
   }
 
   return (
-    <Layout noChanges={noChanges}>
+    <Layout noChanges={noChanges} path={location.pathname}>
       {bracketWinner ? <Confetti
         width={window.document.body.offsetWidth}
         height={window.document.body.offsetHeight}

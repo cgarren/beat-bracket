@@ -4,7 +4,7 @@ import { checkSpotifyAuth } from "../utilities/helpers";
 import Clicky from "./Clicky";
 import Footer from "./Footer";
 
-const Layout = ({ children, noChanges }) => {
+const Layout = ({ children, noChanges, path }) => {
   const [loggedIn, setLoggedIn] = useState(true);
 
   useEffect(() => {
@@ -33,7 +33,7 @@ const Layout = ({ children, noChanges }) => {
           <NavBar loggedIn={loggedIn} noChanges={noChanges} />
           {children}
         </main>
-        <Footer loggedIn={loggedIn} />
+        <Footer loggedIn={loggedIn} path={path} />
       </div>
     </>
   );
