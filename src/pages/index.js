@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect } from "react"
 import Clicky from "../components/Clicky";
 import LoginButton from "../components/LoginButton";
 import Footer from "../components/Footer";
