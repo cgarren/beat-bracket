@@ -154,7 +154,7 @@ const Bracket = ({
                   <div
                     className={
                       lineStyles[colExpression] +
-                      " bg-gray-500 w-[var(--lineWidth)] " +
+                      " bg-gray-500 w-[var(--lineWidth)] rounded " +
                       (side === "l" ? "ml-[var(--leftLineMargin)]" : "ml-0")
                     }
                     key={mykey + "0"}
