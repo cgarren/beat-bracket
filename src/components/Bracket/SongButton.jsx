@@ -212,8 +212,8 @@ const SongButton = ({
             : " ") +
           (winner ? " opacity-100 " : " ") +
           (side ? " flex-row-reverse " : "") +
-          (disabled ? " cursor-default " : " ") +
-          (eliminated ? " opacity-50 cursor-default shadow-none " : " ") +
+          (disabled ? " !cursor-default " : " ") +
+          (eliminated ? " opacity-50 !cursor-default shadow-none " : " ") +
           //(dragging ? " cursor-grabbing " : " ") +
           styling
         }
