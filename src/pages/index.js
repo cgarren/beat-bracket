@@ -1,11 +1,12 @@
-import React from "react"
+import React, { useEffect } from "react"
 import Clicky from "../components/Clicky";
 import LoginButton from "../components/LoginButton";
 import Footer from "../components/Footer";
 import { Seo } from "../components/SEO";
 
 const App = () => {
-
+  //scroll to top of window on page load
+  useEffect(() => window.scrollTo(0, 0), []);
   return (
     <>
       <Clicky />

@@ -30,6 +30,9 @@ const App = () => {
     })
   }, [activeTab, brackets]);
 
+  //scroll to top of window on page load
+  useEffect(() => window.scrollTo(0, 0), []);
+
   async function processLogin() {
     const params = await getParamsFromURL(window.location.pathname)
     // check to see if the user just logged in
