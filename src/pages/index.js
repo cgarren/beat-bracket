@@ -19,6 +19,7 @@ const App = () => {
             <span className="mt-1.5"><LoginButton /></span>
             {/* <p className="text-sm text-gray-600">A Spotify account is required to create and save brackets</p> */}
           </div>
+
         </div>
         <Footer heightClass="" />
       </main>
@@ -37,12 +38,7 @@ export function Head() {
             "@context": "https://schema.org",
             "@type": "WebSite",
             "url": "https://www.beatbracket.com",
-            "name": "Beat Bracket",
-            "contactPoint": {
-              "@type": "ContactPoint",
-              "telephone": "+5-601-785-8543",
-              "contactType": "Customer Support"
-            }
+            "name": "Beat Bracket"
           }
         `}
       </script>
