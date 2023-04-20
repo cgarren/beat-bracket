@@ -83,7 +83,10 @@ export async function deleteBracket(id) {
 }
 
 export function getMaxBrackets() {
-	return sessionStorage.getItem(maxBracketsKey);
+	if (typeof window !== 'undefined') {
+		return sessionStorage.getItem(maxBracketsKey);
+	}
+	return null;
 }
 
 export async function authenticate(userId, sessionId, expireTime, accessToken) {

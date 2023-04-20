@@ -19,15 +19,24 @@ const userIdKey = "user_id";
 // getting data from session storage helpers
 
 export function getAccessToken() {
-	return sessionStorage.getItem(accessTokenKey);
+	if (typeof window !== 'undefined') {
+		return sessionStorage.getItem(accessTokenKey);
+	}
+	return null;
 }
 
 export function getUserId() {
-	return sessionStorage.getItem(userIdKey);
+	if (typeof window !== 'undefined') {
+		return sessionStorage.getItem(userIdKey);
+	}
+	return null;
 }
 
 export function getSessionId() {
-	return sessionStorage.getItem(sessionKey);
+	if (typeof window !== 'undefined') {
+		return sessionStorage.getItem(sessionKey);
+	}
+	return null;
 }
 
 //auth functions
