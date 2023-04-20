@@ -1,28 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import NavBar from "./NavBar/NavBar";
-import { checkSpotifyAuth } from "../utilities/helpers";
 import Clicky from "./Clicky";
 import Footer from "./Footer";
+import { isLoggedIn } from "../utilities/authentication";
 
 const Layout = ({ children, noChanges, path }) => {
-  const [loggedIn, setLoggedIn] = useState(true);
-
-  useEffect(() => {
-    if (checkSpotifyAuth()) {
-      console.log("logged in");
-      setLoggedIn(true);
-    } else {
-      setLoggedIn(false);
-    }
-    const timer = setInterval(() => {
-      if (checkSpotifyAuth(timer)) {
-        setLoggedIn(true);
-      } else {
-        setLoggedIn(false);
-      }
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
+  const loggedIn = isLoggedIn();
 
   return (
     <>

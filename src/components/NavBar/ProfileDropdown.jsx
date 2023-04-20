@@ -2,7 +2,9 @@ import { navigate } from "gatsby";
 import React, { useEffect, useState } from "react";
 import guestProfileImage from "../../assets/images/guestProfileImage.png";
 import { getUserInfo } from "../../utilities/spotify";
+import { logout } from "../../utilities/authentication";
 import LoginButton from "../LoginButton";
+import LoadingIndicator from "../LoadingIndicator";
 
 const ProfileDropdown = ({ loggedIn, noChanges }) => {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -22,11 +24,10 @@ const ProfileDropdown = ({ loggedIn, noChanges }) => {
     }
   }
 
-  function signOut() {
+  async function signOut() {
     if (noChanges(true)) {
       setShowDropdown(false);
-      sessionStorage.clear();
-      localStorage.setItem("rememberMe", false);
+      await logout();
       navigate("/");
     }
   }
@@ -69,7 +70,11 @@ const ProfileDropdown = ({ loggedIn, noChanges }) => {
   return (
     <div>
       {!loggedIn ? (
-        <LoginButton variant="bordered" />
+        loggedIn === false ? (
+          <LoginButton variant="bordered" />
+        ) : (
+          <LoadingIndicator />
+        )
       ) : (
         <div className="inline-block relative">
           <button

@@ -14,54 +14,6 @@ export function generateRandomString(length) {
 	return text;
 }
 
-export async function getParamsFromURL(new_url) {
-	try {
-		let hashParams = getHashParams()
-		if (hashParams.raw_hash !== '') {
-			window.history.replaceState({}, document.title, new_url);
-			hashParams.expires_at = Date.now() + (parseInt(hashParams.expires_in) * 1000);
-			delete hashParams.expires_in;
-			return hashParams;
-		}
-		return {};
-	} catch (err) {
-		console.error(err.message);
-		return {};
-	}
-}
-
-function getHashParams() {
-	let hashParams = {};
-	let e, r = /([^&;=]+)=?([^&;]*)/g,
-		q = window.location.hash.substring(1);
-	hashParams['raw_hash'] = window.location.hash;
-	while (e = r.exec(q)) {
-		hashParams[e[1]] = decodeURIComponent(e[2]);
-	}
-	return hashParams;
-}
-
-export function checkSpotifyAuth(timer = undefined) {
-	if (typeof window !== 'undefined') {
-		let mydate = new Date(parseInt(sessionStorage.getItem("expireTime")));
-		if (
-			sessionStorage.getItem("expireTime") === null ||
-			sessionStorage.getItem("accessToken") === null ||
-			mydate.toString() === "Invalid Date" ||
-			Date.now() > mydate
-		) {
-			if (timer) {
-				clearInterval(timer);
-			}
-			return false;
-		} else {
-			return true;
-		}
-	} else {
-		return false;
-	}
-}
-
 export function popularitySort(track1, track2) {
 	if (track1.popularity > track2.popularity) { return -1 };
 	if (track1.popularity < track2.popularity) { return 1 };

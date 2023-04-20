@@ -3,15 +3,17 @@ import Clicky from "../components/Clicky";
 import LoginButton from "../components/LoginButton";
 import Footer from "../components/Footer";
 import { Seo } from "../components/SEO";
-import { checkSpotifyAuth } from "../utilities/helpers";
+import { isLoggedIn } from "../utilities/authentication";
+import { navigate } from "gatsby";
 
 const App = ({ location }) => {
-  const loggedIn = checkSpotifyAuth();
+  const loggedIn = isLoggedIn();
+  console.log(loggedIn);
   //scroll to top of window on page load
   useEffect(() => window.scrollTo(0, 0), []);
   useEffect(() => {
     if (loggedIn) {
-      window.location.href = "/my-brackets";
+      navigate("/my-brackets");
     }
   }, [loggedIn]);
 
