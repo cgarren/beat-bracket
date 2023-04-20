@@ -32,10 +32,12 @@ export function getSessionId() {
 
 //auth functions
 
+let timer = null;
+
 function setLoginTimer(expiresAt) {
 	// refresh access token 1 minute before it expires
 	const refreshTime = expiresAt - 60000 - Date.now();
-	setTimeout(() => {
+	timer = setTimeout(() => {
 		login();
 	}, refreshTime);
 }
@@ -44,7 +46,7 @@ export async function login() {
 	// case where user has been here before
 	try {
 		if (localStorage.getItem(refreshTokenKey)) {
-			console.log(typeof localStorage.getItem(refreshTokenKey));
+			console.log("refeshing session...")
 			// refresh spotify and set session storage
 			let accessToken, refreshToken, expiresAt;
 			try {
@@ -62,7 +64,7 @@ export async function login() {
 				localStorage.setItem(refreshTokenKey, refreshToken);
 			}
 
-			// get info about user from spotify andd set session storage
+			// get info about user from spotify and set session storage
 			const userInfo = await getUserInfo();
 			const userId = userInfo.id;
 			sessionStorage.setItem(userIdKey, userId);
@@ -123,7 +125,7 @@ export async function logout() {
 	localStorage.removeItem(refreshTokenKey);
 }
 
-export function isLoggedIn(timer = undefined) {
+export function isLoggedIn() {
 	if (typeof window !== 'undefined') {
 		let expiresAt = new Date(parseInt(sessionStorage.getItem(expiresAtKey)));
 		if (
@@ -132,11 +134,12 @@ export function isLoggedIn(timer = undefined) {
 			expiresAt.toString() !== "Invalid Date" &&
 			Date.now() < expiresAt
 		) {
+			if (timer) {
+				clearTimeout(timer);
+			}
+			setLoginTimer(expiresAt);
 			return true;
 		}
-	}
-	if (timer) {
-		clearInterval(timer);
 	}
 	return false;
 }

@@ -221,7 +221,6 @@ export async function refreshLogin(refreshToken) {
 	}
 	// Parse and store data
 	const data = await response.json();
-	console.log(data);
 	const expiresAt = Date.now() + (parseInt(data.expires_in) * 1000);
 	return {
 		accessToken: data.access_token,
