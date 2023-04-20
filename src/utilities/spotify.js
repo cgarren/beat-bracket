@@ -8,7 +8,7 @@ const codeVerifierKey = "spotify_auth_code_verifier";
 const stateKey = "spotify_auth_state";
 //auth constants
 const clientId = "fff2634975884bf88e3d3c9c2d77763d";
-const redirectUri = window.location.origin + "/my-brackets";
+const redirectUri = typeof window !== 'undefined' ? window.location.origin + "/my-brackets" : "https://www.beatbracket.com/my-brackets";
 const scope =
 	"playlist-modify-private playlist-modify-public user-read-private";
 const codeChallengeMethod = "S256";
