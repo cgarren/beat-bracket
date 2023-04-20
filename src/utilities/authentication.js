@@ -73,6 +73,7 @@ export async function login() {
 			let sessionId = sessionStorage.getItem(sessionKey);
 			if (!sessionId) {
 				sessionId = generateRandomString(128);
+				sessionStorage.setItem(sessionKey, sessionId);
 			}
 			// refresh backend
 			await backendLogin(userId, sessionId, expiresAt, accessToken);
