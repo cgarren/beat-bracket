@@ -4,6 +4,7 @@ import guestProfileImage from "../../assets/images/guestProfileImage.png";
 import { getUserInfo } from "../../utilities/spotify";
 import { logout } from "../../utilities/authentication";
 import LoginButton from "../LoginButton";
+import LoadingIndicator from "../LoadingIndicator";
 
 const ProfileDropdown = ({ loggedIn, noChanges }) => {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -69,7 +70,11 @@ const ProfileDropdown = ({ loggedIn, noChanges }) => {
   return (
     <div>
       {!loggedIn ? (
-        <LoginButton variant="bordered" />
+        loggedIn === false ? (
+          <LoginButton variant="bordered" />
+        ) : (
+          <LoadingIndicator />
+        )
       ) : (
         <div className="inline-block relative">
           <button
