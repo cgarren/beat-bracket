@@ -9,7 +9,7 @@ import ActionButton from "../Bracket/ActionButton";
 
 const FAQ = ({ loggedIn, path }) => {
   const [expandedSection, setExpandedSection] = useState(
-    path == "/" ? 0 : null
+    path === "/" ? 0 : null
   );
   const questions = [
     {
