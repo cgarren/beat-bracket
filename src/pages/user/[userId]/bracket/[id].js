@@ -46,7 +46,7 @@ const App = ({ params, location }) => {
   const [loadingText, setLoadingText] = useState("Loading...");
   const [saveButtonDisabled, setSaveButtonDisabled] = useState(true);
 
-  const [editable, setEditable] = useState(false);
+  const editable = isCurrentUser(owner.id);
   const [playbackEnabled, setPlaybackEnabled] = useState(false);
   const [alertInfo, setAlertInfo] = useState({ show: false, message: null, type: null, timeoutId: null });
 
@@ -93,27 +93,20 @@ const App = ({ params, location }) => {
             console.log(loadedBracket);
             setOwner({ id: loadedBracket.userId, name: loadedBracket.userName });
             // Bracket already exists, now check if it belongs to the current user or not
-            isCurrentUser(loadedBracket.userId).then((isCurrentUser) => {
-              if (isCurrentUser) {
-                setEditable(true);
-              } else {
-                setEditable(false);
-              }
-              let mymap = new Map(Object.entries(loadedBracket.bracketData));
-              mymap = new Map([...mymap].sort(bracketSorter));
-              setBracket(mymap);
-              setArtist({ name: loadedBracket.artistName, id: loadedBracket.artistId });
-              setSeedingMethod(loadedBracket.seeding);
-              setLimit(loadedBracket.tracks);
-              // if (loadedBracket.winner === undefined && !loadedBracket.completed) {
-              //   setBracketWinner(null);
-              // } else {
-              //   setBracketWinner(loadedBracket.winner);
-              // }
-              setShowBracket(true);
-              //setTracks(new Array(loadedBracket.tracks).fill(null));
-              setLastSaved({ commandsLength: commands.length, time: Date.now() });
-            });
+            let mymap = new Map(Object.entries(loadedBracket.bracketData));
+            mymap = new Map([...mymap].sort(bracketSorter));
+            setBracket(mymap);
+            setArtist({ name: loadedBracket.artistName, id: loadedBracket.artistId });
+            setSeedingMethod(loadedBracket.seeding);
+            setLimit(loadedBracket.tracks);
+            // if (loadedBracket.winner === undefined && !loadedBracket.completed) {
+            //   setBracketWinner(null);
+            // } else {
+            //   setBracketWinner(loadedBracket.winner);
+            // }
+            setShowBracket(true);
+            //setTracks(new Array(loadedBracket.tracks).fill(null));
+            setLastSaved({ commandsLength: commands.length, time: Date.now() });
           } else {
             if (location.state && location.state.artist) {
               getUserInfo(owner.id).then((userInfo) => {
@@ -126,7 +119,6 @@ const App = ({ params, location }) => {
               setShowBracket(false);
               const templist = await getTracks(location.state.artist); //kick off the bracket creating process
               await changeBracket(templist);
-              setEditable(true);
               //setReadyToChange(true);
             } else {
               // Bracket doesn't exist and no artist was passed in

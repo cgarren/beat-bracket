@@ -2,6 +2,7 @@ import { navigate } from "gatsby";
 import React, { useEffect, useState } from "react";
 import guestProfileImage from "../../assets/images/guestProfileImage.png";
 import { getUserInfo } from "../../utilities/spotify";
+import { logout } from "../../utilities/authentication";
 import LoginButton from "../LoginButton";
 
 const ProfileDropdown = ({ loggedIn, noChanges }) => {
@@ -22,11 +23,10 @@ const ProfileDropdown = ({ loggedIn, noChanges }) => {
     }
   }
 
-  function signOut() {
+  async function signOut() {
     if (noChanges(true)) {
       setShowDropdown(false);
-      sessionStorage.clear();
-      localStorage.setItem("rememberMe", false);
+      await logout();
       navigate("/");
     }
   }
