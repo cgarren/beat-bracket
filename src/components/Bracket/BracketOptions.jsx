@@ -29,7 +29,7 @@ const BracketOptions = ({
           {/* <option value="256">256</option> */}
         </select>
       </div>
-      <div className={""}>
+      <div>
         <label htmlFor="seeding-select">Seed by: </label>
         <select
           name="seeding"

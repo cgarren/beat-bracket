@@ -1,12 +1,13 @@
 import React from "react";
+import cx from "classnames";
 
 const LoadingIndicator = ({ hidden, loadingText }) => {
   return (
     <div
-      className={
-        (hidden ? "hidden " : "") +
+      className={cx(
+        { hidden: hidden },
         "font-bold text-xl text-center align-middle flex flex-row items-center justify-center h-full w-full"
-      }
+      )}
     >
       <svg
         className="inline mr-1 w-6 h-6 text-black animate-spin fill-white"

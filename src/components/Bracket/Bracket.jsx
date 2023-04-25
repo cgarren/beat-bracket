@@ -6,6 +6,7 @@ import {
   getNumberOfSongs,
 } from "../../utilities/bracketGeneration";
 import { popularitySort } from "../../utilities/helpers";
+import cx from "classnames";
 
 const styles = [
   "mt-[var(--firstColumnSpacing)]",
@@ -20,7 +21,7 @@ const styles = [
 ];
 
 const topStyles = [
-  "0",
+  "mt-0",
   "mt-[calc(var(--buttonheight)*.75)]",
   "mt-[calc(var(--buttonheight)*2.25)]",
   "mt-[calc(var(--buttonheight)*5.25)]",
@@ -113,7 +114,6 @@ const Bracket = ({
       <div className="flex flex-col" key={side + i}>
         {Array.from(bracket.entries()).map((entry) => {
           const [mykey, value] = entry;
-          //console.log(mykey, value);
           const colExpression = side === "l" ? i : columns - 1 - i;
           if (value.side === side && value.col === colExpression) {
             return (
@@ -131,17 +131,11 @@ const Bracket = ({
                   currentlyPlayingId={mycurrentlyPlayingId}
                   setCurrentlyPlayingId={mysetCurrentlyPlayingId}
                   side={side}
-                  styling={
-                    (value.index === 0
-                      ? topStyles[colExpression]
-                      : value.index % 2 === 0
-                      ? styles[colExpression]
-                      : "") +
-                    " " +
-                    colExpression +
-                    " " +
-                    value.index
-                  }
+                  styling={cx({
+                    [`${topStyles[colExpression]}`]: value.index === 0,
+                    [`${styles[colExpression]}`]:
+                      value.index !== 0 && value.index % 2 === 0,
+                  })}
                   color={value.color}
                   key={mykey}
                   eliminated={value.eliminated}
@@ -152,12 +146,13 @@ const Bracket = ({
                 />
                 {value.index % 2 === 0 && value.nextId != null ? (
                   <div
-                    className={
-                      lineStyles[colExpression] +
-                      " bg-gray-500 w-[var(--lineWidth)] rounded " +
-                      (side === "l" ? "ml-[var(--leftLineMargin)]" : "ml-0")
-                    }
-                    key={mykey + "0"}
+                    className={cx({
+                      [`${lineStyles[colExpression]}`]: true,
+                      "bg-gray-500 w-[var(--lineWidth)] rounded": true,
+                      "ml-[var(--leftLineMargin)]": side === "l",
+                      "ml-0": side === "r",
+                    })}
+                    key={mykey + "line"}
                   ></div>
                 ) : (
                   ""
@@ -191,19 +186,19 @@ const Bracket = ({
   return (
     <div hidden={!showBracket || renderArray.length === 0}>
       <div
-        className={
-          "overflow-x-scroll flex " + //border-4 border-blue-600
-          (bracketRef && bracketRef.current.offsetWidth <= width
-            ? "justify-center"
-            : "justify-start")
-        }
+        className={cx({
+          "overflow-x-scroll flex": true,
+          "justify-center":
+            bracketRef && bracketRef.current.offsetWidth <= width,
+          "justify-start": bracketRef && bracketRef.current.offsetWidth > width,
+        })}
       >
         <div
           ref={bracketCallback}
-          className={
-            "block w-fit flex-col p-2" +
-            (editMode ? " bg-gray-800/25 rounded-2xl" : "")
-          }
+          className={cx({
+            "block w-fit flex-col p-2": true,
+            "bg-gray-800/25 rounded-2xl": editMode,
+          })}
         >
           <div
             className="flex flex-row gap-[10px] justify-start p-[5px]"

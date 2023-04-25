@@ -5,6 +5,8 @@ import { login } from "../utilities/authentication";
 import { navigate } from "gatsby";
 import LoadingIndicator from "./LoadingIndicator";
 
+import * as cx from "classnames";
+
 const LoginButton = ({ variant = "borderless" }) => {
   const [loading, setLoading] = useState(false);
   async function signIn() {
@@ -18,11 +20,17 @@ const LoginButton = ({ variant = "borderless" }) => {
     <button
       onClick={signIn}
       disabled={loading}
-      className={`${
-        variant === "bordered"
-          ? "bg-black hover:bg-zinc-800 border-white hover:border-zinc-200 text-white"
-          : "bg-black hover:bg-zinc-800 border-black hover:border-zinc-800 text-white"
-      } inline-flex flex-row items-center justify-center`}
+      className={cx(
+        "inline-flex",
+        "flex-row",
+        "items-center",
+        "justify-center",
+        "bg-black",
+        "hover:bg-zinc-800",
+        "text-white",
+        { "border-white hover:border-zinc-200": variant === "bordered" },
+        { "border-black hover:border-zinc-800": variant != "bordered" }
+      )}
     >
       {loading ? (
         <LoadingIndicator />

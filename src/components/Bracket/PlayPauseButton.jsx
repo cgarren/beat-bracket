@@ -2,6 +2,7 @@ import React from "react";
 import { useEffect, useState } from "react";
 import PlayIcon from "../../assets/svgs/playIcon.svg";
 import PauseIcon from "../../assets/svgs/pauseIcon.svg";
+import cx from "classnames";
 
 const PlayPauseButton = ({
   song,
@@ -89,10 +90,21 @@ const PlayPauseButton = ({
     <button
       onClick={playPauseAudio}
       title={song ? (paused ? "Play" : "Pause") : "No song selected"}
-      className={
-        "rounded-[inherit] bg-green-500 text-white border-0 w-[25%] h-full min-h-[var(--buttonheight)] cursor-[inherit] text-center p-0 hover:brightness-95" +
-        (side ? " rounded-r-[0] " : " rounded-l-[0] ")
-      }
+      className={cx(
+        "rounded-[inherit]",
+        "bg-green-500",
+        "text-white",
+        "border-0",
+        "w-[25%]",
+        "h-full",
+        "min-h-[var(--buttonheight)]",
+        "cursor-[inherit]",
+        "text-center",
+        "p-0",
+        "hover:brightness-95",
+        { "rounded-r-[0]": side },
+        { "rounded-l-[0]": !side }
+      )}
       style={song ? colorStyle : {}}
       hidden={!song || disabled || editMode}
     >

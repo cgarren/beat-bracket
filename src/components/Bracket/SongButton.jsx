@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useMemo } from "react";
 import PlayPauseButton from "./PlayPauseButton";
 import Modal from "../Modal";
 import Suggestion from "../Search/Suggestion";
@@ -7,6 +7,8 @@ import spotifyIcon from "../../assets/images/Spotify_Icon_RGB_Green.png";
 
 import Vibrant from "node-vibrant";
 import { getColorsFromImage } from "../../utilities/bracketGeneration";
+
+import cx from "classnames";
 
 const SongButton = ({
   styling,
@@ -33,10 +35,9 @@ const SongButton = ({
   const [showTrackSelector, setShowTrackSelector] = useState(false);
   const buttonRef = useRef(null);
   const audioRef = useRef(null);
-  const colorStyle = getColorStyle(color);
-
-  function getColorStyle(color) {
+  const colorStyle = useMemo(() => {
     if (color) {
+      // uses new color system
       if (color.backgroundColor && color.textColor) {
         return {
           backgroundColor: color.backgroundColor,
@@ -59,7 +60,7 @@ const SongButton = ({
         borderColor: "#fff",
       };
     }
-  }
+  }, [color]);
 
   // Recursive function to mark all previous instances of a song in a bracket as eliminated
   function eliminatePrevious(thisId) {
@@ -202,21 +203,33 @@ const SongButton = ({
         ""
       )}
       <div
-        className={
-          "z-0 flex rounded-2xl cursor-pointer shadow-md w-[var(--buttonwidth)] min-w-[var(--buttonwidth)] h-[var(--buttonheight)] min-h-[var(--buttonheight) disabled:w-[var(--buttonwidth)] relative hover:h-auto " +
-          (editMode && song
-            ? " cursor-grab animate-wiggle active:cursor-grabbing "
-            : " ") +
-          (song == null
-            ? " bg-white text-black shadow-md border-0 border-gray-400 cursor-default"
-            : " ") +
-          (winner ? " opacity-100 " : " ") +
-          (side ? " flex-row-reverse " : "") +
-          (disabled ? " !cursor-default " : " ") +
-          (eliminated ? " opacity-50 !cursor-default shadow-none " : " ") +
-          //(dragging ? " cursor-grabbing " : " ") +
+        className={cx(
+          "z-0",
+          "flex",
+          "rounded-2xl",
+          "cursor-pointer",
+          "shadow-md",
+          "w-[var(--buttonwidth)]",
+          "min-w-[var(--buttonwidth)]",
+          "h-[var(--buttonheight)]",
+          "min-h-[var(--buttonheight)",
+          "disabled:w-[var(--buttonwidth)]",
+          "relative",
+          "hover:h-auto",
+          {
+            "cursor-grab animate-wiggle active:cursor-grabbing":
+              editMode && song,
+          },
+          {
+            "bg-white text-black shadow-md border-0 border-gray-400 cursor-default":
+              song == null,
+          },
+          { "opacity-100": winner },
+          { "flex-row-reverse": side },
+          { "!cursor-default": disabled },
+          { "opacity-50 !cursor-default shadow-none": eliminated },
           styling
-        }
+        )}
         style={song ? colorStyle : {}}
         id={id}
         disabled={disabled}
@@ -260,27 +273,41 @@ const SongButton = ({
           onClick={editMode ? null : songChosen}
           hidden={false}
           style={song ? colorStyle : {}}
-          className={
-            "rounded-[inherit] cursor-[inherit] disabled:rounded-[inherit] bg-white text-black border-0 leading-[1.15em] p-0 text-center overflow-hidden break-words disabled:px-[6px] h-full min-h-[var(--buttonheight)] disabled:w-full " +
-            (winner
-              ? " opacity-100 active:opacity-100 "
-              : editMode
-              ? " w-full "
-              : song && song.preview_url
-              ? " w-[75%] "
-              : " w-full ") +
-            (song == null
-              ? " w-full bg-transparent text-black "
-              : !disabled
-              ? " hover:brightness-95 "
-              : " ") +
-            (editMode || (song && !song.preview_url)
-              ? " rounded-[inherit] pr-[6px] pl-[6px] "
-              : side
-              ? " pr-[6px] rounded-l-[0] "
-              : " pl-[6px] rounded-r-[0] ") +
-            (eliminated ? " " : " ")
-          }
+          className={cx(
+            "rounded-[inherit] cursor-[inherit] disabled:rounded-[inherit] bg-white text-black border-0 leading-[1.15em] p-0 text-center overflow-hidden break-words disabled:px-[6px] h-full min-h-[var(--buttonheight)] disabled:w-full",
+            { "opacity-100 active:opacity-100": winner },
+            { "w-full": (!winner && editMode) || !song },
+            { "w-[75%]": !winner && !editMode && song && song.preview_url },
+            { "bg-transparent text-black": song === null },
+            { "hover:brightness-95": song && !disabled },
+            {
+              "rounded-[inherit] pr-[6px] pl-[6px]":
+                editMode || (song && !song.preview_url),
+            },
+            { "pr-[6px] rounded-l-[0]": side && !editMode },
+            { "pl-[6px] rounded-r-[0]": !side }
+          )}
+          // className={
+          //   "rounded-[inherit] cursor-[inherit] disabled:rounded-[inherit] bg-white text-black border-0 leading-[1.15em] p-0 text-center overflow-hidden break-words disabled:px-[6px] h-full min-h-[var(--buttonheight)] disabled:w-full " +
+          //   (winner
+          //     ? " opacity-100 active:opacity-100 "
+          //     : editMode
+          //     ? " w-full "
+          //     : song && song.preview_url
+          //     ? " w-[75%] "
+          //     : " w-full ") +
+          //   (song == null
+          //     ? " w-full bg-transparent text-black "
+          //     : !disabled
+          //     ? " hover:brightness-95 "
+          //     : " ") +
+          //   (editMode || (song && !song.preview_url)
+          //     ? " rounded-[inherit] pr-[6px] pl-[6px] "
+          //     : side
+          //     ? " pr-[6px] rounded-l-[0] "
+          //     : " pl-[6px] rounded-r-[0] ") +
+          //   (eliminated ? " " : " ")
+          // }
         >
           {song !== null ? song.name : ""}
         </button>

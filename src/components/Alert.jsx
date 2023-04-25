@@ -1,5 +1,7 @@
 import React from "react";
 
+import cx from "classnames";
+
 const Alert = ({ show, close, message, type }) => {
   const alertTypes = {
     info: {
@@ -68,10 +70,13 @@ const Alert = ({ show, close, message, type }) => {
         {/* <button onClick={() => close()}>✖</button> */}
         <button
           type="button"
-          className={
-            (alertTypes[type] ? alertTypes[type].styles + " " : "") +
-            "ml-auto -mx-1.5 -my-1.5 border-none !text-black rounded-lg focus:ring-2 focus:ring-blue-400 p-1.5 hover:!text-current hover:bg-transparent inline-flex h-8 w-8"
-          }
+          className={cx(
+            "ml-auto -mx-1.5 -my-1.5 border-none !text-black rounded-lg focus:ring-2 focus:ring-blue-400 p-1.5 hover:!text-current hover:bg-transparent inline-flex h-8 w-8",
+            {
+              [`${alertTypes[type] ? alertTypes[type].styles : ""}`]:
+                alertTypes[type],
+            }
+          )}
           aria-label="Close"
           onClick={() => close()}
         >

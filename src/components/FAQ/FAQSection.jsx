@@ -1,4 +1,5 @@
 import React from "react";
+import cx from "classnames";
 
 const FAQSection = ({ question, answer, expanded, toggleExpanded }) => {
   return (
@@ -6,14 +7,24 @@ const FAQSection = ({ question, answer, expanded, toggleExpanded }) => {
     //   <h2 className="font-bold text-xl text-white">{question}</h2>
     //   <div className="text-lg text-zinc-300">{answer}</div>
     // </div>
-    <div className={expanded ? "bg-zinc-900" : ""}>
-      <h2 className={expanded ? "border-b border-gray-700" : ""}>
+    <div className={cx({ "bg-zinc-900": expanded })}>
+      <h2 className={cx({ "border-b border-gray-700": expanded })}>
         <button
           type="button"
-          className={
-            "flex items-center justify-between w-full p-5 text-xl text-left border-none text-gray-400 hover:bg-inherit hover:text-white " +
-            (expanded ? "text-white" : "")
-          }
+          className={cx(
+            "flex",
+            "items-center",
+            "justify-between",
+            "w-full",
+            "p-5",
+            "text-xl",
+            "text-left",
+            "border-none",
+            "text-gray-400",
+            "hover:bg-inherit",
+            "hover:text-white",
+            { "text-white": expanded }
+          )}
           onClick={toggleExpanded}
         >
           <span className="flex items-center">
@@ -32,7 +43,7 @@ const FAQSection = ({ question, answer, expanded, toggleExpanded }) => {
             {question}
           </span>
           <svg
-            className={"w-6 h-6 shrink-0 " + (expanded ? "rotate-180" : "")}
+            className={cx("w-6", "h-6", "shrink-0", { "rotate-180": expanded })}
             fill="currentColor"
             viewBox="0 0 20 20"
             xmlns="http://www.w3.org/2000/svg"
@@ -45,7 +56,7 @@ const FAQSection = ({ question, answer, expanded, toggleExpanded }) => {
           </svg>
         </button>
       </h2>
-      <div className={expanded ? "" : "hidden"}>
+      <div className={cx({ hidden: !expanded })}>
         <div className="px-5 py-5">
           <div className="mb-2 text-gray-400 text-lg">{answer}</div>
         </div>
