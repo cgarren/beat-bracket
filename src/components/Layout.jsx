@@ -1,11 +1,22 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import NavBar from "./NavBar/NavBar";
 import Clicky from "./Clicky";
 import Footer from "./Footer";
 import { isLoggedIn } from "../utilities/authentication";
 
 const Layout = ({ children, noChanges, path }) => {
-  const loggedIn = isLoggedIn();
+  const [loggedIn, setLoggedIn] = useState(isLoggedIn());
+
+  useEffect(() => {
+    // check if user is logged in when the localstorage changes
+    window.onstorage = () => {
+      console.log("storage changed");
+      setLoggedIn(isLoggedIn());
+    };
+    return () => {
+      window.onstorage = null;
+    };
+  }, []);
 
   return (
     <>

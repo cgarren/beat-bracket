@@ -7,8 +7,7 @@ import { isLoggedIn } from "../utilities/authentication";
 import { navigate } from "gatsby";
 
 const App = ({ location }) => {
-  const loggedIn = isLoggedIn();
-  console.log(loggedIn);
+  const loggedIn = isLoggedIn(false);
   //scroll to top of window on page load
   useEffect(() => window.scrollTo(0, 0), []);
   useEffect(() => {

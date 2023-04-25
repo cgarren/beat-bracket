@@ -53,6 +53,7 @@ function setLoginTimer(expiresAt) {
 
 export async function login() {
 	// case where user has been here before
+
 	try {
 		if (localStorage.getItem(refreshTokenKey)) {
 			console.log("refeshing session...")
@@ -135,7 +136,7 @@ export async function logout() {
 	localStorage.removeItem(refreshTokenKey);
 }
 
-export function isLoggedIn() {
+export function isLoggedIn(makeLoginTimer = true) {
 	if (typeof window !== 'undefined') {
 		let expiresAt = new Date(parseInt(sessionStorage.getItem(expiresAtKey)));
 		if (
@@ -147,9 +148,13 @@ export function isLoggedIn() {
 			if (timer) {
 				clearTimeout(timer);
 			}
-			setLoginTimer(expiresAt);
+			if (makeLoginTimer) {
+				setLoginTimer(expiresAt);
+			}
+			console.log("logged in");
 			return true;
 		}
 	}
+	console.log("not logged in");
 	return false;
 }
