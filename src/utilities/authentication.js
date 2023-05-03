@@ -151,7 +151,7 @@ export function isLoggedIn(makeLoginTimer = true) {
 			if (makeLoginTimer) {
 				setLoginTimer(expiresAt);
 			}
-			console.log("logged in");
+			//console.log("logged in");
 			return true;
 		}
 	}
