@@ -312,27 +312,27 @@ const SongButton = ({
           {song !== null ? song.name : ""}
         </button>
         {song && song.preview_url ? (
-          <>
-            <PlayPauseButton
-              id={id}
-              song={song}
-              side={side}
-              disabled={disabled}
-              currentlyPlayingId={currentlyPlayingId}
-              setCurrentlyPlayingId={setCurrentlyPlayingId}
-              colorStyle={colorStyle}
-              playbackEnabled={playbackEnabled}
-              buttonRef={buttonRef}
-              audioRef={audioRef}
-              editMode={editMode}
-            />
-            <audio
-              src={song !== null && !disabled ? song.preview_url : null}
-              volume="1"
-              className="hidden"
-              ref={audioRef}
-            ></audio>
-          </>
+          <PlayPauseButton
+            id={id}
+            song={song}
+            side={side}
+            disabled={disabled}
+            currentlyPlayingId={currentlyPlayingId}
+            setCurrentlyPlayingId={setCurrentlyPlayingId}
+            colorStyle={colorStyle}
+            playbackEnabled={playbackEnabled}
+            buttonRef={buttonRef}
+            audioRef={audioRef}
+            editMode={editMode}
+          />
+        ) : null}
+        {song && song.preview_url ? (
+          <audio
+            src={song !== null && !disabled ? song.preview_url : null}
+            volume="1"
+            className="hidden"
+            ref={audioRef}
+          ></audio>
         ) : null}
       </div>
     </>

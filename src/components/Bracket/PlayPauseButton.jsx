@@ -96,7 +96,6 @@ const PlayPauseButton = ({
         "text-white",
         "border-0",
         "w-[25%]",
-        "h-full",
         "min-h-[var(--buttonheight)]",
         "cursor-[inherit]",
         "text-center",
