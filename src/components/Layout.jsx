@@ -5,13 +5,14 @@ import Footer from "./Footer";
 import { isLoggedIn } from "../utilities/authentication";
 
 const Layout = ({ children, noChanges, path }) => {
-  const [loggedIn, setLoggedIn] = useState(isLoggedIn());
+  const loggedIn = isLoggedIn();
+  const [, updateState] = useState();
 
   useEffect(() => {
     // check if user is logged in when the localstorage changes
     window.onstorage = () => {
       console.log("storage changed");
-      setLoggedIn(isLoggedIn());
+      updateState({});
     };
     return () => {
       window.onstorage = null;
