@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import FAQSection from "./FAQSection";
+import FaqSection from "./FaqSection";
 import LoginButton from "../LoginButton";
 import CornerButton from "../BracketCard/CornerButton";
 import ShareIcon from "../../assets/svgs/shareIcon.svg";
@@ -7,7 +7,7 @@ import RocketIcon from "../../assets/svgs/rocketIcon.svg";
 import EditIcon from "../../assets/svgs/editIcon.svg";
 import ActionButton from "../Bracket/ActionButton";
 
-const FAQ = ({ loggedIn, path }) => {
+const Faq = ({ loggedIn, path }) => {
   const [expandedSection, setExpandedSection] = useState(
     path === "/" ? 0 : null
   );
@@ -168,7 +168,7 @@ const FAQ = ({ loggedIn, path }) => {
             const regex = new RegExp(question.paths[i].replace("*", ".*"));
             if (regex.test(path)) {
               return (
-                <FAQSection
+                <FaqSection
                   key={index}
                   question={question.question}
                   answer={question.answer}
@@ -189,4 +189,4 @@ const FAQ = ({ loggedIn, path }) => {
   );
 };
 
-export default FAQ;
+export default Faq;

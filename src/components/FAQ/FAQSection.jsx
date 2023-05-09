@@ -1,7 +1,7 @@
 import React from "react";
 import cx from "classnames";
 
-const FAQSection = ({ question, answer, expanded, toggleExpanded }) => {
+const FaqSection = ({ question, answer, expanded, toggleExpanded }) => {
   return (
     // <div className="mb-5">
     //   <h2 className="font-bold text-xl text-white">{question}</h2>
@@ -65,4 +65,4 @@ const FAQSection = ({ question, answer, expanded, toggleExpanded }) => {
   );
 };
 
-export default FAQSection;
+export default FaqSection;
