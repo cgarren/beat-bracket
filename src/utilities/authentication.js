@@ -93,6 +93,7 @@ export async function login() {
 		} else {
 			//kick off spotify login process
 			await spotifyLogin();
+			//console.log("would have logged in")
 		}
 	} catch (error) {
 		console.error(error);
@@ -151,7 +152,7 @@ export function isLoggedIn(makeLoginTimer = true) {
 			if (makeLoginTimer) {
 				setLoginTimer(expiresAt);
 			}
-			//console.log("logged in");
+			console.debug("logged in");
 			return true;
 		}
 	}
