@@ -3,7 +3,6 @@ module.exports = {
     title: `Beat Bracket`,
     description: `Make and share interactive music brackets for your favorite artists`,
     siteUrl: `https://www.beatbracket.com`,
-    image: `/beat_bracket_logo.png`
   },
   plugins: ['gatsby-plugin-postcss', {
     resolve: "gatsby-plugin-react-svg",
@@ -24,7 +23,7 @@ module.exports = {
         // Enables "Add to Homescreen" prompt and disables browser UI (including back button)
         // see https://developers.google.com/web/fundamentals/web-app-manifest/#display
         display: "standalone",
-        icon: "src/assets/images/beat_bracket_logo.png", // This path is relative to the root of the site.
+        icon: "static/default-logo.png", // This path is relative to the root of the site.
       },
     },]
 }
