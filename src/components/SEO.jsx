@@ -6,14 +6,14 @@ export const Seo = ({ title, description, pathname, children }) => {
   const {
     title: defaultTitle,
     description: defaultDescription,
-    image,
+    // image,
     siteUrl,
   } = useSiteMetadata();
 
   const seo = {
     title: title || defaultTitle,
     description: description || defaultDescription,
-    image: `${siteUrl}${image}`,
+    // image: `${siteUrl}${image}`,
     url: `${siteUrl}${pathname || ``}`,
   };
 
