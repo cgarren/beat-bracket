@@ -1,7 +1,7 @@
 import React, { useEffect } from "react"
 import Clicky from "../components/Clicky";
 import LoginButton from "../components/LoginButton";
-import Footer from "../components/Footer";
+import FooterText from "../components/FooterText";
 import { Seo } from "../components/SEO";
 import { isLoggedIn } from "../utilities/authentication";
 import { navigate } from "gatsby";
@@ -16,23 +16,28 @@ const App = ({ location }) => {
     }
   }, [loggedIn]);
 
-  if (loggedIn) return <>Logging you in...</>;
+  if (loggedIn || loggedIn === null) return <>Logging you in...</>;
   else
     return (
       <>
         <Clicky />
-        <main className="h-screen bg-gradient-radial from-zinc-100 from-40% to-zinc-400">
-          {/* <nav className="absolute w-full z-50 p-2 bg-black"></nav> */}
-          <div className="flex flex-col justify-center items-center h-full px-4">
+        <main className="h-screen bg-gradient-radial from-zinc-100 from-60% to-zinc-400">
+          <nav className="absolute w-full z-50 p-2 bg-transparent text-center">
+            {/* <img className="inline-block h-16 mr-2" src={logo} alt="Beat Bracket Logo" /> */}
+            <h1 className="inline-block mb-0.5 font-bold font-display sm:text-2xl text-xl text-black">Beat Bracket</h1>
+          </nav>
+          <div className="flex flex-col justify-center items-center h-full px-4 sm:w-9/12 m-auto">
             <div className="inline-flex flex-col justify-center items-center text-center">
-              <h1 className="inline-block mb-0.5 font-bold font-display sm:text-8xl text-7xl text-black ">Beat Bracket</h1>
-              <h2 className="mb-0.5 text-black font-bar font-bold text-xl">Make interactive music brackets for your favorite artists!</h2>
+              <h2 className="mb-0.5 text-black font-bar font-bold sm:text-7xl text-6xl">Make music brackets for your favorite artists.</h2>
+              <h3 className="text-xl text-black">It's easy to generate, customize, fill, and share your bracket! All you need is a free Spotify account.</h3>
               <span className="mt-1.5"><LoginButton /></span>
-              {/* <p className="text-sm text-gray-600">A Spotify account is required to create and save brackets</p> */}
+              {/* <p className="text-sm text-gray-600">You need a free Spotify account to use this site. <a href>Why?</a></p> */}
             </div>
 
           </div>
-          <Footer heightClass="" path={location.pathname} />
+          <div className="absolute bottom-0 w-full text-black p-2">
+            <FooterText whiteText={false} />
+          </div>
         </main>
       </>
     )
