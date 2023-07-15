@@ -1,16 +1,17 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useContext } from "react"
 import Clicky from "../components/Clicky";
 import LoginButton from "../components/LoginButton";
 import FooterText from "../components/FooterText";
 import { Seo } from "../components/SEO";
-import { isLoggedIn } from "../utilities/authentication";
 import { navigate } from "gatsby";
+import { LoginContext } from "../context/LoginContext";
 
 const App = ({ location }) => {
-  const loggedIn = isLoggedIn(false);
+  const { loggedIn } = useContext(LoginContext);
   //scroll to top of window on page load
   useEffect(() => window.scrollTo(0, 0), []);
   useEffect(() => {
+    console.log("loggedIn:", loggedIn)
     if (loggedIn) {
       navigate("/my-brackets");
     }
@@ -33,7 +34,6 @@ const App = ({ location }) => {
               <span className="mt-1.5"><LoginButton /></span>
               {/* <p className="text-sm text-gray-600">You need a free Spotify account to use this site. <a href>Why?</a></p> */}
             </div>
-
           </div>
           <div className="absolute bottom-0 w-full text-black p-2">
             <FooterText whiteText={false} />

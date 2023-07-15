@@ -1,13 +1,11 @@
 import React from "react";
-import LoginButton from "../LoginButton";
 import CornerButton from "../BracketCard/CornerButton";
 import ShareIcon from "../../assets/svgs/shareIcon.svg";
 import RocketIcon from "../../assets/svgs/rocketIcon.svg";
 import EditIcon from "../../assets/svgs/editIcon.svg";
 import ActionButton from "../Bracket/ActionButton";
-import { isLoggedIn } from "../../utilities/authentication";
 
-export default [
+const questions = [
   {
     question: "What is Beat Bracket?",
     answer: (
@@ -28,11 +26,6 @@ export default [
     question: "How do I create a bracket?",
     answer: (
       <ol className="list-decimal list-inside">
-        {!isLoggedIn() ? (
-          <li>
-            <LoginButton variant="bordered" />
-          </li>
-        ) : null}
         <li>
           Click the "Create Bracket" card (only appears if your account has room
           for another bracket)
@@ -149,3 +142,5 @@ export default [
     paths: ["/my-brackets/", "/user/*/bracket/*"],
   },
 ];
+
+export default questions;

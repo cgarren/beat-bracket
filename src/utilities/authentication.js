@@ -10,6 +10,8 @@ import {
 } from "./backend";
 import { generateRandomString } from "./helpers";
 
+//auth storage keys
+
 const refreshTokenKey = "refresh_token";
 const accessTokenKey = "access_token";
 const expiresAtKey = "expires_at";
@@ -56,10 +58,11 @@ function setLoginTimer(expiresAt) {
 	console.debug("set login timer for", refreshTime, "ms");
 }
 
-export async function login() {
+export async function login(setLoggedIn) {
 	// case where user has been here before
 	try {
 		console.info("logging in...");
+		setLoggedIn(null);
 		console.debug("refresh token:", localStorage.getItem(refreshTokenKey))
 		if (localStorage.getItem(refreshTokenKey)) {
 			console.info("refeshing session...")
@@ -104,11 +107,14 @@ export async function login() {
 		}
 	} catch (error) {
 		console.error(error);
+	} finally {
+		setLoggedIn(isLoggedIn());
 	}
 }
 
-export async function loginCallback(urlParams) {
+export async function loginCallback(urlParams, setLoggedIn) {
 	try {
+		setLoggedIn(null);
 		// get data from spotify login callback and set session storage
 		const { refreshToken, accessToken, expiresAt, state } = await spotifyLoginCallback(urlParams);
 		localStorage.setItem(refreshTokenKey, refreshToken);
@@ -120,31 +126,44 @@ export async function loginCallback(urlParams) {
 		const userInfo = await getUserInfo();
 		const userId = userInfo.id;
 		sessionStorage.setItem(userIdKey, userId);
+		console.log("STORAGE DONE UPDATING");
 
 		// use the state value for the new session id
 		const sessionId = state;
 
 		// authenticate with backend
+		console.log(userId, userInfo);
 		await backendLogin(userId, sessionId, expiresAt, accessToken);
 
 		// set timer to refresh access token
 		setLoginTimer(expiresAt);
+		setLoggedIn(isLoggedIn());
+		return isLoggedIn();
 	} catch (error) {
 		if (error.message !== "Invalid url params") {
 			throw error;
 		} else {
 			return "Invalid url parameters"
 		}
+	} finally {
+		setLoggedIn(isLoggedIn());
+		return isLoggedIn();
 	}
 }
 
-export async function logout() {
+export async function logout(setLoggedIn) {
 	// clear session storage and refresh token key
 	sessionStorage.clear();
 	localStorage.removeItem(refreshTokenKey);
+	// clear timer if it exists
+	if (timer) {
+		clearTimeout(timer);
+	}
+	// set logged in to false
+	setLoggedIn(false);
 }
 
-export function isLoggedIn(makeLoginTimer = true) {
+export function isLoggedIn() {
 	if (typeof window !== 'undefined') {
 		let expiresAt = new Date(parseInt(sessionStorage.getItem(expiresAtKey)));
 		if (
@@ -157,6 +176,6 @@ export function isLoggedIn(makeLoginTimer = true) {
 			return true;
 		}
 	}
-	console.log("not logged in");
+	console.debug("not logged in");
 	return false;
 }

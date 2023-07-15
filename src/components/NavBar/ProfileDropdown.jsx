@@ -1,12 +1,14 @@
 import { navigate } from "gatsby";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import guestProfileImage from "../../assets/images/guestProfileImage.png";
 import { getUserInfo } from "../../utilities/spotify";
 import { logout } from "../../utilities/authentication";
 import LoginButton from "../LoginButton";
 import LoadingIndicator from "../LoadingIndicator";
+import { LoginContext } from "../../context/LoginContext";
 
 const ProfileDropdown = ({ loggedIn, noChanges }) => {
+  const { setLoggedIn } = useContext(LoginContext);
   const [showDropdown, setShowDropdown] = useState(false);
   const [shownUserInfo, setShownUserInfo] = useState({
     display_name: "Guest",
@@ -27,7 +29,7 @@ const ProfileDropdown = ({ loggedIn, noChanges }) => {
   async function signOut() {
     if (noChanges(true)) {
       setShowDropdown(false);
-      await logout();
+      await logout(setLoggedIn);
       navigate("/");
     }
   }
@@ -93,7 +95,7 @@ const ProfileDropdown = ({ loggedIn, noChanges }) => {
             <img
               className="object-cover w-10 h-10 rounded-full"
               src={shownUserInfo.images[0].url}
-              alt="Profile picture"
+              alt="Profile avatar"
               title={`${shownUserInfo.display_name}'s Profile picture from Spotify`}
             />
             <p className="hidden ml-2 text-left sm:block">

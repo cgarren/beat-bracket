@@ -1,13 +1,13 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useContext } from "react"
 import Clicky from "../components/Clicky";
 import LoginButton from "../components/LoginButton";
 import Footer from "../components/Footer";
 import { Seo } from "../components/SEO";
-import { isLoggedIn } from "../utilities/authentication";
 import { navigate } from "gatsby";
+import { LoginContext } from "../context/LoginContext";
 
 const App = ({ location }) => {
-  const loggedIn = isLoggedIn(false);
+  const { loggedIn } = useContext(LoginContext);
   //scroll to top of window on page load
   useEffect(() => window.scrollTo(0, 0), []);
   useEffect(() => {
