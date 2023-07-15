@@ -22,7 +22,7 @@ const App = ({ location }) => {
     return (
       <>
         <Clicky />
-        <main className="h-screen bg-gradient-radial from-zinc-100 from-60% to-zinc-400">
+        <main className="h-screen bg-gradient-radial from-zinc-100 from-60% to-zinc-400 relative">
           <nav className="absolute w-full z-50 p-2 bg-transparent text-center">
             {/* <img className="inline-block h-16 mr-2" src={logo} alt="Beat Bracket Logo" /> */}
             <h1 className="inline-block mb-0.5 font-bold font-display sm:text-2xl text-xl text-black">Beat Bracket</h1>
