@@ -1,13 +1,14 @@
-import React, { useEffect, useState, useMemo } from "react"
+import React, { useEffect, useState, useMemo, useContext } from "react"
 import Layout from "../components/Layout";
 import ArtistBracketCard from "../components/BracketCard/ArtistBracketCard";
 import Tab from "../components/Tab";
 import CreateBracketCard from "../components/BracketCard/CreateBracketCard";
 import Alert from "../components/Alert";
 import { getBrackets, getMaxBrackets } from "../utilities/backend";
-import { getUserId, isLoggedIn, loginCallback } from "../utilities/authentication";
+import { getUserId, loginCallback } from "../utilities/authentication";
 import { navigate } from "gatsby";
 import { Seo } from "../components/SEO";
+import { LoginContext } from "../context/LoginContext";
 
 // markup
 const App = ({ location }) => {
@@ -28,6 +29,7 @@ const App = ({ location }) => {
       return true;
     })
   }, [activeTab, brackets]);
+  const { setLoggedIn } = useContext(LoginContext);
 
   //scroll to top of window on page load
   useEffect(() => window.scrollTo(0, 0), []);
@@ -39,7 +41,7 @@ const App = ({ location }) => {
 
     // check to see if the user just logged in
     try {
-      await loginCallback(urlParams);
+      return await loginCallback(urlParams, setLoggedIn);
     } catch (e) {
       // if there's an error, redirect to home page
       console.log("Error authenticating:", e);
@@ -53,8 +55,8 @@ const App = ({ location }) => {
   }
 
   useEffect(() => {
-    processLogin().then(() => {
-      if (isLoggedIn()) {
+    processLogin().then(loginResult => {
+      if (loginResult) {
         getBrackets().then((loadedBrackets) => {
           if (loadedBrackets !== 1) {
             console.log(loadedBrackets);
@@ -66,6 +68,7 @@ const App = ({ location }) => {
           }
         });
       } else {
+        console.log("going back to home page");
         navigate("/");
       }
     });

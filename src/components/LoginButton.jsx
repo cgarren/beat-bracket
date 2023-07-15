@@ -1,18 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 
 import spotifyLogoGreen from "../assets/images/Spotify_Logo_RGB_Green.png";
 import { login } from "../utilities/authentication";
 import { navigate } from "gatsby";
 import LoadingIndicator from "./LoadingIndicator";
 
+import { LoginContext } from "../context/LoginContext";
+
 import * as cx from "classnames";
 
 const LoginButton = ({ variant = "borderless" }) => {
   const [loading, setLoading] = useState(false);
+  const { setLoggedIn } = useContext(LoginContext);
   async function signIn() {
     setLoading(true);
     console.log("loading true");
-    await login();
+    await login(setLoggedIn);
     navigate("/my-brackets");
     setLoading(false);
   }
@@ -29,7 +32,7 @@ const LoginButton = ({ variant = "borderless" }) => {
         "hover:bg-zinc-800",
         "text-white",
         { "border-white hover:border-zinc-200": variant === "bordered" },
-        { "border-black hover:border-zinc-800": variant != "bordered" }
+        { "border-black hover:border-zinc-800": variant !== "bordered" }
       )}
     >
       {loading ? (

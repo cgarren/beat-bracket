@@ -14,7 +14,7 @@ const scope =
 const codeChallengeMethod = "S256";
 
 export async function loadSpotifyRequest(url, params) {
-	if (isLoggedIn()) {
+	if (isLoggedIn() !== false) { // keep going if logged in or if login is processing
 		if (params) {
 			url = url + "?" + new URLSearchParams(params);
 		}
