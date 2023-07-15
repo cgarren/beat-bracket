@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect } from "react";
 import { isLoggedIn } from "../utilities/authentication";
-export const LoginContext = createContext(null);
+export const LoginContext = createContext([null, () => {}]);
 
 export function LoginProvider({ children }) {
   const [loggedIn, setLoggedIn] = useState(isLoggedIn());
