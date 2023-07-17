@@ -11,7 +11,9 @@ export const Seo = ({ title, description, pathname, children }) => {
   } = useSiteMetadata();
 
   const seo = {
+    siteName: defaultTitle,
     title: title ? `${title} | ${defaultTitle}` : defaultTitle,
+    pageTitle: title ? `${title}` : defaultTitle,
     description: description || defaultDescription,
     // image: `${siteUrl}${image}`,
     url: `${siteUrl}${pathname || ``}`,
@@ -21,12 +23,14 @@ export const Seo = ({ title, description, pathname, children }) => {
     <>
       <title>{seo.title}</title>
       <meta name="description" content={seo.description} />
-      {/* <meta name="image" content={seo.image} /> */}
-      {/* <link rel="canonical" href={seo.url}></link> */}
-      {/* <link
-        rel="icon"
-        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>👤</text></svg>"
-      /> */}
+
+      <meta itemprop="name" content={seo.pageTitle} />
+      {/* <meta itemprop="description" content={seo.description} /> */}
+
+      <meta name="og:title" content={seo.pageTitle} />
+      {/* <meta name="og:description" content={seo.description} /> */}
+      <meta name="og:site_name" content={seo.siteName} />
+      <meta name="og:type" content="website" />
       {children}
     </>
   );
