@@ -123,6 +123,6 @@ export default App
 
 export function Head() {
   return (
-    <Seo title="Beat Bracket - My brackets" />
+    <Seo title="My brackets" />
   )
 }

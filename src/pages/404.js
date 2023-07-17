@@ -1,6 +1,7 @@
 import * as React from "react"
 import { Link } from "gatsby"
 import Layout from "../components/Layout"
+import { Seo } from "../components/SEO"
 
 const NotFoundPage = () => {
   return (
@@ -17,6 +18,6 @@ export default NotFoundPage
 
 export function Head() {
   return (
-    <title>Beat Bracket - Page not found</title>
+    <Seo title="Page not found"></Seo>
   )
 }
