@@ -21,7 +21,7 @@ export const Seo = ({ title, description, pathname, children }) => {
     <>
       <title>{seo.title}</title>
       <meta name="description" content={seo.description} />
-      <meta name="image" content={seo.image} />
+      {/* <meta name="image" content={seo.image} /> */}
       {/* <link rel="canonical" href={seo.url}></link> */}
       {/* <link
         rel="icon"
