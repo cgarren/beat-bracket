@@ -1,7 +1,7 @@
 module.exports = {
   siteMetadata: {
     title: `Beat Bracket`,
-    description: `Make and share interactive music brackets for your favorite artists`,
+    description: `Make music brackets for your favorite artists! It's easy to generate, customize, fill, and share your bracket with a free Spotify account.`,
     siteUrl: `https://www.beatbracket.com`,
   },
   plugins: ['gatsby-plugin-postcss', {
