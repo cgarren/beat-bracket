@@ -82,7 +82,7 @@ const App = ({ params, location }) => {
 
   useEffect(() => {
     async function kickOff() {
-      if (bracketId) {
+      if (bracketId && owner.id) {
         getBracket(bracketId, owner.id).then(async (loadedBracket) => {
           if (loadedBracket === 1) {
             // Error
@@ -122,6 +122,7 @@ const App = ({ params, location }) => {
               //setReadyToChange(true);
             } else {
               // Bracket doesn't exist and no artist was passed in
+              console.log("Bracket", bracketId, "not found for user. No artist provided");
               setBracket(null);
             }
           }
@@ -302,20 +303,21 @@ const App = ({ params, location }) => {
     const songPossibilities = await loadAlbums("https://api.spotify.com/v1/artists/" + providedArtist.id + "/albums?include_groups=album,single,compilation&limit=20", providedArtist.id);
     if (songPossibilities === 1) {
       showAlert("Error loading tracks from Spotify", "error", false);
-      return;
+      return [];
     }
     // load data for the songs
     setLoadingText("Gathering track information...");
     let templist = await processTracks(songPossibilities);
     if (templist === 1) {
       showAlert("Error loading tracks from Spotify", "error", false);
-      return;
+      return [];
     }
     // if the artist has less than 8 songs, stop
     if (templist.length <= 8) {
       alert(providedArtist.name + " doesn't have enough songs on Spotify! Try another artist.");
       setArtist({ "name": undefined, "id": undefined });
       navigate("/my-brackets")
+      return [];
     }
     setAllTracks(templist);
     setLoadingText("Generating bracket...");
@@ -432,8 +434,28 @@ const App = ({ params, location }) => {
 
 export default App
 
-export function Head() {
+export function Head({ params }) {
+  const [artistName, setArtistName] = useState(null);
+  const [userName, setUserName] = useState(null);
+
+  useEffect(() => {
+    async function updateTitle(retries) {
+      if (params && params.id && params.userId) {
+        getBracket(params.id, params.userId).then(async (loadedBracket) => {
+          if (loadedBracket !== 1 && loadedBracket && loadedBracket.userName && loadedBracket.artistName) {
+            setArtistName(loadedBracket.artistName);
+            setUserName(loadedBracket.userName);
+          } else if (retries < 5) {
+            setTimeout(updateTitle, 6000, retries + 1);
+          }
+        }
+        )
+      }
+    }
+    updateTitle(0);
+  }, [params]);
+
   return (
-    <Seo title="Beat Bracket - View bracket" />
+    <Seo title={artistName && userName ? `${artistName} bracket by ${userName}` : "View/edit bracket"} />
   )
 }

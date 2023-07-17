@@ -47,7 +47,7 @@ export default App
 
 export function Head() {
   return (
-    <Seo>
+    <Seo title="Login">
       <script type="application/ld+json">
         {`
           {
