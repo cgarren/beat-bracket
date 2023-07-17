@@ -19,8 +19,8 @@ module.exports = {
         short_name: "Beat Bracket",
         description: `Make music brackets for your favorite artists! It's easy to generate, customize, fill, and share your bracket with a free Spotify account.`,
         start_url: "/",
-        background_color: "#000000",
-        theme_color: "#ffffff",
+        background_color: "#BBBBBB",
+        theme_color: "#BBBBBB",
         // Enables "Add to Homescreen" prompt and disables browser UI (including back button)
         // see https://developers.google.com/web/fundamentals/web-app-manifest/#display
         display: "standalone",
