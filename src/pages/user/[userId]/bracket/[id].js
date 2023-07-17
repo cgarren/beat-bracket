@@ -434,8 +434,28 @@ const App = ({ params, location }) => {
 
 export default App
 
-export function Head() {
+export function Head({ params }) {
+  const [artistName, setArtistName] = useState(null);
+  const [userName, setUserName] = useState(null);
+
+  useEffect(() => {
+    async function updateTitle(retries) {
+      if (params && params.id && params.userId) {
+        getBracket(params.id, params.userId).then(async (loadedBracket) => {
+          if (loadedBracket !== 1 && loadedBracket && loadedBracket.userName && loadedBracket.artistName) {
+            setArtistName(loadedBracket.artistName);
+            setUserName(loadedBracket.userName);
+          } else if (retries < 5) {
+            setTimeout(updateTitle, 6000, retries + 1);
+          }
+        }
+        )
+      }
+    }
+    updateTitle(0);
+  }, [params]);
+
   return (
-    <Seo title="Beat Bracket - View bracket" />
+    <Seo title={artistName && userName ? `${artistName} bracket by ${userName}` : "View/edit bracket"} />
   )
 }
