@@ -1,6 +1,5 @@
 /** @type {import('tailwindcss').Config} */
 
-const colors = require('tailwindcss/colors')
 
 module.exports = {
   content: [
@@ -29,7 +28,7 @@ module.exports = {
         wiggle: {
           '0%, 100%': { transform: 'rotate(-2deg)' },
           '50%': { transform: 'rotate(2deg)' },
-        }
+        },
       },
       animation: {
         rotate: 'rotate 6s linear infinite',
