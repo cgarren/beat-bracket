@@ -53,7 +53,7 @@ export default App
 
 export function Head() {
   return (
-    <Seo title="Login">
+    <Seo title="Login with Spotify">
       <script type="application/ld+json">
         {`
           {
