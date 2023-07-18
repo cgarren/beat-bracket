@@ -10,6 +10,7 @@ export default function CornerButton({ removeFunc, autoPosition = true }) {
         { "absolute -top-2 -right-2": autoPosition }
       )}
       title="Delete bracket"
+      aria-label="Delete bracket"
     >
       {"✕"}
     </button>
