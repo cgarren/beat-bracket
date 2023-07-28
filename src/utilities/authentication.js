@@ -45,7 +45,7 @@ export function getSessionId() {
 
 let timer = null;
 
-function setLoginTimer(expiresAt) {
+function setLoginTimer(expiresAt, setLoggedIn) {
 	// clear timer if it exists
 	if (timer) {
 		clearTimeout(timer);
@@ -53,7 +53,7 @@ function setLoginTimer(expiresAt) {
 	// refresh access token 1 minute before it expires
 	const refreshTime = expiresAt - 60000 - Date.now();
 	timer = setTimeout(() => {
-		login();
+		login(setLoggedIn);
 	}, refreshTime);
 	console.debug("set login timer for", refreshTime, "ms");
 }
@@ -100,7 +100,7 @@ export async function login(setLoggedIn) {
 			await backendLogin(userId, sessionId, expiresAt, accessToken);
 
 			// set timer to refresh access token
-			setLoginTimer(expiresAt);
+			setLoginTimer(expiresAt, setLoggedIn);
 		} else {
 			//kick off spotify login process
 			await spotifyLogin();
@@ -136,7 +136,7 @@ export async function loginCallback(urlParams, setLoggedIn) {
 		await backendLogin(userId, sessionId, expiresAt, accessToken);
 
 		// set timer to refresh access token
-		setLoginTimer(expiresAt);
+		setLoginTimer(expiresAt, setLoggedIn);
 		setLoggedIn(isLoggedIn());
 		return isLoggedIn();
 	} catch (error) {
