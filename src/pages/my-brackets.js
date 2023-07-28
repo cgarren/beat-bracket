@@ -10,6 +10,8 @@ import { navigate } from "gatsby";
 import { Seo } from "../components/SEO";
 import { LoginContext } from "../context/LoginContext";
 
+import cx from "classnames";
+
 // markup
 const App = ({ location }) => {
   const maxBrackets = getMaxBrackets();
@@ -108,7 +110,13 @@ const App = ({ location }) => {
             <Tab id={2} activeTab={activeTab} setActiveTab={setActiveTab} text="Completed" />
           </nav>
         </div>
-        <div className="pt-3 flex flex-row flex-wrap justify-center items-stretch gap-5 sm:mx-5">
+        {/* <div className="pt-3 flex flex-row flex-wrap justify-center">
+          {activeTab === 0 && maxBrackets && brackets.length < maxBrackets && currentUserId ? <CreateBracketCard userId={currentUserId} /> : null}
+          {shownBrackets.map((bracket) => (
+            <ArtistBracketCard bracket={bracket} key={bracket.id} userId={currentUserId} />
+          ))}
+        </div> */}
+        <div className={cx("pt-3 items-stretch sm:mx-5 gap-5", { "inline-grid grid-cols-3": brackets.length >= 3 }, { "flex flex-row flex-wrap justify-center": brackets.length < 3 })}>
           {activeTab === 0 && maxBrackets && brackets.length < maxBrackets && currentUserId ? <CreateBracketCard userId={currentUserId} /> : null}
           {shownBrackets.map((bracket) => (
             <ArtistBracketCard bracket={bracket} key={bracket.id} userId={currentUserId} />
