@@ -116,7 +116,11 @@ const App = ({ location }) => {
             <ArtistBracketCard bracket={bracket} key={bracket.id} userId={currentUserId} />
           ))}
         </div> */}
-        <div className={cx("pt-3 items-stretch sm:mx-5 gap-5", { "inline-grid grid-cols-3": brackets.length >= 3 }, { "flex flex-row flex-wrap justify-center": brackets.length < 3 })}>
+        <div className={
+          cx("pt-3 items-stretch sm:mx-5 gap-5",
+            { "inline-grid xl:grid-cols-3 md:grid-cols-2": brackets.length >= 3 },
+            { "flex flex-row flex-wrap justify-center": brackets.length < 3 }
+          )}>
           {activeTab === 0 && maxBrackets && brackets.length < maxBrackets && currentUserId ? <CreateBracketCard userId={currentUserId} /> : null}
           {shownBrackets.map((bracket) => (
             <ArtistBracketCard bracket={bracket} key={bracket.id} userId={currentUserId} />
