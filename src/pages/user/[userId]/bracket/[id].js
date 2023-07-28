@@ -45,6 +45,7 @@ const App = ({ params, location }) => {
   const [showBracket, setShowBracket] = useState(false);
   const [loadingText, setLoadingText] = useState("Loading...");
   const [saveButtonDisabled, setSaveButtonDisabled] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   const editable = isCurrentUser(owner.id);
   const [playbackEnabled, setPlaybackEnabled] = useState(false);
@@ -215,6 +216,7 @@ const App = ({ params, location }) => {
   // }, [allTracks]);
 
   async function saveBracket() { // Called on these occasions: on initial bracket load, user clicks save button, user completes bracket
+    setSaving(true);
     if (bracketId && owner && artist && seedingMethod && bracket && editable && readyToChange) {
       const obj = Object.fromEntries(bracket);
       const theBracket = {
@@ -237,9 +239,10 @@ const App = ({ params, location }) => {
         setLastSaved({ commandsLength: commands.length, time: Date.now() });
         setSaveButtonDisabled(true);
       } else {
-        showAlert("Error saving bracket", "error");
+        showAlert("Error saving bracket", "error", false);
         setSaveButtonDisabled(false);
       }
+      setSaving(false);
     }
 
   }
@@ -382,9 +385,9 @@ const App = ({ params, location }) => {
                 />
                 <ActionButton
                   onClick={saveBracket}
-                  disabled={saveButtonDisabled}
+                  disabled={saveButtonDisabled || saving}
                   icon={<SaveIcon />}
-                  text={saveButtonDisabled ? "Saved" : "Save"}
+                  text={saving ? "Saving..." : saveButtonDisabled ? "Saved" : "Save"}
                 />
                 <ActionButton
                   onClick={() => {
