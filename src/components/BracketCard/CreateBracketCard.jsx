@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import BracketCard from "./BracketCard";
 import createBracketPic from "../../assets/images/createBracket.png";
 import { v4 as uuidv4 } from "uuid";
-import SearchBar from "../Search/SearchBar";
+import ArtistSearchBar from "../Search/ArtistSearchBar";
 import { openBracket } from "../../utilities/helpers";
 import Modal from "../Modal";
 
@@ -30,7 +30,7 @@ const CreateBracketCard = ({ userId }) => {
       ></BracketCard>
       {showSearchBar ? (
         <Modal onClose={() => setShowSearchBar(false)}>
-          <SearchBar setArtist={handleArtistChange} />
+          <ArtistSearchBar setArtist={handleArtistChange} />
         </Modal>
       ) : null}
     </div>

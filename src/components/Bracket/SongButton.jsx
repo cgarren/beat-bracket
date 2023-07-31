@@ -1,7 +1,5 @@
 import React, { useRef, useState, useMemo } from "react";
 import PlayPauseButton from "./PlayPauseButton";
-import Modal from "../Modal";
-import Suggestion from "../Search/Suggestion";
 
 import spotifyIcon from "../../assets/images/Spotify_Icon_RGB_Green.png";
 
@@ -9,6 +7,7 @@ import Vibrant from "node-vibrant";
 import { getColorsFromImage } from "../../utilities/bracketGeneration";
 
 import cx from "classnames";
+import ReplaceTrackModal from "./ReplaceTrackModal";
 
 const SongButton = ({
     styling,
@@ -180,33 +179,12 @@ const SongButton = ({
     return (
         <>
             {replacementTracks && showTrackSelector ? (
-                <Modal
-                    onClose={() => {
-                        setShowTrackSelector(false);
-                    }}
-                >
-                    <h1 className="font-bold text-xl">
-                        Select a replacement track:
-                    </h1>
-                    <div className="m-0 mt-1 p-0 list-none flex-nowrap gap-0 inline-flex flex-col text-center w-full rounded max-h-[70vh] overflow-scroll">
-                        {replacementTracks.map((track) => {
-                            return (
-                                <Suggestion
-                                    artistName={`${track.name}`}
-                                    art={track.art}
-                                    key={track.id}
-                                    onClick={() => {
-                                        handleReplacement(track);
-                                        setShowTrackSelector(false);
-                                    }}
-                                />
-                            );
-                        })}
-                    </div>
-                </Modal>
-            ) : (
-                ""
-            )}
+                <ReplaceTrackModal
+                    setShow={setShowTrackSelector}
+                    replacementTracks={replacementTracks}
+                    handleReplacement={handleReplacement}
+                />
+            ) : null}
             <div
                 className={cx(
                     "z-0",
