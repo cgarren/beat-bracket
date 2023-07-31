@@ -294,7 +294,7 @@ const SongButton = ({
                         { "bg-transparent text-black": song === null },
                         { "hover:brightness-95": song && !disabled },
                         {
-                            "rounded-[inherit] pr-[6px] pl-[6px]":
+                            "rounded-[inherit] pr-[6px] pl-[6px] w-full":
                                 editMode || (song && !song.preview_url),
                         },
                         {
