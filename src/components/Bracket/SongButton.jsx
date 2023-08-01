@@ -16,6 +16,7 @@ const SongButton = ({
     nextId,
     id,
     side,
+    col,
     previousIds,
     disabled,
     currentlyPlayingId,
@@ -226,6 +227,15 @@ const SongButton = ({
                 onDrop={song && !dragging ? handleDrop : null}
                 onDragOver={song && !dragging ? handleDragOver : null}
             >
+                {/* <div className="absolute top-0 left-0 w-full h-full">
+                    {song && song.art ? (
+                        <img
+                            src={song.art}
+                            alt={song.name}
+                            className="w-full h-full object-cover rounded-2xl"
+                        />
+                    ) : null}
+                </div> */}
                 {editMode && song && replacementTracks ? (
                     <button
                         onClick={() => {

@@ -59,6 +59,7 @@ async function makeTrackObject(track) {
 		id: track.id,
 		popularity: track.popularity,
 		preview_url: track.preview_url,
+		artist: track.artists[0].name,
 	}
 }
 
@@ -195,4 +196,23 @@ async function loadAlbums(url, artistId, songs = {}) {
 	}
 }
 
-export { seedBracket, loadAlbums, processTracks }
+async function loadPlaylist(url, songs = []) {
+	let response = await loadSpotifyRequest(url);
+	if (response !== 1) {
+		if (response.tracks.items.length > 0) {
+			response.tracks.items.forEach(async (item) => {
+				songs.push(await makeTrackObject(item.track));
+			});
+		}
+		if (response.tracks.next) {
+			if (await loadPlaylist(response.tracks.next, songs) === 1) {
+				return 1;
+			}
+		}
+		return songs;
+	} else {
+		return 1;
+	}
+}
+
+export { seedBracket, loadAlbums, processTracks, loadPlaylist }

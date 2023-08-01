@@ -16,7 +16,7 @@ import ActionButton from "../../../../components/Bracket/ActionButton";
 import GeneratePlaylistButton from "../../../../components/GeneratePlaylistButton";
 // Utilities
 import { writeBracket, getBracket } from "../../../../utilities/backend";
-import { seedBracket, loadAlbums, processTracks } from "../../../../utilities/songProcessing";
+import { seedBracket, loadAlbums, processTracks, loadPlaylist } from "../../../../utilities/songProcessing";
 import { bracketSorter, bracketUnchanged, nearestLesserPowerOf2, popularitySort } from "../../../../utilities/helpers";
 import { getUserInfo, isCurrentUser } from "../../../../utilities/spotify";
 import { getNumberOfColumns, fillBracket } from "../../../../utilities/bracketGeneration";
@@ -37,7 +37,8 @@ const App = ({ params, location }) => {
   const [commands, setCommands] = useState([]);
   const [lastSaved, setLastSaved] = useState({ time: 0, commandsLength: 0 });
   const [bracket, setBracket] = useState(new Map());
-  const [artist, setArtist] = useState({ "name": undefined, "id": undefined });
+  //const [artist, setArtist] = useState({ "name": undefined, "id": undefined });
+  const [songSource, setSongSource] = useState({ type: undefined });
   const [currentlyPlayingId, setCurrentlyPlayingId] = useState(null);
 
   const [owner, setOwner] = useState({ "name": undefined, "id": params.userId });
@@ -97,30 +98,38 @@ const App = ({ params, location }) => {
             let mymap = new Map(Object.entries(loadedBracket.bracketData));
             mymap = new Map([...mymap].sort(bracketSorter));
             setBracket(mymap);
-            setArtist({ name: loadedBracket.artistName, id: loadedBracket.artistId });
+            if (loadedBracket.songSource && (loadedBracket.songSource.type == "artist" || loadedBracket.songSource.type == "playlist")) {
+              setSongSource(loadedBracket.songSource);
+            }
+            else if (loadedBracket.artistName && loadedBracket.artistId) {
+              setSongSource({ type: "artist", artist: { name: loadedBracket.artistName, id: loadedBracket.artistId } })
+            } else {
+              throw new Error("Bracket has invalid songSource and no legacy artist data");
+            }
+
+
             setSeedingMethod(loadedBracket.seeding);
             setLimit(loadedBracket.tracks);
-            // if (loadedBracket.winner === undefined && !loadedBracket.completed) {
-            //   setBracketWinner(null);
-            // } else {
-            //   setBracketWinner(loadedBracket.winner);
-            // }
             setShowBracket(true);
             //setTracks(new Array(loadedBracket.tracks).fill(null));
             setLastSaved({ commandsLength: commands.length, time: Date.now() });
           } else {
-            if (location.state && location.state.artist) {
+            if (location.state && (location.state.artist || location.state.playlist)) {
               getUserInfo(owner.id).then((userInfo) => {
                 setOwner({ id: userInfo.id, name: userInfo.display_name });
               });
               console.log(location.state);
               // Bracket does not exist, make it editable for current user
               console.log("Bracket", bracketId, "not found for user. Creating New Bracket");
-              setArtist(location.state.artist);
               setShowBracket(false);
-              const templist = await getTracks(location.state.artist); //kick off the bracket creating process
+              const creationObject = location.state.artist ?
+                { type: "artist", artist: { name: location.state.artist.name, id: location.state.artist.id } } :
+                location.state.playlist ?
+                  { type: "playlist", playlist: { name: location.state.playlist.name, id: location.state.playlist.id } } :
+                  null
+              setSongSource(creationObject);
+              const templist = await getTracks(creationObject); //kick off the bracket creation process
               await changeBracket(templist);
-              //setReadyToChange(true);
             } else {
               // Bracket doesn't exist and no artist was passed in
               console.log("Bracket", bracketId, "not found for user. No artist provided");
@@ -135,7 +144,7 @@ const App = ({ params, location }) => {
 
   async function changeBracket(customAllTracks = allTracks, customLimit = limit, customSeedingMethod = seedingMethod) {
     if (!customAllTracks || customAllTracks.length === 0) {
-      customAllTracks = await getTracks(artist);
+      customAllTracks = await getTracks(songSource);
     }
     const power = nearestLesserPowerOf2(customAllTracks.length);
     //setLoadingText("Seeding tracks by " + seedingMethod + "...");
@@ -217,14 +226,13 @@ const App = ({ params, location }) => {
 
   async function saveBracket() { // Called on these occasions: on initial bracket load, user clicks save button, user completes bracket
     setSaving(true);
-    if (bracketId && owner && artist && seedingMethod && bracket && editable && readyToChange) {
+    if (bracketId && owner && songSource && seedingMethod && bracket && editable && readyToChange) {
       const obj = Object.fromEntries(bracket);
       const theBracket = {
         id: bracketId,
         userId: owner.id,
         userName: owner.name,
-        artistName: artist.name,
-        artistId: artist.id,
+        songSource: songSource,
         tracks: bracketTracks.length,
         seeding: seedingMethod,
         lastModifiedDate: Date.now(),
@@ -300,25 +308,40 @@ const App = ({ params, location }) => {
 
   // GET TRACKS
 
-  async function getTracks(providedArtist) {
-    console.log("getting tracks");
-    setLoadingText("Gathering Spotify tracks for " + providedArtist.name + "...");
-    const songPossibilities = await loadAlbums("https://api.spotify.com/v1/artists/" + providedArtist.id + "/albums?include_groups=album,single,compilation&limit=20", providedArtist.id);
-    if (songPossibilities === 1) {
-      showAlert("Error loading tracks from Spotify", "error", false);
+  async function getTracks(songSource) {
+    console.log(songSource);
+    if (!songSource || !songSource.type) {
       return [];
     }
-    // load data for the songs
-    setLoadingText("Gathering track information...");
-    let templist = await processTracks(songPossibilities);
+
+    console.log("getting tracks");
+    // load the tracks from spotify
+    let templist;
+    if (songSource.type === "artist") {
+      setLoadingText("Gathering Spotify tracks for " + songSource.artist.name + "...");
+      const songPossibilities = await loadAlbums("https://api.spotify.com/v1/artists/" + songSource.artist.id + "/albums?include_groups=album,single,compilation&limit=20", songSource.artist.id);
+      if (songPossibilities === 1) {
+        showAlert("Error loading tracks from Spotify", "error", false);
+        return [];
+      }
+      // load data for the songs
+      setLoadingText("Gathering track information...");
+      templist = await processTracks(songPossibilities);
+    } else if (songSource.type === "playlist") {
+      setLoadingText("Gathering Spotify tracks from " + songSource.playlist.name + "...");
+      templist = await loadPlaylist("https://api.spotify.com/v1/playlists/" + songSource.playlist.id + "?");
+      //throw new Error("Playlists not supported yet");
+    } else {
+      throw new Error("Invalid songSource type: " + songSource.type);
+    }
     if (templist === 1) {
       showAlert("Error loading tracks from Spotify", "error", false);
       return [];
     }
-    // if the artist has less than 8 songs, stop
+    // if there are than 8 songs, stop
     if (templist.length <= 8) {
-      alert(providedArtist.name + " doesn't have enough songs on Spotify! Try another artist.");
-      setArtist({ "name": undefined, "id": undefined });
+      alert("Your selection doesn't have enough songs on Spotify! Try another one!");
+      setSongSource({ type: undefined, name: undefined, id: undefined });
       navigate("/my-brackets")
       return [];
     }
@@ -364,14 +387,14 @@ const App = ({ params, location }) => {
       /> : null}
       <Alert show={alertInfo.show} close={closeAlert} message={alertInfo.message} type={alertInfo.type} />
       <div className="text-center">
-        <h1>{owner.name && artist.name ? <div className="font-bold mb-2 text-xl">{artist.name} bracket by {owner.name} {bracketTracks.length ? "(" + bracketTracks.length + " tracks)" : null}</div> : (bracket ? <div>Finding bracket...</div> : <div className="font-bold mb-2">Bracket not found</div>)}</h1>
+        <h1>{owner.name && songSource ? <div className="font-bold mb-2 text-xl">{songSource.type === "artist" ? songSource.artist.name : songSource.type === "playlist" ? songSource.playlist.name : ""} bracket by {owner.name} {bracketTracks.length ? "(" + bracketTracks.length + " tracks)" : null}</div> : (bracket ? <div>Finding bracket...</div> : <div className="font-bold mb-2">Bracket not found</div>)}</h1>
         {bracketWinner
           ? <BracketWinnerInfo bracketWinner={bracketWinner} /> : null}
       </div>
       <hr />
-      <LoadingIndicator hidden={showBracket || !owner.name || !artist.name} loadingText={loadingText} />
+      <LoadingIndicator hidden={showBracket || !owner.name || !songSource} loadingText={loadingText} />
       <div hidden={!editMode || !showBracket} className="font-medium text-lg">Drag and drop to rearrange songs</div>
-      <div hidden={!showBracket || !artist.name} className="text-center">
+      <div hidden={!showBracket || !songSource} className="text-center">
         <div className="text-xs -space-x-px rounded-md sticky mx-auto top-0 w-fit z-30">
           <div className="flex items-center">
             {/* <GeneratePlaylistButton tracks={tracks} artist={artist} /> */}
@@ -394,7 +417,7 @@ const App = ({ params, location }) => {
                     setEditMode(true);
                     setCurrentlyPlayingId(null);
                     if (!allTracks.length && readyToChange) {
-                      getTracks(artist);
+                      getTracks(songSource);
                     }
                   }}
                   disabled={commands.length !== 0 || !bracketUnchanged(bracket)}
@@ -424,7 +447,7 @@ const App = ({ params, location }) => {
               </>
               : null}
             {/* future button to let users duplicate the bracket to their account */}
-            {!editable && owner.name && artist.name && false
+            {!editable && owner.name && songSource && false
               ? <button onClick={duplicateBracket} className="border-l-gray-200 hover:disabled:border-l-gray-200">Fill out this bracket</button>
               : null}
           </div>
