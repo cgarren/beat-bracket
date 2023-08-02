@@ -55,7 +55,7 @@ async function makeTrackObject(track) {
 	return {
 		name: track.name,
 		feature: track.feature,
-		art: track.album.images[0].url,
+		art: track.album.images.length > 0 ? track.album.images[0].url : null,
 		id: track.id,
 		popularity: track.popularity,
 		preview_url: track.preview_url,
@@ -199,13 +199,14 @@ async function loadAlbums(url, artistId, songs = {}) {
 async function loadPlaylist(url, songs = []) {
 	let response = await loadSpotifyRequest(url);
 	if (response !== 1) {
-		if (response.tracks.items.length > 0) {
-			response.tracks.items.forEach(async (item) => {
+		console.log(response);
+		if (response.items.length > 0) {
+			response.items.forEach(async (item) => {
 				songs.push(await makeTrackObject(item.track));
 			});
 		}
-		if (response.tracks.next) {
-			if (await loadPlaylist(response.tracks.next, songs) === 1) {
+		if (response.next) {
+			if (await loadPlaylist(response.next, songs) === 1) {
 				return 1;
 			}
 		}
@@ -215,4 +216,21 @@ async function loadPlaylist(url, songs = []) {
 	}
 }
 
-export { seedBracket, loadAlbums, processTracks, loadPlaylist }
+async function loadPlaylists(url, playlists = []) {
+	let response = await loadSpotifyRequest(url);
+	if (response !== 1) {
+		if (response.items.length > 0) {
+			playlists.push(...response.items);
+		}
+		if (response.next) {
+			if (await loadPlaylists(response.next, playlists) === 1) {
+				return 1;
+			}
+		}
+		return playlists;
+	} else {
+		return 1;
+	}
+}
+
+export { seedBracket, loadAlbums, processTracks, loadPlaylist, loadPlaylists }

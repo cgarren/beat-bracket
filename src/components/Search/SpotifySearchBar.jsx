@@ -1,9 +1,9 @@
 import React from "react";
 import { loadSpotifyRequest } from "../../utilities/spotify";
 import SearchBar from "./SearchBar";
+import { getArt } from "../../utilities/spotify";
 
 const SpotifySearchBar = ({ type, setFunc, disabled }) => {
-    console.log(type);
     const placeholder = (() => {
         switch (type) {
             case "artist":
@@ -12,11 +12,15 @@ const SpotifySearchBar = ({ type, setFunc, disabled }) => {
                 return "Search for an album...";
             case "track":
                 return "Search for a track...";
+            case "playlist":
+                return "Search for a playlist...";
             default:
                 return "Search...";
         }
     })();
+
     async function searchSuggestions(searchText) {
+        const pluralIdentifier = type + "s";
         if (searchText.trim() !== "") {
             var params = { q: searchText, type: type, limit: 5 };
             var url =
@@ -24,19 +28,20 @@ const SpotifySearchBar = ({ type, setFunc, disabled }) => {
                 new URLSearchParams(params).toString();
             let response = await loadSpotifyRequest(url);
 
-            if (response !== 1 && response.artists.items.length > 0) {
+            if (response !== 1 && response[pluralIdentifier].items.length > 0) {
                 let templist = [];
-                response.artists.items.forEach((item) => {
+                response[pluralIdentifier].items.forEach(async (item) => {
+                    const art = await getArt(item.images, type);
                     if (item.images.length > 0) {
                         templist.push({
                             name: item.name,
-                            art: item.images[2].url,
+                            art: art,
                             id: item.id,
                             onClick: () => {
                                 setFunc({
                                     name: item.name,
                                     id: item.id,
-                                    art: item.images[2].url,
+                                    art: art,
                                 });
                             },
                         });

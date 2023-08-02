@@ -22,7 +22,7 @@ export async function relateSongs(len, theTracks, col, side, otherSide) {
 	let colMap = new Map();
 	for (let i = 0; i < len; i++) {
 		let colorObj = null;
-		if (theTracks && theTracks[i]) {
+		if (theTracks && theTracks[i] && theTracks[i].art) {
 			colorObj = await getColorsFromImage(theTracks[i].art)
 		}
 		colMap.set(side + col + i, {

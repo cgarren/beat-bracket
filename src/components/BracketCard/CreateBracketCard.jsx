@@ -1,15 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import BracketCard from "./BracketCard";
 import createBracketPic from "../../assets/images/createBracket.png";
 import { v4 as uuidv4 } from "uuid";
 import ArtistSearchBar from "../Search/ArtistSearchBar";
+import UserPlaylistSearchBar from "../Search/UserPlaylistSearchBar";
 import { openBracket } from "../../utilities/helpers";
 import Modal from "../Modal";
 import Tab from "../Tab";
+import { loadPlaylists } from "../../utilities/songProcessing";
 
 const CreateBracketCard = ({ userId }) => {
     const [showModal, setShowModal] = useState(false);
     const [activeTab, setActiveTab] = useState(0);
+    const [allPlaylists, setAllPlaylists] = useState([]);
 
     function createArtistBracket(artist) {
         if (artist) {
@@ -29,6 +32,18 @@ const CreateBracketCard = ({ userId }) => {
         }
     }
 
+    useEffect(() => {
+        if (showModal && allPlaylists.length === 0) {
+            const url = "https://api.spotify.com/v1/me/playlists?limit=50";
+            loadPlaylists(url).then((playlists) => {
+                if (playlists !== 1) {
+                    console.log(playlists);
+                    setAllPlaylists(playlists);
+                }
+            });
+        }
+    }, [showModal, allPlaylists]);
+
     return (
         <div>
             <BracketCard
@@ -41,6 +56,7 @@ const CreateBracketCard = ({ userId }) => {
             ></BracketCard>
             {showModal ? (
                 <Modal onClose={() => setShowModal(false)}>
+                    <h1 className="text-xl font-bold">Create Bracket</h1>
                     <div className="mb-2">
                         <nav className="inline-flex flex-row">
                             <Tab
@@ -55,31 +71,23 @@ const CreateBracketCard = ({ userId }) => {
                                 setActiveTab={setActiveTab}
                                 text="Playlist"
                             />
-                            <Tab
+                            {/* <Tab
                                 id={2}
                                 activeTab={activeTab}
                                 setActiveTab={setActiveTab}
                                 text="Blank"
                                 disabled={true}
-                            />
+                            /> */}
                         </nav>
                     </div>
                     {activeTab === 0 ? (
                         <ArtistSearchBar setArtist={createArtistBracket} />
                     ) : null}
                     {activeTab === 1 ? (
-                        // <ArtistSearchBar setArtist={createPlaylistBracket} />
-                        <button
-                            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-                            onClick={() =>
-                                createPlaylistBracket({
-                                    name: "Cooper Garren's top tracks ",
-                                    id: "405iv7OQMP5NBWD0f9427e",
-                                })
-                            }
-                        >
-                            Create Sample bracket
-                        </button>
+                        <UserPlaylistSearchBar
+                            setPlaylist={createPlaylistBracket}
+                            allPlaylists={allPlaylists}
+                        />
                     ) : null}
                 </Modal>
             ) : null}

@@ -1,5 +1,6 @@
 // Guest profile pic
 import guestProfileImage from "../assets/images/guestProfileImage.png";
+import defaultPlaylistImage from "../assets/images/defaultPlaylistImage.png";
 import { generateRandomString } from "./helpers";
 import { getAccessToken, getUserId, isLoggedIn } from "./authentication";
 
@@ -77,6 +78,28 @@ export async function putRequest(url, params, data) {
 	} else {
 		throw new Error("Unknown request error. Code: " + response.status);
 	}
+}
+
+export async function getArt(imageArray, type, getlargest = false) {
+	if (imageArray.length > 0) {
+		if (getlargest) {
+			for (let i = 0; i < imageArray.length; i++) {
+				if (imageArray[i].url) {
+					return imageArray[i].url;
+				}
+			}
+		} else {
+			for (let i = imageArray.length - 1; i >= 0; i--) {
+				if (imageArray[i].url) {
+					return imageArray[i].url;
+				}
+			}
+		}
+	}
+	if (type === "playlist") {
+		return defaultPlaylistImage;
+	}
+	return null;
 }
 
 export async function createPlaylist(name = "New Playlist", description = "", isPublic = true, isCollaborative = false) {

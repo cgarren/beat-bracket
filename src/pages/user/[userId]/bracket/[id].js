@@ -317,6 +317,7 @@ const App = ({ params, location }) => {
     console.log("getting tracks");
     // load the tracks from spotify
     let templist;
+    const selectionName = songSource.type === "artist" ? songSource.artist.name : songSource.type === "playlist" ? songSource.playlist.name : "";
     if (songSource.type === "artist") {
       setLoadingText("Gathering Spotify tracks for " + songSource.artist.name + "...");
       const songPossibilities = await loadAlbums("https://api.spotify.com/v1/artists/" + songSource.artist.id + "/albums?include_groups=album,single,compilation&limit=20", songSource.artist.id);
@@ -329,7 +330,7 @@ const App = ({ params, location }) => {
       templist = await processTracks(songPossibilities);
     } else if (songSource.type === "playlist") {
       setLoadingText("Gathering Spotify tracks from " + songSource.playlist.name + "...");
-      templist = await loadPlaylist("https://api.spotify.com/v1/playlists/" + songSource.playlist.id + "?");
+      templist = await loadPlaylist("https://api.spotify.com/v1/playlists/" + songSource.playlist.id + "/tracks?limit=50");
       //throw new Error("Playlists not supported yet");
     } else {
       throw new Error("Invalid songSource type: " + songSource.type);
@@ -339,8 +340,8 @@ const App = ({ params, location }) => {
       return [];
     }
     // if there are than 8 songs, stop
-    if (templist.length <= 8) {
-      alert("Your selection doesn't have enough songs on Spotify! Try another one!");
+    if (templist.length < 8) {
+      alert(`${selectionName} doesn't have enough songs on Spotify! Try another ${songSource.type}.`);
       setSongSource({ type: undefined, name: undefined, id: undefined });
       navigate("/my-brackets")
       return [];

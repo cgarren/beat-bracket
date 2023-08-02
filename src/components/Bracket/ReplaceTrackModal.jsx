@@ -30,7 +30,9 @@ const ReplaceTrackModal = ({
                 setShow(false);
             }}
         >
-            <h1 className="font-bold text-xl">Select a replacement track:</h1>
+            <h1 className="font-bold text-xl mb-2">
+                Select a replacement track:
+            </h1>
             <SearchBar
                 searchSuggestions={searchSuggestions}
                 disabled={false}

@@ -3,7 +3,8 @@ import BracketCard from "./BracketCard";
 import CardName from "./CardName";
 import { openBracket } from "../../utilities/helpers";
 import { deleteBracket } from "../../utilities/backend";
-import { loadSpotifyRequest } from "../../utilities/spotify";
+import { getArt, loadSpotifyRequest } from "../../utilities/spotify";
+import { defaultPlaylistImage } from "../../assets/images/defaultPlaylistImage.png";
 
 const ArtistBracketCard = ({ bracket, userId }) => {
     const [cardImage, setCardImage] = useState(null);
@@ -53,19 +54,13 @@ const ArtistBracketCard = ({ bracket, userId }) => {
     async function getArtistImage(artistId) {
         const url = "https://api.spotify.com/v1/artists/" + artistId;
         const response = await loadSpotifyRequest(url);
-        if (response === 1 || response.images.length === 0) {
-            return null;
-        }
-        return response.images[0].url;
+        return getArt(response.images, "artist", true);
     }
 
     async function getPlaylistImage(playlistId) {
         const url = "https://api.spotify.com/v1/playlists/" + playlistId;
         const response = await loadSpotifyRequest(url);
-        if (response === 1 || response.images.length === 0) {
-            return null;
-        }
-        return response.images[0].url;
+        return getArt(response.images, "playlist", true);
     }
 
     async function removeBracket() {

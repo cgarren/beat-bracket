@@ -80,7 +80,7 @@ const SearchBar = ({ searchSuggestions, disabled, placeholder }) => {
 
     return (
         // <div className="mb-2 max-w-[800px] min-w-[25%] flex flex-col">
-        <div className="inline-flex flex-col justify-items-center mb-2 place-items-center border-black border-0 rounded-md ">
+        <div className="inline-flex flex-col justify-items-center mb-2 place-items-center border-black border-0 rounded-md max-w-[90%]">
             <input
                 placeholder={placeholder}
                 aria-label={placeholder}

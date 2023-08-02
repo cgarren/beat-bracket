@@ -61,7 +61,6 @@ const App = ({ location }) => {
       if (loginResult) {
         getBrackets().then((loadedBrackets) => {
           if (loadedBrackets !== 1) {
-            console.log(loadedBrackets);
             setBrackets(loadedBrackets);
           } else {
             console.log("Error loading brackets");
