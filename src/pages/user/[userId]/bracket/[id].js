@@ -381,7 +381,7 @@ const App = ({ params, location }) => {
 
   return (
     <Layout noChanges={noChanges} path={location.pathname}>
-      {bracketWinner ? <Confetti
+      {bracketWinner && commands.length !== 0 ? <Confetti
         width={window.document.body.offsetWidth}
         height={window.document.body.offsetHeight}
         recycle={false}
