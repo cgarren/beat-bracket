@@ -31,7 +31,7 @@ const UserPlaylistSearchBar = ({ allPlaylists, setPlaylist }) => {
         />
     ) : (
         <div className="">
-            <LoadingIndicator /> Loading Playlists...
+            <LoadingIndicator /> Loading your playlists...
         </div>
     );
 };
