@@ -30,6 +30,7 @@ const SongButton = ({
     playbackEnabled,
     editMode,
     replacementTracks,
+    showSongInfo,
 }) => {
     const [dragging, setDragging] = useState(false);
     const [showTrackSelector, setShowTrackSelector] = useState(false);
@@ -184,6 +185,7 @@ const SongButton = ({
                     setShow={setShowTrackSelector}
                     replacementTracks={replacementTracks}
                     handleReplacement={handleReplacement}
+                    showSongInfo={showSongInfo}
                 />
             ) : null}
             <div

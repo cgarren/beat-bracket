@@ -6,13 +6,16 @@ const ReplaceTrackModal = ({
     replacementTracks,
     handleReplacement,
     setShow,
+    showSongInfo,
 }) => {
     async function searchSuggestions(searchText) {
         let templist = [];
         replacementTracks.forEach((track) => {
             if (track.name.toLowerCase().includes(searchText.toLowerCase())) {
                 templist.push({
-                    name: track.name,
+                    name: `${track.name}${
+                        showSongInfo ? " by " + track.artist : ""
+                    }`,
                     art: track.art,
                     id: track.id,
                     onClick: () => {

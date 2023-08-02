@@ -53,6 +53,7 @@ const App = ({ params, location }) => {
   const [alertInfo, setAlertInfo] = useState({ show: false, message: null, type: null, timeoutId: null });
 
   const bracketTracks = useMemo(() => {
+    console.log(bracket);
     let tracks = [];
     if (bracket) {
       for (let item of bracket.values()) {
@@ -98,7 +99,7 @@ const App = ({ params, location }) => {
             let mymap = new Map(Object.entries(loadedBracket.bracketData));
             mymap = new Map([...mymap].sort(bracketSorter));
             setBracket(mymap);
-            if (loadedBracket.songSource && (loadedBracket.songSource.type == "artist" || loadedBracket.songSource.type == "playlist")) {
+            if (loadedBracket.songSource && (loadedBracket.songSource.type === "artist" || loadedBracket.songSource.type === "playlist")) {
               setSongSource(loadedBracket.songSource);
             }
             else if (loadedBracket.artistName && loadedBracket.artistId) {
@@ -453,7 +454,21 @@ const App = ({ params, location }) => {
               : null}
           </div>
         </div>
-        <Bracket bracket={bracket} bracketTracks={bracketTracks} setBracket={setBracket} allTracks={allTracks} setShowBracket={setShowBracket} showBracket={showBracket} currentlyPlayingId={currentlyPlayingId} setCurrentlyPlayingId={setCurrentlyPlayingId} saveCommand={saveCommand} playbackEnabled={playbackEnabled} editable={editable} editMode={editMode} />
+        <Bracket
+          bracket={bracket}
+          bracketTracks={bracketTracks}
+          setBracket={setBracket}
+          allTracks={allTracks}
+          setShowBracket={setShowBracket}
+          showBracket={showBracket}
+          currentlyPlayingId={currentlyPlayingId}
+          setCurrentlyPlayingId={setCurrentlyPlayingId}
+          saveCommand={saveCommand}
+          playbackEnabled={playbackEnabled}
+          editable={editable}
+          editMode={editMode}
+          showSongInfo={songSource && songSource.type === "playlist"}
+        />
       </div>
     </Layout >
   )

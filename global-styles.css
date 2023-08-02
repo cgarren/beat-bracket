@@ -6,6 +6,17 @@
 	--buttonheight: 50px;
 	--buttonwidth: 107px;
 	--lineWidth: 3px;
+
+	/* --firstColumnSpacing: calc(var(--buttonheight) / 2);
+	--secondColumnSpacing: calc(var(--buttonheight) * 2);
+	--thirdColumnSpacing: calc(var(--buttonheight) * 5);
+	--fourthColumnSpacing: calc(var(--buttonheight) * 11);
+	--fifthColumnSpacing: calc(var(--buttonheight) * 23);
+	--sixthColumnSpacing: calc(var(--buttonheight) * 47);
+	--seventhColumnSpacing: calc(var(--buttonheight) * 95);
+	--eigthColumnSpacing: calc(var(--buttonheight) * 191);
+	--ninthColumnSpacing: calc(var(--buttonheight) * 383); */
+
 	--firstColumnSpacing: calc(var(--buttonheight) / 2);
 	--secondColumnSpacing: calc(var(--buttonheight) * 2);
 	--thirdColumnSpacing: calc(var(--buttonheight) * 5);
@@ -15,6 +26,7 @@
 	--seventhColumnSpacing: calc(var(--buttonheight) * 95);
 	--eigthColumnSpacing: calc(var(--buttonheight) * 191);
 	--ninthColumnSpacing: calc(var(--buttonheight) * 383);
+
 	--leftLineMargin: calc((var(--buttonwidth)) - (var(--lineWidth)));
 }
 

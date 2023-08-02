@@ -8,17 +8,26 @@ import {
 import { popularitySort } from "../../utilities/helpers";
 import cx from "classnames";
 
-const styles = [
-    "mt-[var(--firstColumnSpacing)]",
-    "mt-[var(--secondColumnSpacing)]",
-    "mt-[var(--thirdColumnSpacing)]",
-    "mt-[var(--fourthColumnSpacing)]",
-    "mt-[var(--fifthColumnSpacing)]",
-    "mt-[var(--sixthColumnSpacing)]",
-    "mt-[var(--seventhColumnSpacing)]",
-    "mt-[var(--eigthColumnSpacing)]",
-    "mt-[var(--ninthColumnSpacing)]",
-];
+// const styles = [
+//     "",
+//     "",
+//     "",
+//     "",
+//     "",
+//     "",
+//     "",
+//     "",
+//     "",
+//     // "mt-[var(--firstColumnSpacing)]",
+//     // "mt-[var(--secondColumnSpacing)]",
+//     // "mt-[var(--thirdColumnSpacing)]",
+//     // "mt-[var(--fourthColumnSpacing)]",
+//     // "mt-[var(--fifthColumnSpacing)]",
+//     // "mt-[var(--sixthColumnSpacing)]",
+//     // "mt-[var(--seventhColumnSpacing)]",
+//     // "mt-[var(--eigthColumnSpacing)]",
+//     // "mt-[var(--ninthColumnSpacing)]",
+// ];
 
 const topStyles = [
     "mt-0",
@@ -60,6 +69,7 @@ const Bracket = ({
     bracketTracks,
     currentlyPlayingId,
     setCurrentlyPlayingId,
+    showSongInfo,
 }) => {
     const { width, height } = useWindowSize();
     const replacementTracks = useMemo(() => {
@@ -137,9 +147,9 @@ const Bracket = ({
                                     styling={cx({
                                         [`${topStyles[colExpression]}`]:
                                             value.index === 0,
-                                        [`${styles[colExpression]}`]:
-                                            value.index !== 0 &&
-                                            value.index % 2 === 0,
+                                        // [`${styles[colExpression]}`]:
+                                        //     value.index !== 0 &&
+                                        //     value.index % 2 === 0,
                                     })}
                                     color={value.color}
                                     key={mykey}
@@ -148,26 +158,39 @@ const Bracket = ({
                                     winner={value.winner}
                                     //setBracketWinner={setBracketWinner}
                                     replacementTracks={replacementTracks}
+                                    showSongInfo={showSongInfo}
                                 />
-                                {/* {value.song && value.col === 0 ? (
-                                    <div className="text-center text-black text-xs">
-                                        {value.song.artist}
-                                    </div>
-                                ) : null} */}
-                                {value.index % 2 === 0 &&
-                                value.nextId != null ? (
+                                {((value.song &&
+                                    value.col === 0 &&
+                                    showSongInfo) ||
+                                    bracket.has(
+                                        side + value.col + (value.index + 1)
+                                    )) && (
                                     <div
-                                        className={cx({
-                                            [`${lineStyles[colExpression]}`]: true,
-                                            "bg-gray-500 w-[var(--lineWidth)] rounded": true,
-                                            "ml-[var(--leftLineMargin)]":
-                                                side === "l",
-                                            "ml-0": side === "r",
-                                        })}
-                                        key={mykey + "line"}
-                                    ></div>
-                                ) : (
-                                    ""
+                                        className={`w-[var(--buttonwidth)] relative ${lineStyles[colExpression]}`}
+                                    >
+                                        {value.index % 2 === 0 &&
+                                        value.nextId != null ? (
+                                            <div
+                                                className={cx({
+                                                    [`${lineStyles[colExpression]}`]: true,
+                                                    "bg-gray-500 w-[var(--lineWidth)] rounded": true,
+                                                    ["absolute"]: true,
+                                                    "right-0": side === "l",
+                                                    "left-0": side === "r",
+                                                })}
+                                                key={mykey + "line"}
+                                            ></div>
+                                        ) : null}
+                                        {value.song &&
+                                        value.col === 0 &&
+                                        showSongInfo ? (
+                                            <div className="px-1 text-center text-black text-xs text-ellipsis line-clamp-1 break-all">
+                                                {value.song.artist}
+                                                {/* {`${value.song.popularity} | ${value.song.artist}`} */}
+                                            </div>
+                                        ) : null}
+                                    </div>
                                 )}
                             </div>
                         );
