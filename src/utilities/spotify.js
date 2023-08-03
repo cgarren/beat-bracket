@@ -11,7 +11,7 @@ const stateKey = "spotify_auth_state";
 const clientId = "fff2634975884bf88e3d3c9c2d77763d";
 const redirectUri = typeof window !== 'undefined' ? window.location.origin + "/my-brackets" : "https://www.beatbracket.com/my-brackets";
 const scope =
-	"playlist-modify-private playlist-modify-public user-read-private";
+	"playlist-modify-private playlist-modify-public user-read-private playlist-read-private playlist-read-collaborative";
 const codeChallengeMethod = "S256";
 
 export async function loadSpotifyRequest(url, params) {
