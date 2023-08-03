@@ -391,7 +391,7 @@ const App = ({ params, location }) => {
       <div className="text-center">
         <h1>{owner.name && songSource ? <div className="font-bold mb-2 text-xl">{songSource.type === "artist" ? songSource.artist.name : songSource.type === "playlist" ? songSource.playlist.name : ""} bracket by {owner.name} {bracketTracks.length ? "(" + bracketTracks.length + " tracks)" : null}</div> : (bracket ? <div>Finding bracket...</div> : <div className="font-bold mb-2">Bracket not found</div>)}</h1>
         {bracketWinner
-          ? <BracketWinnerInfo bracketWinner={bracketWinner} /> : null}
+          ? <BracketWinnerInfo bracketWinner={bracketWinner} showSongInfo={songSource && songSource.type === "playlist"} /> : null}
       </div>
       <hr />
       <LoadingIndicator hidden={showBracket || !owner.name || !songSource} loadingText={loadingText} />

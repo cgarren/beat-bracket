@@ -1,6 +1,6 @@
 import React from "react";
 
-const BracketWinnerInfo = ({ bracketWinner }) => {
+const BracketWinnerInfo = ({ bracketWinner, showSongInfo }) => {
     return (
         <div className="text-center text-lg">
             {bracketWinner.art && (
@@ -14,7 +14,9 @@ const BracketWinnerInfo = ({ bracketWinner }) => {
                 />
             )}
             <span className="font-bold">Winner: </span>
-            {bracketWinner.name}
+            {`${bracketWinner.name}${
+                showSongInfo ? " by " + bracketWinner.artist : ""
+            }`}
             {/* <div>
         <span>Popularity on Spotify:</span> {bracketWinner.popularity}/100
       </div> */}
