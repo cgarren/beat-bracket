@@ -1,14 +1,31 @@
 import { popularitySort, shuffleArray } from "./helpers";
 import { loadSpotifyRequest } from "./spotify";
 
+async function sortTracks(trackList, sortingMethod) {
+	switch (sortingMethod) {
+		case "random":
+			return await shuffleArray(trackList);
+		case "popularity":
+			return trackList.toSorted(popularitySort);
+		case "playlist":
+			return trackList;
+		default:
+			return trackList;
+	}
+}
+
 async function seedBracket(trackList, seedingMethod) {
 	switch (seedingMethod) {
 		case "random":
 			return await shuffleArray(trackList);
 		case "popularity":
-			trackList.sort(popularitySort);
+			let temp = trackList.toSorted(popularitySort);
 			//console.table(trackList);
-			return await arrangeSeeds(trackList);
+			return await arrangeSeeds(temp);
+		case "playlist":
+			return arrangeSeeds(trackList);
+		case "none":
+			return trackList;
 		default:
 			return trackList;
 	}
@@ -17,18 +34,19 @@ async function seedBracket(trackList, seedingMethod) {
 async function arrangeSeeds(bracketList) {
 	let slice = 1;
 	let temp;
-	while (slice < bracketList.length / 2) {
-		temp = bracketList;
-		bracketList = [];
+	let newBracketList = [...bracketList];
+	while (slice < newBracketList.length / 2) {
+		temp = newBracketList;
+		newBracketList = [];
 
 		while (temp.length > 0) {
-			bracketList = bracketList.concat(temp.splice(0, slice));  // n from the beginning
-			bracketList = bracketList.concat(temp.splice(-slice, slice));  // n from the end
+			newBracketList = newBracketList.concat(temp.splice(0, slice));  // n from the beginning
+			newBracketList = newBracketList.concat(temp.splice(-slice, slice));  // n from the end
 		}
 
 		slice = slice * 2;
 	}
-	return bracketList;
+	return newBracketList;
 }
 
 async function selectTrackVersion(numTracks, tracks, featuredList) {
@@ -196,17 +214,17 @@ async function loadAlbums(url, artistId, songs = {}) {
 	}
 }
 
-async function loadPlaylist(url, songs = []) {
+async function loadPlaylistTracks(url, songs = []) {
 	let response = await loadSpotifyRequest(url);
 	if (response !== 1) {
-		console.log(response);
 		if (response.items.length > 0) {
-			response.items.forEach(async (item) => {
-				songs.push(await makeTrackObject(item.track));
-			});
+			await Promise.all(response.items.map(async (item) => {
+				const trackObject = await makeTrackObject(item.track);
+				songs.push(trackObject);
+			}));
 		}
 		if (response.next) {
-			if (await loadPlaylist(response.next, songs) === 1) {
+			if (await loadPlaylistTracks(response.next, songs) === 1) {
 				return 1;
 			}
 		}
@@ -233,4 +251,4 @@ async function loadPlaylists(url, playlists = []) {
 	}
 }
 
-export { seedBracket, loadAlbums, processTracks, loadPlaylist, loadPlaylists }
+export { seedBracket, sortTracks, loadAlbums, processTracks, loadPlaylistTracks, loadPlaylists }

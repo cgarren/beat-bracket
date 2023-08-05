@@ -63,13 +63,20 @@ const CreateBracketCard = ({ userId }) => {
                                 id={0}
                                 activeTab={activeTab}
                                 setActiveTab={setActiveTab}
-                                text="Artist"
+                                content="Artist"
                             />
                             <Tab
                                 id={1}
                                 activeTab={activeTab}
                                 setActiveTab={setActiveTab}
-                                text="Playlist"
+                                content={
+                                    <div className="flex gap-1 align-middle">
+                                        Playlist{" "}
+                                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                                            New
+                                        </span>
+                                    </div>
+                                }
                             />
                             {/* <Tab
                                 id={2}

@@ -16,7 +16,7 @@ import ActionButton from "../../../../components/Bracket/ActionButton";
 import GeneratePlaylistButton from "../../../../components/GeneratePlaylistButton";
 // Utilities
 import { writeBracket, getBracket } from "../../../../utilities/backend";
-import { seedBracket, loadAlbums, processTracks, loadPlaylist } from "../../../../utilities/songProcessing";
+import { seedBracket, sortTracks, loadAlbums, processTracks, loadPlaylistTracks } from "../../../../utilities/songProcessing";
 import { bracketSorter, bracketUnchanged, nearestLesserPowerOf2, popularitySort } from "../../../../utilities/helpers";
 import { getUserInfo, isCurrentUser } from "../../../../utilities/spotify";
 import { getNumberOfColumns, fillBracket } from "../../../../utilities/bracketGeneration";
@@ -24,13 +24,13 @@ import { getNumberOfColumns, fillBracket } from "../../../../utilities/bracketGe
 import UndoIcon from "../../../../assets/svgs/undoIcon.svg";
 import SaveIcon from "../../../../assets/svgs/saveIcon.svg";
 import ShareIcon from "../../../../assets/svgs/shareIcon.svg";
-import RocketIcon from "../../../../assets/svgs/rocketIcon.svg";
 import EditIcon from "../../../../assets/svgs/editIcon.svg";
 
 const App = ({ params, location }) => {
   const bracketId = params.id;
 
   const [seedingMethod, setSeedingMethod] = useState("popularity");
+  const [inclusionMethod, setInclusionMethod] = useState("popularity");
   const [limit, setLimit] = useState(32);
   const [allTracks, setAllTracks] = useState([]);
   const [editMode, setEditMode] = useState(false);
@@ -53,7 +53,6 @@ const App = ({ params, location }) => {
   const [alertInfo, setAlertInfo] = useState({ show: false, message: null, type: null, timeoutId: null });
 
   const bracketTracks = useMemo(() => {
-    console.log(bracket);
     let tracks = [];
     if (bracket) {
       for (let item of bracket.values()) {
@@ -62,6 +61,9 @@ const App = ({ params, location }) => {
         }
       }
     }
+    console.log(allTracks);
+    console.log(tracks);
+    console.log(bracket);
     return tracks;
   }, [bracket]);
   const readyToChange = bracket ? bracket.size > 0 : false;
@@ -108,7 +110,9 @@ const App = ({ params, location }) => {
               throw new Error("Bracket has invalid songSource and no legacy artist data");
             }
 
-
+            if (loadedBracket.inclusion) {
+              setInclusionMethod(loadedBracket.inclusion);
+            }
             setSeedingMethod(loadedBracket.seeding);
             setLimit(loadedBracket.tracks);
             setShowBracket(true);
@@ -129,6 +133,7 @@ const App = ({ params, location }) => {
                   { type: "playlist", playlist: { name: location.state.playlist.name, id: location.state.playlist.id } } :
                   null
               setSongSource(creationObject);
+              //setInclusionMethod("playlist");
               const templist = await getTracks(creationObject); //kick off the bracket creation process
               await changeBracket(templist);
             } else {
@@ -143,20 +148,21 @@ const App = ({ params, location }) => {
     kickOff();
   }, []);
 
-  async function changeBracket(customAllTracks = allTracks, customLimit = limit, customSeedingMethod = seedingMethod) {
+  async function changeBracket(customAllTracks = allTracks, customLimit = limit, customSeedingMethod = seedingMethod, customInclusionMethod = inclusionMethod) {
     if (!customAllTracks || customAllTracks.length === 0) {
       customAllTracks = await getTracks(songSource);
     }
     const power = nearestLesserPowerOf2(customAllTracks.length);
     //setLoadingText("Seeding tracks by " + seedingMethod + "...");
-    // sort the list by popularity
-    customAllTracks.sort(popularitySort);
+    // sort the list by include method
+    let newCustomAllTracks = await sortTracks(customAllTracks, customInclusionMethod);
     const numTracks = (customLimit < power ? customLimit : power);
-    customAllTracks = customAllTracks.slice(0, numTracks);
+    //cut the list dowwn to the max number of tracks
+    newCustomAllTracks = newCustomAllTracks.slice(0, numTracks);
     // limit the list length to the nearest lesser power of 2 (for now) and seed the bracket
-    customAllTracks = await seedBracket(customAllTracks, customSeedingMethod);
-    if (customAllTracks && customAllTracks.length > 0) {
-      const temp = await fillBracket(customAllTracks, getNumberOfColumns(customAllTracks.length));
+    newCustomAllTracks = await seedBracket(newCustomAllTracks, customSeedingMethod);
+    if (newCustomAllTracks && newCustomAllTracks.length > 0) {
+      const temp = await fillBracket(newCustomAllTracks, getNumberOfColumns(newCustomAllTracks.length));
       setBracket(temp);
     }
   }
@@ -236,6 +242,7 @@ const App = ({ params, location }) => {
         songSource: songSource,
         tracks: bracketTracks.length,
         seeding: seedingMethod,
+        inclusion: inclusionMethod,
         lastModifiedDate: Date.now(),
         winner: bracketWinner,
         bracketData: obj,
@@ -331,7 +338,7 @@ const App = ({ params, location }) => {
       templist = await processTracks(songPossibilities);
     } else if (songSource.type === "playlist") {
       setLoadingText("Gathering Spotify tracks from " + songSource.playlist.name + "...");
-      templist = await loadPlaylist("https://api.spotify.com/v1/playlists/" + songSource.playlist.id + "/tracks?limit=50");
+      templist = await loadPlaylistTracks("https://api.spotify.com/v1/playlists/" + songSource.playlist.id + "/tracks?limit=50");
       //throw new Error("Playlists not supported yet");
     } else {
       throw new Error("Invalid songSource type: " + songSource.type);
@@ -358,8 +365,8 @@ const App = ({ params, location }) => {
     if (noChanges(false)) {
       setLimit(parseInt(e.target.value));
       setShowBracket(false);
-      clearCommands();
       changeBracket(undefined, e.target.value);
+      clearCommands();
     }
   }
 
@@ -367,11 +374,21 @@ const App = ({ params, location }) => {
     if (noChanges(false)) {
       setSeedingMethod(e.target.value);
       setShowBracket(false);
-      const seededTracks = await seedBracket(bracketTracks, e.target.value);
-      if (seededTracks && seededTracks.length > 0) {
-        const temp = await fillBracket(seededTracks, getNumberOfColumns(seededTracks.length));
-        setBracket(temp);
+      changeBracket(undefined, undefined, e.target.value);
+      clearCommands();
+    }
+  }
+
+  async function inclusionChange(e) {
+    if (noChanges(false)) {
+      setInclusionMethod(e.target.value);
+      setShowBracket(false);
+      let tempSeedingMethod = seedingMethod;
+      if (e.target.value === "random") {
+        tempSeedingMethod = "random";
+        setSeedingMethod("random");
       }
+      changeBracket(undefined, undefined, tempSeedingMethod, e.target.value);
       clearCommands();
     }
   }
@@ -430,23 +447,22 @@ const App = ({ params, location }) => {
               : null}
             {!editMode ? <ActionButton onClick={share} icon={<ShareIcon />} text="Share" /> : null}
             {editable && !bracketWinner && editMode ?
-              <>
+              <div className="">
                 <BracketOptions
+                  songSourceType={songSource.type}
                   limitChange={limitChange}
                   showBracket={showBracket}
                   limit={limit}
+                  hardLimit={allTracks.length}
                   seedingChange={seedingChange}
                   seedingMethod={seedingMethod}
+                  inclusionChange={inclusionChange}
+                  inclusionMethod={inclusionMethod}
                   playbackChange={playbackChange}
                   playbackEnabled={playbackEnabled}
+                  toggleEditMode={toggleEditMode}
                 />
-                <ActionButton
-                  onClick={toggleEditMode}
-                  disabled={false}
-                  icon={<RocketIcon />}
-                  text={"Start Bracket"}
-                />
-              </>
+              </div>
               : null}
             {/* future button to let users duplicate the bracket to their account */}
             {!editable && owner.name && songSource && false

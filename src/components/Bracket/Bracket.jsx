@@ -111,7 +111,7 @@ const Bracket = ({
         (node) => {
             setBracketRef({ current: node });
         },
-        [bracket]
+        [showBracket]
     );
 
     function generateComponentArray(
