@@ -229,15 +229,15 @@ const SongButton = ({
                 onDrop={song && !dragging ? handleDrop : null}
                 onDragOver={song && !dragging ? handleDragOver : null}
             >
-                {/* <div className="absolute top-0 left-0 w-full h-full">
-                    {song && song.art ? (
+                {/* {song && song.art ? (
+                    <div className="absolute top-0 left-0 w-full h-full hover:block">
                         <img
                             src={song.art}
                             alt={song.name}
                             className="w-full h-full object-cover rounded-2xl"
                         />
-                    ) : null}
-                </div> */}
+                    </div>
+                ) : null} */}
                 {editMode && song && replacementTracks ? (
                     <button
                         onClick={() => {
@@ -271,7 +271,7 @@ const SongButton = ({
                     hidden={false}
                     style={song ? colorStyle : {}}
                     className={cx(
-                        "rounded-[inherit] cursor-[inherit] disabled:rounded-[inherit] bg-white text-black border-0 leading-[1.15em] p-0 text-center overflow-hidden break-words disabled:px-[6px] h-full min-h-[var(--buttonheight)] disabled:w-full",
+                        "rounded-[inherit] cursor-[inherit] disabled:rounded-[inherit] bg-white text-black border-0 leading-[1.15em] p-0 text-center overflow-hidden break-words disabled:px-[6px] h-full min-h-[var(--buttonheight)] disabled:w-full z-10",
                         { "opacity-100 active:opacity-100": winner },
                         { "w-full": (!winner && editMode) || !song },
                         {

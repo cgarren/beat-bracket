@@ -69,7 +69,7 @@ const Bracket = ({
     bracketTracks,
     currentlyPlayingId,
     setCurrentlyPlayingId,
-    showSongInfo,
+    songSource,
 }) => {
     const { width, height } = useWindowSize();
     const replacementTracks = useMemo(() => {
@@ -158,11 +158,12 @@ const Bracket = ({
                                     winner={value.winner}
                                     //setBracketWinner={setBracketWinner}
                                     replacementTracks={replacementTracks}
-                                    showSongInfo={showSongInfo}
+                                    showSongInfo={
+                                        songSource &&
+                                        songSource.type === "playlist"
+                                    }
                                 />
-                                {((value.song &&
-                                    value.col === 0 &&
-                                    showSongInfo) ||
+                                {((value.song && value.col === 0) ||
                                     bracket.has(
                                         side + value.col + (value.index + 1)
                                     )) && (
@@ -184,9 +185,14 @@ const Bracket = ({
                                         ) : null}
                                         {value.song &&
                                         value.col === 0 &&
-                                        showSongInfo ? (
+                                        songSource ? (
                                             <div className="px-1 text-center text-black text-xs text-ellipsis line-clamp-1 break-all">
-                                                {value.song.artist}
+                                                {songSource.type === "playlist"
+                                                    ? value.song.artist
+                                                    : songSource.type ===
+                                                      "artist"
+                                                    ? value.song.album
+                                                    : null}
                                                 {/* {`${value.song.popularity} | ${value.song.artist}`} */}
                                             </div>
                                         ) : null}

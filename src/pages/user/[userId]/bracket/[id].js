@@ -483,7 +483,7 @@ const App = ({ params, location }) => {
           playbackEnabled={playbackEnabled}
           editable={editable}
           editMode={editMode}
-          showSongInfo={songSource && songSource.type === "playlist"}
+          songSource={songSource}
         />
       </div>
     </Layout >
