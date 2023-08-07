@@ -29,9 +29,10 @@ const OptionsDropdown = ({
                 bg-white
                 rounded-lg
                 rounded-tl-none
-                border-gray-500
                 focus:outline-none
                 focus:ring-0
+                border
+                border-transparent
                 focus:border-blue-600
                 peer"
             >
