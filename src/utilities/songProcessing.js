@@ -78,6 +78,7 @@ async function makeTrackObject(track) {
 		popularity: track.popularity,
 		preview_url: track.preview_url,
 		artist: track.artists[0].name,
+		album: track.album.name,
 	}
 }
 
