@@ -37,7 +37,6 @@ const CreateBracketCard = ({ userId }) => {
             const url = "https://api.spotify.com/v1/me/playlists?limit=50";
             loadPlaylists(url).then((playlists) => {
                 if (playlists !== 1) {
-                    console.log(playlists);
                     setAllPlaylists(playlists);
                 }
             });
