@@ -17,7 +17,7 @@ import GeneratePlaylistButton from "../../../../components/GeneratePlaylistButto
 // Utilities
 import { writeBracket, getBracket } from "../../../../utilities/backend";
 import { seedBracket, sortTracks, loadAlbums, processTracks, loadPlaylistTracks } from "../../../../utilities/songProcessing";
-import { bracketSorter, bracketUnchanged, nearestLesserPowerOf2, popularitySort } from "../../../../utilities/helpers";
+import { bracketSorter, bracketUnchanged, nearestLesserPowerOf2 } from "../../../../utilities/helpers";
 import { getUserInfo, isCurrentUser, loadSpotifyRequest } from "../../../../utilities/spotify";
 import { getNumberOfColumns, fillBracket } from "../../../../utilities/bracketGeneration";
 // Assets

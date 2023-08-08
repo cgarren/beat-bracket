@@ -21,7 +21,7 @@ const SearchBar = ({ searchSuggestions, disabled, placeholder }) => {
             }
             setSuggestionList(res);
         }
-    }, [searchText]);
+    }, [searchText, searchSuggestions]);
 
     useEffect(() => {
         document

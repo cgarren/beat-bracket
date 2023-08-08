@@ -4,7 +4,6 @@ import CardName from "./CardName";
 import { openBracket } from "../../utilities/helpers";
 import { deleteBracket } from "../../utilities/backend";
 import { getArt, loadSpotifyRequest } from "../../utilities/spotify";
-import { defaultPlaylistImage } from "../../assets/images/defaultPlaylistImage.png";
 
 const ArtistBracketCard = ({ bracket, userId }) => {
     const [cardImage, setCardImage] = useState(null);

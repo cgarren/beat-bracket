@@ -179,7 +179,7 @@ const Bracket = ({
                                                 className={cx({
                                                     [`${lineStyles[colExpression]}`]: true,
                                                     "bg-gray-500 w-[var(--lineWidth)] rounded": true,
-                                                    ["absolute"]: true,
+                                                    absolute: true,
                                                     "right-0": side === "l",
                                                     "left-0": side === "r",
                                                 })}
@@ -215,7 +215,7 @@ const Bracket = ({
         if (renderArray.length > 0) {
             setShowBracket(true);
         }
-    }, [renderArray]);
+    }, [renderArray, setShowBracket]);
 
     function modifyBracket(key, attribute, value) {
         const payload = getBracket(key);

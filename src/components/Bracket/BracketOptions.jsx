@@ -2,7 +2,6 @@ import React from "react";
 
 import OptionsDropdown from "./OptionsDropdown";
 
-import RocketIcon from "../../assets/svgs/rocketIcon.svg";
 import ActionButton from "./ActionButton";
 
 const BracketOptions = ({
