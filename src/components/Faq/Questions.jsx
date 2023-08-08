@@ -17,7 +17,7 @@ const questions = [
     },
     {
         question: "Why do I need a Spotify account to use Beat Bracket?",
-        answer: "This site uses Spotify's API to get information about artists and tracks. After you create a bracket, it is associated with your Spotify account so that you'll be able to edit and share it later!",
+        answer: "This site uses Spotify's API to get information about artists, playlists, and tracks. After you create a bracket, it is associated with your Spotify account so that you'll be able to edit and share it later!",
         paths: ["*"],
     },
     {
@@ -33,6 +33,10 @@ const questions = [
                     will be created containing (by default) the most popular
                     tracks from your chosen source.
                 </li>
+                <br />
+                Only the playlists that you have liked will appear. If you don't
+                see a playlist that you're looking for, you can like it from
+                your Spotify account!
             </ol>
         ),
         paths: ["/my-brackets/"],
