@@ -1,7 +1,5 @@
 import React, { useRef, useState, useMemo } from "react";
 import PlayPauseButton from "./PlayPauseButton";
-import Modal from "../Modal";
-import Suggestion from "../Search/Suggestion";
 
 import spotifyIcon from "../../assets/images/Spotify_Icon_RGB_Green.png";
 
@@ -9,6 +7,7 @@ import Vibrant from "node-vibrant";
 import { getColorsFromImage } from "../../utilities/bracketGeneration";
 
 import cx from "classnames";
+import ReplaceTrackModal from "./ReplaceTrackModal";
 
 const SongButton = ({
     styling,
@@ -17,6 +16,7 @@ const SongButton = ({
     nextId,
     id,
     side,
+    col,
     previousIds,
     disabled,
     currentlyPlayingId,
@@ -30,6 +30,8 @@ const SongButton = ({
     playbackEnabled,
     editMode,
     replacementTracks,
+    showSongInfo,
+    setInclusionMethod,
 }) => {
     const [dragging, setDragging] = useState(false);
     const [showTrackSelector, setShowTrackSelector] = useState(false);
@@ -157,7 +159,7 @@ const SongButton = ({
         event.preventDefault();
         // Get the id of the target and add the moved element to the target's DOM
         const switchId = event.dataTransfer.getData("application/plain");
-        console.log("drop", switchId);
+        console.debug("drop", switchId);
         // switch the songs
         let tempSong = getBracket(switchId).song;
         modifyBracket(switchId, "song", song);
@@ -171,42 +173,23 @@ const SongButton = ({
     // song replacement functionality
 
     async function handleReplacement(newSong) {
-        console.log("removing", id);
+        console.debug("replacing", id);
         const newColor = await getColorsFromImage(newSong.art);
         modifyBracket(id, "song", newSong);
         modifyBracket(id, "color", newColor);
+        setInclusionMethod("custom");
     }
 
     return (
         <>
             {replacementTracks && showTrackSelector ? (
-                <Modal
-                    onClose={() => {
-                        setShowTrackSelector(false);
-                    }}
-                >
-                    <h1 className="font-bold text-xl">
-                        Select a replacement track:
-                    </h1>
-                    <div className="m-0 mt-1 p-0 list-none flex-nowrap gap-0 inline-flex flex-col text-center w-full rounded max-h-[70vh] overflow-scroll">
-                        {replacementTracks.map((track) => {
-                            return (
-                                <Suggestion
-                                    artistName={`${track.name}`}
-                                    art={track.art}
-                                    key={track.id}
-                                    onClick={() => {
-                                        handleReplacement(track);
-                                        setShowTrackSelector(false);
-                                    }}
-                                />
-                            );
-                        })}
-                    </div>
-                </Modal>
-            ) : (
-                ""
-            )}
+                <ReplaceTrackModal
+                    setShow={setShowTrackSelector}
+                    replacementTracks={replacementTracks}
+                    handleReplacement={handleReplacement}
+                    showSongInfo={showSongInfo}
+                />
+            ) : null}
             <div
                 className={cx(
                     "z-0",
@@ -248,6 +231,15 @@ const SongButton = ({
                 onDrop={song && !dragging ? handleDrop : null}
                 onDragOver={song && !dragging ? handleDragOver : null}
             >
+                {/* {song && song.art ? (
+                    <div className="absolute top-0 left-0 w-full h-full hover:block">
+                        <img
+                            src={song.art}
+                            alt={song.name}
+                            className="w-full h-full object-cover rounded-2xl"
+                        />
+                    </div>
+                ) : null} */}
                 {editMode && song && replacementTracks ? (
                     <button
                         onClick={() => {
@@ -281,7 +273,7 @@ const SongButton = ({
                     hidden={false}
                     style={song ? colorStyle : {}}
                     className={cx(
-                        "rounded-[inherit] cursor-[inherit] disabled:rounded-[inherit] bg-white text-black border-0 leading-[1.15em] p-0 text-center overflow-hidden break-words disabled:px-[6px] h-full min-h-[var(--buttonheight)] disabled:w-full",
+                        "rounded-[inherit] cursor-[inherit] disabled:rounded-[inherit] bg-white text-black border-0 leading-[1.15em] p-0 text-center overflow-hidden break-words disabled:px-[6px] h-full min-h-[var(--buttonheight)] disabled:w-full z-10",
                         { "opacity-100 active:opacity-100": winner },
                         { "w-full": (!winner && editMode) || !song },
                         {

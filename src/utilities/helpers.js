@@ -60,17 +60,18 @@ export function removeDuplicatesWithKey(theArray, key) {
 }
 
 export async function shuffleArray(array) {
-	let currentIndex = array.length, randomIndex;
+	let newArray = [...array];
+	let currentIndex = newArray.length, randomIndex;
 	// While there remain elements to shuffle.
 	while (currentIndex !== 0) {
 		// Pick a remaining element.
 		randomIndex = Math.floor(Math.random() * currentIndex);
 		currentIndex--;
 		// And swap it with the current element.
-		[array[currentIndex], array[randomIndex]] = [
-			array[randomIndex], array[currentIndex]];
+		[newArray[currentIndex], newArray[randomIndex]] = [
+			newArray[randomIndex], newArray[currentIndex]];
 	}
-	return array;
+	return newArray;
 }
 
 export function nearestGreaterPowerOf2(num) {

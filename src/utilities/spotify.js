@@ -1,5 +1,6 @@
 // Guest profile pic
 import guestProfileImage from "../assets/images/guestProfileImage.png";
+import defaultPlaylistImage from "../assets/images/defaultPlaylistImage.png";
 import { generateRandomString } from "./helpers";
 import { getAccessToken, getUserId, isLoggedIn } from "./authentication";
 
@@ -10,7 +11,7 @@ const stateKey = "spotify_auth_state";
 const clientId = "fff2634975884bf88e3d3c9c2d77763d";
 const redirectUri = typeof window !== 'undefined' ? window.location.origin + "/my-brackets" : "https://www.beatbracket.com/my-brackets";
 const scope =
-	"playlist-modify-private playlist-modify-public user-read-private";
+	"playlist-modify-private playlist-modify-public user-read-private playlist-read-private playlist-read-collaborative";
 const codeChallengeMethod = "S256";
 
 export async function loadSpotifyRequest(url, params) {
@@ -77,6 +78,28 @@ export async function putRequest(url, params, data) {
 	} else {
 		throw new Error("Unknown request error. Code: " + response.status);
 	}
+}
+
+export async function getArt(imageArray, type, getlargest = false) {
+	if (imageArray.length > 0) {
+		if (getlargest) {
+			for (let i = 0; i < imageArray.length; i++) {
+				if (imageArray[i].url) {
+					return imageArray[i].url;
+				}
+			}
+		} else {
+			for (let i = imageArray.length - 1; i >= 0; i--) {
+				if (imageArray[i].url) {
+					return imageArray[i].url;
+				}
+			}
+		}
+	}
+	if (type === "playlist") {
+		return defaultPlaylistImage;
+	}
+	return null;
 }
 
 export async function createPlaylist(name = "New Playlist", description = "", isPublic = true, isCollaborative = false) {

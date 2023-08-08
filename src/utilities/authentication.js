@@ -163,8 +163,8 @@ export async function logout(setLoggedIn) {
 	setLoggedIn(false);
 }
 
-export function isLoggedIn() {
-	if (typeof window !== 'undefined') {
+export function isLoggedIn(setLoggedIn) {
+	if (typeof sessionStorage !== 'undefined') {
 		let expiresAt = new Date(parseInt(sessionStorage.getItem(expiresAtKey)));
 		if (
 			sessionStorage.getItem(expiresAtKey) &&
@@ -172,6 +172,9 @@ export function isLoggedIn() {
 			expiresAt.toString() !== "Invalid Date" &&
 			Date.now() < expiresAt
 		) {
+			if (setLoggedIn) {
+				setLoginTimer(expiresAt, setLoggedIn);
+			}
 			console.debug("logged in");
 			return true;
 		}

@@ -16,28 +16,29 @@ import ActionButton from "../../../../components/Bracket/ActionButton";
 import GeneratePlaylistButton from "../../../../components/GeneratePlaylistButton";
 // Utilities
 import { writeBracket, getBracket } from "../../../../utilities/backend";
-import { seedBracket, loadAlbums, processTracks } from "../../../../utilities/songProcessing";
-import { bracketSorter, bracketUnchanged, nearestLesserPowerOf2, popularitySort } from "../../../../utilities/helpers";
-import { getUserInfo, isCurrentUser } from "../../../../utilities/spotify";
+import { seedBracket, sortTracks, loadAlbums, processTracks, loadPlaylistTracks } from "../../../../utilities/songProcessing";
+import { bracketSorter, bracketUnchanged, nearestLesserPowerOf2 } from "../../../../utilities/helpers";
+import { getUserInfo, isCurrentUser, loadSpotifyRequest } from "../../../../utilities/spotify";
 import { getNumberOfColumns, fillBracket } from "../../../../utilities/bracketGeneration";
 // Assets
 import UndoIcon from "../../../../assets/svgs/undoIcon.svg";
 import SaveIcon from "../../../../assets/svgs/saveIcon.svg";
 import ShareIcon from "../../../../assets/svgs/shareIcon.svg";
-import RocketIcon from "../../../../assets/svgs/rocketIcon.svg";
 import EditIcon from "../../../../assets/svgs/editIcon.svg";
 
 const App = ({ params, location }) => {
   const bracketId = params.id;
 
   const [seedingMethod, setSeedingMethod] = useState("popularity");
+  const [inclusionMethod, setInclusionMethod] = useState("popularity");
   const [limit, setLimit] = useState(32);
   const [allTracks, setAllTracks] = useState([]);
   const [editMode, setEditMode] = useState(false);
   const [commands, setCommands] = useState([]);
   const [lastSaved, setLastSaved] = useState({ time: 0, commandsLength: 0 });
   const [bracket, setBracket] = useState(new Map());
-  const [artist, setArtist] = useState({ "name": undefined, "id": undefined });
+  //const [artist, setArtist] = useState({ "name": undefined, "id": undefined });
+  const [songSource, setSongSource] = useState({ type: undefined });
   const [currentlyPlayingId, setCurrentlyPlayingId] = useState(null);
 
   const [owner, setOwner] = useState({ "name": undefined, "id": params.userId });
@@ -60,6 +61,9 @@ const App = ({ params, location }) => {
         }
       }
     }
+    // console.log(allTracks);
+    // console.log(tracks);
+    // console.log(bracket);
     return tracks;
   }, [bracket]);
   const readyToChange = bracket ? bracket.size > 0 : false;
@@ -91,36 +95,50 @@ const App = ({ params, location }) => {
             return
           }
           if (loadedBracket) {
-            console.log(loadedBracket);
+            console.debug("Loaded bracket:", loadedBracket);
             setOwner({ id: loadedBracket.userId, name: loadedBracket.userName });
             // Bracket already exists, now check if it belongs to the current user or not
             let mymap = new Map(Object.entries(loadedBracket.bracketData));
             mymap = new Map([...mymap].sort(bracketSorter));
             setBracket(mymap);
-            setArtist({ name: loadedBracket.artistName, id: loadedBracket.artistId });
+            if (loadedBracket.songSource && (loadedBracket.songSource.type === "artist" || loadedBracket.songSource.type === "playlist")) {
+              setSongSource(loadedBracket.songSource);
+              checkAndUpdateSongSource(loadedBracket.songSource);
+            }
+            else if (loadedBracket.artistName && loadedBracket.artistId) {
+              const tempSongSource = { type: "artist", artist: { name: loadedBracket.artistName, id: loadedBracket.artistId } };
+              setSongSource(tempSongSource);
+              checkAndUpdateSongSource(tempSongSource);
+            } else {
+              throw new Error("Bracket has invalid songSource and no legacy artist data");
+            }
+
+            if (loadedBracket.inclusion) {
+              setInclusionMethod(loadedBracket.inclusion);
+            }
             setSeedingMethod(loadedBracket.seeding);
             setLimit(loadedBracket.tracks);
-            // if (loadedBracket.winner === undefined && !loadedBracket.completed) {
-            //   setBracketWinner(null);
-            // } else {
-            //   setBracketWinner(loadedBracket.winner);
-            // }
             setShowBracket(true);
             //setTracks(new Array(loadedBracket.tracks).fill(null));
             setLastSaved({ commandsLength: commands.length, time: Date.now() });
           } else {
-            if (location.state && location.state.artist) {
+            if (location.state && (location.state.artist || location.state.playlist)) {
               getUserInfo(owner.id).then((userInfo) => {
                 setOwner({ id: userInfo.id, name: userInfo.display_name });
               });
               console.log(location.state);
               // Bracket does not exist, make it editable for current user
               console.log("Bracket", bracketId, "not found for user. Creating New Bracket");
-              setArtist(location.state.artist);
               setShowBracket(false);
-              const templist = await getTracks(location.state.artist); //kick off the bracket creating process
+              const creationObject = location.state.artist ?
+                { type: "artist", artist: { name: location.state.artist.name, id: location.state.artist.id } } :
+                location.state.playlist ?
+                  { type: "playlist", playlist: { name: location.state.playlist.name, id: location.state.playlist.id } } :
+                  null
+              setSongSource(creationObject);
+              //setInclusionMethod("playlist");
+              const templist = await getTracks(creationObject); //kick off the bracket creation process
               await changeBracket(templist);
-              //setReadyToChange(true);
             } else {
               // Bracket doesn't exist and no artist was passed in
               console.log("Bracket", bracketId, "not found for user. No artist provided");
@@ -133,21 +151,36 @@ const App = ({ params, location }) => {
     kickOff();
   }, []);
 
-  async function changeBracket(customAllTracks = allTracks, customLimit = limit, customSeedingMethod = seedingMethod) {
+  async function changeBracket(customAllTracks = allTracks, customLimit = limit, customSeedingMethod = seedingMethod, customInclusionMethod = inclusionMethod) {
     if (!customAllTracks || customAllTracks.length === 0) {
-      customAllTracks = await getTracks(artist);
+      customAllTracks = await getTracks(songSource);
     }
     const power = nearestLesserPowerOf2(customAllTracks.length);
     //setLoadingText("Seeding tracks by " + seedingMethod + "...");
-    // sort the list by popularity
-    customAllTracks.sort(popularitySort);
+    // sort the list by include method
+    let newCustomAllTracks = await sortTracks(customAllTracks, customInclusionMethod);
     const numTracks = (customLimit < power ? customLimit : power);
-    customAllTracks = customAllTracks.slice(0, numTracks);
+    //cut the list dowwn to the max number of tracks
+    newCustomAllTracks = newCustomAllTracks.slice(0, numTracks);
     // limit the list length to the nearest lesser power of 2 (for now) and seed the bracket
-    customAllTracks = await seedBracket(customAllTracks, customSeedingMethod);
-    if (customAllTracks && customAllTracks.length > 0) {
-      const temp = await fillBracket(customAllTracks, getNumberOfColumns(customAllTracks.length));
+    newCustomAllTracks = await seedBracket(newCustomAllTracks, customSeedingMethod);
+    if (newCustomAllTracks && newCustomAllTracks.length > 0) {
+      const temp = await fillBracket(newCustomAllTracks, getNumberOfColumns(newCustomAllTracks.length));
       setBracket(temp);
+    }
+  }
+
+  async function checkAndUpdateSongSource(tempSongSource) {
+    if (tempSongSource.type === "artist") {
+      const res = await loadSpotifyRequest("https://api.spotify.com/v1/artists/" + tempSongSource.artist.id);
+      if (res !== 1) {
+        setSongSource({ type: "artist", artist: { name: res.name, id: res.id } });
+      }
+    } else if (tempSongSource.type === "playlist") {
+      const res = await loadSpotifyRequest("https://api.spotify.com/v1/playlists/" + tempSongSource.playlist.id);
+      if (res !== 1) {
+        setSongSource({ type: "playlist", playlist: { name: res.name, id: res.id } });
+      }
     }
   }
 
@@ -217,16 +250,16 @@ const App = ({ params, location }) => {
 
   async function saveBracket() { // Called on these occasions: on initial bracket load, user clicks save button, user completes bracket
     setSaving(true);
-    if (bracketId && owner && artist && seedingMethod && bracket && editable && readyToChange) {
+    if (bracketId && owner && songSource && seedingMethod && bracket && editable && readyToChange) {
       const obj = Object.fromEntries(bracket);
       const theBracket = {
         id: bracketId,
         userId: owner.id,
         userName: owner.name,
-        artistName: artist.name,
-        artistId: artist.id,
+        songSource: songSource,
         tracks: bracketTracks.length,
         seeding: seedingMethod,
+        inclusion: inclusionMethod,
         lastModifiedDate: Date.now(),
         winner: bracketWinner,
         bracketData: obj,
@@ -300,25 +333,41 @@ const App = ({ params, location }) => {
 
   // GET TRACKS
 
-  async function getTracks(providedArtist) {
-    console.log("getting tracks");
-    setLoadingText("Gathering Spotify tracks for " + providedArtist.name + "...");
-    const songPossibilities = await loadAlbums("https://api.spotify.com/v1/artists/" + providedArtist.id + "/albums?include_groups=album,single,compilation&limit=20", providedArtist.id);
-    if (songPossibilities === 1) {
-      showAlert("Error loading tracks from Spotify", "error", false);
+  async function getTracks(songSource) {
+    console.debug("songSource:", songSource);
+    if (!songSource || !songSource.type) {
       return [];
     }
-    // load data for the songs
-    setLoadingText("Gathering track information...");
-    let templist = await processTracks(songPossibilities);
+
+    console.debug("Getting tracks...");
+    // load the tracks from spotify
+    let templist;
+    const selectionName = songSource.type === "artist" ? songSource.artist.name : songSource.type === "playlist" ? songSource.playlist.name : "";
+    if (songSource.type === "artist") {
+      setLoadingText("Gathering Spotify tracks for " + songSource.artist.name + "...");
+      const songPossibilities = await loadAlbums("https://api.spotify.com/v1/artists/" + songSource.artist.id + "/albums?include_groups=album,single,compilation&limit=20", songSource.artist.id);
+      if (songPossibilities === 1) {
+        showAlert("Error loading tracks from Spotify", "error", false);
+        return [];
+      }
+      // load data for the songs
+      setLoadingText("Gathering track information...");
+      templist = await processTracks(songPossibilities);
+    } else if (songSource.type === "playlist") {
+      setLoadingText("Gathering Spotify tracks from " + songSource.playlist.name + "...");
+      templist = await loadPlaylistTracks("https://api.spotify.com/v1/playlists/" + songSource.playlist.id + "/tracks?limit=50");
+      //throw new Error("Playlists not supported yet");
+    } else {
+      throw new Error("Invalid songSource type: " + songSource.type);
+    }
     if (templist === 1) {
       showAlert("Error loading tracks from Spotify", "error", false);
       return [];
     }
-    // if the artist has less than 8 songs, stop
-    if (templist.length <= 8) {
-      alert(providedArtist.name + " doesn't have enough songs on Spotify! Try another artist.");
-      setArtist({ "name": undefined, "id": undefined });
+    // if there are than 8 songs, stop
+    if (templist.length < 8) {
+      alert(`${selectionName} doesn't have enough songs on Spotify! Try another ${songSource.type}.`);
+      setSongSource({ type: undefined, name: undefined, id: undefined });
       navigate("/my-brackets")
       return [];
     }
@@ -333,8 +382,18 @@ const App = ({ params, location }) => {
     if (noChanges(false)) {
       setLimit(parseInt(e.target.value));
       setShowBracket(false);
+      let tempInclusionMethod = inclusionMethod;
+      let tempSeedingMethod = seedingMethod;
+      if (inclusionMethod === "custom") {
+        tempInclusionMethod = "popularity";
+        setInclusionMethod("popularity");
+      }
+      if (seedingMethod === "custom") {
+        tempSeedingMethod = "popularity";
+        setSeedingMethod("popularity");
+      }
+      changeBracket(undefined, e.target.value, tempSeedingMethod, tempInclusionMethod);
       clearCommands();
-      changeBracket(undefined, e.target.value);
     }
   }
 
@@ -342,11 +401,25 @@ const App = ({ params, location }) => {
     if (noChanges(false)) {
       setSeedingMethod(e.target.value);
       setShowBracket(false);
-      const seededTracks = await seedBracket(bracketTracks, e.target.value);
-      if (seededTracks && seededTracks.length > 0) {
-        const temp = await fillBracket(seededTracks, getNumberOfColumns(seededTracks.length));
-        setBracket(temp);
+      if (inclusionMethod === "custom") {
+        changeBracket(bracketTracks, undefined, e.target.value);
+      } else {
+        changeBracket(undefined, undefined, e.target.value);
       }
+      clearCommands();
+    }
+  }
+
+  async function inclusionChange(e) {
+    if (noChanges(false)) {
+      setInclusionMethod(e.target.value);
+      setShowBracket(false);
+      let tempSeedingMethod = seedingMethod;
+      if (tempSeedingMethod === "custom" || (e.target.value !== "playlist" && tempSeedingMethod === "playlist")) {
+        tempSeedingMethod = "popularity";
+        setSeedingMethod("popularity");
+      }
+      changeBracket(undefined, undefined, tempSeedingMethod, e.target.value);
       clearCommands();
     }
   }
@@ -364,14 +437,14 @@ const App = ({ params, location }) => {
       /> : null}
       <Alert show={alertInfo.show} close={closeAlert} message={alertInfo.message} type={alertInfo.type} />
       <div className="text-center">
-        <h1>{owner.name && artist.name ? <div className="font-bold mb-2 text-xl">{artist.name} bracket by {owner.name} {bracketTracks.length ? "(" + bracketTracks.length + " tracks)" : null}</div> : (bracket ? <div>Finding bracket...</div> : <div className="font-bold mb-2">Bracket not found</div>)}</h1>
+        <h1>{owner.name && songSource ? <div className="font-bold mb-2 text-xl">{songSource.type === "artist" ? songSource.artist.name : songSource.type === "playlist" ? songSource.playlist.name : ""} bracket by {owner.name} {bracketTracks.length ? "(" + bracketTracks.length + " tracks)" : null}</div> : (bracket ? <div>Finding bracket...</div> : <div className="font-bold mb-2">Bracket not found</div>)}</h1>
         {bracketWinner
-          ? <BracketWinnerInfo bracketWinner={bracketWinner} /> : null}
+          ? <BracketWinnerInfo bracketWinner={bracketWinner} showSongInfo={songSource && songSource.type === "playlist"} /> : null}
       </div>
       <hr />
-      <LoadingIndicator hidden={showBracket || !owner.name || !artist.name} loadingText={loadingText} />
+      <LoadingIndicator hidden={showBracket || !owner.name || !songSource} loadingText={loadingText} />
       <div hidden={!editMode || !showBracket} className="font-medium text-lg">Drag and drop to rearrange songs</div>
-      <div hidden={!showBracket || !artist.name} className="text-center">
+      <div hidden={!showBracket || !songSource} className="text-center">
         <div className="text-xs -space-x-px rounded-md sticky mx-auto top-0 w-fit z-30">
           <div className="flex items-center">
             {/* <GeneratePlaylistButton tracks={tracks} artist={artist} /> */}
@@ -394,7 +467,7 @@ const App = ({ params, location }) => {
                     setEditMode(true);
                     setCurrentlyPlayingId(null);
                     if (!allTracks.length && readyToChange) {
-                      getTracks(artist);
+                      getTracks(songSource);
                     }
                   }}
                   disabled={commands.length !== 0 || !bracketUnchanged(bracket)}
@@ -405,31 +478,46 @@ const App = ({ params, location }) => {
               : null}
             {!editMode ? <ActionButton onClick={share} icon={<ShareIcon />} text="Share" /> : null}
             {editable && !bracketWinner && editMode ?
-              <>
+              <div className="">
                 <BracketOptions
+                  songSourceType={songSource.type}
                   limitChange={limitChange}
                   showBracket={showBracket}
                   limit={limit}
+                  hardLimit={allTracks.length}
                   seedingChange={seedingChange}
                   seedingMethod={seedingMethod}
+                  inclusionChange={inclusionChange}
+                  inclusionMethod={inclusionMethod}
                   playbackChange={playbackChange}
                   playbackEnabled={playbackEnabled}
+                  toggleEditMode={toggleEditMode}
                 />
-                <ActionButton
-                  onClick={toggleEditMode}
-                  disabled={false}
-                  icon={<RocketIcon />}
-                  text={"Start Bracket"}
-                />
-              </>
+              </div>
               : null}
             {/* future button to let users duplicate the bracket to their account */}
-            {!editable && owner.name && artist.name && false
+            {!editable && owner.name && songSource && false
               ? <button onClick={duplicateBracket} className="border-l-gray-200 hover:disabled:border-l-gray-200">Fill out this bracket</button>
               : null}
           </div>
         </div>
-        <Bracket bracket={bracket} bracketTracks={bracketTracks} setBracket={setBracket} allTracks={allTracks} setShowBracket={setShowBracket} showBracket={showBracket} currentlyPlayingId={currentlyPlayingId} setCurrentlyPlayingId={setCurrentlyPlayingId} saveCommand={saveCommand} playbackEnabled={playbackEnabled} editable={editable} editMode={editMode} />
+        <Bracket
+          bracket={bracket}
+          bracketTracks={bracketTracks}
+          setBracket={setBracket}
+          allTracks={allTracks}
+          setShowBracket={setShowBracket}
+          showBracket={showBracket}
+          currentlyPlayingId={currentlyPlayingId}
+          setCurrentlyPlayingId={setCurrentlyPlayingId}
+          saveCommand={saveCommand}
+          playbackEnabled={playbackEnabled}
+          editable={editable}
+          editMode={editMode}
+          songSource={songSource}
+          setSeedingMethod={setSeedingMethod}
+          setInclusionMethod={setInclusionMethod}
+        />
       </div>
     </Layout >
   )
@@ -438,16 +526,24 @@ const App = ({ params, location }) => {
 export default App
 
 export function Head({ params }) {
-  const [artistName, setArtistName] = useState(null);
+  const [name, setName] = useState(null);
   const [userName, setUserName] = useState(null);
 
   useEffect(() => {
     async function updateTitle(retries) {
       if (params && params.id && params.userId) {
         getBracket(params.id, params.userId).then(async (loadedBracket) => {
-          if (loadedBracket !== 1 && loadedBracket && loadedBracket.userName && loadedBracket.artistName) {
-            setArtistName(loadedBracket.artistName);
+          if (loadedBracket !== 1 && loadedBracket && loadedBracket.userName) {
             setUserName(loadedBracket.userName);
+            if (loadedBracket.artistName) {
+              setName(loadedBracket.artistName);
+            } else if (loadedBracket.songSource && loadedBracket.songSource.type === "artist") {
+              setName(loadedBracket.songSource.artist.name);
+            } else if (loadedBracket.songSource && loadedBracket.songSource.type === "playlist") {
+              setName(loadedBracket.songSource.playlist.name);
+            } else {
+              setTimeout(updateTitle, 6000, retries + 1);
+            }
           } else if (retries < 5) {
             setTimeout(updateTitle, 6000, retries + 1);
           }
@@ -459,6 +555,6 @@ export function Head({ params }) {
   }, [params]);
 
   return (
-    <Seo title={artistName && userName ? `${artistName} bracket by ${userName}` : "View/edit bracket"} />
+    <Seo title={name && userName ? `${name} bracket by ${userName}` : "View/edit bracket"} />
   )
 }

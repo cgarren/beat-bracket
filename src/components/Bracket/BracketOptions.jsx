@@ -1,49 +1,99 @@
 import React from "react";
 
+import OptionsDropdown from "./OptionsDropdown";
+
+import ActionButton from "./ActionButton";
+
 const BracketOptions = ({
-  limitChange,
-  showBracket,
-  limit,
-  seedingChange,
-  seedingMethod,
-  playbackChange,
-  playbackEnabled,
+    songSourceType,
+    limitChange,
+    showBracket,
+    limit,
+    hardLimit,
+    seedingChange,
+    seedingMethod,
+    inclusionChange,
+    inclusionMethod,
+    playbackChange,
+    playbackEnabled,
+    toggleEditMode,
 }) => {
-  return (
-    <div className="inline-flex flex-col max-w-[800px] items-end">
-      <div className={""}>
-        <label htmlFor="limit-select">Maximum tracks: </label>
-        <select
-          name="limit"
-          id="limit-select"
-          value={limit}
-          onChange={limitChange}
-          disabled={!showBracket}
-          className="border-0 rounded border-black"
-        >
-          <option value="8">8</option>
-          <option value="16">16</option>
-          <option value="32">32</option>
-          <option value="64">64</option>
-          {/* <option value="128">128</option> */}
-          {/* <option value="256">256</option> */}
-        </select>
-      </div>
-      <div>
-        <label htmlFor="seeding-select">Seed by: </label>
-        <select
-          name="seeding"
-          id="seeding-select"
-          value={seedingMethod}
-          onChange={seedingChange}
-          disabled={!showBracket}
-          className="border-0 rounded border-black"
-        >
-          <option value="random">Random</option>
-          <option value="popularity">Popularity</option>
-        </select>
-      </div>
-      {/* <div className={""}>
+    return (
+        <div className="flex flex-row gap-1 overflow-x-scroll w-screen py-2 items-center min-[450px]:justify-center justify-start">
+            <OptionsDropdown
+                label={"Max tracks"}
+                value={limit}
+                onChange={limitChange}
+                disabled={!showBracket}
+                minWidth={"min-w-[80px]"}
+            >
+                {hardLimit >= 8 || limit === 8 ? (
+                    <option value="8">8</option>
+                ) : null}
+                {hardLimit >= 16 || limit === 16 ? (
+                    <option value="16">16</option>
+                ) : null}
+                {hardLimit >= 32 || limit === 32 ? (
+                    <option value="32">32</option>
+                ) : null}
+                {hardLimit >= 64 || limit === 64 ? (
+                    <option value="64">64</option>
+                ) : null}
+                {hardLimit >= 128 || limit === 128 ? (
+                    <option value="128">128</option>
+                ) : null}
+                {hardLimit >= 256 || limit === 256 ? (
+                    <option value="256">256</option>
+                ) : null}
+            </OptionsDropdown>
+            <OptionsDropdown
+                label={"Songs to include"}
+                value={inclusionMethod}
+                onChange={inclusionChange}
+                disabled={!showBracket}
+                minWidth={"min-w-[111px]"}
+            >
+                <option value="popularity">Most popular</option>
+                <option value="random">Random</option>
+                {songSourceType === "playlist" ? (
+                    <option value="playlist">
+                        First {limit} tracks of playlist
+                    </option>
+                ) : null}
+                {inclusionMethod === "custom" ? (
+                    <option value="custom">Custom</option>
+                ) : null}
+            </OptionsDropdown>
+            <OptionsDropdown
+                label={"Seed by"}
+                value={seedingMethod}
+                onChange={seedingChange}
+                disabled={!showBracket}
+                minWidth={"min-w-[67px]"}
+            >
+                <option value="popularity">Popularity</option>
+                <option value="random">Random</option>
+                {songSourceType === "playlist" &&
+                inclusionMethod === "playlist" ? (
+                    <>
+                        <option value="playlist">
+                            Playlist order (track 1 vs {limit})
+                        </option>
+                    </>
+                ) : null}
+                {seedingMethod === "custom" ? (
+                    <option value="custom">Custom</option>
+                ) : null}
+            </OptionsDropdown>
+            <div className="min-w-fit h-full">
+                <ActionButton
+                    onClick={toggleEditMode}
+                    disabled={false}
+                    //icon={<RocketIcon />}
+                    text={"Done"}
+                />
+            </div>
+            {/* <div className={""}>
           <label htmlFor="playback-select">Hover preview (beta): </label>
           <input
             type="checkbox"
@@ -54,8 +104,8 @@ const BracketOptions = ({
             name="playback-select"
           ></input>
         </div> */}
-    </div>
-  );
+        </div>
+    );
 };
 
 export default BracketOptions;

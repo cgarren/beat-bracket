@@ -33,7 +33,7 @@ const App = ({ location }) => {
             </nav>
             <div className="flex flex-col justify-center items-center h-full px-4 sm:w-9/12 m-auto">
               <div className="inline-flex flex-col justify-center items-center text-center">
-                <h2 className="mb-0.5 text-black font-bar font-bold sm:text-7xl text-6xl">Make music brackets for your favorite artists.</h2>
+                <h2 className="mb-0.5 text-black font-bar font-bold sm:text-7xl text-6xl">Make music brackets for artists and playlists.</h2>
                 <h3 className="text-xl text-black">It's easy to generate, customize, fill, and share your bracket! All you need is a free Spotify account.</h3>
                 <span className="mt-1.5"><LoginButton /></span>
                 {/* <p className="text-sm text-gray-600">You need a free Spotify account to use this site. <a href>Why?</a></p> */}

@@ -1,14 +1,33 @@
 import { popularitySort, shuffleArray } from "./helpers";
 import { loadSpotifyRequest } from "./spotify";
 
+async function sortTracks(trackList, sortingMethod) {
+	switch (sortingMethod) {
+		case "random":
+			return await shuffleArray(trackList);
+		case "popularity":
+			return trackList.toSorted(popularitySort);
+		case "playlist":
+			return trackList;
+		case "custom":
+			return trackList;
+		default:
+			return trackList;
+	}
+}
+
 async function seedBracket(trackList, seedingMethod) {
 	switch (seedingMethod) {
 		case "random":
 			return await shuffleArray(trackList);
 		case "popularity":
-			trackList.sort(popularitySort);
+			let temp = trackList.toSorted(popularitySort);
 			//console.table(trackList);
-			return await arrangeSeeds(trackList);
+			return await arrangeSeeds(temp);
+		case "playlist":
+			return arrangeSeeds(trackList);
+		case "custom":
+			return trackList;
 		default:
 			return trackList;
 	}
@@ -17,18 +36,19 @@ async function seedBracket(trackList, seedingMethod) {
 async function arrangeSeeds(bracketList) {
 	let slice = 1;
 	let temp;
-	while (slice < bracketList.length / 2) {
-		temp = bracketList;
-		bracketList = [];
+	let newBracketList = [...bracketList];
+	while (slice < newBracketList.length / 2) {
+		temp = newBracketList;
+		newBracketList = [];
 
 		while (temp.length > 0) {
-			bracketList = bracketList.concat(temp.splice(0, slice));  // n from the beginning
-			bracketList = bracketList.concat(temp.splice(-slice, slice));  // n from the end
+			newBracketList = newBracketList.concat(temp.splice(0, slice));  // n from the beginning
+			newBracketList = newBracketList.concat(temp.splice(-slice, slice));  // n from the end
 		}
 
 		slice = slice * 2;
 	}
-	return bracketList;
+	return newBracketList;
 }
 
 async function selectTrackVersion(numTracks, tracks, featuredList) {
@@ -55,10 +75,12 @@ async function makeTrackObject(track) {
 	return {
 		name: track.name,
 		feature: track.feature,
-		art: track.album.images[0].url,
+		art: track.album.images.length > 0 ? track.album.images[0].url : null,
 		id: track.id,
 		popularity: track.popularity,
 		preview_url: track.preview_url,
+		artist: track.artists[0].name,
+		album: track.album.name,
 	}
 }
 
@@ -195,4 +217,41 @@ async function loadAlbums(url, artistId, songs = {}) {
 	}
 }
 
-export { seedBracket, loadAlbums, processTracks }
+async function loadPlaylistTracks(url, songs = []) {
+	let response = await loadSpotifyRequest(url);
+	if (response !== 1) {
+		if (response.items.length > 0) {
+			await Promise.all(response.items.map(async (item) => {
+				const trackObject = await makeTrackObject(item.track);
+				songs.push(trackObject);
+			}));
+		}
+		if (response.next) {
+			if (await loadPlaylistTracks(response.next, songs) === 1) {
+				return 1;
+			}
+		}
+		return songs;
+	} else {
+		return 1;
+	}
+}
+
+async function loadPlaylists(url, playlists = []) {
+	let response = await loadSpotifyRequest(url);
+	if (response !== 1) {
+		if (response.items.length > 0) {
+			playlists.push(...response.items);
+		}
+		if (response.next) {
+			if (await loadPlaylists(response.next, playlists) === 1) {
+				return 1;
+			}
+		}
+		return playlists;
+	} else {
+		return 1;
+	}
+}
+
+export { seedBracket, sortTracks, loadAlbums, processTracks, loadPlaylistTracks, loadPlaylists }

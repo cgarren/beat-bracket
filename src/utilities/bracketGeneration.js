@@ -10,6 +10,9 @@ import {
 export async function getColorsFromImage(image) {
 	//const color = await new FastAverageColor().getColorAsync(image)
 	const color = (await Vibrant.from(image).getPalette()).Vibrant
+	if (!color) {
+		return null;
+	}
 	return {
 		// backgroundColor: color.hex,
 		// textColor: color.isDark ? 'white' : 'black'
@@ -22,7 +25,7 @@ export async function relateSongs(len, theTracks, col, side, otherSide) {
 	let colMap = new Map();
 	for (let i = 0; i < len; i++) {
 		let colorObj = null;
-		if (theTracks && theTracks[i]) {
+		if (theTracks && theTracks[i] && theTracks[i].art) {
 			colorObj = await getColorsFromImage(theTracks[i].art)
 		}
 		colMap.set(side + col + i, {
