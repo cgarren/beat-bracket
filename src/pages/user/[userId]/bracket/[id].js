@@ -398,7 +398,7 @@ const App = ({ params, location }) => {
       setInclusionMethod(e.target.value);
       setShowBracket(false);
       let tempSeedingMethod = seedingMethod;
-      if (tempSeedingMethod === "custom") {
+      if (tempSeedingMethod === "custom" || (e.target.value !== "playlist" && tempSeedingMethod === "playlist")) {
         tempSeedingMethod = "popularity";
         setSeedingMethod("popularity");
       }
