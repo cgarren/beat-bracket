@@ -99,7 +99,7 @@ const App = ({ location }) => {
     <Layout noChanges={() => { return true }} path={location.pathname}>
       <Alert show={alertInfo.show} close={closeAlert} message={alertInfo.message} type={alertInfo.type} />
       <div className="text-center" hidden={error}>
-        <h1 className="text-4xl font-extrabold font-display">My Brackets</h1>
+        <h1 className="text-4xl font-extrabold">My Brackets</h1>
         {currentUserId && maxBrackets ? <p className="text-sm text-gray-600 mb-2">{brackets.length + "/" + maxBrackets + " brackets used"}</p> : null}
 
         <div className="">
