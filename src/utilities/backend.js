@@ -56,7 +56,7 @@ export async function getBracket(id, userId) {
 }
 
 export async function writeBracket(bracket) {
-	console.log(bracket);
+	console.debug("Written Bracket:", bracket);
 	const response = await loadBackendRequest("/item", "PUT", { sessionId: getSessionId() }, bracket);
 	if (response.ok) {
 		return 0;

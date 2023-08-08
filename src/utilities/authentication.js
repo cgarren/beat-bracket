@@ -55,7 +55,7 @@ function setLoginTimer(expiresAt, setLoggedIn) {
 	timer = setTimeout(() => {
 		login(setLoggedIn);
 	}, refreshTime);
-	console.log("set login timer for", refreshTime, "ms");
+	console.debug("set login timer for", refreshTime, "ms");
 }
 
 export async function login(setLoggedIn) {
