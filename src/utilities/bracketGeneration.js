@@ -10,6 +10,9 @@ import {
 export async function getColorsFromImage(image) {
 	//const color = await new FastAverageColor().getColorAsync(image)
 	const color = (await Vibrant.from(image).getPalette()).Vibrant
+	if (!color) {
+		return null;
+	}
 	return {
 		// backgroundColor: color.hex,
 		// textColor: color.isDark ? 'white' : 'black'
