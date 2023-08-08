@@ -18,7 +18,7 @@ import GeneratePlaylistButton from "../../../../components/GeneratePlaylistButto
 import { writeBracket, getBracket } from "../../../../utilities/backend";
 import { seedBracket, sortTracks, loadAlbums, processTracks, loadPlaylistTracks } from "../../../../utilities/songProcessing";
 import { bracketSorter, bracketUnchanged, nearestLesserPowerOf2, popularitySort } from "../../../../utilities/helpers";
-import { getUserInfo, isCurrentUser } from "../../../../utilities/spotify";
+import { getUserInfo, isCurrentUser, loadSpotifyRequest } from "../../../../utilities/spotify";
 import { getNumberOfColumns, fillBracket } from "../../../../utilities/bracketGeneration";
 // Assets
 import UndoIcon from "../../../../assets/svgs/undoIcon.svg";
@@ -103,9 +103,12 @@ const App = ({ params, location }) => {
             setBracket(mymap);
             if (loadedBracket.songSource && (loadedBracket.songSource.type === "artist" || loadedBracket.songSource.type === "playlist")) {
               setSongSource(loadedBracket.songSource);
+              checkAndUpdateSongSource(loadedBracket.songSource);
             }
             else if (loadedBracket.artistName && loadedBracket.artistId) {
-              setSongSource({ type: "artist", artist: { name: loadedBracket.artistName, id: loadedBracket.artistId } })
+              const tempSongSource = { type: "artist", artist: { name: loadedBracket.artistName, id: loadedBracket.artistId } };
+              setSongSource(tempSongSource);
+              checkAndUpdateSongSource(tempSongSource);
             } else {
               throw new Error("Bracket has invalid songSource and no legacy artist data");
             }
@@ -164,6 +167,20 @@ const App = ({ params, location }) => {
     if (newCustomAllTracks && newCustomAllTracks.length > 0) {
       const temp = await fillBracket(newCustomAllTracks, getNumberOfColumns(newCustomAllTracks.length));
       setBracket(temp);
+    }
+  }
+
+  async function checkAndUpdateSongSource(tempSongSource) {
+    if (tempSongSource.type === "artist") {
+      const res = await loadSpotifyRequest("https://api.spotify.com/v1/artists/" + tempSongSource.artist.id);
+      if (res !== 1) {
+        setSongSource({ type: "artist", artist: { name: res.name, id: res.id } });
+      }
+    } else if (tempSongSource.type === "playlist") {
+      const res = await loadSpotifyRequest("https://api.spotify.com/v1/playlists/" + tempSongSource.playlist.id);
+      if (res !== 1) {
+        setSongSource({ type: "playlist", playlist: { name: res.name, id: res.id } });
+      }
     }
   }
 
@@ -509,16 +526,24 @@ const App = ({ params, location }) => {
 export default App
 
 export function Head({ params }) {
-  const [artistName, setArtistName] = useState(null);
+  const [name, setName] = useState(null);
   const [userName, setUserName] = useState(null);
 
   useEffect(() => {
     async function updateTitle(retries) {
       if (params && params.id && params.userId) {
         getBracket(params.id, params.userId).then(async (loadedBracket) => {
-          if (loadedBracket !== 1 && loadedBracket && loadedBracket.userName && loadedBracket.artistName) {
-            setArtistName(loadedBracket.artistName);
+          if (loadedBracket !== 1 && loadedBracket && loadedBracket.userName) {
             setUserName(loadedBracket.userName);
+            if (loadedBracket.artistName) {
+              setName(loadedBracket.artistName);
+            } else if (loadedBracket.songSource && loadedBracket.songSource.type === "artist") {
+              setName(loadedBracket.songSource.artist.name);
+            } else if (loadedBracket.songSource && loadedBracket.songSource.type === "playlist") {
+              setName(loadedBracket.songSource.playlist.name);
+            } else {
+              setTimeout(updateTitle, 6000, retries + 1);
+            }
           } else if (retries < 5) {
             setTimeout(updateTitle, 6000, retries + 1);
           }
@@ -530,6 +555,6 @@ export function Head({ params }) {
   }, [params]);
 
   return (
-    <Seo title={artistName && userName ? `${artistName} bracket by ${userName}` : "View/edit bracket"} />
+    <Seo title={name && userName ? `${name} bracket by ${userName}` : "View/edit bracket"} />
   )
 }
