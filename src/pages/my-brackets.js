@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo, useContext } from "react"
+import { Link } from "gatsby";
 import Layout from "../components/Layout";
 import ArtistBracketCard from "../components/BracketCard/ArtistBracketCard";
 import Tab from "../components/Tab";
@@ -21,7 +22,7 @@ const App = ({ location }) => {
   const [activeTab, setActiveTab] = useState(0);
   const currentUserId = getUserId()
   const [alertInfo, setAlertInfo] = useState({ show: false, message: null, type: null, timeoutId: null });
-  const [error, setError] = useState(false);
+  const [error, setError] = useState(null);
   const shownBrackets = useMemo(() => {
     console.debug("brackets:", brackets);
     return brackets.filter((bracket) => {
@@ -47,7 +48,7 @@ const App = ({ location }) => {
     } catch (e) {
       // if there's an error, redirect to home page
       console.log("Error authenticating:", e);
-      setError(true);
+      setError("Error authenticating");
       // show notification
       showAlert("Error authenticating", "error", false);
       // redirect to home page
@@ -64,8 +65,8 @@ const App = ({ location }) => {
             setBrackets(loadedBrackets);
           } else {
             console.log("Error loading brackets");
-            showAlert("Error loading brackets, try logging in again", "error", false);
-            setError(true);
+            //showAlert("Error loading brackets, try logging in again", "error", false);
+            setError(<div className="text-center">Error loading brackets. Try logging out and back in again!<br /><br />It's possible you logged in from another device. Only one session can be active for a user at any given time.</div>);
           }
         });
       } else {
@@ -98,6 +99,9 @@ const App = ({ location }) => {
   return (
     <Layout noChanges={() => { return true }} path={location.pathname}>
       <Alert show={alertInfo.show} close={closeAlert} message={alertInfo.message} type={alertInfo.type} />
+      <div className="text-center" hidden={!error}>
+        <p className="text-md text-gray-600 mb-2">{error}</p>
+      </div>
       <div className="text-center" hidden={error}>
         <h1 className="text-4xl font-extrabold">My Brackets</h1>
         {currentUserId && maxBrackets ? <p className="text-sm text-gray-600 mb-2">{brackets.length + "/" + maxBrackets + " brackets used"}</p> : null}
