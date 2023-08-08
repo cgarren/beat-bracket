@@ -9,6 +9,8 @@ async function sortTracks(trackList, sortingMethod) {
 			return trackList.toSorted(popularitySort);
 		case "playlist":
 			return trackList;
+		case "custom":
+			return trackList;
 		default:
 			return trackList;
 	}
@@ -24,7 +26,7 @@ async function seedBracket(trackList, seedingMethod) {
 			return await arrangeSeeds(temp);
 		case "playlist":
 			return arrangeSeeds(trackList);
-		case "none":
+		case "custom":
 			return trackList;
 		default:
 			return trackList;

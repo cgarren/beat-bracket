@@ -61,9 +61,9 @@ const App = ({ params, location }) => {
         }
       }
     }
-    console.log(allTracks);
-    console.log(tracks);
-    console.log(bracket);
+    // console.log(allTracks);
+    // console.log(tracks);
+    // console.log(bracket);
     return tracks;
   }, [bracket]);
   const readyToChange = bracket ? bracket.size > 0 : false;
@@ -95,7 +95,7 @@ const App = ({ params, location }) => {
             return
           }
           if (loadedBracket) {
-            console.log(loadedBracket);
+            console.debug("Loaded bracket:", loadedBracket);
             setOwner({ id: loadedBracket.userId, name: loadedBracket.userName });
             // Bracket already exists, now check if it belongs to the current user or not
             let mymap = new Map(Object.entries(loadedBracket.bracketData));
@@ -317,12 +317,12 @@ const App = ({ params, location }) => {
   // GET TRACKS
 
   async function getTracks(songSource) {
-    console.log(songSource);
+    console.debug("songSource:", songSource);
     if (!songSource || !songSource.type) {
       return [];
     }
 
-    console.log("getting tracks");
+    console.debug("Getting tracks...");
     // load the tracks from spotify
     let templist;
     const selectionName = songSource.type === "artist" ? songSource.artist.name : songSource.type === "playlist" ? songSource.playlist.name : "";
@@ -365,7 +365,17 @@ const App = ({ params, location }) => {
     if (noChanges(false)) {
       setLimit(parseInt(e.target.value));
       setShowBracket(false);
-      changeBracket(undefined, e.target.value);
+      let tempInclusionMethod = inclusionMethod;
+      let tempSeedingMethod = seedingMethod;
+      if (inclusionMethod === "custom") {
+        tempInclusionMethod = "popularity";
+        setInclusionMethod("popularity");
+      }
+      if (seedingMethod === "custom") {
+        tempSeedingMethod = "popularity";
+        setSeedingMethod("popularity");
+      }
+      changeBracket(undefined, e.target.value, tempSeedingMethod, tempInclusionMethod);
       clearCommands();
     }
   }
@@ -374,7 +384,11 @@ const App = ({ params, location }) => {
     if (noChanges(false)) {
       setSeedingMethod(e.target.value);
       setShowBracket(false);
-      changeBracket(undefined, undefined, e.target.value);
+      if (inclusionMethod === "custom") {
+        changeBracket(bracketTracks, undefined, e.target.value);
+      } else {
+        changeBracket(undefined, undefined, e.target.value);
+      }
       clearCommands();
     }
   }
@@ -384,9 +398,9 @@ const App = ({ params, location }) => {
       setInclusionMethod(e.target.value);
       setShowBracket(false);
       let tempSeedingMethod = seedingMethod;
-      if (e.target.value === "random") {
-        tempSeedingMethod = "random";
-        setSeedingMethod("random");
+      if (tempSeedingMethod === "custom") {
+        tempSeedingMethod = "popularity";
+        setSeedingMethod("popularity");
       }
       changeBracket(undefined, undefined, tempSeedingMethod, e.target.value);
       clearCommands();
@@ -484,6 +498,8 @@ const App = ({ params, location }) => {
           editable={editable}
           editMode={editMode}
           songSource={songSource}
+          setSeedingMethod={setSeedingMethod}
+          setInclusionMethod={setInclusionMethod}
         />
       </div>
     </Layout >

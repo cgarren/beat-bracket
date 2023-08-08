@@ -70,6 +70,8 @@ const Bracket = ({
     currentlyPlayingId,
     setCurrentlyPlayingId,
     songSource,
+    setSeedingMethod,
+    setInclusionMethod,
 }) => {
     const { width, height } = useWindowSize();
     const replacementTracks = useMemo(() => {
@@ -139,6 +141,7 @@ const Bracket = ({
                                     song={value.song}
                                     id={value.id}
                                     col={value.col}
+                                    setInclusionMethod={setInclusionMethod}
                                     currentlyPlayingId={mycurrentlyPlayingId}
                                     setCurrentlyPlayingId={
                                         mysetCurrentlyPlayingId
@@ -215,7 +218,10 @@ const Bracket = ({
     }, [renderArray]);
 
     function modifyBracket(key, attribute, value) {
-        let payload = bracket.get(key);
+        const payload = getBracket(key);
+        if (attribute === "song" && key[1] === "0") {
+            setSeedingMethod("custom");
+        }
         payload[attribute] = value;
         setBracket(new Map(bracket.set(key, payload)));
     }

@@ -28,12 +28,24 @@ const BracketOptions = ({
                 disabled={!showBracket}
                 minWidth={"min-w-[80px]"}
             >
-                {hardLimit >= 8 ? <option value="8">8</option> : null}
-                {hardLimit >= 16 ? <option value="16">16</option> : null}
-                {hardLimit >= 32 ? <option value="32">32</option> : null}
-                {hardLimit >= 64 ? <option value="64">64</option> : null}
-                {hardLimit >= 128 ? <option value="128">128</option> : null}
-                {hardLimit >= 256 ? <option value="256">256</option> : null}
+                {hardLimit >= 8 || limit === 8 ? (
+                    <option value="8">8</option>
+                ) : null}
+                {hardLimit >= 16 || limit === 16 ? (
+                    <option value="16">16</option>
+                ) : null}
+                {hardLimit >= 32 || limit === 32 ? (
+                    <option value="32">32</option>
+                ) : null}
+                {hardLimit >= 64 || limit === 64 ? (
+                    <option value="64">64</option>
+                ) : null}
+                {hardLimit >= 128 || limit === 128 ? (
+                    <option value="128">128</option>
+                ) : null}
+                {hardLimit >= 256 || limit === 256 ? (
+                    <option value="256">256</option>
+                ) : null}
             </OptionsDropdown>
             <OptionsDropdown
                 label={"Songs to include"}
@@ -49,6 +61,9 @@ const BracketOptions = ({
                         First {limit} tracks of playlist
                     </option>
                 ) : null}
+                {inclusionMethod === "custom" ? (
+                    <option value="custom">Custom</option>
+                ) : null}
             </OptionsDropdown>
             <OptionsDropdown
                 label={"Seed by"}
@@ -58,9 +73,7 @@ const BracketOptions = ({
                 minWidth={"min-w-[67px]"}
             >
                 <option value="popularity">Popularity</option>
-                {inclusionMethod !== "random" ? (
-                    <option value="random">Random</option>
-                ) : null}
+                <option value="random">Random</option>
                 {songSourceType === "playlist" &&
                 inclusionMethod === "playlist" ? (
                     <>
@@ -69,7 +82,9 @@ const BracketOptions = ({
                         </option>
                     </>
                 ) : null}
-                <option value="none">None</option>
+                {seedingMethod === "custom" ? (
+                    <option value="custom">Custom</option>
+                ) : null}
             </OptionsDropdown>
             <div className="min-w-fit h-full">
                 <ActionButton

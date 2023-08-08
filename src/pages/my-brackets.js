@@ -23,7 +23,7 @@ const App = ({ location }) => {
   const [alertInfo, setAlertInfo] = useState({ show: false, message: null, type: null, timeoutId: null });
   const [error, setError] = useState(false);
   const shownBrackets = useMemo(() => {
-    console.log(brackets);
+    console.debug("brackets:", brackets);
     return brackets.filter((bracket) => {
       if (activeTab === 0) return true;
       if (activeTab === 1) return !bracket.completed && !bracket.winner;
@@ -104,9 +104,9 @@ const App = ({ location }) => {
 
         <div className="">
           <nav className="inline-flex flex-row">
-            <Tab id={0} activeTab={activeTab} setActiveTab={setActiveTab} text="All" />
-            <Tab id={1} activeTab={activeTab} setActiveTab={setActiveTab} text="In Progess" />
-            <Tab id={2} activeTab={activeTab} setActiveTab={setActiveTab} text="Completed" />
+            <Tab id={0} activeTab={activeTab} setActiveTab={setActiveTab} content="All" />
+            <Tab id={1} activeTab={activeTab} setActiveTab={setActiveTab} content="In Progess" />
+            <Tab id={2} activeTab={activeTab} setActiveTab={setActiveTab} content="Completed" />
           </nav>
         </div>
         {/* <div className="pt-3 flex flex-row flex-wrap justify-center">

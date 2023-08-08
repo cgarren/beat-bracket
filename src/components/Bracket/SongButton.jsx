@@ -31,6 +31,7 @@ const SongButton = ({
     editMode,
     replacementTracks,
     showSongInfo,
+    setInclusionMethod,
 }) => {
     const [dragging, setDragging] = useState(false);
     const [showTrackSelector, setShowTrackSelector] = useState(false);
@@ -158,7 +159,7 @@ const SongButton = ({
         event.preventDefault();
         // Get the id of the target and add the moved element to the target's DOM
         const switchId = event.dataTransfer.getData("application/plain");
-        console.log("drop", switchId);
+        console.debug("drop", switchId);
         // switch the songs
         let tempSong = getBracket(switchId).song;
         modifyBracket(switchId, "song", song);
@@ -172,10 +173,11 @@ const SongButton = ({
     // song replacement functionality
 
     async function handleReplacement(newSong) {
-        console.log("removing", id);
+        console.debug("replacing", id);
         const newColor = await getColorsFromImage(newSong.art);
         modifyBracket(id, "song", newSong);
         modifyBracket(id, "color", newColor);
+        setInclusionMethod("custom");
     }
 
     return (
