@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useMemo, useContext } from "react"
-import { Link } from "gatsby";
 import Layout from "../components/Layout";
 import ArtistBracketCard from "../components/BracketCard/ArtistBracketCard";
 import Tab from "../components/Tab";
@@ -20,7 +19,7 @@ const App = ({ location }) => {
     { id: 1, userId: undefined, artistName: undefined, artistId: undefined, tracks: undefined, completed: false },
   ]);
   const [activeTab, setActiveTab] = useState(0);
-  const currentUserId = getUserId()
+  const currentUserId = getUserId();
   const [alertInfo, setAlertInfo] = useState({ show: false, message: null, type: null, timeoutId: null });
   const [error, setError] = useState(null);
   const shownBrackets = useMemo(() => {
@@ -100,7 +99,7 @@ const App = ({ location }) => {
     <Layout noChanges={() => { return true }} path={location.pathname}>
       <Alert show={alertInfo.show} close={closeAlert} message={alertInfo.message} type={alertInfo.type} />
       <div className="text-center" hidden={!error}>
-        <p className="text-md text-gray-600 mb-2">{error}</p>
+        <div className="text-md text-gray-600 mb-2">{error}</div>
       </div>
       <div className="text-center" hidden={error}>
         <h1 className="text-4xl font-extrabold">My Brackets</h1>
