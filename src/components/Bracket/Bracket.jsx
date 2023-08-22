@@ -1,23 +1,11 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import SongButton from "./SongButton";
 import useWindowSize from "react-use/lib/useWindowSize";
-import {
-    getNumberOfColumns,
-    getNumberOfSongs,
-} from "../../utilities/bracketGeneration";
+import { getNumberOfColumns } from "../../utilities/bracketGeneration";
 import { popularitySort } from "../../utilities/helpers";
 import cx from "classnames";
 
 // const styles = [
-//     "",
-//     "",
-//     "",
-//     "",
-//     "",
-//     "",
-//     "",
-//     "",
-//     "",
 //     // "mt-[var(--firstColumnSpacing)]",
 //     // "mt-[var(--secondColumnSpacing)]",
 //     // "mt-[var(--thirdColumnSpacing)]",
@@ -83,31 +71,36 @@ const Bracket = ({
             .filter((track) => !bracketIds.includes(track.id))
             .sort(popularitySort);
     }, [allTracks, bracketTracks]);
-    const renderArray = useMemo(
-        () =>
-            bracket instanceof Map && bracket.size !== 0
-                ? [
-                      generateComponentArray(
-                          "l",
-                          currentlyPlayingId,
-                          setCurrentlyPlayingId
-                      ),
-                      generateComponentArray(
-                          "r",
-                          currentlyPlayingId,
-                          setCurrentlyPlayingId
-                      ),
-                  ]
-                : [],
-        [
-            bracket,
-            currentlyPlayingId,
-            editMode,
-            editable,
-            replacementTracks,
-            playbackEnabled,
-        ]
-    );
+    const renderArray = useMemo(() => {
+        const columns = getNumberOfColumns(bracketTracks.length);
+        const bracketArray = Array.from(bracket.entries());
+        return bracket instanceof Map && bracket.size !== 0
+            ? [
+                  generateComponentArray(
+                      "l",
+                      currentlyPlayingId,
+                      setCurrentlyPlayingId,
+                      columns,
+                      bracketArray
+                  ),
+                  generateComponentArray(
+                      "r",
+                      currentlyPlayingId,
+                      setCurrentlyPlayingId,
+                      columns,
+                      bracketArray
+                  ),
+              ]
+            : [];
+    }, [
+        bracket,
+        currentlyPlayingId,
+        editMode,
+        editable,
+        replacementTracks,
+        bracketTracks,
+        playbackEnabled,
+    ]);
     const [bracketRef, setBracketRef] = useState(null);
     const bracketCallback = useCallback(
         (node) => {
@@ -119,12 +112,13 @@ const Bracket = ({
     function generateComponentArray(
         side,
         mycurrentlyPlayingId,
-        mysetCurrentlyPlayingId
+        mysetCurrentlyPlayingId,
+        columns,
+        bracketArray
     ) {
-        const columns = getNumberOfColumns(getNumberOfSongs(bracket.size));
         return Array.apply(null, { length: columns }).map((e, i) => (
             <div className="flex flex-col" key={side + i}>
-                {Array.from(bracket.entries()).map((entry) => {
+                {bracketArray.map((entry) => {
                     const [mykey, value] = entry;
                     const colExpression = side === "l" ? i : columns - 1 - i;
                     if (value.side === side && value.col === colExpression) {
