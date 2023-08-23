@@ -162,7 +162,7 @@ const App = ({ params, location }) => {
     const numTracks = (customLimit < power ? customLimit : power);
     //cut the list dowwn to the max number of tracks
     newCustomAllTracks = newCustomAllTracks.slice(0, numTracks);
-    // limit the list length to the nearest lesser power of 2 (for now) and seed the bracket
+    // seed the bracket
     newCustomAllTracks = await seedBracket(newCustomAllTracks, customSeedingMethod);
     if (newCustomAllTracks && newCustomAllTracks.length > 0) {
       const temp = await fillBracket(newCustomAllTracks, getNumberOfColumns(newCustomAllTracks.length));
