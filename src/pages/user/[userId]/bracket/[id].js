@@ -139,6 +139,7 @@ const App = ({ params, location }) => {
               //setInclusionMethod("playlist");
               const templist = await getTracks(creationObject); //kick off the bracket creation process
               await changeBracket(templist);
+              setEditMode(true);
             } else {
               // Bracket doesn't exist and no artist was passed in
               console.log("Bracket", bracketId, "not found for user. No artist provided");
