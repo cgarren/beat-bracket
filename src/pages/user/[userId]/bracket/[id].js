@@ -372,6 +372,10 @@ const App = ({ params, location }) => {
       return [];
     }
     setAllTracks(templist);
+    if (templist.length < limit) {
+      const power = nearestLesserPowerOf2(templist.length);
+      setLimit(power);
+    }
     setLoadingText("Generating bracket...");
     return templist;
   }
