@@ -73,7 +73,8 @@ const Bracket = ({
     }, [allTracks, bracketTracks]);
     const renderArray = useMemo(() => {
         const columns = getNumberOfColumns(bracketTracks.length);
-        const bracketArray = Array.from(bracket.entries());
+        const bracketArray =
+            bracket instanceof Map ? Array.from(bracket.entries()) : null;
         return bracket instanceof Map && bracket.size !== 0
             ? [
                   generateComponentArray(
