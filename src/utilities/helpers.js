@@ -180,7 +180,11 @@ export function downloadBracket(bracketId, artistName) {
 }
 
 export function bracketUnchanged(bracket) {
-	if (!bracket instanceof Map) return false;
+	console.log(!(bracket instanceof Map));
+	if (!(bracket instanceof Map)) {
+		console.log("bracket is not a map");
+		return false
+	};
 	for (let element of bracket.values()) {
 		if (element.col !== 0 && element.song) {
 			return false;
