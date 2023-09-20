@@ -144,7 +144,7 @@ const App = ({ params, location }) => {
                 setShowBracket(false);
 
                 // set song source from passed in data
-                console.log(location.state);
+                delete location.state.key;
                 setSongSource(location.state);
 
                 // get tracks from spotify
@@ -340,7 +340,6 @@ const App = ({ params, location }) => {
   // GET TRACKS
 
   async function getTracks(songSource) {
-    console.debug("songSource:", songSource);
     if (!songSource || !songSource.type) {
       return [];
     }
