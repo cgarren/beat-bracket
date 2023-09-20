@@ -97,11 +97,11 @@ const SongButton = ({
         if (nextId) {
             modifyBracket(nextId, "song", song);
             modifyBracket(nextId, "disabled", false);
-            modifyBracket(nextId, "color", color);
+            modifyBracket(nextId, "color", color, true);
             setCurrentlyPlayingId(null);
         } else {
             console.log("Winner is " + song.name);
-            modifyBracket(id, "winner", true);
+            modifyBracket(id, "winner", true, true);
             //setBracketWinner(song);
             setCurrentlyPlayingId(id);
         }
@@ -116,9 +116,9 @@ const SongButton = ({
         if (nextId) {
             modifyBracket(nextId, "song", null);
             modifyBracket(nextId, "disabled", true);
-            modifyBracket(nextId, "color", null);
+            modifyBracket(nextId, "color", null, true);
         } else {
-            modifyBracket(id, "winner", false);
+            modifyBracket(id, "winner", false, true);
             //setBracketWinner(null);
         }
     }
@@ -167,7 +167,7 @@ const SongButton = ({
         // switch the colors
         let tempColor = getBracket(switchId).color;
         modifyBracket(switchId, "color", color);
-        modifyBracket(id, "color", tempColor);
+        modifyBracket(id, "color", tempColor, true);
     }
 
     // song replacement functionality
@@ -176,7 +176,7 @@ const SongButton = ({
         console.debug("replacing", id);
         const newColor = await getColorsFromImage(newSong.art);
         modifyBracket(id, "song", newSong);
-        modifyBracket(id, "color", newColor);
+        modifyBracket(id, "color", newColor, true);
         setInclusionMethod("custom");
     }
 

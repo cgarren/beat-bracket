@@ -16,7 +16,7 @@ const BracketOptions = ({
     inclusionMethod,
     playbackChange,
     playbackEnabled,
-    toggleEditMode,
+    startBracket,
 }) => {
     return (
         <div className="flex flex-row gap-1 overflow-x-scroll w-screen py-2 items-center min-[450px]:justify-center justify-start">
@@ -87,7 +87,7 @@ const BracketOptions = ({
             </OptionsDropdown>
             <div className="min-w-fit h-full">
                 <ActionButton
-                    onClick={toggleEditMode}
+                    onClick={startBracket}
                     disabled={false}
                     //icon={<RocketIcon />}
                     text={"Done"}

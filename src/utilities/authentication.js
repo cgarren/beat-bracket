@@ -73,7 +73,7 @@ export async function login(setLoggedIn) {
 			} catch (error) {
 				console.error(error);
 				localStorage.removeItem(refreshTokenKey);
-				login();
+				login(setLoggedIn);
 				return;
 			}
 

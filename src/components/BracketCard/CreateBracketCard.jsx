@@ -19,7 +19,7 @@ const CreateBracketCard = ({ userId }) => {
             // Generate unique id for new bracket
             const uuid = uuidv4();
             console.log("Create New Bracket with id: " + uuid);
-            openBracket(uuid, userId, { artist: artist });
+            openBracket(uuid, userId, { type: "artist", artist: artist });
         }
     }
 
@@ -28,7 +28,7 @@ const CreateBracketCard = ({ userId }) => {
             // Generate unique id for new bracket
             const uuid = uuidv4();
             console.log("Create New Bracket with id: " + uuid);
-            openBracket(uuid, userId, { playlist: playlist });
+            openBracket(uuid, userId, { type: "playlist", playlist: playlist });
         }
     }
 

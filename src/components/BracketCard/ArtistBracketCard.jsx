@@ -84,7 +84,9 @@ const ArtistBracketCard = ({ bracket, userId }) => {
             cardText={
                 <CardName
                     name={name}
-                    tracks={bracket.tracks}
+                    tracks={
+                        bracket && bracket.tracks ? bracket.tracks.length : null
+                    }
                     completed={bracket.completed || bracket.winner}
                 />
             }
