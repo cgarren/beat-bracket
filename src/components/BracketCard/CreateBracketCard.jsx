@@ -8,6 +8,7 @@ import { openBracket } from "../../utilities/helpers";
 import Modal from "../Modal";
 import Tab from "../Tab";
 import { loadPlaylists } from "../../utilities/songProcessing";
+import Badge from "../Badge";
 
 const CreateBracketCard = ({ userId }) => {
     const [showModal, setShowModal] = useState(false);
@@ -57,13 +58,14 @@ const CreateBracketCard = ({ userId }) => {
                 <Modal onClose={() => setShowModal(false)}>
                     <h1 className="text-xl font-bold">Create Bracket</h1>
                     <div className="mb-2">
-                        <nav className="inline-flex flex-row">
+                        <nav className="inline-flex flex-row items-center gap-0">
                             <Tab
                                 id={0}
                                 activeTab={activeTab}
                                 setActiveTab={setActiveTab}
                                 content="Artist"
                             />
+                            {/* <span className="font-bold">OR</span> */}
                             <Tab
                                 id={1}
                                 activeTab={activeTab}
@@ -71,9 +73,11 @@ const CreateBracketCard = ({ userId }) => {
                                 content={
                                     <div className="flex gap-1 align-middle">
                                         Playlist{" "}
-                                        <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                                            New
-                                        </span>
+                                        {/* <Badge
+                                            text="New"
+                                            backgroundColor="bg-green-100"
+                                            textColor="text-green-800"
+                                        /> */}
                                     </div>
                                 }
                             />

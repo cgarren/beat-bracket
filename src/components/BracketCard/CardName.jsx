@@ -1,13 +1,9 @@
 import React from "react";
+import TrackNumber from "./TrackNumber";
 
-export default function CardName({ name, tracks, completed }) {
+export default function CardName({ name, trackNumber, completed }) {
     return (
         <div className="inline-flex gap-0.5">
-            <span>
-                {name
-                    ? name + " (" + tracks + " tracks)"
-                    : "Getting brackets..."}
-            </span>
             {completed ? (
                 <span
                     title="Completed"
@@ -31,6 +27,15 @@ export default function CardName({ name, tracks, completed }) {
             ) : (
                 <div></div>
             )}
+            <span>
+                {name ? (
+                    <>
+                        {name} <TrackNumber trackNumber={trackNumber} />
+                    </>
+                ) : (
+                    "Getting brackets..."
+                )}
+            </span>
         </div>
     );
 }
