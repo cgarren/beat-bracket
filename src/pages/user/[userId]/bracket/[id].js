@@ -457,11 +457,12 @@ const App = ({ params, location }) => {
 
   return (
     <Layout noChanges={noChanges} path={location.pathname}>
-      {bracketWinner && commands.length !== 0 ? <Confetti
+      {bracketWinner && commands.length !== 0 && <Confetti
         width={window.document.body.offsetWidth}
         height={window.document.body.offsetHeight}
         recycle={false}
-      /> : null}
+        className="!z-[100]"
+      />}
       <Alert show={alertInfo.show} close={closeAlert} message={alertInfo.message} type={alertInfo.type} />
       <div className="text-center">
         <h1>{owner.name && songSource && bracket && bracketTracks ?
