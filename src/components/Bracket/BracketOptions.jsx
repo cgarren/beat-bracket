@@ -21,7 +21,7 @@ const BracketOptions = ({
     return (
         <div className="flex flex-row gap-1 overflow-x-scroll w-screen py-2 items-center min-[450px]:justify-center justify-start">
             <OptionsDropdown
-                label={"Max tracks"}
+                label={"Size"}
                 value={limit}
                 onChange={limitChange}
                 disabled={!showBracket}
@@ -85,12 +85,12 @@ const BracketOptions = ({
                     <option value="custom">Custom</option>
                 ) : null}
             </OptionsDropdown>
-            <div className="min-w-fit h-full">
+            <div className="min-w-fit h-full font-bold">
                 <ActionButton
                     onClick={startBracket}
                     disabled={false}
                     //icon={<RocketIcon />}
-                    text={"Done"}
+                    text={"Start Bracket"}
                 />
             </div>
             {/* <div className={""}>
