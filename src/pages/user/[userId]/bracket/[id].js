@@ -247,26 +247,28 @@ const App = ({ params, location }) => {
   // EDIT MODE
 
   function startBracket() {
-    setEditMode(false);
-    const displayName = window.prompt("Enter a name for your bracket", songSource.type === "artist" ? songSource.artist.name : songSource.type === "playlist" ? songSource.playlist.name : "");
-    const bracketObject = Object.fromEntries(bracket);
-    createBracket({
-      bracketId: bracketId,
-      bracketData: bracketObject,
-      ownerUsername: owner.name,
-      seedingMethod: seedingMethod,
-      inclusionMethod: inclusionMethod,
-      displayName: displayName,
-      tracks: bracketTracks,
-      songSource: songSource,
-    }).then((res) => {
-      if (res === 0) {
-        console.log("Bracket created");
-        showAlert("Bracket created!", "success");
-      } else {
-        console.log("Error creating bracket");
-      }
-    });
+    const displayName = window.prompt("Enter a name for your bracket (SWITCH THIS TO A CUSTOM MODAL AND PUT MORE THOUGHT INTO IT)", songSource.type === "artist" ? songSource.artist.name : songSource.type === "playlist" ? songSource.playlist.name : "");
+    if (displayName && displayName.length > 0) {
+      setEditMode(false);
+      const bracketObject = Object.fromEntries(bracket);
+      createBracket({
+        bracketId: bracketId,
+        bracketData: bracketObject,
+        ownerUsername: owner.name,
+        seedingMethod: seedingMethod,
+        inclusionMethod: inclusionMethod,
+        displayName: displayName,
+        tracks: bracketTracks,
+        songSource: songSource,
+      }).then((res) => {
+        if (res === 0) {
+          console.log("Bracket created");
+          showAlert("Bracket created!", "success");
+        } else {
+          console.log("Error creating bracket");
+        }
+      });
+    }
   }
 
   // SHARE
