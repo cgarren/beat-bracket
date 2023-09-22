@@ -107,6 +107,7 @@ const App = ({ params, location }) => {
 
                 // set owner details
                 setOwner({ id: loadedBracket.ownerId, name: loadedBracket.ownerUsername });
+                checkAndUpdateOwnerUsername(loadedBracket.ownerId);
 
                 // set bracket data
                 let mymap = new Map(Object.entries(loadedBracket.bracketData));
@@ -208,6 +209,16 @@ const App = ({ params, location }) => {
       if (res !== 1) {
         setSongSource({ type: "playlist", playlist: { name: res.name, id: res.id } });
       }
+    }
+  }
+
+  async function checkAndUpdateOwnerUsername(ownerId) {
+    if (ownerId) {
+      getUserInfo(ownerId).then((userInfo) => {
+        if (userInfo !== 1) {
+          setOwner({ id: userInfo.id, name: userInfo.display_name });
+        }
+      })
     }
   }
 
