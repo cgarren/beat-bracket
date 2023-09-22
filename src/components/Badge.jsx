@@ -1,13 +1,14 @@
 import React from "react";
 import cx from "classnames";
 
-const Badge = ({ text, textColor, backgroundColor }) => {
+const Badge = ({ text, textColor, backgroundColor, customStyles }) => {
     return (
         <span
             className={cx(
-                backgroundColor,
+                "text-sm font-medium px-2.5 py-0.5 rounded-lg",
                 textColor,
-                "text-sm font-medium px-2.5 py-0.5 rounded-lg"
+                backgroundColor,
+                customStyles
             )}
         >
             {text}
