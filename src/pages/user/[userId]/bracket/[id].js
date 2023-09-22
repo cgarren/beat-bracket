@@ -81,11 +81,13 @@ const App = ({ params, location }) => {
   }, [bracket, bracketTracks]);
 
   const [isReady, cancel] = useDebounce(() => {
-    const bracketObject = Object.fromEntries(bracket);
-    if (bracketWinner) {
-      saveBracket({ bracketData: bracketObject, winner: bracketWinner });
-    } else {
-      saveBracket({ bracketData: bracketObject });
+    if (bracket) {
+      const bracketObject = Object.fromEntries(bracket);
+      if (bracketWinner) {
+        saveBracket({ bracketData: bracketObject, winner: bracketWinner });
+      } else {
+        saveBracket({ bracketData: bracketObject });
+      }
     }
   }, 1000, [bracket, bracketWinner]);
 
@@ -104,9 +106,7 @@ const App = ({ params, location }) => {
                 console.debug("Loaded bracket:", loadedBracket);
 
                 // set owner details
-                getUserInfo(loadedBracket.ownerId).then((userInfo) => {
-                  setOwner({ id: loadedBracket.ownerId, name: userInfo.display_name });
-                });
+                setOwner({ id: loadedBracket.ownerId, name: loadedBracket.ownerUsername });
 
                 // set bracket data
                 let mymap = new Map(Object.entries(loadedBracket.bracketData));
@@ -115,6 +115,7 @@ const App = ({ params, location }) => {
 
                 // set song source
                 if (loadedBracket.songSource && (loadedBracket.songSource.type === "artist" || loadedBracket.songSource.type === "playlist")) {
+                  setSongSource(loadedBracket.songSource);
                   checkAndUpdateSongSource(loadedBracket.songSource);
                 }
 
@@ -241,6 +242,7 @@ const App = ({ params, location }) => {
     createBracket({
       bracketId: bracketId,
       bracketData: bracketObject,
+      ownerUsername: owner.name,
       seedingMethod: seedingMethod,
       inclusionMethod: inclusionMethod,
       displayName: displayName,
@@ -446,7 +448,15 @@ const App = ({ params, location }) => {
       /> : null}
       <Alert show={alertInfo.show} close={closeAlert} message={alertInfo.message} type={alertInfo.type} />
       <div className="text-center">
-        <h1>{owner.name && songSource ? <div className="font-bold mb-2 text-xl">{songSource.type === "artist" ? songSource.artist.name : songSource.type === "playlist" ? songSource.playlist.name : ""} bracket by {owner.name} {bracketTracks.length ? "(" + bracketTracks.length + " tracks)" : null}</div> : (bracket ? <div>Finding bracket...</div> : <div className="font-bold mb-2">Bracket not found</div>)}</h1>
+        <h1>{owner.name && songSource && bracket && bracketTracks ?
+          <div className="font-bold mb-2 text-xl">{songSource.type === "artist" ? songSource.artist.name : songSource.type === "playlist" ? songSource.playlist.name : ""} bracket by {owner.name} {bracketTracks.length ? "(" + bracketTracks.length + " tracks)" : null} </div> :
+          (bracket ?
+            bracket.size > 0 ?
+              <div>Error fetching bracket details!</div> :
+              <div className="font-bold mb-2">Getting bracket...</div> :
+            <div className="font-bold mb-2">Bracket not found</div>
+          )}
+        </h1>
         {bracketWinner
           ? <BracketWinnerInfo bracketWinner={bracketWinner} showSongInfo={songSource && songSource.type === "playlist"} /> : null}
       </div>

@@ -25,7 +25,6 @@ export async function loadSpotifyRequest(url, params) {
 				'Authorization': 'Bearer ' + getAccessToken()
 			}
 		});
-
 		if (response.ok) {
 			return response.json(); // parses JSON response into native JavaScript objects
 		} else {

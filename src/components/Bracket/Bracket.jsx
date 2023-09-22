@@ -136,6 +136,7 @@ const Bracket = ({
                                     song={value.song}
                                     id={value.id}
                                     col={value.col}
+                                    undoFunc={value.undoFunc}
                                     setInclusionMethod={setInclusionMethod}
                                     currentlyPlayingId={mycurrentlyPlayingId}
                                     setCurrentlyPlayingId={
