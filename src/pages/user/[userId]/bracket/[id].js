@@ -24,8 +24,8 @@ import { getNumberOfColumns, fillBracket } from "../../../../utilities/bracketGe
 import UndoIcon from "../../../../assets/svgs/undoIcon.svg";
 import SaveIcon from "../../../../assets/svgs/saveIcon.svg";
 import ShareIcon from "../../../../assets/svgs/shareIcon.svg";
-import EditIcon from "../../../../assets/svgs/editIcon.svg";
 import { useDebounce } from "react-use";
+import { SaveIndicator } from "../../../../components/Bracket/SaveIndicator";
 
 const App = ({ params, location }) => {
   const bracketId = params.id;
@@ -282,12 +282,15 @@ const App = ({ params, location }) => {
       if (await updateBracket(bracketId, data) === 0) {
         console.log("Bracket Saved");
         //show notification confirming the save
-        showAlert("Bracket Saved", "success");
+        //showAlert("Bracket Saved", "success");
+        setSaving(false);
         setLastSaved({ commandsLength: commands.length, time: Date.now() });
       } else {
         showAlert("Error saving bracket", "error", false);
+        setSaving("error");
+        console.log("saving", saving);
+        return;
       }
-      setSaving(false);
     }
   }
 
@@ -465,21 +468,17 @@ const App = ({ params, location }) => {
       <div hidden={!editMode || !showBracket} className="font-bold text-lg">Customize using the controls below. Drag and drop to rearrange songs</div>
       <div hidden={!showBracket || !songSource} className="text-center">
         <div className="text-xs -space-x-px rounded-md sticky mx-auto top-0 w-fit z-30">
-          <div className="flex items-center">
+          <div className="flex items-center gap-1">
             {/* <GeneratePlaylistButton tracks={tracks} artist={artist} /> */}
             {editable && !bracketWinner && !editMode ?
               <>
+                <SaveIndicator saving={saving} lastSaved={lastSaved} isReady={isReady} />
+                |
                 <ActionButton
                   onClick={undo}
                   disabled={commands.length === 0}
                   icon={<UndoIcon />}
                   text="Undo"
-                />
-                <ActionButton
-                  onClick={saveBracket}
-                  disabled={true}
-                  icon={<SaveIcon />}
-                  text={saving || !isReady() ? "Saving..." : "Saved"}
                 />
                 {/* <ActionButton
                   onClick={() => {
