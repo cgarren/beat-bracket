@@ -31,7 +31,8 @@ module.exports = {
         },
       },
       animation: {
-        rotate: 'rotate 6s linear infinite',
+        rotate: 'rotate 1s linear infinite',
+        'spin-reverse': 'spin 1s linear infinite reverse',
         wiggle: 'wiggle .5s ease-in-out infinite',
       }
     },
