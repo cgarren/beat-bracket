@@ -9,14 +9,16 @@ export const SaveIndicator = ({ saving, isReady }) => {
     return (
         <div
             className={cx(
-                "rounded-[6px] text-[14px] leading-[20px] font-normal bg-white flex items-center gap-1 flex-nowrap px-[16px] py-[8px]",
+                "select-none rounded-[6px] text-[14px] leading-[20px] font-normal bg-transparent flex items-center gap-1 flex-nowrap px-[0px] py-[8px]",
                 { "!text-red-500": saving === "error" }
             )}
         >
             {saving === "error" ? (
                 <XIcon />
             ) : saving || !isReady() ? (
-                <SyncIcon />
+                <div className="animate-spin-reverse">
+                    <SyncIcon />
+                </div>
             ) : (
                 <CheckmarkIcon />
             )}
