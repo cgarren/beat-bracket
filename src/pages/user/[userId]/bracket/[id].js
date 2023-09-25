@@ -17,12 +17,10 @@ import GeneratePlaylistButton from "../../../../components/GeneratePlaylistButto
 // Utilities
 import { createBracket, getBracket, updateBracket } from "../../../../utilities/backend";
 import { seedBracket, sortTracks, loadAlbums, processTracks, loadPlaylistTracks } from "../../../../utilities/songProcessing";
-import { bracketSorter, bracketUnchanged, nearestLesserPowerOf2, debounce } from "../../../../utilities/helpers";
+import { bracketSorter, bracketUnchanged, nearestLesserPowerOf2 } from "../../../../utilities/helpers";
 import { getUserInfo, isCurrentUser, loadSpotifyRequest } from "../../../../utilities/spotify";
 import { getNumberOfColumns, fillBracket } from "../../../../utilities/bracketGeneration";
 // Assets
-import UndoIcon from "../../../../assets/svgs/undoIcon.svg";
-import SaveIcon from "../../../../assets/svgs/saveIcon.svg";
 import ShareIcon from "../../../../assets/svgs/shareIcon.svg";
 import { useDebounce } from "react-use";
 import { SaveIndicator } from "../../../../components/Bracket/SaveIndicator";
@@ -247,28 +245,24 @@ const App = ({ params, location }) => {
   // EDIT MODE
 
   function startBracket() {
-    const displayName = window.prompt("Enter a name for your bracket (SWITCH THIS TO A CUSTOM MODAL AND PUT MORE THOUGHT INTO IT)", songSource.type === "artist" ? songSource.artist.name : songSource.type === "playlist" ? songSource.playlist.name : "");
-    if (displayName && displayName.length > 0) {
-      setEditMode(false);
-      const bracketObject = Object.fromEntries(bracket);
-      createBracket({
-        bracketId: bracketId,
-        bracketData: bracketObject,
-        ownerUsername: owner.name,
-        seedingMethod: seedingMethod,
-        inclusionMethod: inclusionMethod,
-        displayName: displayName,
-        tracks: bracketTracks,
-        songSource: songSource,
-      }).then((res) => {
-        if (res === 0) {
-          console.log("Bracket created");
-          showAlert("Bracket created!", "success");
-        } else {
-          console.log("Error creating bracket");
-        }
-      });
-    }
+    setEditMode(false);
+    const bracketObject = Object.fromEntries(bracket);
+    createBracket({
+      bracketId: bracketId,
+      bracketData: bracketObject,
+      ownerUsername: owner.name,
+      seedingMethod: seedingMethod,
+      inclusionMethod: inclusionMethod,
+      displayName: null,
+      tracks: bracketTracks,
+      songSource: songSource,
+    }).then((res) => {
+      if (res === 0) {
+        console.log("Bracket created");
+      } else {
+        console.error("Error creating bracket");
+      }
+    });
   }
 
   // SHARE
@@ -488,12 +482,12 @@ const App = ({ params, location }) => {
               <>
                 <SaveIndicator saving={saving} lastSaved={lastSaved} isReady={isReady} />
                 |
-                <ActionButton
+                {/* <ActionButton
                   onClick={undo}
                   disabled={commands.length === 0}
                   icon={<UndoIcon />}
                   text="Undo"
-                />
+                /> */}
                 {/* <ActionButton
                   onClick={() => {
                     setEditMode(true);
@@ -562,28 +556,21 @@ export function Head({ params }) {
   const [userName, setUserName] = useState(null);
 
   useEffect(() => {
-    async function updateTitle(retries) {
+    async function updateTitle() {
       if (params && params.id && params.userId) {
         getBracket(params.id, params.userId).then(async (loadedBracket) => {
           if (loadedBracket !== 1 && loadedBracket && loadedBracket.userName) {
             setUserName(loadedBracket.userName);
-            if (loadedBracket.artistName) {
-              setName(loadedBracket.artistName);
-            } else if (loadedBracket.songSource && loadedBracket.songSource.type === "artist") {
+            if (loadedBracket.songSource && loadedBracket.songSource.type === "artist") {
               setName(loadedBracket.songSource.artist.name);
             } else if (loadedBracket.songSource && loadedBracket.songSource.type === "playlist") {
               setName(loadedBracket.songSource.playlist.name);
-            } else {
-              setTimeout(updateTitle, 6000, retries + 1);
             }
-          } else if (retries < 5) {
-            setTimeout(updateTitle, 6000, retries + 1);
           }
-        }
-        )
+        });
       }
     }
-    updateTitle(0);
+    updateTitle();
   }, [params]);
 
   return (
