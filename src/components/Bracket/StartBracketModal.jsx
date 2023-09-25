@@ -24,9 +24,9 @@ export const StartBracketModal = ({
                         />
                         <ActionButton
                             onClick={startBracket}
-                            text={"Fill out bracket"}
+                            text={"Start bracket"}
                             customStyling={
-                                "bg-black text-white hover:bg-gray-500"
+                                "bg-gray-700 text-white hover:bg-black"
                             }
                         />
                     </div>
