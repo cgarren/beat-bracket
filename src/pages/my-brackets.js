@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useContext } from "react"
 import Layout from "../components/Layout";
-import ArtistBracketCard from "../components/BracketCard/ArtistBracketCard";
+import BracketCard from "../components/BracketCard/BracketCard";
 import Tab from "../components/Tab";
 import CreateBracketCard from "../components/BracketCard/CreateBracketCard";
 import Alert from "../components/Alert";
@@ -113,12 +113,6 @@ const App = ({ location }) => {
             <Tab id={2} activeTab={activeTab} setActiveTab={setActiveTab} content="Completed" />
           </nav>
         </div>
-        {/* <div className="pt-3 flex flex-row flex-wrap justify-center">
-          {activeTab === 0 && maxBrackets && brackets.length < maxBrackets && currentUserId ? <CreateBracketCard userId={currentUserId} /> : null}
-          {shownBrackets.map((bracket) => (
-            <ArtistBracketCard bracket={bracket} key={bracket.id} userId={currentUserId} />
-          ))}
-        </div> */}
         <div className={
           cx("pt-3 items-stretch sm:mx-5 gap-5",
             { "inline-grid xl:grid-cols-3 md:grid-cols-2": brackets.length >= 3 },
@@ -126,7 +120,7 @@ const App = ({ location }) => {
           )}>
           {activeTab === 0 && maxBrackets && brackets.length < maxBrackets && currentUserId ? <CreateBracketCard userId={currentUserId} /> : null}
           {shownBrackets.map((bracket) => (
-            <ArtistBracketCard bracket={bracket} key={bracket.id} userId={currentUserId} />
+            <BracketCard bracket={bracket} key={bracket.id} userId={currentUserId} />
           ))}
         </div>
       </div>
