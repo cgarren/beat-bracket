@@ -32,9 +32,14 @@ async function loadBackendRequest(path, method, params = { ownerId: getUserId(),
 	if (data) {
 		requestOptions.body = JSON.stringify(data);
 	}
-	const response = await fetch(url, requestOptions);
-
-	return response; // parses JSON response into native JavaScript objects
+	try {
+		return await fetch(url, requestOptions);
+	} catch (error) {
+		console.error(error);
+		return {
+			ok: false
+		}
+	}
 }
 
 export async function getBrackets() {
