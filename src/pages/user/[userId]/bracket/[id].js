@@ -248,6 +248,7 @@ const App = ({ params, location }) => {
   function startBracket() {
     setEditMode(false);
     const bracketObject = Object.fromEntries(bracket);
+    setSaving(true);
     createBracket({
       bracketId: bracketId,
       bracketData: bracketObject,
@@ -260,8 +261,10 @@ const App = ({ params, location }) => {
     }).then((res) => {
       if (res === 0) {
         console.log("Bracket created");
+        setSaving(false);
       } else {
         console.error("Error creating bracket");
+        setSaving("error");
       }
     });
   }
