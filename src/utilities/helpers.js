@@ -5,6 +5,16 @@ import { navigate } from "gatsby";
 
 import { getUserInfo } from "./spotify";
 
+export function debounce(func, timeout = 300) {
+	let timer;
+	return (...args) => {
+		console.log("clearing timeout", timer)
+		clearTimeout(timer);
+		console.log("setting timeout again")
+		timer = setTimeout(() => { func.apply(this, args); }, timeout);
+	};
+}
+
 export function generateRandomString(length) {
 	let text = '';
 	let possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

@@ -136,6 +136,7 @@ const Bracket = ({
                                     song={value.song}
                                     id={value.id}
                                     col={value.col}
+                                    undoFunc={value.undoFunc}
                                     setInclusionMethod={setInclusionMethod}
                                     currentlyPlayingId={mycurrentlyPlayingId}
                                     setCurrentlyPlayingId={
@@ -212,13 +213,17 @@ const Bracket = ({
         }
     }, [renderArray, setShowBracket]);
 
-    function modifyBracket(key, attribute, value) {
+    function modifyBracket(key, attribute, value, save = false) {
         const payload = getBracket(key);
         if (attribute === "song" && key[1] === "0") {
             setSeedingMethod("custom");
         }
         payload[attribute] = value;
-        setBracket(new Map(bracket.set(key, payload)));
+        if (save) {
+            setBracket(new Map(bracket.set(key, payload)));
+        } else {
+            setBracket(new Map(bracket.set(key, payload)));
+        }
     }
 
     function getBracket(key) {

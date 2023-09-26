@@ -49,7 +49,8 @@ export async function relateSongs(len, theTracks, col, side, otherSide) {
 			disabled: col === 0 && theTracks[i] ? false : true,
 			winner: false,
 			eliminated: false,
-			color: colorObj
+			color: colorObj,
+			undoFunc: null,
 		});
 	}
 	return colMap;

@@ -72,15 +72,20 @@ async function selectTrackVersion(numTracks, tracks, featuredList) {
 }
 
 async function makeTrackObject(track) {
-	return {
-		name: track.name,
-		feature: track.feature,
-		art: track.album.images.length > 0 ? track.album.images[0].url : null,
-		id: track.id,
-		popularity: track.popularity,
-		preview_url: track.preview_url,
-		artist: track.artists[0].name,
-		album: track.album.name,
+	try {
+		return {
+			name: track.name,
+			feature: track.feature,
+			art: track.album.images.length > 0 ? track.album.images[0].url : null,
+			id: track.id,
+			popularity: track.popularity,
+			preview_url: track.preview_url,
+			artist: track.artists[0].name,
+			album: track.album.name,
+		}
+	} catch (error) {
+		console.log("error processing track:", track);
+		return null;
 	}
 }
 
@@ -103,7 +108,10 @@ async function loadTrackData(idList, trackOptionsAmounts) {
 			if (response.tracks.length > 0) {
 				for (let numTracks of trackOptionsAmounts) {
 					const selectedTrack = await selectTrackVersion(numTracks, response.tracks, featuredList);
-					templist.push(await makeTrackObject(selectedTrack));
+					const trackObject = await makeTrackObject(selectedTrack);
+					if (trackObject) {
+						templist.push(trackObject);
+					}
 				}
 			}
 		} else {
@@ -223,7 +231,9 @@ async function loadPlaylistTracks(url, songs = []) {
 		if (response.items.length > 0) {
 			await Promise.all(response.items.map(async (item) => {
 				const trackObject = await makeTrackObject(item.track);
-				songs.push(trackObject);
+				if (trackObject) {
+					songs.push(trackObject);
+				}
 			}));
 		}
 		if (response.next) {
