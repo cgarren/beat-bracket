@@ -162,7 +162,6 @@ const SongButton = ({
         event.preventDefault();
         // Get the id of the target and add the moved element to the target's DOM
         const switchId = event.dataTransfer.getData("application/plain");
-        console.debug("drop", switchId);
         // switch the songs
         let tempSong = getBracket(switchId).song;
         modifyBracket(switchId, "song", song);
