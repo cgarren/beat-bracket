@@ -63,7 +63,7 @@ export async function login(setLoggedIn) {
 	try {
 		console.info("logging in...");
 		setLoggedIn(null);
-		console.debug("refresh token:", localStorage.getItem(refreshTokenKey))
+		//console.debug("refresh token:", localStorage.getItem(refreshTokenKey))
 		if (localStorage.getItem(refreshTokenKey)) {
 			console.info("refeshing session...")
 			// refresh spotify and set session storage
@@ -83,7 +83,7 @@ export async function login(setLoggedIn) {
 				localStorage.setItem(refreshTokenKey, refreshToken);
 			}
 
-			console.debug("refreshed session. access token:", accessToken, "refresh token:", refreshToken, "expires at:", expiresAt, "current time:", Date.now());
+			console.debug("refreshed session successfully");
 
 			// get info about user from spotify and set session storage
 			const userInfo = await getUserInfo();
@@ -132,7 +132,7 @@ export async function loginCallback(urlParams, setLoggedIn) {
 		const sessionId = state;
 
 		// authenticate with backend
-		console.log(userId, userInfo);
+		//console.log(userId, userInfo);
 		await backendLogin(userId, sessionId, expiresAt, accessToken);
 
 		// set timer to refresh access token
