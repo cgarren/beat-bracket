@@ -175,10 +175,10 @@ export function isLoggedIn(setLoggedIn) {
 			if (setLoggedIn) {
 				setLoginTimer(expiresAt, setLoggedIn);
 			}
-			console.debug("logged in");
+			//console.debug("logged in");
 			return true;
 		}
 	}
-	console.debug("not logged in");
+	console.log("not logged in");
 	return false;
 }
