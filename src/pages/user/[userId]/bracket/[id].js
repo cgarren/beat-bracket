@@ -24,6 +24,7 @@ import { getNumberOfColumns, fillBracket } from "../../../../utilities/bracketGe
 import ShareIcon from "../../../../assets/svgs/shareIcon.svg";
 import { useDebounce } from "react-use";
 import { SaveIndicator } from "../../../../components/Bracket/SaveIndicator";
+import TrackNumber from "../../../../components/BracketCard/TrackNumber";
 
 const App = ({ params, location }) => {
   const bracketId = params.id;
@@ -460,7 +461,13 @@ const App = ({ params, location }) => {
       <Alert show={alertInfo.show} close={closeAlert} message={alertInfo.message} type={alertInfo.type} />
       <div className="text-center">
         <h1>{owner.name && songSource && bracket && bracketTracks ?
-          <div className="font-bold mb-2 text-xl">{songSource.type === "artist" ? songSource.artist.name : songSource.type === "playlist" ? songSource.playlist.name : ""} bracket by {owner.name} {bracketTracks.length ? "(" + bracketTracks.length + " tracks)" : null} </div> :
+          <div className="mx-auto mb-2 flex flex-col gap-0 items-center justify-center max-w-[90%]">
+            <div className="flex flex-row text-xl items-center justify-center gap-1 max-w-full">
+              <span className="truncate w-auto font-bold">{songSource.type === "artist" ? songSource.artist.name : songSource.type === "playlist" ? songSource.playlist.name : ""}</span>
+              {bracketTracks && bracketTracks.length ? <TrackNumber numTracks={bracketTracks.length} /> : null}
+            </div>
+            <span className="text-md">by {owner.name}</span>
+          </div> :
           (bracket ?
             bracket.size > 0 ?
               <div>Error fetching bracket details!</div> :
@@ -476,12 +483,12 @@ const App = ({ params, location }) => {
       <div hidden={!editMode || !showBracket} className="font-bold text-lg">Customize using the controls below. Drag and drop to rearrange songs</div>
       <div hidden={!showBracket || !songSource} className="text-center">
         <div className="text-xs -space-x-px rounded-md sticky mx-auto top-0 w-fit z-30">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
             {/* <GeneratePlaylistButton tracks={tracks} artist={artist} /> */}
             {editable && !bracketWinner && !editMode ?
               <>
                 <SaveIndicator saving={saving} lastSaved={lastSaved} isReady={isReady} />
-                |
+
                 {/* <ActionButton
                   onClick={undo}
                   disabled={commands.length === 0}

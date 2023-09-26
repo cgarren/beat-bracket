@@ -83,8 +83,9 @@ export default function BracketCard({ bracket, userId }) {
             imageAlt={`${name} bracket`}
             cardText={
                 <CardName
-                    name={name}
-                    trackNumber={
+                    displayName={bracket.displayName}
+                    songSource={bracket.songSource}
+                    numTracks={
                         bracket && bracket.tracks ? bracket.tracks.length : null
                     }
                     completed={bracket.completed || bracket.winner}
