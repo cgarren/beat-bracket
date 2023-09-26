@@ -80,7 +80,7 @@ export async function putRequest(url, params, data) {
 }
 
 export async function getArt(imageArray, type, getlargest = false) {
-	if (imageArray.length > 0) {
+	if (imageArray && imageArray.length > 0) {
 		if (getlargest) {
 			for (let i = 0; i < imageArray.length; i++) {
 				if (imageArray[i].url) {
