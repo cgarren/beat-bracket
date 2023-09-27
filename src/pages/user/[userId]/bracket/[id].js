@@ -251,13 +251,13 @@ const App = ({ params, location }) => {
     setSaving(true);
     createBracket({
       bracketId: bracketId,
-      bracketData: bracketObject,
       ownerUsername: owner.name,
       seedingMethod: seedingMethod,
       inclusionMethod: inclusionMethod,
       displayName: null,
-      tracks: bracketTracks,
       songSource: songSource,
+      tracks: bracketTracks,
+      bracketData: bracketObject,
     }).then((res) => {
       if (res === 0) {
         console.log("Bracket created");
