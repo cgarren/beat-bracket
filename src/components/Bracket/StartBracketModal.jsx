@@ -2,11 +2,11 @@ import React from "react";
 import Modal from "../Modal";
 import ActionButton from "./ActionButton";
 
-export const StartBracketModal = ({
+export default function StartBracketModal({
     showModal,
     setShowModal,
     startBracket,
-}) => {
+}) {
     return (
         <>
             {showModal && (
@@ -20,6 +20,7 @@ export const StartBracketModal = ({
                         <ActionButton
                             onClick={() => setShowModal(false)}
                             text={"Keep editing"}
+                            autoFocus={true}
                             customStyling={"mr-2 bg-gray-200 hover:bg-gray-300"}
                         />
                         <ActionButton
@@ -34,4 +35,4 @@ export const StartBracketModal = ({
             )}
         </>
     );
-};
+}

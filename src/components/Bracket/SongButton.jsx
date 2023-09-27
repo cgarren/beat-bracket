@@ -10,7 +10,7 @@ import { getColorsFromImage } from "../../utilities/bracketGeneration";
 import cx from "classnames";
 import ReplaceTrackModal from "./ReplaceTrackModal";
 
-const SongButton = ({
+export default function SongButton({
     styling,
     song,
     opponentId,
@@ -34,7 +34,7 @@ const SongButton = ({
     showSongInfo,
     setInclusionMethod,
     undoFunc,
-}) => {
+}) {
     const [dragging, setDragging] = useState(false);
     const [showTrackSelector, setShowTrackSelector] = useState(false);
     const buttonRef = useRef(null);
@@ -198,7 +198,7 @@ const SongButton = ({
                         onClick={undoFunc}
                         aria-label="Undo"
                         className={cx(
-                            "border-0 w-[26px] h-[26px] p-1 text-xs hover:bg-red-600 hover:text-white bg-transparent text-black absolute rounded-full z-50",
+                            "border-0 w-[26px] h-[26px] p-1 text-xs hover:bg-red-600 hover:text-white bg-transparent text-black absolute rounded-full z-50 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-opacity-50",
                             {
                                 "-right-8 top-3":
                                     side === "l" &&
@@ -275,7 +275,7 @@ const SongButton = ({
                             onClick={() => {
                                 setShowTrackSelector(true);
                             }}
-                            className="border-0 p-0 w-[20px] h-[20px] hover:bg-gray-200 bg-white text-black absolute -top-2 -right-2 rounded-full z-50"
+                            className="border-0 p-0 w-[20px] h-[20px] hover:bg-gray-200 bg-white text-black absolute -top-2 -right-2 rounded-full z-50 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-opacity-50"
                         >
                             {"✕"}
                         </button>
@@ -287,7 +287,7 @@ const SongButton = ({
                                     `http://open.spotify.com/track/${song.id}`
                                 );
                             }}
-                            className="border-0 p-0 w-[20px] h-[20px] hover:bg-white bg-black text-white absolute -top-2 -right-2 rounded-full z-50"
+                            className="border-0 p-0 w-[20px] h-[20px] hover:bg-white bg-black text-white absolute -top-2 -right-2 rounded-full z-50 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-opacity-50"
                         >
                             <img
                                 src={spotifyIcon}
@@ -303,7 +303,7 @@ const SongButton = ({
                         hidden={false}
                         style={song ? colorStyle : {}}
                         className={cx(
-                            "rounded-[inherit] cursor-[inherit] disabled:rounded-[inherit] bg-white text-black border-0 leading-[1.15em] p-0 text-center overflow-hidden break-words disabled:px-[6px] h-full min-h-[var(--buttonheight)] disabled:w-full z-10",
+                            "rounded-[inherit] cursor-[inherit] disabled:rounded-[inherit] bg-white text-black border-0 leading-[1.15em] p-0 text-center overflow-hidden break-words disabled:px-[6px] h-full min-h-[var(--buttonheight)] disabled:w-full z-10 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-opacity-50",
                             { "opacity-100 active:opacity-100": winner },
                             { "w-full": (!winner && editMode) || !song },
                             {
@@ -385,6 +385,4 @@ const SongButton = ({
             </div>
         </>
     );
-};
-
-export default SongButton;
+}
