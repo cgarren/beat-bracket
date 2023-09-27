@@ -16,7 +16,7 @@ import cx from "classnames";
 const App = ({ location }) => {
   const maxBrackets = getMaxBrackets();
   const [brackets, setBrackets] = useState([
-    { id: 1, userId: undefined, artistName: undefined, artistId: undefined, tracks: undefined, completed: false },
+    { id: 0, userId: undefined, artistName: undefined, artistId: undefined, tracks: undefined, completed: false },
   ]);
   const [activeTab, setActiveTab] = useState(0);
   const currentUserId = getUserId();
@@ -104,7 +104,7 @@ const App = ({ location }) => {
       </div>
       <div className="text-center" hidden={error}>
         <h1 className="text-4xl font-extrabold">My Brackets</h1>
-        {currentUserId && maxBrackets ? <p className="text-sm text-gray-600 mb-2">{brackets.length + "/" + maxBrackets + " brackets used"}</p> : null}
+        {currentUserId && maxBrackets && brackets && (brackets.length === 0 || brackets[0].id) ? <p className="text-sm text-gray-600 mb-2">{brackets.length + "/" + maxBrackets + " brackets used"}</p> : null}
 
         <div className="">
           <nav className="inline-flex flex-row">
@@ -118,7 +118,7 @@ const App = ({ location }) => {
             { "inline-grid xl:grid-cols-3 md:grid-cols-2": brackets.length >= 3 },
             { "flex flex-row flex-wrap justify-center": brackets.length < 3 }
           )}>
-          {activeTab === 0 && maxBrackets && brackets.length < maxBrackets && currentUserId ? <CreateBracketCard userId={currentUserId} /> : null}
+          {activeTab === 0 && maxBrackets && brackets && brackets.length < maxBrackets && currentUserId && (brackets.length === 0 || brackets[0].id) && <CreateBracketCard userId={currentUserId} />}
           {shownBrackets.map((bracket) => (
             <BracketCard bracket={bracket} key={bracket.id} userId={currentUserId} />
           ))}
