@@ -3,7 +3,7 @@ import Card from "./Card";
 import createBracketPic from "../../assets/images/createBracket.png";
 import { CreateBracketModal } from "./CreateBracketModal";
 
-const CreateBracketCard = ({ userId }) => {
+export default function CreateBracketCard({ userId }) {
     const [showModal, setShowModal] = useState(false);
     return (
         <div>
@@ -22,6 +22,4 @@ const CreateBracketCard = ({ userId }) => {
             />
         </div>
     );
-};
-
-export default CreateBracketCard;
+}

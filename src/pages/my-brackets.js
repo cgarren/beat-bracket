@@ -118,7 +118,7 @@ const App = ({ location }) => {
             { "inline-grid xl:grid-cols-3 md:grid-cols-2": brackets.length >= 3 },
             { "flex flex-row flex-wrap justify-center": brackets.length < 3 }
           )}>
-          {activeTab === 0 && maxBrackets && brackets && brackets.length < maxBrackets && currentUserId && (brackets.length === 0 || brackets[0].id) && <CreateBracketCard userId={currentUserId} />}
+          {activeTab === 0 && maxBrackets && brackets && brackets.length < maxBrackets && currentUserId && (brackets.length === 0 || brackets[0].id) ? <CreateBracketCard userId={currentUserId} /> : null}
           {shownBrackets.map((bracket) => (
             <BracketCard bracket={bracket} key={bracket.id} userId={currentUserId} />
           ))}

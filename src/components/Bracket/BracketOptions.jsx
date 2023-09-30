@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import OptionsDropdown from "./OptionsDropdown";
 
 import ActionButton from "./ActionButton";
-import { StartBracketModal } from "./StartBracketModal";
+import StartBracketModal from "./StartBracketModal";
 
 export default function BracketOptions({
     songSourceType,
