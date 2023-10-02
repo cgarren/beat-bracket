@@ -15,7 +15,7 @@ import { getUserId, getSessionId } from "./authentication";
 
 const maxBracketsKey = "max_brackets";
 
-const baseUrl = "https://hsadrgb5uxnxfsswuxpcdrfblq0cydjv.lambda-url.us-east-2.on.aws"
+const baseUrl = "https://qaitethka4gbvvogua47rq6qqa0xavjk.lambda-url.us-east-2.on.aws"
 
 async function loadBackendRequest(path, method, params = { ownerId: getUserId(), sessionId: getSessionId() }, data, headers = {}, credentials) {
 	let url = baseUrl + path
