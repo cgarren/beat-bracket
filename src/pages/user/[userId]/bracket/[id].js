@@ -168,7 +168,6 @@ const App = ({ params, location }) => {
             } else {
               // Bracket doesn't exist and no artist was passed in
               setBracket(null);
-              throw new Error("Bracket not found");
             }
           } else if (error.cause && error.cause.code === 429) {
             showAlert("Error loading bracket! Please try again later", "error", false);
