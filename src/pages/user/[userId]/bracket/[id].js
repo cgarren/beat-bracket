@@ -14,6 +14,7 @@ import BracketOptions from "../../../../components/Bracket/BracketOptions";
 import BracketWinnerInfo from "../../../../components/Bracket/BracketWinnerInfo";
 import ActionButton from "../../../../components/Bracket/ActionButton";
 import GeneratePlaylistButton from "../../../../components/GeneratePlaylistButton";
+import BracketCompleteModal from "../../../../components/Bracket/BracketCompleteModal";
 // Utilities
 import { createBracket, getBracket, updateBracket } from "../../../../utilities/backend";
 import { seedBracket, sortTracks, loadAlbums, processTracks, loadPlaylistTracks } from "../../../../utilities/songProcessing";
@@ -79,6 +80,9 @@ const App = ({ params, location }) => {
     }
     return null;
   }, [bracket, bracketTracks]);
+  const showBracketCompleteModal = useMemo(() => {
+    return bracketWinner && commands.length > 0;
+  }, [bracketWinner, commands]);
 
   const [isReady,] = useDebounce(() => {
     if (bracket) {
@@ -479,6 +483,7 @@ const App = ({ params, location }) => {
         className="!z-[100]"
       />}
       <Alert show={alertInfo.show} close={closeAlert} message={alertInfo.message} type={alertInfo.type} />
+      <BracketCompleteModal showModal={showBracketCompleteModal} setShowModal={(showModal) => showModal ? saveCommand(null, null) : clearCommands()} bracketWinner={bracketWinner} bracketTracks={bracketTracks} songSource={songSource} />
       <div className="text-center">
         <h1>{owner.name && songSource && bracket && bracketTracks ?
           <div className="mx-auto mb-2 flex flex-col gap-0 items-center justify-center max-w-[90%]">
