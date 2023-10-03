@@ -15,7 +15,8 @@ import { getUserId, getSessionId } from "./authentication";
 
 const maxBracketsKey = "max_brackets";
 
-const baseUrl = "https://qaitethka4gbvvogua47rq6qqa0xavjk.lambda-url.us-east-2.on.aws"
+//const baseUrl = "https://qaitethka4gbvvogua47rq6qqa0xavjk.lambda-url.us-east-2.on.aws"
+const baseUrl = "https://hsadrgb5uxnxfsswuxpcdrfblq0cydjv.lambda-url.us-east-2.on.aws"
 
 async function loadBackendRequest(path, method, params = { ownerId: getUserId(), sessionId: getSessionId() }, data, headers = {}, credentials) {
 	let url = baseUrl + path
@@ -32,69 +33,50 @@ async function loadBackendRequest(path, method, params = { ownerId: getUserId(),
 	if (data) {
 		requestOptions.body = JSON.stringify(data);
 	}
+
+	let response;
 	try {
-		return await fetch(url, requestOptions);
+		response = await fetch(url, requestOptions);
 	} catch (error) {
 		console.error(error);
-		return {
-			ok: false
+		throw new Error("Network error");
+	}
+	if (!response.ok) {
+		const errorMessage = await response.text();
+		if (errorMessage) {
+			throw new Error(errorMessage, { cause: { code: response.status } });
+		} else {
+			throw new Error("Unknown error");
 		}
 	}
+	return response;
 }
 
 export async function getBrackets() {
 	const response = await loadBackendRequest("/brackets", "GET");
-	if (response.ok) {
-		return response.json();
-	} else {
-		return 1;
-	}
+	return response.json();
 }
 
 export async function getBracket(id, userId) {
 	const response = await loadBackendRequest("/bracket", "GET", { id: id, ownerId: userId });
-	if (response.ok) {
-		return response.json();
-	} else if (response.status === 404) {
-		return null
-	} else {
-		return 1;
-	}
+	return response.json();
 }
 
 export async function createBracket(bracket) {
+	await loadBackendRequest("/bracket", "PUT", { ownerId: getUserId(), sessionId: getSessionId() }, bracket);
 	console.debug("Written Bracket:", bracket);
-	const response = await loadBackendRequest("/bracket", "PUT", { ownerId: getUserId(), sessionId: getSessionId() }, bracket);
-	if (response.ok) {
-		return 0;
-	} else {
-		return 1;
-	}
 }
 
 export async function updateBracket(id, updateObject) {
-	const response = await loadBackendRequest("/bracket", "PATCH", { id: id, ownerId: getUserId(), sessionId: getSessionId() }, updateObject);
-	if (response.ok) {
-		return 0;
-	} else if (response.status === 404) {
-		return null
-	} else {
-		return 1;
-	}
+	await loadBackendRequest("/bracket", "PATCH", { id: id, ownerId: getUserId(), sessionId: getSessionId() }, updateObject);
 }
 
 export async function deleteBracket(id) {
-	const response = await loadBackendRequest("/bracket", "DELETE", { id: id, ownerId: getUserId(), sessionId: getSessionId() });
-	if (response.ok) {
-		return 0;
-	} else if (response.status === 404) {
-		return null
-	} else {
-		return 1;
-	}
+	await loadBackendRequest("/bracket", "DELETE", { id: id, ownerId: getUserId(), sessionId: getSessionId() });
 }
 
 export function getMaxBrackets() {
+	// eventually make this a call to the backend
 	if (typeof window !== 'undefined') {
 		return sessionStorage.getItem(maxBracketsKey);
 	}
@@ -108,11 +90,6 @@ export async function authenticate(userId, sessionId, expireTime, accessToken) {
 		expireTime: expireTime,
 		accessToken: accessToken
 	}, {}, 'include');
-	if (response.ok) {
-		const { maxBrackets } = await response.json();
-		sessionStorage.setItem(maxBracketsKey, maxBrackets);
-		return 0;
-	} else {
-		return 1;
-	}
+	const { maxBrackets } = await response.json();
+	sessionStorage.setItem(maxBracketsKey, maxBrackets);
 }
