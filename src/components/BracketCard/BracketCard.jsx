@@ -5,7 +5,7 @@ import { openBracket } from "../../utilities/helpers";
 import { deleteBracket } from "../../utilities/backend";
 import { getArt, loadSpotifyRequest } from "../../utilities/spotify";
 
-export default function BracketCard({ bracket, userId }) {
+export default function BracketCard({ bracket, userId, showAlert }) {
     const [cardImage, setCardImage] = useState(null);
     const name = (() => {
         if (bracket.songSource && bracket.songSource.type) {
@@ -68,11 +68,22 @@ export default function BracketCard({ bracket, userId }) {
                 `Are you sure you want to permanently delete this ${name} bracket?`
             )
         ) {
-            console.log("removing bracket");
-            if ((await deleteBracket(bracket.id, userId)) === 0) {
+            try {
+                console.log("removing bracket");
+                await deleteBracket(bracket.id, userId);
                 window.location.reload();
-            } else {
-                //show error removing bracket alert
+            } catch (error) {
+                if (error.cause && error.cause.code === 429) {
+                    showAlert(
+                        "Error deleting bracket. Please try again in a couple of minutes.",
+                        "error",
+                        false
+                    );
+                } else if (error.message) {
+                    showAlert(error.message, "error", false);
+                } else {
+                    showAlert("Unkown error deleting bracket", "error", false);
+                }
             }
         }
     }

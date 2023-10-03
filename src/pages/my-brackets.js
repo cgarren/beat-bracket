@@ -57,23 +57,31 @@ const App = ({ location }) => {
   }
 
   useEffect(() => {
-    processLogin().then(loginResult => {
+    async function init() {
+      const loginResult = await processLogin();
       if (loginResult) {
-        getBrackets().then((loadedBrackets) => {
-          if (loadedBrackets !== 1) {
-            console.info(loadedBrackets);
-            setBrackets(loadedBrackets);
-          } else {
-            console.log("Error loading brackets");
-            //showAlert("Error loading brackets, try logging in again", "error", false);
+        try {
+          const loadedBrackets = await getBrackets();
+          console.info(loadedBrackets);
+          setBrackets(loadedBrackets);
+        } catch (error) {
+          if (error.cause && error.cause.code === 403) {
+            //showAlert("Not authenticated!", "error", false);
             setError(<div className="text-center">Error loading brackets. Try logging out and back in again!<br /><br />It's possible you logged in from another device. Only one session can be active for a user at any given time.</div>);
+          } else if (error.cause && error.cause.code === 429) {
+            showAlert("Your brackets can't be loaded right now. Try again in a few minutes.", "error", false);
+          } else if (error.message) {
+            showAlert(error.message, "error", false);
+          } else {
+            showAlert("Unknown Error loading brackets", "error", false);
           }
-        });
+        }
       } else {
         console.log("going back to home page");
         navigate("/");
       }
-    });
+    }
+    init();
   }, []);
 
   function showAlert(message, type = "info", timeout = true) {
@@ -120,7 +128,7 @@ const App = ({ location }) => {
           )}>
           {activeTab === 0 && maxBrackets && brackets && brackets.length < maxBrackets && currentUserId && (brackets.length === 0 || brackets[0].id) ? <CreateBracketCard userId={currentUserId} /> : null}
           {shownBrackets.map((bracket) => (
-            <BracketCard bracket={bracket} key={bracket.id} userId={currentUserId} />
+            <BracketCard bracket={bracket} key={bracket.id} userId={currentUserId} showAlert={showAlert} />
           ))}
         </div>
       </div>
