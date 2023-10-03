@@ -44,7 +44,7 @@ const lineStyles = [
 /* 3, 7, 15, 31, 63, 127*/
 /*   4  8  16  32  64*/
 
-const Bracket = ({
+export default function Bracket({
     allTracks,
     showBracket,
     setShowBracket,
@@ -60,7 +60,7 @@ const Bracket = ({
     songSource,
     setSeedingMethod,
     setInclusionMethod,
-}) => {
+}) {
     const { width, height } = useWindowSize();
     const replacementTracks = useMemo(() => {
         const bracketIds = [];
@@ -258,9 +258,7 @@ const Bracket = ({
             </div>
         </div>
     );
-};
-
-export default Bracket;
+}
 
 // 128 -> 7
 // 64 -> 6
