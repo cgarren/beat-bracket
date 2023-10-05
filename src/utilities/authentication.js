@@ -105,10 +105,10 @@ export async function login(setLoggedIn) {
 			//kick off spotify login process
 			await spotifyLogin();
 		}
-	} catch (error) {
-		throw error;
-	} finally {
 		setLoggedIn(isLoggedIn());
+	} catch (error) {
+		setLoggedIn(isLoggedIn());
+		throw error;
 	}
 }
 
