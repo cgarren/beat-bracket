@@ -1,7 +1,7 @@
 import { popularitySort, shuffleArray } from "./helpers";
 import { loadSpotifyRequest } from "./spotify";
 
-async function sortTracks(trackList, sortingMethod) {
+export async function sortTracks(trackList, sortingMethod) {
 	switch (sortingMethod) {
 		case "random":
 			return await shuffleArray(trackList);
@@ -16,7 +16,7 @@ async function sortTracks(trackList, sortingMethod) {
 	}
 }
 
-async function seedBracket(trackList, seedingMethod) {
+export async function seedBracket(trackList, seedingMethod) {
 	switch (seedingMethod) {
 		case "random":
 			return await shuffleArray(trackList);
@@ -89,6 +89,20 @@ async function makeTrackObject(track) {
 	}
 }
 
+export async function updatePreviewUrls(trackList) {
+	for (let track of trackList) {
+		if (!track.preview_url) {
+			const url = "https://api.spotify.com/v1/tracks/" + track.id;
+			const response = await loadSpotifyRequest(url);
+			if (response !== 1) {
+				track.preview_url = response.preview_url;
+			} else {
+				return 1;
+			}
+		}
+	}
+}
+
 async function loadTrackData(idList, trackOptionsAmounts) {
 	let templist = [];
 	if (idList.length !== 0) {
@@ -121,7 +135,7 @@ async function loadTrackData(idList, trackOptionsAmounts) {
 	return templist;
 }
 
-async function processTracks(songs) {
+export async function processTracks(songs) {
 	let templist = [];
 	let runningList = [];
 	let trackOptionsAmounts = [];
@@ -200,7 +214,7 @@ async function loadTracks(url, songs, artistId) {
 	}
 }
 
-async function loadAlbums(url, artistId, songs = {}) {
+export async function loadAlbums(url, artistId, songs = {}) {
 	let response = await loadSpotifyRequest(url);
 	if (response !== 1) {
 		if (response.items.length > 0) {
@@ -225,7 +239,7 @@ async function loadAlbums(url, artistId, songs = {}) {
 	}
 }
 
-async function loadPlaylistTracks(url, songs = []) {
+export async function loadPlaylistTracks(url, songs = []) {
 	let response = await loadSpotifyRequest(url);
 	if (response !== 1) {
 		if (response.items.length > 0) {
@@ -247,7 +261,7 @@ async function loadPlaylistTracks(url, songs = []) {
 	}
 }
 
-async function loadPlaylists(url, playlists = []) {
+export async function loadPlaylists(url, playlists = []) {
 	let response = await loadSpotifyRequest(url);
 	if (response !== 1) {
 		if (response.items.length > 0) {
@@ -263,5 +277,3 @@ async function loadPlaylists(url, playlists = []) {
 		return 1;
 	}
 }
-
-export { seedBracket, sortTracks, loadAlbums, processTracks, loadPlaylistTracks, loadPlaylists }

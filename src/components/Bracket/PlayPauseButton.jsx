@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { useEffect, useState } from "react";
 import PlayIcon from "../../assets/svgs/playIcon.svg";
 import PauseIcon from "../../assets/svgs/pauseIcon.svg";
@@ -19,17 +19,17 @@ export default function PlayPauseButton({
 }) {
     const [paused, setPaused] = useState(true);
 
-    function playSnippet() {
+    const playSnippet = useCallback(() => {
         buttonRef.current.removeEventListener("mouseenter", playSnippet, true);
         setCurrentlyPlayingId(id);
         buttonRef.current.addEventListener("mouseleave", pauseSnippet, true);
-    }
+    }, [buttonRef, id, setCurrentlyPlayingId]);
 
-    function pauseSnippet() {
+    const pauseSnippet = useCallback(() => {
         buttonRef.current.removeEventListener("mouseleave", pauseSnippet, true);
         setCurrentlyPlayingId(null);
         buttonRef.current.addEventListener("mouseenter", playSnippet, true);
-    }
+    }, [buttonRef, setCurrentlyPlayingId, playSnippet]);
 
     useEffect(() => {
         if (playbackEnabled && !disabled) {
@@ -45,7 +45,7 @@ export default function PlayPauseButton({
                 }
             };
         }
-    }, [playbackEnabled, disabled]);
+    }, [playbackEnabled, disabled, buttonRef, playSnippet]);
 
     function playPauseAudio() {
         if (paused) {
@@ -56,10 +56,16 @@ export default function PlayPauseButton({
     }
 
     useEffect(() => {
-        audioRef.current.addEventListener("ended", () => {
+        const audio = audioRef.current;
+        audio.addEventListener("ended", () => {
             setCurrentlyPlayingId(null);
         });
-    }, []);
+        return () => {
+            audio.removeEventListener("ended", () => {
+                setCurrentlyPlayingId(null);
+            });
+        };
+    }, [audioRef, setCurrentlyPlayingId]);
 
     useEffect(() => {
         if (currentlyPlayingId !== id) {
@@ -88,7 +94,7 @@ export default function PlayPauseButton({
                 setPaused(true);
             }
         }
-    }, [currentlyPlayingId]);
+    }, [currentlyPlayingId, audioRef, id, setCurrentlyPlayingId]);
 
     return (
         <button

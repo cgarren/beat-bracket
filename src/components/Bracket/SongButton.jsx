@@ -70,19 +70,19 @@ export default function SongButton({
     }, [color]);
 
     // Recursive function to mark all previous instances of a song in a bracket as eliminated
-    function eliminatePrevious(thisId) {
-        let songInfo = getBracket(thisId);
-        if (songInfo.previousIds.length === 0) {
-            return;
-        }
-        console.log(songInfo);
-        for (let prevId of songInfo.previousIds) {
-            if (getBracket(prevId).song === getBracket(thisId).song) {
-                modifyBracket(prevId, "eliminated", true);
-                eliminatePrevious(prevId);
-            }
-        }
-    }
+    // function eliminatePrevious(thisId) {
+    //     let songInfo = getBracket(thisId);
+    //     if (songInfo.previousIds.length === 0) {
+    //         return;
+    //     }
+    //     console.log(songInfo);
+    //     for (let prevId of songInfo.previousIds) {
+    //         if (getBracket(prevId).song === getBracket(thisId).song) {
+    //             modifyBracket(prevId, "eliminated", true);
+    //             eliminatePrevious(prevId);
+    //         }
+    //     }
+    // }
 
     function songChosen() {
         if (opponentId && getBracket(opponentId).song !== null) {

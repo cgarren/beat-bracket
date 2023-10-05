@@ -152,7 +152,7 @@ export function bracketSorter(a, b) {
 	}
 }
 
-export function openBracket(uuid, userId = undefined, state = {}) {
+export async function openBracket(uuid, userId = undefined, state = {}) {
 	console.log("Opening Bracket: " + uuid);
 	//open the bracket editor and pass the bracket id off
 	navigate("/user/" + (userId ? userId : getUserInfo().id) + "/bracket/" + uuid, { state: state });

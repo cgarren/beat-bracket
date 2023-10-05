@@ -6,7 +6,7 @@ import { openBracket } from "../../utilities/helpers";
 import Modal from "../Modal";
 import Tab from "../Tab";
 import { loadPlaylists } from "../../utilities/songProcessing";
-import Badge from "../Badge";
+//import Badge from "../Badge";
 
 export const CreateBracketModal = ({ userId, showModal, setShowModal }) => {
     const [activeTab, setActiveTab] = useState(0);
