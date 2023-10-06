@@ -62,6 +62,11 @@ export async function getBracket(id, userId) {
 	return response.json();
 }
 
+export async function getTemplate(id, userId) {
+	const response = await loadBackendRequest("/template", "GET", { id: id, ownerId: userId });
+	return response.json();
+}
+
 export async function createBracket(bracket) {
 	await loadBackendRequest("/bracket", "PUT", { ownerId: getUserId(), sessionId: getSessionId() }, bracket);
 	console.debug("Written Bracket:", bracket);

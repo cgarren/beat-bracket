@@ -1,7 +1,13 @@
 import React from "react";
 import cx from "classnames";
 
-const Tab = ({ content, activeTab, id, setActiveTab, disabled = false }) => {
+export default function Tab({
+    content,
+    activeTab,
+    id,
+    setActiveTab,
+    disabled = false,
+}) {
     return (
         <button
             title={`Tab ${id}`}
@@ -16,6 +22,4 @@ const Tab = ({ content, activeTab, id, setActiveTab, disabled = false }) => {
             {content}
         </button>
     );
-};
-
-export default Tab;
+}

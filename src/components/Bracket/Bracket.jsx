@@ -71,6 +71,148 @@ export default function Bracket({
             .filter((track) => !bracketIds.includes(track.id))
             .sort(popularitySort);
     }, [allTracks, bracketTracks]);
+
+    const getBracket = useCallback(
+        (key) => {
+            return bracket.get(key);
+        },
+        [bracket]
+    );
+
+    const modifyBracket = useCallback(
+        (key, attribute, value, save = false) => {
+            const payload = getBracket(key);
+            if (attribute === "song" && key[1] === "0") {
+                setSeedingMethod("custom");
+            }
+            payload[attribute] = value;
+            if (save) {
+                setBracket(new Map(bracket.set(key, payload)));
+            } else {
+                setBracket(new Map(bracket.set(key, payload)));
+            }
+        },
+        [getBracket, setBracket, setSeedingMethod, bracket]
+    );
+
+    const generateComponentArray = useCallback(
+        (
+            side,
+            mycurrentlyPlayingId,
+            mysetCurrentlyPlayingId,
+            columns,
+            bracketArray,
+            bracket
+        ) => {
+            return Array.apply(null, { length: columns }).map((e, i) => (
+                <div className="flex flex-col" key={side + i}>
+                    {bracketArray.map((entry) => {
+                        const [mykey, value] = entry;
+                        const colExpression =
+                            side === "l" ? i : columns - 1 - i;
+                        if (
+                            value.side === side &&
+                            value.col === colExpression
+                        ) {
+                            return (
+                                <div key={mykey}>
+                                    <SongButton
+                                        editMode={editMode}
+                                        playbackEnabled={playbackEnabled}
+                                        modifyBracket={modifyBracket}
+                                        saveCommand={saveCommand}
+                                        getBracket={getBracket}
+                                        opponentId={value.opponentId}
+                                        nextId={value.nextId}
+                                        song={value.song}
+                                        id={value.id}
+                                        col={value.col}
+                                        undoFunc={value.undoFunc}
+                                        setInclusionMethod={setInclusionMethod}
+                                        currentlyPlayingId={
+                                            mycurrentlyPlayingId
+                                        }
+                                        setCurrentlyPlayingId={
+                                            mysetCurrentlyPlayingId
+                                        }
+                                        side={side}
+                                        styling={cx({
+                                            [`${topStyles[colExpression]}`]:
+                                                value.index === 0,
+                                            // [`${styles[colExpression]}`]:
+                                            //     value.index !== 0 &&
+                                            //     value.index % 2 === 0,
+                                        })}
+                                        color={value.color}
+                                        key={mykey}
+                                        eliminated={value.eliminated}
+                                        disabled={
+                                            editable ? value.disabled : true
+                                        }
+                                        winner={value.winner}
+                                        //setBracketWinner={setBracketWinner}
+                                        replacementTracks={replacementTracks}
+                                        showSongInfo={
+                                            songSource &&
+                                            songSource.type === "playlist"
+                                        }
+                                    />
+                                    {((value.song && value.col === 0) ||
+                                        bracket.has(
+                                            side + value.col + (value.index + 1)
+                                        )) && (
+                                        <div
+                                            className={`w-[var(--buttonwidth)] relative ${lineStyles[colExpression]}`}
+                                        >
+                                            {value.index % 2 === 0 &&
+                                            value.nextId != null ? (
+                                                <div
+                                                    className={cx({
+                                                        [`${lineStyles[colExpression]}`]: true,
+                                                        "bg-gray-500 w-[var(--lineWidth)] rounded": true,
+                                                        absolute: true,
+                                                        "right-0": side === "l",
+                                                        "left-0": side === "r",
+                                                    })}
+                                                    key={mykey + "line"}
+                                                ></div>
+                                            ) : null}
+                                            {value.song &&
+                                            value.col === 0 &&
+                                            songSource ? (
+                                                <div className="px-1 text-center text-black text-xs text-ellipsis line-clamp-1 break-all">
+                                                    {songSource.type ===
+                                                    "playlist"
+                                                        ? value.song.artist
+                                                        : songSource.type ===
+                                                          "artist"
+                                                        ? value.song.album
+                                                        : null}
+                                                    {/* {`${value.song.popularity} | ${value.song.artist}`} */}
+                                                </div>
+                                            ) : null}
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        } else {
+                            return null;
+                        }
+                    })}
+                </div>
+            ));
+        },
+        [
+            editable,
+            songSource,
+            replacementTracks,
+            editMode,
+            getBracket,
+            setInclusionMethod,
+            playbackEnabled,
+        ]
+    );
+
     const renderArray = useMemo(() => {
         const columns = getNumberOfColumns(bracketTracks.length);
         const bracketArray =
@@ -82,153 +224,39 @@ export default function Bracket({
                       currentlyPlayingId,
                       setCurrentlyPlayingId,
                       columns,
-                      bracketArray
+                      bracketArray,
+                      bracket
                   ),
                   generateComponentArray(
                       "r",
                       currentlyPlayingId,
                       setCurrentlyPlayingId,
                       columns,
-                      bracketArray
+                      bracketArray,
+                      bracket
                   ),
               ]
             : [];
     }, [
         bracket,
-        currentlyPlayingId,
-        editMode,
-        editable,
-        replacementTracks,
         bracketTracks,
-        playbackEnabled,
+        setCurrentlyPlayingId,
+        currentlyPlayingId,
+        generateComponentArray,
     ]);
     const [bracketRef, setBracketRef] = useState(null);
     const bracketCallback = useCallback(
         (node) => {
             setBracketRef({ current: node });
         },
-        [showBracket]
+        [renderArray, showBracket]
     );
-
-    function generateComponentArray(
-        side,
-        mycurrentlyPlayingId,
-        mysetCurrentlyPlayingId,
-        columns,
-        bracketArray
-    ) {
-        return Array.apply(null, { length: columns }).map((e, i) => (
-            <div className="flex flex-col" key={side + i}>
-                {bracketArray.map((entry) => {
-                    const [mykey, value] = entry;
-                    const colExpression = side === "l" ? i : columns - 1 - i;
-                    if (value.side === side && value.col === colExpression) {
-                        return (
-                            <div key={mykey}>
-                                <SongButton
-                                    editMode={editMode}
-                                    playbackEnabled={playbackEnabled}
-                                    modifyBracket={modifyBracket}
-                                    saveCommand={saveCommand}
-                                    getBracket={getBracket}
-                                    opponentId={value.opponentId}
-                                    nextId={value.nextId}
-                                    song={value.song}
-                                    id={value.id}
-                                    col={value.col}
-                                    undoFunc={value.undoFunc}
-                                    setInclusionMethod={setInclusionMethod}
-                                    currentlyPlayingId={mycurrentlyPlayingId}
-                                    setCurrentlyPlayingId={
-                                        mysetCurrentlyPlayingId
-                                    }
-                                    side={side}
-                                    styling={cx({
-                                        [`${topStyles[colExpression]}`]:
-                                            value.index === 0,
-                                        // [`${styles[colExpression]}`]:
-                                        //     value.index !== 0 &&
-                                        //     value.index % 2 === 0,
-                                    })}
-                                    color={value.color}
-                                    key={mykey}
-                                    eliminated={value.eliminated}
-                                    disabled={editable ? value.disabled : true}
-                                    winner={value.winner}
-                                    //setBracketWinner={setBracketWinner}
-                                    replacementTracks={replacementTracks}
-                                    showSongInfo={
-                                        songSource &&
-                                        songSource.type === "playlist"
-                                    }
-                                />
-                                {((value.song && value.col === 0) ||
-                                    bracket.has(
-                                        side + value.col + (value.index + 1)
-                                    )) && (
-                                    <div
-                                        className={`w-[var(--buttonwidth)] relative ${lineStyles[colExpression]}`}
-                                    >
-                                        {value.index % 2 === 0 &&
-                                        value.nextId != null ? (
-                                            <div
-                                                className={cx({
-                                                    [`${lineStyles[colExpression]}`]: true,
-                                                    "bg-gray-500 w-[var(--lineWidth)] rounded": true,
-                                                    absolute: true,
-                                                    "right-0": side === "l",
-                                                    "left-0": side === "r",
-                                                })}
-                                                key={mykey + "line"}
-                                            ></div>
-                                        ) : null}
-                                        {value.song &&
-                                        value.col === 0 &&
-                                        songSource ? (
-                                            <div className="px-1 text-center text-black text-xs text-ellipsis line-clamp-1 break-all">
-                                                {songSource.type === "playlist"
-                                                    ? value.song.artist
-                                                    : songSource.type ===
-                                                      "artist"
-                                                    ? value.song.album
-                                                    : null}
-                                                {/* {`${value.song.popularity} | ${value.song.artist}`} */}
-                                            </div>
-                                        ) : null}
-                                    </div>
-                                )}
-                            </div>
-                        );
-                    } else {
-                        return null;
-                    }
-                })}
-            </div>
-        ));
-    }
 
     useEffect(() => {
         if (renderArray.length > 0) {
             setShowBracket(true);
         }
     }, [renderArray, setShowBracket]);
-
-    function modifyBracket(key, attribute, value, save = false) {
-        const payload = getBracket(key);
-        if (attribute === "song" && key[1] === "0") {
-            setSeedingMethod("custom");
-        }
-        payload[attribute] = value;
-        if (save) {
-            setBracket(new Map(bracket.set(key, payload)));
-        } else {
-            setBracket(new Map(bracket.set(key, payload)));
-        }
-    }
-
-    function getBracket(key) {
-        return bracket.get(key);
-    }
 
     return (
         <div hidden={!showBracket || renderArray.length === 0}>

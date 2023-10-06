@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useContext } from "react"
+import React, { useEffect, useState, useMemo, useContext, useCallback } from "react"
 import Layout from "../components/Layout";
 import BracketCard from "../components/BracketCard/BracketCard";
 import Tab from "../components/Tab";
@@ -36,7 +36,29 @@ const App = ({ location }) => {
   //scroll to top of window on page load
   useEffect(() => window.scrollTo(0, 0), []);
 
-  async function processLogin() {
+  // Alerts
+
+  const showAlert = useCallback((message, type = "info", timeout = true) => {
+    if (alertInfo.timeoutId) {
+      clearTimeout(alertInfo.timeoutId);
+    }
+    let timeoutId = null;
+    if (timeout) {
+      timeoutId = setTimeout(() => {
+        setAlertInfo({ show: false, message: null, type: null, timeoutId: null });
+      }, 5000);
+    }
+    setAlertInfo({ show: true, message: message, type: type, timeoutId: timeoutId });
+  }, [alertInfo]);
+
+  const closeAlert = useCallback(() => {
+    if (alertInfo.timeoutId) {
+      clearTimeout(alertInfo.timeoutId);
+    }
+    setAlertInfo({ show: false, message: null, type: null, timeoutId: null });
+  }, [alertInfo.timeoutId]);
+
+  const processLogin = useCallback(async () => {
     //const params = await getParamsFromURL(window.location.pathname)
     const urlParams = new URLSearchParams(window.location.search);
     window.history.replaceState({}, document.title, window.location.pathname);
@@ -54,55 +76,37 @@ const App = ({ location }) => {
       //navigate("/");
       return;
     }
-  }
+  }, [showAlert, setLoggedIn]);
+
+  const init = useCallback(async () => {
+    const loginResult = await processLogin();
+    if (loginResult) {
+      try {
+        const loadedBrackets = await getBrackets();
+        console.info(loadedBrackets);
+        setBrackets(loadedBrackets);
+      } catch (error) {
+        if (error.cause && error.cause.code === 403) {
+          //showAlert("Not authenticated!", "error", false);
+          setError(<div className="text-center">Error loading brackets. Try logging out and back in again!<br /><br />It's possible you logged in from another device. Only one session can be active for a user at any given time.</div>);
+          showAlert(error.message, "error", false);
+        } else if (error.cause && error.cause.code === 429) {
+          showAlert("Your brackets can't be loaded right now. Try again in a few minutes.", "error", false);
+        } else if (error.message) {
+          showAlert(error.message, "error", false);
+        } else {
+          showAlert("Unknown Error loading brackets", "error", false);
+        }
+      }
+    } else {
+      console.log("going back to home page");
+      navigate("/");
+    }
+  }, [processLogin, showAlert]);
 
   useEffect(() => {
-    async function init() {
-      const loginResult = await processLogin();
-      if (loginResult) {
-        try {
-          const loadedBrackets = await getBrackets();
-          console.info(loadedBrackets);
-          setBrackets(loadedBrackets);
-        } catch (error) {
-          if (error.cause && error.cause.code === 403) {
-            //showAlert("Not authenticated!", "error", false);
-            setError(<div className="text-center">Error loading brackets. Try logging out and back in again!<br /><br />It's possible you logged in from another device. Only one session can be active for a user at any given time.</div>);
-          } else if (error.cause && error.cause.code === 429) {
-            showAlert("Your brackets can't be loaded right now. Try again in a few minutes.", "error", false);
-          } else if (error.message) {
-            showAlert(error.message, "error", false);
-          } else {
-            showAlert("Unknown Error loading brackets", "error", false);
-          }
-        }
-      } else {
-        console.log("going back to home page");
-        navigate("/");
-      }
-    }
     init();
   }, []);
-
-  function showAlert(message, type = "info", timeout = true) {
-    if (alertInfo.timeoutId) {
-      clearTimeout(alertInfo.timeoutId);
-    }
-    let timeoutId = null;
-    if (timeout) {
-      timeoutId = setTimeout(() => {
-        setAlertInfo({ show: false, message: null, type: null, timeoutId: null });
-      }, 5000);
-    }
-    setAlertInfo({ show: true, message: message, type: type, timeoutId: timeoutId });
-  }
-
-  function closeAlert() {
-    if (alertInfo.timeoutId) {
-      clearTimeout(alertInfo.timeoutId);
-    }
-    setAlertInfo({ show: false, message: null, type: null, timeoutId: null });
-  }
 
   return (
     <Layout noChanges={() => { return true }} path={location.pathname}>
