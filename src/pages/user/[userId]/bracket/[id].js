@@ -164,7 +164,6 @@ const App = ({ params, location }) => {
         creationObject = await makeCreationObject();
       }
       setSaving(true);
-      console.log(creationObject);
       await createBracket(creationObject);
       console.log("Bracket created");
       setSaving(false);
@@ -505,7 +504,7 @@ const App = ({ params, location }) => {
     setCommands([]);
   }
 
-  function saveCommand(action, inverse) {
+  const saveCommand = useCallback((action, inverse) => {
     let temp = [
       ...commands,
       {
@@ -514,7 +513,7 @@ const App = ({ params, location }) => {
       },
     ];
     setCommands(temp);
-  }
+  }, [commands]);
 
   function noChanges(naviagteAway) {
     if ((naviagteAway && (saving || !isReady() || waitingToSave) && commands.length > 0) || (!naviagteAway && commands.length !== 0 && bracketUnchanged(bracket))) {

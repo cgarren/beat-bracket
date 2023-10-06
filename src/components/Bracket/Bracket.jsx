@@ -92,7 +92,7 @@ export default function Bracket({
                 setBracket(new Map(bracket.set(key, payload)));
             }
         },
-        [getBracket, setBracket, bracket, setSeedingMethod]
+        [getBracket, setBracket, setSeedingMethod, bracket]
     );
 
     const generateComponentArray = useCallback(
@@ -101,7 +101,8 @@ export default function Bracket({
             mycurrentlyPlayingId,
             mysetCurrentlyPlayingId,
             columns,
-            bracketArray
+            bracketArray,
+            bracket
         ) => {
             return Array.apply(null, { length: columns }).map((e, i) => (
                 <div className="flex flex-col" key={side + i}>
@@ -202,16 +203,13 @@ export default function Bracket({
             ));
         },
         [
+            editable,
             songSource,
-            bracket,
             replacementTracks,
             editMode,
-            editable,
             getBracket,
-            saveCommand,
             setInclusionMethod,
             playbackEnabled,
-            modifyBracket,
         ]
     );
 
@@ -226,30 +224,32 @@ export default function Bracket({
                       currentlyPlayingId,
                       setCurrentlyPlayingId,
                       columns,
-                      bracketArray
+                      bracketArray,
+                      bracket
                   ),
                   generateComponentArray(
                       "r",
                       currentlyPlayingId,
                       setCurrentlyPlayingId,
                       columns,
-                      bracketArray
+                      bracketArray,
+                      bracket
                   ),
               ]
             : [];
     }, [
         bracket,
         bracketTracks,
-        generateComponentArray,
         setCurrentlyPlayingId,
         currentlyPlayingId,
+        generateComponentArray,
     ]);
     const [bracketRef, setBracketRef] = useState(null);
     const bracketCallback = useCallback(
         (node) => {
             setBracketRef({ current: node });
         },
-        [showBracket]
+        [renderArray, showBracket]
     );
 
     useEffect(() => {
