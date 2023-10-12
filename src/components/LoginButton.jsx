@@ -2,14 +2,13 @@ import React, { useState, useContext } from "react";
 
 import spotifyLogoGreen from "../assets/images/Spotify_Logo_RGB_Green.png";
 import { login } from "../utilities/authentication";
-import { navigate } from "gatsby";
 import LoadingIndicator from "./LoadingIndicator";
 
 import { LoginContext } from "../context/LoginContext";
 
 import * as cx from "classnames";
 
-const LoginButton = ({ variant = "borderless" }) => {
+export default function LoginButton({ variant = "borderless" }) {
     const [loading, setLoading] = useState(false);
     const { setLoggedIn } = useContext(LoginContext);
 
@@ -17,7 +16,8 @@ const LoginButton = ({ variant = "borderless" }) => {
         setLoading(true);
         console.log("loading true");
         await login(setLoggedIn);
-        navigate("/my-brackets");
+
+        //navigate("/my-brackets");
         setLoading(false);
     }
 
@@ -54,6 +54,4 @@ const LoginButton = ({ variant = "borderless" }) => {
             )}
         </button>
     );
-};
-
-export default LoginButton;
+}

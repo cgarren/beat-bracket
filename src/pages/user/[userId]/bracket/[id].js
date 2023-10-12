@@ -1,5 +1,5 @@
 // React
-import React, { useEffect, useState, useMemo, useCallback } from "react"
+import React, { useEffect, useState, useMemo, useCallback, useContext } from "react"
 import { navigate } from "gatsby";
 // Third Party
 import Mousetrap from "mousetrap";
@@ -30,30 +30,35 @@ import { useDebounce } from "react-use";
 import { SaveIndicator } from "../../../../components/Bracket/SaveIndicator";
 import TrackNumber from "../../../../components/BracketCard/TrackNumber";
 import { getUserId, isLoggedIn } from "../../../../utilities/authentication";
+// Context
+import { LoginContext } from "../../../../context/LoginContext";
 
 const App = ({ params, location }) => {
-  const defaultValues = {
-    bracketId: params.id,
-    owner: { "name": undefined, "id": params.userId },
-    locationState: location.state,
-    seedingMethod: "popularity",
-    inclusionMethod: "popularity",
-    limit: 32,
-    allTracks: [],
-    editMode: false,
-    commands: [],
-    bracket: new Map(),
-    template: { id: null, ownerId: null, displayName: null },
-    songSource: { type: undefined },
-    currentlyPlayingId: null,
-    showBracket: false,
-    loadingText: "Loading...",
-    saving: false,
-    waitingToSave: false,
-    lastSaved: { time: 0, commandsLength: 0 },
-    playbackEnabled: false,
-    alertInfo: { show: false, message: null, type: null, timeoutId: null },
-  }
+  const defaultValues = useMemo(() => {
+    return {
+      bracketId: params.id,
+      owner: { "name": undefined, "id": params.userId },
+      locationState: location.state,
+      seedingMethod: "popularity",
+      inclusionMethod: "popularity",
+      limit: 32,
+      fills: 0,
+      allTracks: [],
+      editMode: false,
+      commands: [],
+      bracket: new Map(),
+      template: { id: null, ownerId: null, displayName: null },
+      songSource: { type: undefined },
+      currentlyPlayingId: null,
+      showBracket: false,
+      loadingText: "Loading...",
+      saving: false,
+      waitingToSave: false,
+      lastSaved: { time: 0, commandsLength: 0 },
+      playbackEnabled: false,
+      alertInfo: { show: false, message: null, type: null, timeoutId: null },
+    }
+  }, [params.id, params.userId, location.state]);
 
   const [bracketId, setBracketId] = useState(defaultValues.bracketId);
   const [owner, setOwner] = useState(defaultValues.owner);
@@ -61,6 +66,7 @@ const App = ({ params, location }) => {
   const [seedingMethod, setSeedingMethod] = useState(defaultValues.seedingMethod);
   const [inclusionMethod, setInclusionMethod] = useState(defaultValues.inclusionMethod);
   const [limit, setLimit] = useState(defaultValues.limit);
+  const [fills, setFills] = useState(defaultValues.fills);
   const [allTracks, setAllTracks] = useState(defaultValues.allTracks);
   const [editMode, setEditMode] = useState(defaultValues.editMode);
   const [commands, setCommands] = useState(defaultValues.commands);
@@ -76,7 +82,10 @@ const App = ({ params, location }) => {
   const [playbackEnabled, setPlaybackEnabled] = useState(defaultValues.playbackEnabled);
   const [alertInfo, setAlertInfo] = useState(defaultValues.alertInfo);
 
-  const editable = isCurrentUser(owner.id);
+  const { loggedIn } = useContext(LoginContext);
+  //console.log("sjdsjdf", loggedIn);
+
+  const editable = loggedIn && isCurrentUser(owner.id);
   const bracketTracks = useMemo(() => {
     let tracks = [];
     if (bracket) {
@@ -102,7 +111,11 @@ const App = ({ params, location }) => {
     return null;
   }, [bracket, bracketTracks]);
   const showBracketCompleteModal = useMemo(() => {
-    return bracketWinner && commands.length > 0;
+    if (bracketWinner && commands.length > 0) {
+      setFills(fills + 1);
+      return true;
+    }
+    return false;
   }, [bracketWinner, commands]);
 
   const [isReady,] = useDebounce(() => {
@@ -119,6 +132,31 @@ const App = ({ params, location }) => {
   useEffect(() => {
     setWaitingToSave(true);
   }, [bracket, bracketWinner]);
+
+  // RESET STATE
+  const resetState = useCallback(async () => {
+    setBracketId(defaultValues.bracketId);
+    setOwner(defaultValues.owner);
+    setLocationState(defaultValues.locationState);
+    setSeedingMethod(defaultValues.seedingMethod);
+    setInclusionMethod(defaultValues.inclusionMethod);
+    setLimit(defaultValues.limit);
+    setFills(defaultValues.fills);
+    setAllTracks(defaultValues.allTracks);
+    setEditMode(defaultValues.editMode);
+    setCommands(defaultValues.commands);
+    setBracket(defaultValues.bracket);
+    setTemplate(defaultValues.template);
+    setSongSource(defaultValues.songSource);
+    setCurrentlyPlayingId(defaultValues.currentlyPlayingId);
+    setShowBracket(defaultValues.showBracket);
+    setLoadingText(defaultValues.loadingText);
+    setSaving(defaultValues.saving);
+    setWaitingToSave(defaultValues.waitingToSave);
+    setLastSaved(defaultValues.lastSaved);
+    setPlaybackEnabled(defaultValues.playbackEnabled);
+    setAlertInfo(defaultValues.alertInfo);
+  }, [defaultValues]);
 
   // ALERTS
 
@@ -268,15 +306,16 @@ const App = ({ params, location }) => {
     setBracket(mymap);
 
     // set song source
-    if (loadedBracket.songSource && (loadedBracket.songSource.type === "artist" || loadedBracket.songSource.type === "playlist")) {
-      setSongSource(loadedBracket.songSource);
-      checkAndUpdateSongSource(loadedBracket.songSource);
+    if (loadedBracket.template.songSource && (loadedBracket.template.songSource.type === "artist" || loadedBracket.template.songSource.type === "playlist")) {
+      setSongSource(loadedBracket.template.songSource);
+      checkAndUpdateSongSource(loadedBracket.template.songSource);
     }
 
-    setInclusionMethod(loadedBracket.inclusionMethod);
-    setSeedingMethod(loadedBracket.seedingMethod);
-    setLimit(loadedBracket.tracks.length);
-    setTemplate({ id: loadedBracket.templateId, ownerId: loadedBracket.templateOwnerId, displayName: loadedBracket.displayName });
+    setInclusionMethod(loadedBracket.template.inclusionMethod);
+    setSeedingMethod(loadedBracket.template.seedingMethod);
+    setLimit(loadedBracket.template.tracks.length);
+    setTemplate({ id: loadedBracket.template.id, ownerId: loadedBracket.template.ownerId, ownerUsername: loadedBracket.template.ownerUsername, displayName: loadedBracket.template.displayName });
+    setFills(loadedBracket.template.fills);
     setShowBracket(true);
     //setTracks(new Array(loadedBracket.tracks).fill(null));
     setLastSaved({ commandsLength: commands.length, time: Date.now() });
@@ -309,6 +348,7 @@ const App = ({ params, location }) => {
     setInclusionMethod(loadedTemplate.inclusionMethod);
     setSeedingMethod(loadedTemplate.seedingMethod);
     setLimit(loadedTemplate.tracks.length);
+    setFills(loadedTemplate.fills);
     setTemplate({ id: loadedTemplate.id, ownerId: loadedTemplate.ownerId, displayName: loadedTemplate.displayName });
 
     // update preview urls
@@ -440,26 +480,13 @@ const App = ({ params, location }) => {
       navigate("/user/" + currentUserId + "/bracket/" + uuid, { template: template });
 
       // reset state because we stay on the same page
+      await resetState();
+
+      // set state for new bracket
       setBracketId(uuid);
       setOwner({ id: currentUserId, name: undefined });
       setLocationState({ template: template });
-      setSeedingMethod(defaultValues.seedingMethod);
-      setInclusionMethod(defaultValues.inclusionMethod);
-      setLimit(defaultValues.limit);
-      setAllTracks(defaultValues.allTracks);
-      setEditMode(defaultValues.editMode);
-      setCommands(defaultValues.commands);
-      setBracket(defaultValues.bracket);
-      setTemplate(defaultValues.template);
-      setSongSource(defaultValues.songSource);
-      setCurrentlyPlayingId(defaultValues.currentlyPlayingId);
-      setShowBracket(defaultValues.showBracket);
       setLoadingText("Duplicating bracket...");
-      setSaving(defaultValues.saving);
-      setWaitingToSave(defaultValues.waitingToSave);
-      setLastSaved(defaultValues.lastSaved);
-      setPlaybackEnabled(defaultValues.playbackEnabled);
-      setAlertInfo(defaultValues.alertInfo);
 
       // kick off new bracket creation
       //await kickOff(uuid, { id: currentUserId, name: undefined }, { template: template });
@@ -621,6 +648,8 @@ const App = ({ params, location }) => {
               {bracketTracks && bracketTracks.length ? <TrackNumber numTracks={bracketTracks.length} /> : null}
             </div>
             <span className="text-md">by {owner.name}</span>
+            {template.ownerId != owner.id ? <span className="text-md">original by {template.ownerUsername}</span> : null}
+            {fills && fills > 0 && bracketWinner ? <span className="text-md">Filled out {fills} {fills === 1 ? "time" : "times"}!</span> : null}
           </div> :
           (bracket ?
             bracket.size > 0 ?
@@ -722,26 +751,26 @@ export function Head({ params }) {
   const [name, setName] = useState(null);
   const [userName, setUserName] = useState(null);
 
-  useEffect(() => {
-    async function updateTitle() {
-      if (params && params.id && params.userId) {
-        try {
-          const loadedBracket = await getBracket(params.id, params.userId);
-          if (loadedBracket && loadedBracket.userName) {
-            setUserName(loadedBracket.userName);
-            if (loadedBracket.songSource && loadedBracket.songSource.type === "artist") {
-              setName(loadedBracket.songSource.artist.name);
-            } else if (loadedBracket.songSource && loadedBracket.songSource.type === "playlist") {
-              setName(loadedBracket.songSource.playlist.name);
-            }
-          }
-        } catch (error) {
+  // useEffect(() => {
+  //   async function updateTitle() {
+  //     if (params && params.id && params.userId) {
+  //       try {
+  //         const loadedBracket = await getBracket(params.id, params.userId);
+  //         if (loadedBracket && loadedBracket.userName) {
+  //           setUserName(loadedBracket.userName);
+  //           if (loadedBracket.songSource && loadedBracket.songSource.type === "artist") {
+  //             setName(loadedBracket.songSource.artist.name);
+  //           } else if (loadedBracket.songSource && loadedBracket.songSource.type === "playlist") {
+  //             setName(loadedBracket.songSource.playlist.name);
+  //           }
+  //         }
+  //       } catch (error) {
 
-        }
-      }
-    }
-    updateTitle();
-  }, [params]);
+  //       }
+  //     }
+  //   }
+  //   updateTitle();
+  // }, [params]);
 
   return (
     <Seo title={name && userName ? `${name} bracket by ${userName}` : "View/edit bracket"} />
