@@ -66,6 +66,7 @@ const App = ({ params, location }) => {
   const [seedingMethod, setSeedingMethod] = useState(defaultValues.seedingMethod);
   const [inclusionMethod, setInclusionMethod] = useState(defaultValues.inclusionMethod);
   const [limit, setLimit] = useState(defaultValues.limit);
+  const [fills, setFills] = useState(defaultValues.fills);
   const [allTracks, setAllTracks] = useState(defaultValues.allTracks);
   const [editMode, setEditMode] = useState(defaultValues.editMode);
   const [commands, setCommands] = useState(defaultValues.commands);
@@ -110,7 +111,11 @@ const App = ({ params, location }) => {
     return null;
   }, [bracket, bracketTracks]);
   const showBracketCompleteModal = useMemo(() => {
-    return bracketWinner && commands.length > 0;
+    if (bracketWinner && commands.length > 0) {
+      setFills(fills + 1);
+      return true;
+    }
+    return false;
   }, [bracketWinner, commands]);
 
   const [isReady,] = useDebounce(() => {
@@ -301,15 +306,16 @@ const App = ({ params, location }) => {
     setBracket(mymap);
 
     // set song source
-    if (loadedBracket.songSource && (loadedBracket.songSource.type === "artist" || loadedBracket.songSource.type === "playlist")) {
-      setSongSource(loadedBracket.songSource);
-      checkAndUpdateSongSource(loadedBracket.songSource);
+    if (loadedBracket.template.songSource && (loadedBracket.template.songSource.type === "artist" || loadedBracket.template.songSource.type === "playlist")) {
+      setSongSource(loadedBracket.template.songSource);
+      checkAndUpdateSongSource(loadedBracket.template.songSource);
     }
 
-    setInclusionMethod(loadedBracket.inclusionMethod);
-    setSeedingMethod(loadedBracket.seedingMethod);
-    setLimit(loadedBracket.tracks.length);
-    setTemplate({ id: loadedBracket.templateId, ownerId: loadedBracket.templateOwnerId, displayName: loadedBracket.displayName });
+    setInclusionMethod(loadedBracket.template.inclusionMethod);
+    setSeedingMethod(loadedBracket.template.seedingMethod);
+    setLimit(loadedBracket.template.tracks.length);
+    setTemplate({ id: loadedBracket.template.id, ownerId: loadedBracket.template.ownerId, ownerUsername: loadedBracket.template.ownerUsername, displayName: loadedBracket.template.displayName });
+    setFills(loadedBracket.template.fills);
     setShowBracket(true);
     //setTracks(new Array(loadedBracket.tracks).fill(null));
     setLastSaved({ commandsLength: commands.length, time: Date.now() });
@@ -342,6 +348,7 @@ const App = ({ params, location }) => {
     setInclusionMethod(loadedTemplate.inclusionMethod);
     setSeedingMethod(loadedTemplate.seedingMethod);
     setLimit(loadedTemplate.tracks.length);
+    setFills(loadedTemplate.fills);
     setTemplate({ id: loadedTemplate.id, ownerId: loadedTemplate.ownerId, displayName: loadedTemplate.displayName });
 
     // update preview urls
@@ -641,6 +648,8 @@ const App = ({ params, location }) => {
               {bracketTracks && bracketTracks.length ? <TrackNumber numTracks={bracketTracks.length} /> : null}
             </div>
             <span className="text-md">by {owner.name}</span>
+            {template.ownerId != owner.id ? <span className="text-md">original by {template.ownerUsername}</span> : null}
+            {fills && fills > 0 && bracketWinner ? <span className="text-md">Filled out {fills} {fills === 1 ? "time" : "times"}!</span> : null}
           </div> :
           (bracket ?
             bracket.size > 0 ?
