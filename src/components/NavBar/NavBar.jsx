@@ -3,10 +3,10 @@ import React from "react";
 import ProfileDropdown from "./ProfileDropdown";
 
 export default function NavBar({ loggedIn, noChanges }) {
-    function handleNaviagtionAttempt() {
+    function handleNaviagtionAttempt(path) {
         if (noChanges(true)) {
             if (!loggedIn) navigate("/");
-            else navigate("/my-brackets/");
+            else navigate(path);
         }
     }
     return (
@@ -14,7 +14,7 @@ export default function NavBar({ loggedIn, noChanges }) {
             <div className="flex items-center min-h-fit px-4 mx-auto sm:px-6 lg:px-4 justify-between">
                 <button
                     className="text-white text-2xl font-bold font-display bg-black border-0 hover:bg-black pl-0 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-opacity-50"
-                    onClick={handleNaviagtionAttempt}
+                    onClick={() => handleNaviagtionAttempt("/my-brackets")}
                 >
                     Beat Bracket
                 </button>
