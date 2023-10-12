@@ -34,28 +34,31 @@ import { getUserId, isLoggedIn } from "../../../../utilities/authentication";
 import { LoginContext } from "../../../../context/LoginContext";
 
 const App = ({ params, location }) => {
-  const defaultValues = {
-    bracketId: params.id,
-    owner: { "name": undefined, "id": params.userId },
-    locationState: location.state,
-    seedingMethod: "popularity",
-    inclusionMethod: "popularity",
-    limit: 32,
-    allTracks: [],
-    editMode: false,
-    commands: [],
-    bracket: new Map(),
-    template: { id: null, ownerId: null, displayName: null },
-    songSource: { type: undefined },
-    currentlyPlayingId: null,
-    showBracket: false,
-    loadingText: "Loading...",
-    saving: false,
-    waitingToSave: false,
-    lastSaved: { time: 0, commandsLength: 0 },
-    playbackEnabled: false,
-    alertInfo: { show: false, message: null, type: null, timeoutId: null },
-  }
+  const defaultValues = useMemo(() => {
+    return {
+      bracketId: params.id,
+      owner: { "name": undefined, "id": params.userId },
+      locationState: location.state,
+      seedingMethod: "popularity",
+      inclusionMethod: "popularity",
+      limit: 32,
+      fills: 0,
+      allTracks: [],
+      editMode: false,
+      commands: [],
+      bracket: new Map(),
+      template: { id: null, ownerId: null, displayName: null },
+      songSource: { type: undefined },
+      currentlyPlayingId: null,
+      showBracket: false,
+      loadingText: "Loading...",
+      saving: false,
+      waitingToSave: false,
+      lastSaved: { time: 0, commandsLength: 0 },
+      playbackEnabled: false,
+      alertInfo: { show: false, message: null, type: null, timeoutId: null },
+    }
+  }, [params.id, params.userId, location.state]);
 
   const [bracketId, setBracketId] = useState(defaultValues.bracketId);
   const [owner, setOwner] = useState(defaultValues.owner);
@@ -124,6 +127,31 @@ const App = ({ params, location }) => {
   useEffect(() => {
     setWaitingToSave(true);
   }, [bracket, bracketWinner]);
+
+  // RESET STATE
+  const resetState = useCallback(async () => {
+    setBracketId(defaultValues.bracketId);
+    setOwner(defaultValues.owner);
+    setLocationState(defaultValues.locationState);
+    setSeedingMethod(defaultValues.seedingMethod);
+    setInclusionMethod(defaultValues.inclusionMethod);
+    setLimit(defaultValues.limit);
+    setFills(defaultValues.fills);
+    setAllTracks(defaultValues.allTracks);
+    setEditMode(defaultValues.editMode);
+    setCommands(defaultValues.commands);
+    setBracket(defaultValues.bracket);
+    setTemplate(defaultValues.template);
+    setSongSource(defaultValues.songSource);
+    setCurrentlyPlayingId(defaultValues.currentlyPlayingId);
+    setShowBracket(defaultValues.showBracket);
+    setLoadingText(defaultValues.loadingText);
+    setSaving(defaultValues.saving);
+    setWaitingToSave(defaultValues.waitingToSave);
+    setLastSaved(defaultValues.lastSaved);
+    setPlaybackEnabled(defaultValues.playbackEnabled);
+    setAlertInfo(defaultValues.alertInfo);
+  }, [defaultValues]);
 
   // ALERTS
 
@@ -445,26 +473,13 @@ const App = ({ params, location }) => {
       navigate("/user/" + currentUserId + "/bracket/" + uuid, { template: template });
 
       // reset state because we stay on the same page
+      await resetState();
+
+      // set state for new bracket
       setBracketId(uuid);
       setOwner({ id: currentUserId, name: undefined });
       setLocationState({ template: template });
-      setSeedingMethod(defaultValues.seedingMethod);
-      setInclusionMethod(defaultValues.inclusionMethod);
-      setLimit(defaultValues.limit);
-      setAllTracks(defaultValues.allTracks);
-      setEditMode(defaultValues.editMode);
-      setCommands(defaultValues.commands);
-      setBracket(defaultValues.bracket);
-      setTemplate(defaultValues.template);
-      setSongSource(defaultValues.songSource);
-      setCurrentlyPlayingId(defaultValues.currentlyPlayingId);
-      setShowBracket(defaultValues.showBracket);
       setLoadingText("Duplicating bracket...");
-      setSaving(defaultValues.saving);
-      setWaitingToSave(defaultValues.waitingToSave);
-      setLastSaved(defaultValues.lastSaved);
-      setPlaybackEnabled(defaultValues.playbackEnabled);
-      setAlertInfo(defaultValues.alertInfo);
 
       // kick off new bracket creation
       //await kickOff(uuid, { id: currentUserId, name: undefined }, { template: template });
