@@ -648,7 +648,7 @@ const App = ({ params, location }) => {
               {bracketTracks && bracketTracks.length ? <TrackNumber numTracks={bracketTracks.length} /> : null}
             </div>
             <span className="text-md">by {owner.name}</span>
-            {template.ownerId != owner.id ? <span className="text-md">original by {template.ownerUsername}</span> : null}
+            {template.ownerId != owner.id && template.ownerUsername ? <span className="text-md">original by {template.ownerUsername}</span> : null}
             {fills && fills > 0 && bracketWinner ? <span className="text-md">Filled out {fills} {fills === 1 ? "time" : "times"}!</span> : null}
           </div> :
           (bracket ?
