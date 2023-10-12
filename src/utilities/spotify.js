@@ -185,6 +185,8 @@ export async function login() {
 		code_challenge: codeChallenge,
 	});
 
+	console.log("going to:", "https://accounts.spotify.com/authorize?" + args)
+
 	window.location = "https://accounts.spotify.com/authorize?" + args;
 }
 
