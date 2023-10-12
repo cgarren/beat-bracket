@@ -751,26 +751,26 @@ export function Head({ params }) {
   const [name, setName] = useState(null);
   const [userName, setUserName] = useState(null);
 
-  useEffect(() => {
-    async function updateTitle() {
-      if (params && params.id && params.userId) {
-        try {
-          const loadedBracket = await getBracket(params.id, params.userId);
-          if (loadedBracket && loadedBracket.userName) {
-            setUserName(loadedBracket.userName);
-            if (loadedBracket.songSource && loadedBracket.songSource.type === "artist") {
-              setName(loadedBracket.songSource.artist.name);
-            } else if (loadedBracket.songSource && loadedBracket.songSource.type === "playlist") {
-              setName(loadedBracket.songSource.playlist.name);
-            }
-          }
-        } catch (error) {
+  // useEffect(() => {
+  //   async function updateTitle() {
+  //     if (params && params.id && params.userId) {
+  //       try {
+  //         const loadedBracket = await getBracket(params.id, params.userId);
+  //         if (loadedBracket && loadedBracket.userName) {
+  //           setUserName(loadedBracket.userName);
+  //           if (loadedBracket.songSource && loadedBracket.songSource.type === "artist") {
+  //             setName(loadedBracket.songSource.artist.name);
+  //           } else if (loadedBracket.songSource && loadedBracket.songSource.type === "playlist") {
+  //             setName(loadedBracket.songSource.playlist.name);
+  //           }
+  //         }
+  //       } catch (error) {
 
-        }
-      }
-    }
-    updateTitle();
-  }, [params]);
+  //       }
+  //     }
+  //   }
+  //   updateTitle();
+  // }, [params]);
 
   return (
     <Seo title={name && userName ? `${name} bracket by ${userName}` : "View/edit bracket"} />
