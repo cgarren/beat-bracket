@@ -5,6 +5,7 @@ import { navigate } from "gatsby";
 import Mousetrap from "mousetrap";
 import Confetti from "react-confetti";
 import { v4 as uuidv4 } from "uuid";
+import { backOff } from "exponential-backoff";
 // Components
 import { Seo } from "../../../../components/SEO";
 import Bracket from "../../../../components/Bracket/Bracket"
@@ -476,7 +477,15 @@ const App = ({ params, location }) => {
         setSaving(true);
         //write to database and stuff
         console.log("Saving bracket...");
-        await updateBracket(bracketId, data)
+        await backOff(() => updateBracket(bracketId, data), {
+          jitter: "full", maxDelay: 25000, retry: (e) => {
+            if (e.cause && e.cause.code === 429) {
+              console.log("429 error! Retrying with delay...", e);
+              return true;
+            }
+            return false
+          }
+        });
         console.log("Bracket Saved");
         //show notification Saved", "success");
         setSaving(false);
