@@ -1,5 +1,5 @@
 // React
-import React, { useEffect, useState, useMemo, useCallback } from "react"
+import React, { useEffect, useState, useMemo, useCallback, useContext } from "react"
 import { navigate } from "gatsby";
 // Third Party
 import Mousetrap from "mousetrap";
@@ -30,6 +30,8 @@ import { useDebounce } from "react-use";
 import { SaveIndicator } from "../../../../components/Bracket/SaveIndicator";
 import TrackNumber from "../../../../components/BracketCard/TrackNumber";
 import { getUserId, isLoggedIn } from "../../../../utilities/authentication";
+// Context
+import { LoginContext } from "../../../../context/LoginContext";
 
 const App = ({ params, location }) => {
   const defaultValues = {
@@ -76,7 +78,10 @@ const App = ({ params, location }) => {
   const [playbackEnabled, setPlaybackEnabled] = useState(defaultValues.playbackEnabled);
   const [alertInfo, setAlertInfo] = useState(defaultValues.alertInfo);
 
-  const editable = isCurrentUser(owner.id);
+  const { loggedIn } = useContext(LoginContext);
+  //console.log("sjdsjdf", loggedIn);
+
+  const editable = loggedIn && isCurrentUser(owner.id);
   const bracketTracks = useMemo(() => {
     let tracks = [];
     if (bracket) {
