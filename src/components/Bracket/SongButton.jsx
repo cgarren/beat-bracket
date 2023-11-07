@@ -5,7 +5,7 @@ import spotifyIcon from "../../assets/images/Spotify_Icon_RGB_Green.png";
 import UndoIcon from "../../assets/svgs/undoIcon.svg";
 
 import Vibrant from "node-vibrant";
-import { getColorsFromImage } from "../../utilities/bracketGeneration";
+import { useBracketGeneration } from "../../hooks/useBracketGeneration";
 
 import cx from "classnames";
 import ReplaceTrackModal from "./ReplaceTrackModal";
@@ -68,6 +68,8 @@ export default function SongButton({
             };
         }
     }, [color]);
+
+    const { getColorsFromImage } = useBracketGeneration();
 
     // Recursive function to mark all previous instances of a song in a bracket as eliminated
     // function eliminatePrevious(thisId) {

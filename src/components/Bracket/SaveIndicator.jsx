@@ -5,7 +5,7 @@ import XIcon from "../../assets/svgs/xIcon.svg";
 
 import cx from "classnames";
 
-export const SaveIndicator = ({ saving, isReady, waitingToSave }) => {
+export default function SaveIndicator({ saving, isReady, waitingToSave }) {
     return (
         <div
             className={cx(
@@ -31,4 +31,4 @@ export const SaveIndicator = ({ saving, isReady, waitingToSave }) => {
                 : "Saved"}
         </div>
     );
-};
+}

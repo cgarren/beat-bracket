@@ -8,12 +8,11 @@ import { LoginContext } from "../context/LoginContext";
 import LoadingIndicator from "../components/LoadingIndicator";
 
 const App = ({ location }) => {
-  const { loggedIn } = useContext(LoginContext);
+  const { loggedIn, loginInProgress } = useContext(LoginContext);
   //scroll to top of window on page load
   useEffect(() => window.scrollTo(0, 0), []);
   useEffect(() => {
-    console.log("loggedIn:", loggedIn)
-    if (loggedIn) {
+    if (loggedIn && !(location.state && location.state.logout) && !loginInProgress) {
       navigate("/my-brackets");
     }
   }, [loggedIn]);
@@ -22,7 +21,7 @@ const App = ({ location }) => {
     <>
       <Clicky />
       <main className="h-screen bg-gradient-radial from-zinc-100 from-60% to-zinc-400 relative">
-        {loggedIn || loggedIn === null ?
+        {loginInProgress ?
           <div className="flex flex-row justify-center items-center h-full px-4 sm:w-9/12 m-auto">
             <h3 className="text-xl text-black"><LoadingIndicator /> Logging in...</h3>
           </div> :

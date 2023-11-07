@@ -1,24 +1,27 @@
 import { navigate } from "gatsby";
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, useMemo } from "react";
 import guestProfileImage from "../../assets/images/guestProfileImage.png";
-import { getUserInfo } from "../../utilities/spotify";
-import { logout } from "../../utilities/authentication";
 import LoginButton from "../LoginButton";
 import LoadingIndicator from "../LoadingIndicator";
 import { LoginContext } from "../../context/LoginContext";
+import { useAuthentication } from "../../hooks/useAuthentication";
 
 export default function ProfileDropdown({ loggedIn, noChanges }) {
-    const { setLoggedIn } = useContext(LoginContext);
+    const { userInfo, loginInProgress } = useContext(LoginContext);
+    const { logout } = useAuthentication();
     const [showDropdown, setShowDropdown] = useState(false);
-    const [shownUserInfo, setShownUserInfo] = useState({
-        display_name: "Guest",
-        id: "",
-        images: [
-            {
-                url: guestProfileImage,
-            },
-        ],
-    });
+    const defaultUserInfo = useMemo(() => {
+        return {
+            display_name: "Guest",
+            id: "",
+            images: [
+                {
+                    url: guestProfileImage,
+                },
+            ],
+        };
+    }, []);
+    const [shownUserInfo, setShownUserInfo] = useState(defaultUserInfo);
 
     function handleNaviagtionAttempt(path) {
         if (noChanges(true)) {
@@ -29,8 +32,7 @@ export default function ProfileDropdown({ loggedIn, noChanges }) {
     async function signOut() {
         if (noChanges(true)) {
             setShowDropdown(false);
-            await logout(setLoggedIn);
-            navigate("/");
+            await logout();
         }
     }
 
@@ -40,39 +42,17 @@ export default function ProfileDropdown({ loggedIn, noChanges }) {
     }
 
     useEffect(() => {
-        if (loggedIn) {
-            getUserInfo().then((userInfo) => {
-                if (userInfo !== 1) {
-                    setShownUserInfo(userInfo);
-                } else {
-                    setShownUserInfo({
-                        display_name: "Guest",
-                        id: "",
-                        images: [
-                            {
-                                url: guestProfileImage,
-                            },
-                        ],
-                    });
-                }
-            });
+        if (loggedIn && userInfo) {
+            setShownUserInfo(userInfo);
         } else {
-            setShownUserInfo({
-                display_name: "Guest",
-                id: "",
-                images: [
-                    {
-                        url: guestProfileImage,
-                    },
-                ],
-            });
+            setShownUserInfo(defaultUserInfo);
         }
-    }, [loggedIn]);
+    }, [loggedIn, userInfo, defaultUserInfo]);
 
     return (
         <div>
-            {!loggedIn ? (
-                loggedIn === false ? (
+            {!loggedIn || loginInProgress ? (
+                !loginInProgress ? (
                     <LoginButton variant="bordered" />
                 ) : (
                     <LoadingIndicator />

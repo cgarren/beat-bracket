@@ -4,22 +4,20 @@ import BracketCard from "../components/BracketCard/BracketCard";
 import Tab from "../components/Tab";
 import CreateBracketCard from "../components/BracketCard/CreateBracketCard";
 import Alert from "../components/Alert";
-import { getBrackets, getMaxBrackets } from "../utilities/backend";
-import { getUserId, loginCallback } from "../utilities/authentication";
 import { navigate } from "gatsby";
 import { Seo } from "../components/SEO";
 import { LoginContext } from "../context/LoginContext";
+import { useBackend } from "../hooks/useBackend";
 
 import cx from "classnames";
+import { useAuthentication } from "../hooks/useAuthentication";
 
 // markup
 const App = ({ location }) => {
-  const maxBrackets = getMaxBrackets();
   const [brackets, setBrackets] = useState([
     { id: 0, userId: undefined, artistName: undefined, artistId: undefined, tracks: undefined, completed: false },
   ]);
   const [activeTab, setActiveTab] = useState(0);
-  const currentUserId = getUserId();
   const [alertInfo, setAlertInfo] = useState({ show: false, message: null, type: null, timeoutId: null });
   const [error, setError] = useState(null);
   const shownBrackets = useMemo(() => {
@@ -31,7 +29,10 @@ const App = ({ location }) => {
       return true;
     })
   }, [activeTab, brackets]);
-  const { setLoggedIn } = useContext(LoginContext);
+  const { loginInfo } = useContext(LoginContext);
+  const { getBrackets, getMaxBrackets } = useBackend();
+  const { loginCallback } = useAuthentication();
+  const maxBrackets = getMaxBrackets();
 
   //scroll to top of window on page load
   useEffect(() => window.scrollTo(0, 0), []);
@@ -65,7 +66,7 @@ const App = ({ location }) => {
 
     // check to see if the user just logged in
     try {
-      return await loginCallback(urlParams, setLoggedIn);
+      return await loginCallback(urlParams);
     } catch (e) {
       // if there's an error, redirect to home page
       console.log("Error authenticating:", e);
@@ -76,16 +77,17 @@ const App = ({ location }) => {
       //navigate("/");
       return;
     }
-  }, [showAlert, setLoggedIn]);
+  }, [showAlert, loginCallback]);
 
   const init = useCallback(async () => {
     const loginResult = await processLogin();
     if (loginResult) {
       try {
-        const loadedBrackets = await getBrackets();
+        const loadedBrackets = await getBrackets(loginResult.userId, loginResult.sessionId);
         console.info(loadedBrackets);
         setBrackets(loadedBrackets);
       } catch (error) {
+        console.error("Error loading brackets:", error);
         if (error.cause && error.cause.code === 403) {
           //showAlert("Not authenticated!", "error", false);
           setError(<div className="text-center">Error loading brackets. Try logging out and back in again!<br /><br />It's possible you logged in from another device. Only one session can be active for a user at any given time.</div>);
@@ -116,7 +118,7 @@ const App = ({ location }) => {
       </div>
       <div className="text-center" hidden={error}>
         <h1 className="text-4xl font-extrabold">My Brackets</h1>
-        {currentUserId && maxBrackets && brackets && (brackets.length === 0 || brackets[0].id) ? <p className="text-sm text-gray-600 mb-2">{brackets.length + "/" + maxBrackets + " brackets used"}</p> : null}
+        {loginInfo.userId && maxBrackets && brackets && (brackets.length === 0 || brackets[0].id) ? <p className="text-sm text-gray-600 mb-2">{brackets.length + "/" + maxBrackets + " brackets used"}</p> : null}
 
         <div className="">
           <nav className="inline-flex flex-row">
@@ -130,9 +132,9 @@ const App = ({ location }) => {
             { "inline-grid xl:grid-cols-3 md:grid-cols-2": brackets.length >= 3 },
             { "flex flex-row flex-wrap justify-center": brackets.length < 3 }
           )}>
-          {activeTab === 0 && maxBrackets && brackets && brackets.length < maxBrackets && currentUserId && (brackets.length === 0 || brackets[0].id) ? <CreateBracketCard userId={currentUserId} /> : null}
+          {activeTab === 0 && maxBrackets && brackets && brackets.length < maxBrackets && loginInfo.userId && (brackets.length === 0 || brackets[0].id) ? <CreateBracketCard userId={loginInfo.userId} /> : null}
           {shownBrackets.map((bracket) => (
-            <BracketCard bracket={bracket} key={bracket.id} userId={currentUserId} showAlert={showAlert} />
+            <BracketCard bracket={bracket} key={bracket.id} userId={loginInfo.userId} showAlert={showAlert} />
           ))}
         </div>
       </div>

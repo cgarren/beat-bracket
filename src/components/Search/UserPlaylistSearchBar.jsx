@@ -1,9 +1,10 @@
 import React from "react";
 import SearchBar from "../Search/SearchBar";
-import { getArt } from "../../utilities/spotify";
+import { useSpotify } from "../../hooks/useSpotify";
 import LoadingIndicator from "../LoadingIndicator";
 
 const UserPlaylistSearchBar = ({ allPlaylists, setPlaylist }) => {
+    const { getArt } = useSpotify();
     async function searchSuggestions(searchText) {
         let templist = [];
         allPlaylists.forEach(async (playlist) => {

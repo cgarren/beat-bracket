@@ -1,11 +1,20 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import NavBar from "./NavBar/NavBar";
 import Clicky from "./Clicky";
 import Footer from "./Footer";
 import { LoginContext } from "../context/LoginContext";
+import { MixpanelContext } from "../context/MixpanelContext";
 
 const Layout = ({ children, noChanges, path }) => {
     const { loggedIn } = useContext(LoginContext);
+
+    const mixpanel = useContext(MixpanelContext);
+
+    // Runs once, after page load
+    useEffect(() => {
+        console.log("Tracked page load", path);
+        mixpanel.track_pageview();
+    }, [mixpanel, path]);
 
     return (
         <>

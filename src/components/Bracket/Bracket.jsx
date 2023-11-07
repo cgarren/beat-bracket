@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import SongButton from "./SongButton";
 import useWindowSize from "react-use/lib/useWindowSize";
-import { getNumberOfColumns } from "../../utilities/bracketGeneration";
-import { popularitySort } from "../../utilities/helpers";
+import { useBracketGeneration } from "../../hooks/useBracketGeneration";
+import { useHelper } from "../../hooks/useHelper";
 import cx from "classnames";
 
 // const styles = [
@@ -61,7 +61,9 @@ export default function Bracket({
     setSeedingMethod,
     setInclusionMethod,
 }) {
-    const { width, height } = useWindowSize();
+    const { width } = useWindowSize(); // can also get height if needed
+    const { popularitySort } = useHelper();
+    const { getNumberOfColumns } = useBracketGeneration();
     const replacementTracks = useMemo(() => {
         const bracketIds = [];
         for (let track of bracketTracks) {
@@ -70,7 +72,7 @@ export default function Bracket({
         return allTracks
             .filter((track) => !bracketIds.includes(track.id))
             .sort(popularitySort);
-    }, [allTracks, bracketTracks]);
+    }, [allTracks, bracketTracks, popularitySort]);
 
     const getBracket = useCallback(
         (key) => {
@@ -210,6 +212,7 @@ export default function Bracket({
             getBracket,
             setInclusionMethod,
             playbackEnabled,
+            //saveCommand, //needs to be excluded so that the bracket disappears when changing settings
         ]
     );
 
@@ -243,6 +246,7 @@ export default function Bracket({
         setCurrentlyPlayingId,
         currentlyPlayingId,
         generateComponentArray,
+        getNumberOfColumns,
     ]);
     const [bracketRef, setBracketRef] = useState(null);
     const bracketCallback = useCallback(

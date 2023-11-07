@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import Card from "./Card";
 import CardName from "./CardName";
-import { openBracket } from "../../utilities/helpers";
-import { deleteBracket } from "../../utilities/backend";
-import { getArt, loadSpotifyRequest } from "../../utilities/spotify";
+import { useBackend } from "../../hooks/useBackend";
+import { useSpotify } from "../../hooks/useSpotify";
 
 export default function BracketCard({ bracket, userId, showAlert }) {
     const [cardImage, setCardImage] = useState(null);
+    const { deleteBracket } = useBackend();
+    const { getArtistImage, getPlaylistImage, openBracket } = useSpotify();
     const name = (() => {
         if (bracket.songSource && bracket.songSource.type) {
             switch (bracket.songSource.type) {
@@ -48,19 +49,7 @@ export default function BracketCard({ bracket, userId, showAlert }) {
                 setCardImage(image);
             });
         }
-    }, [bracket]);
-
-    async function getArtistImage(artistId) {
-        const url = "https://api.spotify.com/v1/artists/" + artistId;
-        const response = await loadSpotifyRequest(url);
-        return getArt(response.images, "artist", true);
-    }
-
-    async function getPlaylistImage(playlistId) {
-        const url = "https://api.spotify.com/v1/playlists/" + playlistId;
-        const response = await loadSpotifyRequest(url);
-        return getArt(response.images, "playlist", true);
-    }
+    }, [bracket, getArtistImage, getPlaylistImage]);
 
     async function removeBracket() {
         if (
