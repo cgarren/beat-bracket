@@ -1,14 +1,15 @@
-import { navigate } from "gatsby";
 import React, { useEffect, useState, useContext, useMemo } from "react";
 import guestProfileImage from "../../assets/images/guestProfileImage.png";
 import LoginButton from "../LoginButton";
 import LoadingIndicator from "../LoadingIndicator";
 import { LoginContext } from "../../context/LoginContext";
 import { useAuthentication } from "../../hooks/useAuthentication";
+import { useHelper } from "../../hooks/useHelper";
 
-export default function ProfileDropdown({ loggedIn, noChanges }) {
-    const { userInfo, loginInProgress } = useContext(LoginContext);
+export default function ProfileDropdown({ noChanges }) {
+    const { userInfo, loginInProgress, loggedIn } = useContext(LoginContext);
     const { logout } = useAuthentication();
+    const { handleNaviagtionAttempt } = useHelper();
     const [showDropdown, setShowDropdown] = useState(false);
     const defaultUserInfo = useMemo(() => {
         return {
@@ -22,24 +23,6 @@ export default function ProfileDropdown({ loggedIn, noChanges }) {
         };
     }, []);
     const [shownUserInfo, setShownUserInfo] = useState(defaultUserInfo);
-
-    function handleNaviagtionAttempt(path) {
-        if (noChanges(true)) {
-            navigate(path);
-        }
-    }
-
-    async function signOut() {
-        if (noChanges(true)) {
-            setShowDropdown(false);
-            await logout();
-        }
-    }
-
-    function navProfile() {
-        setShowDropdown(false);
-        handleNaviagtionAttempt("/my-brackets");
-    }
 
     useEffect(() => {
         if (loggedIn && userInfo) {
@@ -111,16 +94,27 @@ export default function ProfileDropdown({ loggedIn, noChanges }) {
         </li> */}
                         <li>
                             <button
-                                onClick={navProfile}
+                                onClick={() => {
+                                    setShowDropdown(false);
+                                    handleNaviagtionAttempt(
+                                        "/my-brackets",
+                                        noChanges
+                                    );
+                                }}
                                 className="py-2 px-4 items-center whitespace-nowrap flex gap-1 group-hover:bg-gray-200 border-0 w-full group focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-opacity-50"
                             >
                                 <span>My Brackets</span>
                             </button>
                             <button
-                                onClick={signOut}
+                                onClick={() => {
+                                    if (noChanges(true)) {
+                                        setShowDropdown(false);
+                                        logout();
+                                    }
+                                }}
                                 className="py-2 px-4 items-center rounded-t-none whitespace-nowrap flex gap-1 group-hover:bg-gray-200 border-0 w-full group focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-opacity-50"
                             >
-                                <span>Sign out</span>
+                                <span>Log out</span>
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     className="w-4 h-4 text-secondary transition sm:block group-hover:text-secondary"

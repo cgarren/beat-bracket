@@ -224,7 +224,6 @@ export default function SongButton({
                     className={cx(
                         "flex",
                         "rounded-2xl",
-                        "cursor-pointer",
                         "shadow-md",
                         "w-[var(--buttonwidth)]",
                         "min-w-[var(--buttonwidth)]",
@@ -233,6 +232,7 @@ export default function SongButton({
                         "disabled:w-[var(--buttonwidth)]",
                         "relative",
                         "hover:h-auto",
+                        { "cursor-pointer": !editMode && song },
                         {
                             "cursor-grab animate-wiggle active:cursor-grabbing":
                                 editMode && song,

@@ -1,56 +1,57 @@
 import React, { createContext, useState, useEffect, useMemo } from "react";
 import { useSpotify } from "../hooks/useSpotify";
+import { navigate } from "gatsby";
 export const LoginContext = createContext([null, () => {}]);
 
 export function LoginProvider({ children }) {
     // auth storage keys
 
-    const refreshTokenKey = "refresh_token";
-    const accessTokenKey = "access_token";
-    const expiresAtKey = "expires_at";
-    const sessionKey = "session_id";
-    const userIdKey = "user_id";
-
     // state variables
     const [loginInProgress, setLoginInProgress] = useState(false);
-    const loginInfo = {
-        userId: sessionStorage.getItem(userIdKey),
-        accessToken: sessionStorage.getItem(accessTokenKey),
-        sessionId: sessionStorage.getItem(sessionKey),
-        expiresAt: sessionStorage.getItem(expiresAtKey),
-        refreshToken: localStorage.getItem(refreshTokenKey),
-    };
+    // set logininfo from localstorage on page load
+    const [loginInfo, setLoginInfo] = useState({
+        userId: localStorage.getItem("userId"),
+        accessToken: localStorage.getItem("accessToken"),
+        sessionId: localStorage.getItem("sessionId"),
+        expiresAt: localStorage.getItem("expiresAt"),
+        refreshToken: localStorage.getItem("refreshToken"),
+    });
     const [userInfo, setUserInfo] = useState(null);
     const [timerId, setTimerId] = useState(null);
+
+    // loggedIn status
     const loggedIn = useMemo(() => {
-        if (typeof sessionStorage !== "undefined") {
-            let expiresAtDate = new Date(parseInt(loginInfo.expiresAt, 10));
-            if (
-                loginInfo.expiresAt &&
-                loginInfo.accessToken &&
-                expiresAtDate.toString() !== "Invalid Date" &&
-                Date.now() < expiresAtDate
-            ) {
-                //console.debug("logged in");
-                return true;
-            }
+        let expiresAtDate = new Date(parseInt(loginInfo.expiresAt, 10));
+        if (
+            loginInfo.accessToken &&
+            loginInfo.sessionId &&
+            loginInfo.userId &&
+            loginInfo.expiresAt &&
+            expiresAtDate.toString() !== "Invalid Date" &&
+            Date.now() < expiresAtDate
+        ) {
+            console.debug("logged in");
+            return true;
         }
         console.log("not logged in");
         return false;
-    }, [loginInfo.expiresAt, loginInfo.accessToken]);
+    }, [loginInfo]);
 
     const { getCurrentUserInfo } = useSpotify();
 
-    const [, updateState] = useState();
-
-    console.log("init loggedIn:", loggedIn);
-
+    // keep loginInfo in sync with localstorage
     useEffect(() => {
-        // set new loginInfo object when localstorage changes
+        // set new loginInfo object when localstorage changes in another tab
         if (typeof window !== "undefined") {
-            window.onstorage = async () => {
-                console.log("UPDATING INFO FROM STORAGE");
-                updateState();
+            window.onstorage = async (e) => {
+                console.debug("UPDATING INFO FROM STORAGE");
+                const { key, newValue } = e;
+                if (key in loginInfo) {
+                    setLoginInfo({
+                        ...loginInfo,
+                        [key]: newValue,
+                    });
+                }
             };
         } else {
             return null;
@@ -58,23 +59,57 @@ export function LoginProvider({ children }) {
         return () => {
             window.onstorage = null;
         };
-    }, []);
+    }, [loginInfo, setLoginInfo]);
 
+    // keep localstorage in sync with loginInfo
     useEffect(() => {
-        // set new userInfo object when loginInfo changes
-        if (loggedIn && loginInfo.accessToken) {
-            console.log("getting user info");
+        for (const key in loginInfo) {
+            if (loginInfo[key]) {
+                localStorage.setItem(key, loginInfo[key]);
+            } else {
+                localStorage.removeItem(key);
+            }
+        }
+    }, [loginInfo]);
+
+    // keep userInfo in sync with loginInfo
+    useEffect(() => {
+        if (loginInfo.accessToken !== null && loggedIn) {
             getCurrentUserInfo(loginInfo.accessToken).then((info) => {
                 setUserInfo(info);
             });
+        } else {
+            setUserInfo(null);
         }
-    }, [loggedIn, loginInfo.accessToken, getCurrentUserInfo]);
+    }, [loginInfo.accessToken, getCurrentUserInfo, loggedIn]);
+
+    // redirect to login page on logout
+    useEffect(() => {
+        if (
+            loginInfo.accessToken === undefined &&
+            loginInfo.sessionId === undefined &&
+            loginInfo.userId === undefined &&
+            loginInfo.expiresAt === undefined &&
+            loginInfo.refreshToken === undefined
+        ) {
+            console.log("Just logged out, redirecting to home page");
+            navigate("/");
+        }
+    }, [loginInfo, loggedIn, loginInProgress, timerId]);
+
+    // useEffect(() => {
+    //     console.log("loggedIn:", loggedIn);
+    //     if (!loggedIn) {
+    //         // display some kind fo error?
+    //     }
+    // }, [loggedIn]);
 
     return (
         <LoginContext.Provider
             value={{
                 loggedIn,
                 loginInfo,
+                setLoginInfo,
                 userInfo,
                 setUserInfo,
                 loginInProgress,

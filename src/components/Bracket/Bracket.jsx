@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useEffect, useCallback, useMemo, useState } from "react";
 import SongButton from "./SongButton";
 import useWindowSize from "react-use/lib/useWindowSize";
 import { useBracketGeneration } from "../../hooks/useBracketGeneration";
@@ -212,7 +212,8 @@ export default function Bracket({
             getBracket,
             setInclusionMethod,
             playbackEnabled,
-            //saveCommand, //needs to be excluded so that the bracket disappears when changing settings
+            modifyBracket,
+            saveCommand,
         ]
     );
 
@@ -248,13 +249,8 @@ export default function Bracket({
         generateComponentArray,
         getNumberOfColumns,
     ]);
-    const [bracketRef, setBracketRef] = useState(null);
-    const bracketCallback = useCallback(
-        (node) => {
-            setBracketRef({ current: node });
-        },
-        [renderArray, showBracket]
-    );
+
+    const [bracketWidth, setBracketWidth] = useState(0);
 
     useEffect(() => {
         if (renderArray.length > 0) {
@@ -262,23 +258,31 @@ export default function Bracket({
         }
     }, [renderArray, setShowBracket]);
 
+    useEffect(() => {
+        if (showBracket) {
+            const calculatedWidth =
+                document &&
+                document.getElementById("bracketHolder") &&
+                document.getElementById("bracketHolder").offsetWidth;
+            setBracketWidth(calculatedWidth);
+        }
+    }, [showBracket]);
+
     return (
         <div hidden={!showBracket || renderArray.length === 0}>
             <div
                 className={cx({
                     "overflow-x-scroll flex": true,
-                    "justify-center":
-                        bracketRef && bracketRef.current.offsetWidth <= width,
-                    "justify-start":
-                        bracketRef && bracketRef.current.offsetWidth > width,
+                    "justify-center": bracketWidth <= width,
+                    "justify-start": bracketWidth > width,
                 })}
             >
                 <div
-                    ref={bracketCallback}
                     className={cx({
                         "block w-fit flex-col p-2": true,
                         "bg-gray-800/25 rounded-2xl": editMode,
                     })}
+                    id="bracketHolder"
                 >
                     <div
                         className="flex flex-row gap-[10px] justify-start p-[5px]"

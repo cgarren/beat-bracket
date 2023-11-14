@@ -79,6 +79,7 @@ export const useSpotify = () => {
 
     const loadSpotifyRequest = useCallback(
         async (url, params, accessToken) => {
+            accessToken = accessToken ? accessToken : loginInfo.accessToken;
             if (loggedIn || accessToken) {
                 if (params) {
                     url = url + "?" + new URLSearchParams(params);
@@ -86,9 +87,7 @@ export const useSpotify = () => {
                 const response = await fetch(url, {
                     headers: {
                         "Content-Type": "application/json",
-                        Authorization: `Bearer ${
-                            accessToken ? accessToken : loginInfo.accessToken
-                        }`,
+                        Authorization: `Bearer ${accessToken}`,
                     },
                 });
                 if (!response.ok) {
@@ -104,6 +103,7 @@ export const useSpotify = () => {
                 return response;
             } else {
                 throw new Error("Not logged in");
+                //return null;
             }
         },
         [loginInfo, loggedIn]
@@ -173,7 +173,7 @@ export const useSpotify = () => {
 
     const getPlaylistImage = useCallback(
         async (playlistId) => {
-            const playlist = getPlaylist(playlistId);
+            const playlist = await getPlaylist(playlistId);
             return getArt(playlist.images, "playlist", true);
         },
         [getPlaylist, getArt]
@@ -217,7 +217,7 @@ export const useSpotify = () => {
                 return response;
             } catch (e) {
                 console.error(e);
-                return null;
+                throw new Error("Problem getting current user info");
             }
         },
         [loadSpotifyRequest]
@@ -227,17 +227,17 @@ export const useSpotify = () => {
         async (userId) => {
             try {
                 const url = "https://api.spotify.com/v1/users/" + userId;
-                const myresponse = await loadSpotifyRequest(url);
-                const response = await myresponse.json();
-                if (response.images.length === 0) {
-                    response.images.push({
+                const response = await loadSpotifyRequest(url);
+                const responseData = await response.json();
+                if (responseData.images.length === 0) {
+                    responseData.images.push({
                         url: guestProfileImage,
                     });
                 }
-                return response;
+                return responseData;
             } catch (e) {
-                //console.log(e);
-                return null;
+                console.error(e);
+                throw new Error("Problem getting user info");
             }
         },
         [loadSpotifyRequest]
@@ -340,7 +340,6 @@ export const useSpotify = () => {
                 sessionStorage.removeItem(stateKey);
                 // remove spotify auth code verifier
                 sessionStorage.removeItem(codeVerifierKey);
-                window.dispatchEvent(new Event("storage"));
                 return {
                     accessToken: data.access_token,
                     refreshToken: data.refresh_token,

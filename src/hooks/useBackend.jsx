@@ -48,14 +48,14 @@ export const useBackend = () => {
     );
 
     const getBrackets = useCallback(
-        async (userId = loginInfo.userId, sessionId = loginInfo.sessionId) => {
+        async (userId, sessionId) => {
             const response = await loadBackendRequest("/brackets", "GET", {
                 ownerId: userId,
                 sessionId: sessionId,
             });
             return response.json();
         },
-        [loadBackendRequest, loginInfo]
+        [loadBackendRequest]
     );
 
     const getBracket = useCallback(
@@ -123,7 +123,7 @@ export const useBackend = () => {
     const getMaxBrackets = useCallback(() => {
         // eventually make this a call to the backend
         if (typeof window !== "undefined") {
-            return sessionStorage.getItem(maxBracketsKey);
+            return localStorage.getItem(maxBracketsKey);
         }
         return null;
     }, []);
@@ -144,7 +144,7 @@ export const useBackend = () => {
                 "include"
             );
             const { maxBrackets } = await response.json();
-            sessionStorage.setItem(maxBracketsKey, maxBrackets);
+            localStorage.setItem(maxBracketsKey, maxBrackets);
             window.dispatchEvent(new Event("storage"));
         },
         [loadBackendRequest]

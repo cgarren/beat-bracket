@@ -170,12 +170,12 @@ export const useSongProcessing = () => {
                         runningList,
                         trackOptionsAmounts
                     );
-                    if (temp !== 1) {
+                    if (temp) {
                         templist = templist.concat(temp);
                         runningList = [];
                         trackOptionsAmounts = [];
                     } else {
-                        return 1;
+                        return;
                     }
                 }
                 //limit to 50 potential tracks per song so that we don't break the API
@@ -184,10 +184,10 @@ export const useSongProcessing = () => {
                 trackOptionsAmounts.push(idList.length);
             }
             const temp = await loadTrackData(runningList, trackOptionsAmounts);
-            if (temp !== 1) {
+            if (temp) {
                 templist = templist.concat(temp);
             } else {
-                return 1;
+                return;
             }
             return templist;
         },

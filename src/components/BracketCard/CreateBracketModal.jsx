@@ -44,7 +44,7 @@ export const CreateBracketModal = ({ showModal, setShowModal }) => {
         if (showModal && allPlaylists.length === 0) {
             const url = "https://api.spotify.com/v1/me/playlists?limit=50";
             loadPlaylists(url).then((playlists) => {
-                if (playlists !== 1) {
+                if (playlists) {
                     setAllPlaylists(playlists);
                 }
             });

@@ -1,6 +1,7 @@
 // Screnshot library
 import html2canvas from "html2canvas";
 import { useCallback } from "react";
+import { navigate } from "gatsby";
 
 export const useHelper = () => {
     const debounce = useCallback((func, timeout = 300) => {
@@ -212,6 +213,12 @@ export const useHelper = () => {
         return true;
     }, []);
 
+    const handleNaviagtionAttempt = useCallback((path, noChanges) => {
+        if (noChanges(true)) {
+            navigate(path);
+        }
+    }, []);
+
     return {
         debounce,
         generateRandomString,
@@ -224,5 +231,6 @@ export const useHelper = () => {
         bracketSorter,
         downloadBracket,
         bracketUnchanged,
+        handleNaviagtionAttempt,
     };
 };

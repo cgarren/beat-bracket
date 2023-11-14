@@ -50,7 +50,7 @@ const App = ({ location }) => {
       }, 5000);
     }
     setAlertInfo({ show: true, message: message, type: type, timeoutId: timeoutId });
-  }, [alertInfo]);
+  }, [alertInfo.timeoutId]);
 
   const closeAlert = useCallback(() => {
     if (alertInfo.timeoutId) {
@@ -81,11 +81,27 @@ const App = ({ location }) => {
 
   const init = useCallback(async () => {
     const loginResult = await processLogin();
-    if (loginResult) {
+    if (!loginResult) {
+      console.log("going back to home page");
+      navigate("/");
+    }
+  }, [processLogin]);
+
+  useEffect(() => {
+    init();
+  }, [init]);
+
+  useEffect(() => {
+    async function loadBrackets() {
+      setError(null);
       try {
-        const loadedBrackets = await getBrackets(loginResult.userId, loginResult.sessionId);
-        console.info(loadedBrackets);
-        setBrackets(loadedBrackets);
+        if (loginInfo.userId && loginInfo.sessionId) {
+          const loadedBrackets = await getBrackets(loginInfo.userId, loginInfo.sessionId);
+          console.debug(loadedBrackets);
+          setBrackets(loadedBrackets);
+        } else {
+          throw new Error("Not authenticated", { cause: { code: 403 } });
+        }
       } catch (error) {
         console.error("Error loading brackets:", error);
         if (error.cause && error.cause.code === 403) {
@@ -100,15 +116,9 @@ const App = ({ location }) => {
           showAlert("Unknown Error loading brackets", "error", false);
         }
       }
-    } else {
-      console.log("going back to home page");
-      navigate("/");
     }
-  }, [processLogin, showAlert]);
-
-  useEffect(() => {
-    init();
-  }, []);
+    loadBrackets();
+  }, [loginInfo, getBrackets, showAlert]);
 
   return (
     <Layout noChanges={() => { return true }} path={location.pathname}>

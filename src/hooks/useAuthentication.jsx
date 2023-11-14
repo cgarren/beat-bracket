@@ -1,106 +1,110 @@
 // place for methods which handdle authenitcation for btoh spotify and backend
-import { useContext } from "react";
+import { useContext, useCallback } from "react";
 import { useSpotify } from "./useSpotify";
 import { useHelper } from "./useHelper";
 import { useBackend } from "./useBackend";
 import { LoginContext } from "../context/LoginContext";
-import { navigate } from "gatsby";
+import { MixpanelContext } from "../context/MixpanelContext";
 
 export const useAuthentication = () => {
-    //auth storage keys
-
-    const refreshTokenKey = "refresh_token";
-    const accessTokenKey = "access_token";
-    const expiresAtKey = "expires_at";
-    const sessionKey = "session_id";
-    const userIdKey = "user_id";
-
+    const mixpanel = useContext(MixpanelContext);
     const {
         getCurrentUserInfo,
         loginCallback: spotifyLoginCallback,
         login: spotifyLogin,
         refreshLogin: spotifyRefreshLogin,
     } = useSpotify();
-    const { setLoginInProgress, timerId, setTimerId } =
+    const { loginInfo, setLoginInfo, setLoginInProgress, timerId, setTimerId } =
         useContext(LoginContext);
     const { authenticate: backendLogin } = useBackend();
     const { generateRandomString } = useHelper();
 
     //auth functions
 
-    function setLoginTimer(expiresAt) {
+    const setLoginTimer = useCallback(
+        (expiresAt, callbackFuncion) => {
+            // clear timer if it exists
+            if (timerId) {
+                clearTimeout(timerId);
+            }
+            // refresh access token 1 minute before it expires
+            const refreshTime = expiresAt - 60000 - Date.now();
+            const tempTimerId = setTimeout(() => {
+                callbackFuncion();
+            }, refreshTime);
+            setTimerId(tempTimerId);
+            console.debug("set login timer for", refreshTime, "ms");
+        },
+        [timerId, setTimerId]
+    );
+
+    const logout = useCallback(async () => {
+        // clear storage including refresh token key
+        setLoginInfo({
+            userId: undefined,
+            accessToken: undefined,
+            sessionId: undefined,
+            expiresAt: undefined,
+            refreshToken: undefined,
+        });
+        localStorage.clear();
+        mixpanel.reset();
         // clear timer if it exists
         if (timerId) {
             clearTimeout(timerId);
         }
-        // refresh access token 1 minute before it expires
-        const refreshTime = expiresAt - 60000 - Date.now();
-        const tempTimerId = setTimeout(() => {
-            login();
-        }, refreshTime);
-        setTimerId(tempTimerId);
-        console.debug("set login timer for", refreshTime, "ms");
-    }
+        console.log("logged out");
+    }, [mixpanel, setLoginInfo, timerId]);
 
-    async function logout() {
-        // clear session storage and refresh token key
-        sessionStorage.clear();
-        localStorage.removeItem(refreshTokenKey);
-        window.dispatchEvent(new Event("storage"));
-        // clear timer if it exists
-        if (timerId) {
-            clearTimeout(timerId);
-        }
-        console.log("logged out, going home");
-        navigate("/", { state: { logout: true } });
-    }
-
-    async function login() {
+    const login = useCallback(async () => {
         // case where user has been here before
         try {
+            console.log("logging in");
             setLoginInProgress(true);
-            if (localStorage.getItem(refreshTokenKey)) {
-                let accessToken, refreshToken, expiresAt;
+            if (loginInfo.refreshToken) {
                 try {
-                    ({ accessToken, refreshToken, expiresAt } =
-                        await spotifyRefreshLogin(
-                            localStorage.getItem(refreshTokenKey)
-                        ));
+                    const { accessToken, refreshToken, expiresAt } =
+                        await spotifyRefreshLogin(loginInfo.refreshToken);
+
+                    console.debug("refreshed spotify session successfully");
+
+                    // get info about user from spotify and set session storage
+                    const res = await getCurrentUserInfo(accessToken);
+                    console.log(res);
+                    const userId = res.id;
+
+                    // get session id from session storage and set it if it doesn't exist
+                    let sessionId = loginInfo.sessionId;
+                    if (!sessionId) {
+                        sessionId = generateRandomString(128);
+                    }
+
+                    // refresh backend
+                    await backendLogin(
+                        userId,
+                        sessionId,
+                        expiresAt,
+                        accessToken
+                    );
+
+                    // identify user in mixpanel
+                    mixpanel.identify(userId);
+
+                    // set timer to refresh access token
+                    setLoginTimer(expiresAt, login);
+                    setLoginInfo({
+                        sessionId: sessionId,
+                        userId: userId,
+                        accessToken: accessToken,
+                        expiresAt: expiresAt,
+                        refreshToken: refreshToken
+                            ? refreshToken
+                            : loginInfo.refreshToken,
+                    });
                 } catch (error) {
                     console.error(error);
-                    localStorage.removeItem(refreshTokenKey);
-                    login();
-                    return;
+                    await spotifyLogin();
                 }
-
-                sessionStorage.setItem(accessTokenKey, accessToken);
-                sessionStorage.setItem(expiresAtKey, expiresAt);
-                if (refreshToken) {
-                    localStorage.setItem(refreshTokenKey, refreshToken);
-                }
-
-                console.debug("refreshed session successfully");
-                window.dispatchEvent(new Event("storage"));
-
-                // get info about user from spotify and set session storage
-                const res = await getCurrentUserInfo(accessToken);
-                console.log(res);
-                const userId = res.id;
-
-                sessionStorage.setItem(userIdKey, userId);
-
-                // get session id from session storage and set it if it doesn't exist
-                let sessionId = sessionStorage.getItem(sessionKey);
-                if (!sessionId) {
-                    sessionId = generateRandomString(128);
-                    sessionStorage.setItem(sessionKey, sessionId);
-                }
-                window.dispatchEvent(new Event("storage"));
-                // refresh backend
-                await backendLogin(userId, sessionId, expiresAt, accessToken);
-
-                // set timer to refresh access token
-                setLoginTimer(expiresAt);
             } else {
                 //kick off spotify login process
                 await spotifyLogin();
@@ -108,51 +112,77 @@ export const useAuthentication = () => {
         } catch (error) {
             throw error;
         } finally {
+            console.log("finished logging in");
             setLoginInProgress(false);
         }
-    }
+    }, [
+        backendLogin,
+        getCurrentUserInfo,
+        generateRandomString,
+        loginInfo.refreshToken,
+        loginInfo.sessionId,
+        mixpanel,
+        setLoginInfo,
+        setLoginInProgress,
+        setLoginTimer,
+        spotifyLogin,
+        spotifyRefreshLogin,
+    ]);
 
-    async function loginCallback(urlParams) {
-        try {
-            setLoginInProgress(true);
-            // get data from spotify login callback and set session storage
-            const { refreshToken, accessToken, expiresAt, state } =
-                await spotifyLoginCallback(urlParams);
-            console.log("finished spotify login callback, setting storage");
-            localStorage.setItem(refreshTokenKey, refreshToken);
-            sessionStorage.setItem(accessTokenKey, accessToken);
-            sessionStorage.setItem(expiresAtKey, expiresAt);
-            sessionStorage.setItem(sessionKey, state);
+    const loginCallback = useCallback(
+        async (urlParams) => {
+            try {
+                console.log("callback logging in");
+                setLoginInProgress(true);
+                // get data from spotify login callback and set session storage
+                const { refreshToken, accessToken, expiresAt, state } =
+                    await spotifyLoginCallback(urlParams);
 
-            window.dispatchEvent(new Event("storage"));
+                // get info about user from spotify and set session storage
+                const res = await getCurrentUserInfo(accessToken);
+                const userId = res.id;
 
-            // get info about user from spotify and set session storage
-            const res = await getCurrentUserInfo(accessToken);
-            console.log(res);
-            const userId = res.id;
-            sessionStorage.setItem(userIdKey, userId);
-            window.dispatchEvent(new Event("storage"));
+                // use the state value for the new session id
+                const sessionId = state;
 
-            // use the state value for the new session id
-            const sessionId = state;
+                // authenticate with backend
+                await backendLogin(userId, sessionId, expiresAt, accessToken);
 
-            // authenticate with backend
-            await backendLogin(userId, sessionId, expiresAt, accessToken);
+                // identify user in mixpanel
+                mixpanel.identify(userId);
 
-            // set timer to refresh access token
-            setLoginTimer(expiresAt);
-            //setLoginInProgress(false);
-            return { userId: userId, sessionId: sessionId };
-        } catch (error) {
-            if (error.message !== "Invalid url params") {
-                throw error;
-            } else {
-                return "Invalid url parameters";
+                // set timer to refresh access token
+                setLoginTimer(expiresAt, login);
+                setLoginInfo({
+                    sessionId: sessionId,
+                    userId: userId,
+                    accessToken: accessToken,
+                    expiresAt: expiresAt,
+                    refreshToken: refreshToken,
+                });
+                return { userId: userId, sessionId: sessionId };
+            } catch (error) {
+                if (error.message !== "Invalid url params") {
+                    throw error;
+                } else {
+                    return "Invalid url parameters";
+                }
+            } finally {
+                console.log("callback finished logging in");
+                setLoginInProgress(false);
             }
-        } finally {
-            setLoginInProgress(false);
-        }
-    }
+        },
+        [
+            backendLogin,
+            getCurrentUserInfo,
+            mixpanel,
+            setLoginInfo,
+            spotifyLoginCallback,
+            setLoginInProgress,
+            setLoginTimer,
+            login,
+        ]
+    );
 
     return {
         login,
