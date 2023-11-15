@@ -46,7 +46,16 @@ export function LoginProvider({ children }) {
             window.onstorage = async (e) => {
                 console.debug("UPDATING INFO FROM STORAGE");
                 const { key, newValue } = e;
-                if (key in loginInfo) {
+                console.log(key, newValue, e);
+                if (key === null) {
+                    setLoginInfo({
+                        userId: null,
+                        accessToken: null,
+                        sessionId: null,
+                        expiresAt: null,
+                        refreshToken: null,
+                    });
+                } else if (key in loginInfo) {
                     setLoginInfo({
                         ...loginInfo,
                         [key]: newValue,
