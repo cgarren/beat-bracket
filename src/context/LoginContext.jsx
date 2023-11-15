@@ -48,17 +48,20 @@ export function LoginProvider({ children }) {
                 const { key, newValue } = e;
                 console.log(key, newValue, e);
                 if (key === null) {
+                    console.log("setting login info to null");
                     setLoginInfo({
                         userId: null,
                         accessToken: null,
                         sessionId: null,
                         expiresAt: null,
                         refreshToken: null,
+                        fromStorage: true,
                     });
                 } else if (key in loginInfo) {
                     setLoginInfo({
                         ...loginInfo,
                         [key]: newValue,
+                        fromStorage: true,
                     });
                 }
             };
@@ -72,11 +75,14 @@ export function LoginProvider({ children }) {
 
     // keep localstorage in sync with loginInfo
     useEffect(() => {
-        for (const key in loginInfo) {
-            if (loginInfo[key]) {
-                localStorage.setItem(key, loginInfo[key]);
-            } else {
-                localStorage.removeItem(key);
+        if (loginInfo && !loginInfo.fromStorage) {
+            console.debug("UPDATING STORAGE FROM INFO");
+            for (const key in loginInfo) {
+                if (loginInfo[key]) {
+                    localStorage.setItem(key, loginInfo[key]);
+                } else {
+                    localStorage.removeItem(key);
+                }
             }
         }
     }, [loginInfo]);
