@@ -102,8 +102,12 @@ export const useAuthentication = () => {
                             : loginInfo.refreshToken,
                     });
                 } catch (error) {
+                    console.log("Problem refreshing spotify login:");
                     console.error(error);
-                    await spotifyLogin();
+                    setLoginInfo({
+                        ...loginInfo,
+                        refreshToken: null,
+                    });
                 }
             } else {
                 //kick off spotify login process
@@ -119,8 +123,7 @@ export const useAuthentication = () => {
         backendLogin,
         getCurrentUserInfo,
         generateRandomString,
-        loginInfo.refreshToken,
-        loginInfo.sessionId,
+        loginInfo,
         mixpanel,
         setLoginInfo,
         setLoginInProgress,
