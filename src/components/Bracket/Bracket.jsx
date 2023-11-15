@@ -1,8 +1,8 @@
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useEffect, useCallback, useMemo, useState } from "react";
 import SongButton from "./SongButton";
 import useWindowSize from "react-use/lib/useWindowSize";
-import { getNumberOfColumns } from "../../utilities/bracketGeneration";
-import { popularitySort } from "../../utilities/helpers";
+import { useBracketGeneration } from "../../hooks/useBracketGeneration";
+import { useHelper } from "../../hooks/useHelper";
 import cx from "classnames";
 
 // const styles = [
@@ -61,7 +61,9 @@ export default function Bracket({
     setSeedingMethod,
     setInclusionMethod,
 }) {
-    const { width, height } = useWindowSize();
+    const { width } = useWindowSize(); // can also get height if needed
+    const { popularitySort } = useHelper();
+    const { getNumberOfColumns } = useBracketGeneration();
     const replacementTracks = useMemo(() => {
         const bracketIds = [];
         for (let track of bracketTracks) {
@@ -70,7 +72,7 @@ export default function Bracket({
         return allTracks
             .filter((track) => !bracketIds.includes(track.id))
             .sort(popularitySort);
-    }, [allTracks, bracketTracks]);
+    }, [allTracks, bracketTracks, popularitySort]);
 
     const getBracket = useCallback(
         (key) => {
@@ -210,6 +212,8 @@ export default function Bracket({
             getBracket,
             setInclusionMethod,
             playbackEnabled,
+            modifyBracket,
+            saveCommand,
         ]
     );
 
@@ -243,14 +247,10 @@ export default function Bracket({
         setCurrentlyPlayingId,
         currentlyPlayingId,
         generateComponentArray,
+        getNumberOfColumns,
     ]);
-    const [bracketRef, setBracketRef] = useState(null);
-    const bracketCallback = useCallback(
-        (node) => {
-            setBracketRef({ current: node });
-        },
-        [renderArray, showBracket]
-    );
+
+    const [bracketWidth, setBracketWidth] = useState(0);
 
     useEffect(() => {
         if (renderArray.length > 0) {
@@ -258,23 +258,31 @@ export default function Bracket({
         }
     }, [renderArray, setShowBracket]);
 
+    useEffect(() => {
+        if (showBracket) {
+            const calculatedWidth =
+                document &&
+                document.getElementById("bracketHolder") &&
+                document.getElementById("bracketHolder").offsetWidth;
+            setBracketWidth(calculatedWidth);
+        }
+    }, [showBracket]);
+
     return (
         <div hidden={!showBracket || renderArray.length === 0}>
             <div
                 className={cx({
                     "overflow-x-scroll flex": true,
-                    "justify-center":
-                        bracketRef && bracketRef.current.offsetWidth <= width,
-                    "justify-start":
-                        bracketRef && bracketRef.current.offsetWidth > width,
+                    "justify-center": bracketWidth <= width,
+                    "justify-start": bracketWidth > width,
                 })}
             >
                 <div
-                    ref={bracketCallback}
                     className={cx({
                         "block w-fit flex-col p-2": true,
                         "bg-gray-800/25 rounded-2xl": editMode,
                     })}
+                    id="bracketHolder"
                 >
                     <div
                         className="flex flex-row gap-[10px] justify-start p-[5px]"

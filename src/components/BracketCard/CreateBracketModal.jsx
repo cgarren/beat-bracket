@@ -1,23 +1,30 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { v4 as uuidv4 } from "uuid";
 import ArtistSearchBar from "../Search/ArtistSearchBar";
 import UserPlaylistSearchBar from "../Search/UserPlaylistSearchBar";
-import { openBracket } from "../../utilities/helpers";
 import Modal from "../Modal";
 import Tab from "../Tab";
-import { loadPlaylists } from "../../utilities/songProcessing";
+import { useSongProcessing } from "../../hooks/useSongProcessing";
+import { LoginContext } from "../../context/LoginContext";
+import { useSpotify } from "../../hooks/useSpotify";
 //import Badge from "../Badge";
 
-export const CreateBracketModal = ({ userId, showModal, setShowModal }) => {
+export const CreateBracketModal = ({ showModal, setShowModal }) => {
     const [activeTab, setActiveTab] = useState(0);
     const [allPlaylists, setAllPlaylists] = useState([]);
+    const { loginInfo } = useContext(LoginContext);
+    const { openBracket } = useSpotify();
+    const { loadPlaylists } = useSongProcessing();
 
     function createArtistBracket(artist) {
         if (artist) {
             // Generate unique id for new bracket
             const uuid = uuidv4();
-            console.log("Create New Bracket with id: " + uuid);
-            openBracket(uuid, userId, { type: "artist", artist: artist });
+            console.debug("Create New Bracket with id: " + uuid);
+            openBracket(uuid, loginInfo.userId, {
+                type: "artist",
+                artist: artist,
+            });
         }
     }
 
@@ -25,8 +32,11 @@ export const CreateBracketModal = ({ userId, showModal, setShowModal }) => {
         if (playlist) {
             // Generate unique id for new bracket
             const uuid = uuidv4();
-            console.log("Create New Bracket with id: " + uuid);
-            openBracket(uuid, userId, { type: "playlist", playlist: playlist });
+            console.debug("Create New Bracket with id: " + uuid);
+            openBracket(uuid, loginInfo.userId, {
+                type: "playlist",
+                playlist: playlist,
+            });
         }
     }
 
@@ -34,12 +44,12 @@ export const CreateBracketModal = ({ userId, showModal, setShowModal }) => {
         if (showModal && allPlaylists.length === 0) {
             const url = "https://api.spotify.com/v1/me/playlists?limit=50";
             loadPlaylists(url).then((playlists) => {
-                if (playlists !== 1) {
+                if (playlists) {
                     setAllPlaylists(playlists);
                 }
             });
         }
-    }, [showModal, allPlaylists]);
+    }, [showModal, allPlaylists, loadPlaylists]);
 
     return (
         <>
