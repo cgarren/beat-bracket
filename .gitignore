@@ -5,4 +5,5 @@ public
 *.code-workspace
 backend
 .env
+.env.production
 .env.development
