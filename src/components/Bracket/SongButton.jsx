@@ -5,7 +5,7 @@ import spotifyIcon from "../../assets/images/Spotify_Icon_RGB_Green.png";
 import UndoIcon from "../../assets/svgs/undoIcon.svg";
 
 import Vibrant from "node-vibrant";
-import { useBracketGeneration } from "../../hooks/useBracketGeneration";
+import { getColorsFromImage } from "../../utilities/bracketGeneration";
 
 import cx from "classnames";
 import ReplaceTrackModal from "./ReplaceTrackModal";
@@ -69,8 +69,6 @@ export default function SongButton({
         }
     }, [color]);
 
-    const { getColorsFromImage } = useBracketGeneration();
-
     // Recursive function to mark all previous instances of a song in a bracket as eliminated
     // function eliminatePrevious(thisId) {
     //     let songInfo = getBracket(thisId);
@@ -113,6 +111,7 @@ export default function SongButton({
     }
 
     function undoChoice() {
+        console.log("undoing choice");
         modifyBracket(id, "disabled", false);
         modifyBracket(opponentId, "disabled", false);
         modifyBracket(opponentId, "eliminated", false);
@@ -223,6 +222,7 @@ export default function SongButton({
                     className={cx(
                         "flex",
                         "rounded-2xl",
+                        "cursor-pointer",
                         "shadow-md",
                         "w-[var(--buttonwidth)]",
                         "min-w-[var(--buttonwidth)]",
@@ -231,7 +231,6 @@ export default function SongButton({
                         "disabled:w-[var(--buttonwidth)]",
                         "relative",
                         "hover:h-auto",
-                        { "cursor-pointer": !editMode && song },
                         {
                             "cursor-grab animate-wiggle active:cursor-grabbing":
                                 editMode && song,

@@ -1,10 +1,8 @@
-import React, { useContext } from "react";
+import React from "react";
 import Faq from "./Faq/Faq";
 import FooterText from "./FooterText";
-import { LoginContext } from "../context/LoginContext";
 
-const Footer = ({ heightClass, path }) => {
-    const { loggedIn } = useContext(LoginContext);
+const Footer = ({ heightClass, loggedIn, path }) => {
     return (
         <footer className={heightClass}>
             <div className="bg-black">

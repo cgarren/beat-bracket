@@ -42,7 +42,7 @@ export default function CardName({
                         <TrackNumber numTracks={numTracks} />
                     </>
                 ) : (
-                    "Loading..."
+                    "Getting brackets..."
                 )}
             </div>
         </div>

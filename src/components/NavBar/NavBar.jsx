@@ -1,22 +1,24 @@
+import { navigate } from "gatsby";
 import React from "react";
 import ProfileDropdown from "./ProfileDropdown";
-import { useHelper } from "../../hooks/useHelper";
 
-export default function NavBar({ noChanges }) {
-    const { handleNaviagtionAttempt } = useHelper();
-
+export default function NavBar({ loggedIn, noChanges }) {
+    function handleNaviagtionAttempt(path) {
+        if (noChanges(true)) {
+            if (!loggedIn) navigate("/");
+            else navigate(path);
+        }
+    }
     return (
         <header className="bg-black mb-4">
             <div className="flex items-center min-h-fit px-4 mx-auto sm:px-6 lg:px-4 justify-between">
                 <button
                     className="text-white text-2xl font-bold font-display bg-black border-0 hover:bg-black pl-0 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-opacity-50"
-                    onClick={() =>
-                        handleNaviagtionAttempt("/my-brackets", noChanges)
-                    }
+                    onClick={() => handleNaviagtionAttempt("/my-brackets")}
                 >
                     Beat Bracket
                 </button>
-                <ProfileDropdown noChanges={noChanges} />
+                <ProfileDropdown loggedIn={loggedIn} noChanges={noChanges} />
             </div>
         </header>
     );

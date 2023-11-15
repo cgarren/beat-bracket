@@ -5,7 +5,7 @@ import XIcon from "../../assets/svgs/xIcon.svg";
 
 import cx from "classnames";
 
-export default function SaveIndicator({ saving, isSaved, lastSaved }) {
+export const SaveIndicator = ({ saving, isReady, waitingToSave }) => {
     return (
         <div
             className={cx(
@@ -17,14 +17,18 @@ export default function SaveIndicator({ saving, isSaved, lastSaved }) {
                 <div className="">
                     <XIcon />
                 </div>
-            ) : !isSaved ? (
+            ) : saving || !isReady() || waitingToSave ? (
                 <div className="animate-spin-reverse">
                     <SyncIcon />
                 </div>
             ) : (
                 <CheckmarkIcon />
             )}
-            {saving === "error" ? "Not saved" : !isSaved ? "Saving" : "Saved"}
+            {saving === "error"
+                ? "Not saved"
+                : saving || !isReady() || waitingToSave
+                ? "Saving"
+                : "Saved"}
         </div>
     );
-}
+};

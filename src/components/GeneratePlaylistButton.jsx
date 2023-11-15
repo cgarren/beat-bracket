@@ -29,6 +29,7 @@ const GeneratePlaylistButton = ({ tracks, artist, hidden }) => {
                 tracks.map((track) => "spotify:track:" + track.id)
             );
             if (!response2["error"]) {
+                console.log("success");
                 setPlaylistId(response.id);
             }
         }

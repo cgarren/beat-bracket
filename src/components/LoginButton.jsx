@@ -1,21 +1,30 @@
-import React, { useContext } from "react";
+import React, { useState, useContext } from "react";
 
 import spotifyLogoGreen from "../assets/images/Spotify_Logo_RGB_Green.png";
+import { login } from "../utilities/authentication";
 import LoadingIndicator from "./LoadingIndicator";
 
 import { LoginContext } from "../context/LoginContext";
-import { useAuthentication } from "../hooks/useAuthentication";
 
 import * as cx from "classnames";
 
 export default function LoginButton({ variant = "borderless" }) {
-    const { loginInProgress } = useContext(LoginContext);
-    const { login } = useAuthentication();
+    const [loading, setLoading] = useState(false);
+    const { setLoggedIn } = useContext(LoginContext);
+
+    async function signIn() {
+        setLoading(true);
+        console.log("loading true");
+        await login(setLoggedIn);
+
+        //navigate("/my-brackets");
+        setLoading(false);
+    }
 
     return (
         <button
-            onClick={login}
-            disabled={loginInProgress}
+            onClick={signIn}
+            disabled={loading}
             className={cx(
                 "inline-flex",
                 "flex-row",
@@ -31,7 +40,7 @@ export default function LoginButton({ variant = "borderless" }) {
                 { "border-black hover:border-zinc-800": variant !== "bordered" }
             )}
         >
-            {loginInProgress ? (
+            {loading ? (
                 <LoadingIndicator />
             ) : (
                 <>

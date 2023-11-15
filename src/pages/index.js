@@ -6,30 +6,23 @@ import { Seo } from "../components/SEO";
 import { navigate } from "gatsby";
 import { LoginContext } from "../context/LoginContext";
 import LoadingIndicator from "../components/LoadingIndicator";
-import { MixpanelContext } from "../context/MixpanelContext";
 
 const App = ({ location }) => {
-  const { loggedIn, loginInProgress } = useContext(LoginContext);
-  const mixpanel = useContext(MixpanelContext);
+  const { loggedIn } = useContext(LoginContext);
   //scroll to top of window on page load
   useEffect(() => window.scrollTo(0, 0), []);
   useEffect(() => {
-    if (loggedIn && !loginInProgress) {
+    console.log("loggedIn:", loggedIn)
+    if (loggedIn) {
       navigate("/my-brackets");
     }
-  }, [loggedIn, loginInProgress]);
-
-  // Runs once, after page load
-  useEffect(() => {
-    console.debug("Tracked page load", "/");
-    mixpanel.track_pageview();
-  }, [mixpanel]);
+  }, [loggedIn]);
 
   return (
     <>
       <Clicky />
       <main className="h-screen bg-gradient-radial from-zinc-100 from-60% to-zinc-400 relative">
-        {loginInProgress || loggedIn ?
+        {loggedIn || loggedIn === null ?
           <div className="flex flex-row justify-center items-center h-full px-4 sm:w-9/12 m-auto">
             <h3 className="text-xl text-black"><LoadingIndicator /> Logging in...</h3>
           </div> :
