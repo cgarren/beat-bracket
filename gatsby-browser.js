@@ -13,11 +13,11 @@ if (process.env.GATSBY_MIXPANEL_TOKEN) {
 		mixpanel.init(process.env.GATSBY_MIXPANEL_TOKEN, {
 			debug: true,
 		});
-		//mixpanel.disable();
+		mixpanel.disable();
 	} else {
 		mixpanel.init(process.env.GATSBY_MIXPANEL_TOKEN);
 	}
-	//mixpanel.set_config({ persistence: "localStorage", ignore_dnt: true, api_host: process.env.GATSBY_BACKEND_URL });
+	mixpanel.set_config({ persistence: "localStorage", ignore_dnt: true, api_host: process.env.GATSBY_BACKEND_URL });
 } else {
 	console.warn("Mixpanel token not set");
 }

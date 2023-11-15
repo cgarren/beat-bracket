@@ -48,7 +48,7 @@ export const useAuthentication = () => {
             refreshToken: undefined,
         });
         localStorage.clear();
-        //mixpanel.reset();
+        mixpanel.reset();
         // clear timer if it exists
         if (timerId) {
             clearTimeout(timerId);
@@ -86,7 +86,7 @@ export const useAuthentication = () => {
                     );
 
                     // identify user in mixpanel
-                    //mixpanel.identify(userId);
+                    mixpanel.identify(userId);
 
                     // set timer to refresh access token
                     setLoginTimer(expiresAt, login);
@@ -148,7 +148,7 @@ export const useAuthentication = () => {
                 await backendLogin(userId, sessionId, expiresAt, accessToken);
 
                 // identify user in mixpanel
-                //mixpanel.identify(userId);
+                mixpanel.identify(userId);
 
                 // set timer to refresh access token
                 setLoginTimer(expiresAt, login);
