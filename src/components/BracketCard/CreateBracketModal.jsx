@@ -20,7 +20,7 @@ export const CreateBracketModal = ({ showModal, setShowModal }) => {
         if (artist) {
             // Generate unique id for new bracket
             const uuid = uuidv4();
-            console.log("Create New Bracket with id: " + uuid);
+            console.debug("Create New Bracket with id: " + uuid);
             openBracket(uuid, loginInfo.userId, {
                 type: "artist",
                 artist: artist,
@@ -32,7 +32,7 @@ export const CreateBracketModal = ({ showModal, setShowModal }) => {
         if (playlist) {
             // Generate unique id for new bracket
             const uuid = uuidv4();
-            console.log("Create New Bracket with id: " + uuid);
+            console.debug("Create New Bracket with id: " + uuid);
             openBracket(uuid, loginInfo.userId, {
                 type: "playlist",
                 playlist: playlist,

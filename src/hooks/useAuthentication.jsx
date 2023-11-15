@@ -59,7 +59,6 @@ export const useAuthentication = () => {
     const login = useCallback(async () => {
         // case where user has been here before
         try {
-            console.log("logging in");
             setLoginInProgress(true);
             if (loginInfo.refreshToken) {
                 try {
@@ -70,7 +69,6 @@ export const useAuthentication = () => {
 
                     // get info about user from spotify and set session storage
                     const res = await getCurrentUserInfo(accessToken);
-                    console.log(res);
                     const userId = res.id;
 
                     // get session id from session storage and set it if it doesn't exist
@@ -102,7 +100,7 @@ export const useAuthentication = () => {
                             : loginInfo.refreshToken,
                     });
                 } catch (error) {
-                    console.log("Problem refreshing spotify login:");
+                    console.debug("Problem refreshing spotify login:");
                     console.error(error);
                     setLoginInfo({
                         ...loginInfo,
@@ -116,7 +114,6 @@ export const useAuthentication = () => {
         } catch (error) {
             throw error;
         } finally {
-            console.log("finished logging in");
             setLoginInProgress(false);
         }
     }, [
@@ -135,7 +132,6 @@ export const useAuthentication = () => {
     const loginCallback = useCallback(
         async (urlParams) => {
             try {
-                console.log("callback logging in");
                 setLoginInProgress(true);
                 // get data from spotify login callback and set session storage
                 const { refreshToken, accessToken, expiresAt, state } =
@@ -171,7 +167,6 @@ export const useAuthentication = () => {
                     return "Invalid url parameters";
                 }
             } finally {
-                console.log("callback finished logging in");
                 setLoginInProgress(false);
             }
         },

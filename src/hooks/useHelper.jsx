@@ -7,9 +7,9 @@ export const useHelper = () => {
     const debounce = useCallback((func, timeout = 300) => {
         let timer;
         return (...args) => {
-            console.log("clearing timeout", timer);
+            console.debug("clearing debounce timeout", timer);
             clearTimeout(timer);
-            console.log("setting timeout again");
+            console.debug("setting debounce timeout again");
             timer = setTimeout(() => {
                 func.apply(this, args);
             }, timeout);
@@ -53,18 +53,12 @@ export const useHelper = () => {
 
     // removes duplicates in an array of objects if a certain key/value is repeated
     const removeDuplicatesWithKey = useCallback((theArray, key) => {
-        console.log(theArray);
         // init tracking array
         let tempArray = [];
         //loop through given array
         for (let index in theArray) {
-            if (theArray[index][key] === "Jail") {
-                console.log(tempArray);
-                console.log(index);
-            }
             //check to see if element at the key is already in tracking array
             if (tempArray.includes(theArray[index][key])) {
-                console.log(theArray[index][key]);
                 // remove element at the current position from the array
                 theArray.splice(index, 1);
                 // deincrement our position to account for the ddeleted item
@@ -177,7 +171,6 @@ export const useHelper = () => {
             logging: false,
         }).then(function (canvas) {
             //canvas = document.body.appendChild(canvas); // used for debugging
-            //console.log(canvas.width, canvas.height);
             let ctx = canvas.getContext("2d");
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
@@ -200,9 +193,7 @@ export const useHelper = () => {
     }, []);
 
     const bracketUnchanged = useCallback((bracket) => {
-        console.log(!(bracket instanceof Map));
         if (!(bracket instanceof Map)) {
-            console.log("bracket is not a map");
             return false;
         }
         for (let element of bracket.values()) {

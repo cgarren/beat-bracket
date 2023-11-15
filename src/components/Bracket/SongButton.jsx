@@ -113,7 +113,6 @@ export default function SongButton({
     }
 
     function undoChoice() {
-        console.log("undoing choice");
         modifyBracket(id, "disabled", false);
         modifyBracket(opponentId, "disabled", false);
         modifyBracket(opponentId, "eliminated", false);

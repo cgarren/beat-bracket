@@ -48,7 +48,7 @@ export default function BracketCard({ bracket, userId, showAlert }) {
                             break;
                     }
                 } catch (error) {
-                    console.log(error);
+                    console.error(error);
                 }
             }
         }
@@ -62,7 +62,6 @@ export default function BracketCard({ bracket, userId, showAlert }) {
             )
         ) {
             try {
-                console.log("removing bracket");
                 await deleteBracket(bracket.id, userId);
                 window.location.reload();
             } catch (error) {

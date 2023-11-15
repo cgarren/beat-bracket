@@ -9,7 +9,7 @@ const Layout = ({ children, noChanges, path }) => {
 
     // Runs once, after page load
     useEffect(() => {
-        console.log("Tracked page load", path);
+        console.debug("Tracked page load", path);
         mixpanel.track_pageview();
     }, [mixpanel, path]);
 

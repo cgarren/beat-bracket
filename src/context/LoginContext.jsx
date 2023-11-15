@@ -33,7 +33,7 @@ export function LoginProvider({ children }) {
             console.debug("logged in");
             return true;
         }
-        console.log("not logged in");
+        console.debug("not logged in");
         return false;
     }, [loginInfo]);
 
@@ -92,7 +92,7 @@ export function LoginProvider({ children }) {
             loginInfo.expiresAt === undefined &&
             loginInfo.refreshToken === undefined
         ) {
-            console.log("Just logged out, redirecting to home page");
+            console.debug("Just logged out, redirecting to home page");
             navigate("/");
         }
     }, [loginInfo, loggedIn, loginInProgress, timerId]);

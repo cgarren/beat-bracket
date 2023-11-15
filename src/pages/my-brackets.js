@@ -69,7 +69,7 @@ const App = ({ location }) => {
       return await loginCallback(urlParams);
     } catch (e) {
       // if there's an error, redirect to home page
-      console.log("Error authenticating:", e);
+      console.error("Error authenticating:", e);
       setError("Error authenticating");
       // show notification
       showAlert("Error authenticating", "error", false);
@@ -82,7 +82,7 @@ const App = ({ location }) => {
   const init = useCallback(async () => {
     const loginResult = await processLogin();
     if (!loginResult) {
-      console.log("going back to home page");
+      console.debug("going back to home page");
       navigate("/");
     }
   }, [processLogin]);

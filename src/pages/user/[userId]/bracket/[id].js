@@ -88,7 +88,6 @@ const App = ({ params, location }) => {
   const { createBracket, getBracket, updateBracket, getTemplate } = useBackend();
   const { seedBracket, sortTracks, loadAlbums, processTracks, loadPlaylistTracks, updatePreviewUrls } = useSongProcessing();
   const { getNumberOfColumns, fillBracket } = useBracketGeneration();
-  //console.log("sjdsjdf", loggedIn);
 
   const editable = loggedIn && isCurrentUser(owner.id);
   const bracketTracks = useMemo(() => {
@@ -211,7 +210,7 @@ const App = ({ params, location }) => {
       }
       setSaving(true);
       await createBracket(creationObject);
-      console.log("Bracket created");
+      console.debug("Bracket created");
       setSaving(false);
       setWaitingToSave(false);
     } catch (error) {
@@ -310,7 +309,6 @@ const App = ({ params, location }) => {
     // seed the bracket
     newCustomAllTracks = await seedBracket(newCustomAllTracks, customSeedingMethod);
     if (newCustomAllTracks && newCustomAllTracks.length > 0) {
-      console.log(newCustomAllTracks);
       const temp = await fillBracket(newCustomAllTracks, getNumberOfColumns(newCustomAllTracks.length));
       setBracket(temp);
       return temp;
@@ -349,7 +347,7 @@ const App = ({ params, location }) => {
   }, [commands.length, bracketSorter, checkAndUpdateOwnerUsername, checkAndUpdateSongSource]);
 
   const initializeBracketFromTemplate = useCallback(async (templateData, ownerId, bracketId) => {
-    console.log("Creating new bracket from template...", templateData);
+    console.debug("Creating new bracket from template...", templateData);
     // load template from backend
     let loadedTemplate;
     try {
@@ -400,7 +398,6 @@ const App = ({ params, location }) => {
 
     // set owner details
     const userInfo = await getUserInfo(ownerId);
-    console.log(userInfo)
     setOwner({ id: userInfo.id, name: userInfo.display_name });
 
     // don't show the bracket while we get things ready
@@ -421,7 +418,7 @@ const App = ({ params, location }) => {
   //INITIALIZE BRACKET
 
   const kickOff = useCallback(async () => {
-    console.log("Kicking off", bracketId, locationState);
+    console.debug("Kicking off", bracketId, locationState);
     if (bracketId && owner.id) {
       try {
         const loadedBracket = await getBracket(bracketId, owner.id);
@@ -433,7 +430,6 @@ const App = ({ params, location }) => {
         }
       } catch (error) {
         if (error.cause && error.cause.code === 404) {
-          console.log(locationState);
           if (locationState && locationState.template) {
             await initializeBracketFromTemplate(locationState.template, owner.id, bracketId);
           } else if (locationState && (locationState.artist || locationState.playlist)) {
@@ -467,7 +463,7 @@ const App = ({ params, location }) => {
 
   function share() {
     navigator.clipboard.writeText(location.href);
-    console.log("copied link");
+    console.debug("copied link");
     showAlert("Link copied to clipboard!", "success");
   }
 
@@ -477,7 +473,7 @@ const App = ({ params, location }) => {
     if (template && template.id && template.ownerId && userInfo.userId) {
       // generate new bracket id
       const uuid = uuidv4();
-      console.log("Create New Bracket with id: " + uuid);
+      console.debug("Create New Bracket with id: " + uuid);
 
       // navigate to new bracket psge (same page really)
       navigate("/user/" + userInfo.userId + "/bracket/" + uuid, { template: template });
@@ -506,18 +502,18 @@ const App = ({ params, location }) => {
       try {
         setSaving(true);
         //write to database and stuff
-        console.log("Saving bracket...");
+        console.debug("Saving bracket...");
         await backOff(() => updateBracket(bracketId, data), {
           jitter: "full", maxDelay: 25000, retry: (e) => {
             console.log(e);
             if (e.cause && e.cause.code === 429) {
-              console.log("429 error! Retrying with delay...", e);
+              console.debug("429 error! Retrying with delay...", e);
               return true;
             }
             return false
           }
         });
-        console.log("Bracket Saved");
+        console.debug("Bracket Saved");
         //show notification Saved", "success");
         setSaving(false);
         setWaitingToSave(false);

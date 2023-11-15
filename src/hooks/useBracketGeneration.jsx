@@ -94,12 +94,10 @@ export const useBracketGeneration = () => {
                             0,
                             Math.ceil(tracks.length / 2)
                         );
-                        //console.log(theTracks);
                     } else {
                         theTracks = tracks.slice(
                             -Math.floor(tracks.length / 2)
                         );
-                        //console.log(theTracks);
                     }
                 }
 

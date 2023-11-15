@@ -78,7 +78,14 @@ export const useSongProcessing = () => {
                         highestPop = track.popularity;
                     }
                 } catch (error) {
-                    console.log(track, tracks, numTracks);
+                    console.debug(
+                        "track:",
+                        track,
+                        "tracks:",
+                        tracks,
+                        "numTracks:",
+                        numTracks
+                    );
                     throw error;
                 }
             }
@@ -103,7 +110,7 @@ export const useSongProcessing = () => {
                 album: track.album.name,
             };
         } catch (error) {
-            console.log("error processing track:", track);
+            console.warn("error processing track:", track);
             return null;
         }
     }, []);

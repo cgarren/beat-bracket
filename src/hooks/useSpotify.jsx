@@ -245,7 +245,7 @@ export const useSpotify = () => {
 
     const openBracket = useCallback(
         async (uuid, userId, state = {}) => {
-            console.log("Opening Bracket: " + uuid);
+            console.debug("Opening Bracket: " + uuid);
             //open the bracket editor and pass the bracket id off
             navigate(
                 "/user/" +
@@ -297,7 +297,7 @@ export const useSpotify = () => {
             code_challenge: codeChallenge,
         });
 
-        console.log(
+        console.debug(
             "going to:",
             "https://accounts.spotify.com/authorize?" + args
         );
