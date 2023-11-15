@@ -22,7 +22,7 @@ const App = ({ location }) => {
   // Runs once, after page load
   useEffect(() => {
     console.debug("Tracked page load", "/");
-    mixpanel.track_pageview();
+    //mixpanel.track_pageview();
   }, [mixpanel]);
 
   return (
