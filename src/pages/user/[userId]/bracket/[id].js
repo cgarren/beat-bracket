@@ -504,8 +504,8 @@ const App = ({ params, location }) => {
         //write to database and stuff
         console.debug("Saving bracket...");
         await backOff(() => updateBracket(bracketId, data), {
-          jitter: "full", maxDelay: 25000, retry: (e) => {
-            console.log(e);
+          jitter: "full", maxDelay: 25000, timeMultiple: 5, retry: (e) => {
+            console.debug(e);
             if (e.cause && e.cause.code === 429) {
               console.debug("429 error! Retrying with delay...", e);
               return true;
