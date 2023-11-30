@@ -5,7 +5,6 @@ export const useBackend = () => {
     const maxBracketsKey = "max_brackets";
 
     const baseUrl = process.env.GATSBY_BACKEND_URL;
-    console.log("Backend URL:", baseUrl);
 
     const { loginInfo } = useContext(LoginContext);
 
