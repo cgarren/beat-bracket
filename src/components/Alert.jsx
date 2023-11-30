@@ -63,7 +63,6 @@ const Alert = ({ show, close, message, type }) => {
                 >
                     {alertTypes[type] ? alertTypes[type].icon : null}
                 </svg>
-
                 <span className="sr-only">Info</span>
                 <div>
                     <span className="font-bold mr-1 whitespace-nowrap">
