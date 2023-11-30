@@ -24,7 +24,7 @@ export default function BracketCompleteModal({
                     <div className="mt-2 flex flex-row justify-around">
                         <ActionButton
                             onClick={() => setShowModal(false)}
-                            text={"Admire my masterpeice"}
+                            text={"Admire my masterpiece"}
                             customStyling={"mr-2 bg-gray-200 hover:bg-gray-300"}
                         />
                         <ActionButton

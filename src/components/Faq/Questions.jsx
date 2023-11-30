@@ -138,7 +138,7 @@ const questions = [
                     className="text-green-500 hover:text-green-700 underline"
                     href="mailto:feedback@beatbracket.com"
                 >
-                    reach out.
+                    reach out
                 </a>
                 !
             </>
