@@ -8,6 +8,8 @@ import { LoginProvider } from "./src/context/LoginContext"
 import { MixpanelProvider } from "./src/context/MixpanelContext"
 import { ErrorBoundary } from "react-error-boundary";
 
+console.log(process.env, process.env.NODE_ENV);
+
 if (process.env.GATSBY_MIXPANEL_TOKEN) {
 	if (process.env.NODE_ENV !== "production") {
 		mixpanel.init(process.env.GATSBY_MIXPANEL_TOKEN, {
