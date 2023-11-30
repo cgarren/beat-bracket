@@ -76,20 +76,19 @@ export default function PlayPauseButton({
         } else {
             try {
                 audioRef.current.play().catch((error) => {
-                    console.log(error.name);
                     if (error.name === "NotAllowedError") {
                         alert(
                             "It looks like you haven't given this site permission to play audio. If you are using Safari, please enable autoplay and try again. If that doesn't work, try using Chrome instead!"
                         );
                     } else {
-                        console.log(error);
+                        console.error(error);
                     }
                     setCurrentlyPlayingId(null);
                     setPaused(true);
                 });
                 setPaused(false);
             } catch (error) {
-                console.log(error);
+                console.error(error);
                 setCurrentlyPlayingId(null);
                 setPaused(true);
             }

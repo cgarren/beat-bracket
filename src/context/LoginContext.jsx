@@ -1,36 +1,138 @@
-import React, { createContext, useState, useEffect } from "react";
-import { isLoggedIn } from "../utilities/authentication";
+import React, { createContext, useState, useEffect, useMemo } from "react";
+import { useSpotify } from "../hooks/useSpotify";
+import { navigate } from "gatsby";
 export const LoginContext = createContext([null, () => {}]);
 
 export function LoginProvider({ children }) {
-    const [loggedIn, setLoggedIn] = useState(isLoggedIn());
-    //const [, updateState] = useState();
+    // auth storage keys
+
+    // state variables
+    const [loginInProgress, setLoginInProgress] = useState(false);
+    // set logininfo from localstorage on page load
+    const [loginInfo, setLoginInfo] = useState({
+        userId: localStorage.getItem("userId"),
+        accessToken: localStorage.getItem("accessToken"),
+        sessionId: localStorage.getItem("sessionId"),
+        expiresAt: localStorage.getItem("expiresAt"),
+        refreshToken: localStorage.getItem("refreshToken"),
+    });
+    const [userInfo, setUserInfo] = useState(null);
+    const [timerId, setTimerId] = useState(null);
+
+    // loggedIn status
+    const loggedIn = useMemo(() => {
+        let expiresAtDate = new Date(parseInt(loginInfo.expiresAt, 10));
+        if (
+            loginInfo.accessToken &&
+            loginInfo.sessionId &&
+            loginInfo.userId &&
+            loginInfo.expiresAt &&
+            expiresAtDate.toString() !== "Invalid Date" &&
+            Date.now() < expiresAtDate
+        ) {
+            console.debug("logged in");
+            return true;
+        }
+        console.debug("not logged in");
+        return false;
+    }, [loginInfo]);
+
+    const { getCurrentUserInfo } = useSpotify();
+
+    // keep loginInfo in sync with localstorage
     useEffect(() => {
-        // check if user is logged in when the localstorage changes
-        window.onstorage = () => {
-            setLoggedIn(isLoggedIn(setLoggedIn));
-        };
-        isLoggedIn(setLoggedIn);
+        // set new loginInfo object when localstorage changes in another tab
+        if (typeof window !== "undefined") {
+            window.onstorage = async (e) => {
+                console.debug("UPDATING INFO FROM STORAGE");
+                const { key, newValue } = e;
+                console.log(key, newValue, e);
+                if (key === null) {
+                    console.log("setting login info to null");
+                    setLoginInfo({
+                        userId: null,
+                        accessToken: null,
+                        sessionId: null,
+                        expiresAt: null,
+                        refreshToken: null,
+                        fromStorage: true,
+                    });
+                } else if (key in loginInfo) {
+                    setLoginInfo({
+                        ...loginInfo,
+                        [key]: newValue,
+                        fromStorage: true,
+                    });
+                }
+            };
+        } else {
+            return null;
+        }
         return () => {
             window.onstorage = null;
         };
-    }, []);
+    }, [loginInfo, setLoginInfo]);
+
+    // keep localstorage in sync with loginInfo
+    useEffect(() => {
+        if (loginInfo && !loginInfo.fromStorage) {
+            console.debug("UPDATING STORAGE FROM INFO");
+            for (const key in loginInfo) {
+                if (loginInfo[key]) {
+                    localStorage.setItem(key, loginInfo[key]);
+                } else {
+                    localStorage.removeItem(key);
+                }
+            }
+        }
+    }, [loginInfo]);
+
+    // keep userInfo in sync with loginInfo
+    useEffect(() => {
+        if (loginInfo.accessToken !== null && loggedIn) {
+            getCurrentUserInfo(loginInfo.accessToken).then((info) => {
+                setUserInfo(info);
+            });
+        } else {
+            setUserInfo(null);
+        }
+    }, [loginInfo.accessToken, getCurrentUserInfo, loggedIn]);
+
+    // redirect to login page on logout
+    useEffect(() => {
+        if (
+            loginInfo.accessToken === undefined &&
+            loginInfo.sessionId === undefined &&
+            loginInfo.userId === undefined &&
+            loginInfo.expiresAt === undefined &&
+            loginInfo.refreshToken === undefined
+        ) {
+            console.debug("Just logged out, redirecting to home page");
+            navigate("/");
+        }
+    }, [loginInfo, loggedIn, loginInProgress, timerId]);
 
     // useEffect(() => {
-    //   //updateState({});
-    //   // check if user is logged in when the localstorage changes
-    //   window.onstorage = () => {
-    //     console.log("storage changed");
-    //     updateState({});
-    //   };
-
-    //   return () => {
-    //     window.onstorage = null;
-    //   };
-    // }, []);
+    //     console.log("loggedIn:", loggedIn);
+    //     if (!loggedIn) {
+    //         // display some kind fo error?
+    //     }
+    // }, [loggedIn]);
 
     return (
-        <LoginContext.Provider value={{ loggedIn, setLoggedIn }}>
+        <LoginContext.Provider
+            value={{
+                loggedIn,
+                loginInfo,
+                setLoginInfo,
+                userInfo,
+                setUserInfo,
+                loginInProgress,
+                setLoginInProgress,
+                timerId,
+                setTimerId,
+            }}
+        >
             {children}
         </LoginContext.Provider>
     );

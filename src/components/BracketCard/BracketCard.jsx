@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Card from "./Card";
 import CardName from "./CardName";
-import { openBracket } from "../../utilities/helpers";
-import { deleteBracket } from "../../utilities/backend";
-import { getArt, loadSpotifyRequest } from "../../utilities/spotify";
+import { useBackend } from "../../hooks/useBackend";
+import { useSpotify } from "../../hooks/useSpotify";
+import { LoginContext } from "../../context/LoginContext";
 
 export default function BracketCard({ bracket, userId, showAlert }) {
+    const { loggedIn } = useContext(LoginContext);
     const [cardImage, setCardImage] = useState(null);
+    const { deleteBracket } = useBackend();
+    const { getArtistImage, getPlaylistImage, openBracket } = useSpotify();
     const name = (() => {
         if (bracket.songSource && bracket.songSource.type) {
             switch (bracket.songSource.type) {
@@ -24,43 +27,33 @@ export default function BracketCard({ bracket, userId, showAlert }) {
     })();
 
     useEffect(() => {
-        if (bracket.songSource && bracket.songSource.type) {
-            switch (bracket.songSource.type) {
-                case "artist":
-                    getArtistImage(bracket.songSource.artist.id).then(
-                        (image) => {
+        async function getBracketImage() {
+            if (bracket.songSource && bracket.songSource.type && loggedIn) {
+                try {
+                    let image;
+                    switch (bracket.songSource.type) {
+                        case "artist":
+                            image = await getArtistImage(
+                                bracket.songSource.artist.id
+                            );
                             setCardImage(image);
-                        }
-                    );
-                    break;
-                case "playlist":
-                    getPlaylistImage(bracket.songSource.playlist.id).then(
-                        (image) => {
+                            break;
+                        case "playlist":
+                            image = await getPlaylistImage(
+                                bracket.songSource.playlist.id
+                            );
                             setCardImage(image);
-                        }
-                    );
-                    break;
-                default:
-                    break;
+                            break;
+                        default:
+                            break;
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
             }
-        } else if (bracket.artistId) {
-            getArtistImage(bracket.artistId).then((image) => {
-                setCardImage(image);
-            });
         }
-    }, [bracket]);
-
-    async function getArtistImage(artistId) {
-        const url = "https://api.spotify.com/v1/artists/" + artistId;
-        const response = await loadSpotifyRequest(url);
-        return getArt(response.images, "artist", true);
-    }
-
-    async function getPlaylistImage(playlistId) {
-        const url = "https://api.spotify.com/v1/playlists/" + playlistId;
-        const response = await loadSpotifyRequest(url);
-        return getArt(response.images, "playlist", true);
-    }
+        getBracketImage();
+    }, [bracket, getArtistImage, getPlaylistImage, loggedIn]);
 
     async function removeBracket() {
         if (
@@ -69,7 +62,6 @@ export default function BracketCard({ bracket, userId, showAlert }) {
             )
         ) {
             try {
-                console.log("removing bracket");
                 await deleteBracket(bracket.id, userId);
                 window.location.reload();
             } catch (error) {

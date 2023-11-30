@@ -1,7 +1,6 @@
 import React from "react";
-import { loadSpotifyRequest } from "../../utilities/spotify";
+import { useSpotify } from "../../hooks/useSpotify";
 import SearchBar from "./SearchBar";
-import { getArt } from "../../utilities/spotify";
 
 const SpotifySearchBar = ({ type, setFunc, disabled }) => {
     const placeholder = (() => {
@@ -19,18 +18,15 @@ const SpotifySearchBar = ({ type, setFunc, disabled }) => {
         }
     })();
 
+    const { search, getArt } = useSpotify();
+
     async function searchSuggestions(searchText) {
         const pluralIdentifier = type + "s";
         if (searchText.trim() !== "") {
-            var params = { q: searchText, type: type, limit: 5 };
-            var url =
-                "https://api.spotify.com/v1/search/?" +
-                new URLSearchParams(params).toString();
-            let response = await loadSpotifyRequest(url);
-
-            if (response !== 1 && response[pluralIdentifier].items.length > 0) {
+            const result = await search(searchText, type, 5);
+            if (result[pluralIdentifier].items.length > 0) {
                 let templist = [];
-                response[pluralIdentifier].items.forEach(async (item) => {
+                result[pluralIdentifier].items.forEach(async (item) => {
                     const art = await getArt(item.images, type);
                     if (item.images.length > 0) {
                         templist.push({
