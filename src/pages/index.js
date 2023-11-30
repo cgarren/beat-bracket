@@ -21,8 +21,15 @@ const App = ({ location }) => {
 
   // Runs once, after page load
   useEffect(() => {
-    console.debug("Tracked page load", "/");
-    mixpanel.track_pageview();
+    if (mixpanel && mixpanel.track_pageview) {
+      try {
+        mixpanel.track_pageview()
+        console.debug("Tracked page load", "/");
+      } catch {
+        console.log("Error tracking pageview");
+      }
+
+    }
   }, [mixpanel]);
 
   return (

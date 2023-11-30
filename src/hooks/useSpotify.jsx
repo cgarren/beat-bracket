@@ -97,7 +97,10 @@ export const useSpotify = () => {
                             cause: { code: response.status },
                         });
                     } else {
-                        throw new Error("Unknown error");
+                        console.log("Spotify response:", response);
+                        throw new Error(
+                            "Unknown error loading spotify request"
+                        );
                     }
                 }
                 return response;
