@@ -31,7 +31,7 @@ const App = ({ location }) => {
   }, [activeTab, brackets]);
   const { loginInfo, loginInProgress, loggedIn } = useContext(LoginContext);
   const { getBrackets, getMaxBrackets } = useBackend();
-  const { loginCallback } = useAuthentication();
+  const { loginCallback } = useAuthentication(false);
   const maxBrackets = getMaxBrackets();
 
   //scroll to top of window on page load

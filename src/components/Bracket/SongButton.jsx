@@ -199,7 +199,7 @@ export default function SongButton({
                         onClick={undoFunc}
                         aria-label="Undo"
                         className={cx(
-                            "border-0 w-[26px] h-[26px] p-1 text-xs hover:bg-red-600 hover:text-white bg-transparent text-black absolute rounded-full z-50 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-opacity-50",
+                            "border-0 w-[26px] h-[26px] p-1 text-xs hover:bg-red-600 hover:text-white bg-transparent text-black absolute rounded-full z-20 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-opacity-50",
                             {
                                 "-right-8 top-3":
                                     side === "l" &&
@@ -276,7 +276,7 @@ export default function SongButton({
                             onClick={() => {
                                 setShowTrackSelector(true);
                             }}
-                            className="border-0 p-0 w-[20px] h-[20px] hover:bg-gray-200 bg-white text-black absolute -top-2 -right-2 rounded-full z-50 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-opacity-50"
+                            className="border-0 p-0 w-[20px] h-[20px] hover:bg-gray-200 bg-white text-black absolute -top-2 -right-2 rounded-full z-20 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-opacity-50"
                         >
                             {"✕"}
                         </button>
@@ -288,7 +288,7 @@ export default function SongButton({
                                     `http://open.spotify.com/track/${song.id}`
                                 );
                             }}
-                            className="border-0 p-0 w-[20px] h-[20px] hover:bg-white bg-black text-white absolute -top-2 -right-2 rounded-full z-50 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-opacity-50"
+                            className="border-0 p-0 w-[20px] h-[20px] hover:bg-white bg-black text-white absolute -top-2 -right-2 rounded-full z-20 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-opacity-50"
                         >
                             <img
                                 src={spotifyIcon}

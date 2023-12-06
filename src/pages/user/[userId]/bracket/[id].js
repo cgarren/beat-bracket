@@ -89,6 +89,8 @@ const App = ({ params, location }) => {
   const { seedBracket, sortTracks, loadAlbums, processTracks, loadPlaylistTracks, updatePreviewUrls } = useSongProcessing();
   const { getNumberOfColumns, fillBracket } = useBracketGeneration();
 
+  const localSaveKey = "savedBracket";
+
   const editable = loggedIn && isCurrentUser(owner.id);
   const bracketTracks = useMemo(() => {
     let tracks = [];
@@ -228,17 +230,19 @@ const App = ({ params, location }) => {
   }, [makeCreationObject, showAlert, createBracket]);
 
   const checkAndUpdateSongSource = useCallback(async (tempSongSource) => {
-    if (tempSongSource.type === "artist") {
-      const artist = await getArtist(tempSongSource.artist.id);
-      setSongSource({ type: "artist", artist: { name: artist.name, id: artist.id } });
-    } else if (tempSongSource.type === "playlist") {
-      const playlist = await getPlaylist(tempSongSource.playlist.id);
-      setSongSource({ type: "playlist", playlist: { name: playlist.name, id: playlist.id } });
+    if (loggedIn) {
+      if (tempSongSource.type === "artist") {
+        const artist = await getArtist(tempSongSource.artist.id);
+        setSongSource({ type: "artist", artist: { name: artist.name, id: artist.id } });
+      } else if (tempSongSource.type === "playlist") {
+        const playlist = await getPlaylist(tempSongSource.playlist.id);
+        setSongSource({ type: "playlist", playlist: { name: playlist.name, id: playlist.id } });
+      }
     }
   }, [getArtist, getPlaylist]);
 
   const checkAndUpdateOwnerUsername = useCallback(async (ownerId) => {
-    if (ownerId) {
+    if (ownerId && loggedIn) {
       getUserInfo(ownerId).then((userInfo) => {
         if (userInfo) {
           setOwner({ id: userInfo.id, name: userInfo.display_name });
@@ -455,6 +459,78 @@ const App = ({ params, location }) => {
     }
   }, [initializeBracketFromSource, initializeBracketFromTemplate, initializeLoadedBracket, bracketId, owner.id, locationState, limit, showAlert, setBracket, getBracket]);
 
+  const deleteBracketSavedLocally = useCallback(() => {
+    console.log("deleting bracket locally");
+    sessionStorage.removeItem(localSaveKey);
+    console.log("bracket deleted");
+  }, []);
+
+  const saveBracketLocally = useCallback(() => {
+    if (editable && !isSaved && !bracketWinner) {
+      console.log("saving bracket locally");
+      sessionStorage.setItem(localSaveKey, JSON.stringify({
+        bracketId: bracketId,
+        owner: owner,
+        locationState: locationState,
+        seedingMethod: seedingMethod,
+        inclusionMethod: inclusionMethod,
+        limit: limit,
+        fills: fills,
+        allTracks: allTracks,
+        editMode: editMode,
+        commands: commands,
+        bracket: bracket,
+        template: template,
+        songSource: songSource,
+        currentlyPlayingId: currentlyPlayingId,
+        showBracket: showBracket,
+        loadingText: loadingText,
+        saving: saving,
+        waitingToSave: waitingToSave,
+        lastSaved: lastSaved,
+        playbackEnabled: playbackEnabled,
+        alertInfo: alertInfo,
+      }));
+    }
+  }, [bracketId, owner, locationState, seedingMethod, inclusionMethod, limit, fills, allTracks, editMode, commands, bracket, template, songSource, currentlyPlayingId, showBracket, loadingText, saving, waitingToSave, lastSaved, playbackEnabled, alertInfo, bracketWinner, isSaved, editable]);
+
+  const loadBracketLocally = useCallback(() => {
+    const savedState = JSON.parse(sessionStorage.getItem(localSaveKey));
+    if (savedState) {
+      setBracketId(savedState.bracketId);
+      setOwner(savedState.owner);
+      setLocationState(savedState.locationState);
+      setSeedingMethod(savedState.seedingMethod);
+      setInclusionMethod(savedState.inclusionMethod);
+      setLimit(savedState.limit);
+      setFills(savedState.fills);
+      setAllTracks(savedState.allTracks);
+      setEditMode(savedState.editMode);
+      setCommands(savedState.commands);
+      setBracket(savedState.bracket);
+      setTemplate(savedState.template);
+      setSongSource(savedState.songSource);
+      setCurrentlyPlayingId(savedState.currentlyPlayingId);
+      setShowBracket(savedState.showBracket);
+      setLoadingText(savedState.loadingText);
+      setSaving(savedState.saving);
+      setWaitingToSave(savedState.waitingToSave);
+      setLastSaved(savedState.lastSaved);
+      setPlaybackEnabled(savedState.playbackEnabled);
+      setAlertInfo(savedState.alertInfo);
+
+      deleteBracketSavedLocally();
+    }
+  }, [setBracketId, setOwner, setLocationState, setSeedingMethod, setInclusionMethod, setLimit, setFills, setAllTracks, setEditMode, setCommands, setBracket, setTemplate, setSongSource, setCurrentlyPlayingId, setShowBracket, setLoadingText, setSaving, setWaitingToSave, setLastSaved, setPlaybackEnabled, setAlertInfo, deleteBracketSavedLocally]);
+
+  const isBracketSavedLocally = useCallback(() => {
+    const savedState = JSON.parse(sessionStorage.getItem(localSaveKey));
+    if (savedState) {
+      return true;
+    }
+    return false;
+  }, []);
+
   useEffect(() => {
     kickOff();
   }, []);
@@ -628,7 +704,7 @@ const App = ({ params, location }) => {
   }
 
   return (
-    <Layout noChanges={noChanges} path={location.pathname}>
+    <Layout noChanges={noChanges} path={location.pathname} saveBracketLocally={saveBracketLocally} isBracketSavedLocally={isBracketSavedLocally} deleteBracketSavedLocally={deleteBracketSavedLocally}>
       {bracketWinner && commands.length !== 0 && <Confetti
         width={window.document.body.offsetWidth}
         height={window.document.body.offsetHeight}

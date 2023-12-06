@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useCallback } from "react";
 
 import spotifyLogoGreen from "../assets/images/Spotify_Logo_RGB_Green.png";
 import LoadingIndicator from "./LoadingIndicator";
@@ -8,13 +8,21 @@ import { useAuthentication } from "../hooks/useAuthentication";
 
 import * as cx from "classnames";
 
-export default function LoginButton({ variant = "borderless" }) {
+export default function LoginButton({
+    variant = "borderless",
+    cleanupFunc = () => {},
+}) {
     const { loginInProgress } = useContext(LoginContext);
     const { login } = useAuthentication();
 
+    const buttonClicked = useCallback(async () => {
+        const loginResult = await login();
+        await cleanupFunc(loginResult);
+    }, [login, cleanupFunc]);
+
     return (
         <button
-            onClick={login}
+            onClick={buttonClicked}
             disabled={loginInProgress}
             className={cx(
                 "inline-flex",

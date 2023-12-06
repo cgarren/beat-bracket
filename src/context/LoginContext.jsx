@@ -17,7 +17,6 @@ export function LoginProvider({ children }) {
         refreshToken: localStorage.getItem("refreshToken"),
     });
     const [userInfo, setUserInfo] = useState(null);
-    const [timerId, setTimerId] = useState(null);
 
     // loggedIn status
     const loggedIn = useMemo(() => {
@@ -49,14 +48,14 @@ export function LoginProvider({ children }) {
                 console.log(key, newValue, e);
                 if (key === null) {
                     console.log("setting login info to null");
-                    setLoginInfo({
-                        userId: null,
-                        accessToken: null,
-                        sessionId: null,
-                        expiresAt: null,
-                        refreshToken: null,
-                        fromStorage: true,
-                    });
+                    // setLoginInfo({
+                    //     userId: null,
+                    //     accessToken: null,
+                    //     sessionId: null,
+                    //     expiresAt: null,
+                    //     refreshToken: null,
+                    //     fromStorage: true,
+                    // });
                 } else if (key in loginInfo) {
                     setLoginInfo({
                         ...loginInfo,
@@ -87,6 +86,28 @@ export function LoginProvider({ children }) {
         }
     }, [loginInfo]);
 
+    // const setLoginTimer = useCallback(
+    //     (expiresAt, callbackFuncion) => {
+    //         // clear timer if it exists
+    //         if (timerId) {
+    //             clearTimeout(timerId);
+    //         }
+    //         // refresh access token 1 minute before it expires
+    //         const refreshTime = 20000; //expiresAt - 60000 - Date.now();
+    //         const tempTimerId = setTimeout(() => {
+    //             callbackFuncion();
+    //         }, refreshTime);
+    //         setTimerId(tempTimerId);
+    //         console.debug(
+    //             "set login timer for",
+    //             refreshTime,
+    //             "ms from now. TimerId:",
+    //             tempTimerId
+    //         );
+    //     },
+    //     [timerId, setTimerId]
+    // );
+
     // keep userInfo in sync with loginInfo
     useEffect(() => {
         if (loginInfo.accessToken !== null && loggedIn) {
@@ -110,7 +131,7 @@ export function LoginProvider({ children }) {
             console.debug("Just logged out, redirecting to home page");
             navigate("/");
         }
-    }, [loginInfo, loggedIn, loginInProgress, timerId]);
+    }, [loginInfo, loggedIn, loginInProgress]);
 
     // useEffect(() => {
     //     console.log("loggedIn:", loggedIn);
@@ -129,8 +150,6 @@ export function LoginProvider({ children }) {
                 setUserInfo,
                 loginInProgress,
                 setLoginInProgress,
-                timerId,
-                setTimerId,
             }}
         >
             {children}
