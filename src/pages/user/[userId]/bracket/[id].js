@@ -453,7 +453,7 @@ const App = ({ params, location }) => {
           showAlert("Error loading bracket! Please try again later", "error", false);
         } else {
           showAlert(error.message, "error", false);
-          throw error;
+          console.error(error);
         }
       }
     }

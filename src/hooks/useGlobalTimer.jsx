@@ -5,7 +5,7 @@ export const useGlobalTimer = () => {
         const storageKey = "timeout" + timerId;
         if (localStorage.getItem(storageKey)) {
             clearTimeout(localStorage.getItem(storageKey));
-            console.log("cancelled timer", timerId);
+            console.debug("cancelled timer", timerId);
         }
 
         localStorage.setItem(
@@ -15,13 +15,13 @@ export const useGlobalTimer = () => {
                 callback();
             }, delay)
         );
-        console.log("set timer", timerId, "for", delay);
+        console.debug("set timer", timerId, "for", delay);
     }, []);
 
     const clearTimer = useCallback((timerId = "") => {
         const storageKey = "timeout" + timerId;
         clearTimeout(localStorage.getItem(storageKey));
-        console.log("cancelled timer", timerId);
+        console.debug("cancelled timer", timerId);
         localStorage.removeItem(storageKey);
     }, []);
 

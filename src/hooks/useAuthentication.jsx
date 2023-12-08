@@ -104,15 +104,16 @@ export const useAuthentication = () => {
                         );
                         return true;
                     } catch (error) {
-                        if (refreshTokenOnly) {
-                            return false;
-                        }
                         console.log("Problem refreshing with refresh token:");
                         console.error(error);
                         setLoginInfo({
                             ...loginInfo,
                             refreshToken: null,
                         });
+
+                        if (refreshTokenOnly) {
+                            return false;
+                        }
 
                         // kick off spotify login process
                         await setupSpotifyLogin();
