@@ -287,7 +287,6 @@ export const useSpotify = () => {
         //Generate and save code verifier
         const codeVerifier = generateRandomString(128);
         sessionStorage.setItem(codeVerifierKey, codeVerifier);
-        window.dispatchEvent(new Event("storage"));
         const codeChallenge = await generateCodeChallenge(codeVerifier);
 
         const args = new URLSearchParams({
@@ -338,7 +337,7 @@ export const useSpotify = () => {
                 }
                 // Parse and store data
                 const data = await response.json();
-                const expiresAt = Date.now() + parseInt(data.expires_in) * 1000;
+                const expiresAt = Date.now() + 120000; //parseInt(data.expires_in) * 1000;
                 // remove spotify auth state
                 sessionStorage.removeItem(stateKey);
                 // remove spotify auth code verifier
@@ -374,7 +373,7 @@ export const useSpotify = () => {
         }
         // Parse and store data
         const data = await response.json();
-        const expiresAt = Date.now() + parseInt(data.expires_in) * 1000;
+        const expiresAt = Date.now() + 120000; //parseInt(data.expires_in) * 1000;
         return {
             accessToken: data.access_token,
             expiresAt: expiresAt,

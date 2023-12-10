@@ -21,7 +21,7 @@ const Layout = ({
     const mixpanel = useContext(MixpanelContext);
     const { setTimer, clearTimer } = useGlobalTimer();
     const { loginRef } = useAuthentication();
-    const { loginInfo, loggedIn } = useContext(LoginContext);
+    const { loginInfo, loggedIn, loginInProgress } = useContext(LoginContext);
     const bracketPageRegex = /^\/user\/.+\/bracket\/[a-zA-Z0-9-]+\/?$/;
     const [showLoginModal, setShowLoginModal] = useState(false);
 
@@ -41,26 +41,29 @@ const Layout = ({
         ) {
             // refresh access token 1 minute before it expires
             const refreshTime = loginInfo.expiresAt - 60000 - Date.now();
-            setTimer(
-                () => {
-                    const onBracketPage = bracketPageRegex.test(
-                        window.location.pathname
-                    );
-                    deleteBracketSavedLocally();
-                    if (onBracketPage) {
-                        console.log("ON BRACKET PAGE");
-                        saveBracketLocally();
-                    }
-
-                    loginRef.current(true).then((loginResult) => {
-                        if (!loginResult) {
-                            setShowLoginModal(true);
+            if (refreshTime > 0) {
+                setTimer(
+                    () => {
+                        const onBracketPage = bracketPageRegex.test(
+                            window.location.pathname
+                        );
+                        deleteBracketSavedLocally();
+                        if (onBracketPage) {
+                            console.log("ON BRACKET PAGE");
+                            saveBracketLocally();
                         }
-                    });
-                },
-                refreshTime,
-                "auth"
-            );
+
+                        loginRef.current(true).then((loginResult) => {
+                            console.log("login result", loginResult);
+                            if (!loginResult) {
+                                setShowLoginModal(true);
+                            }
+                        });
+                    },
+                    refreshTime,
+                    "auth"
+                );
+            }
 
             return () => {
                 clearTimer("auth");

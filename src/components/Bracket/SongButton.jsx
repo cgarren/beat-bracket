@@ -1,7 +1,6 @@
 import React, { useRef, useState, useMemo } from "react";
 import PlayPauseButton from "./PlayPauseButton";
 
-import spotifyIcon from "../../assets/images/Spotify_Icon_RGB_Green.png";
 import UndoIcon from "../../assets/svgs/undoIcon.svg";
 
 import Vibrant from "node-vibrant";
@@ -9,6 +8,7 @@ import { useBracketGeneration } from "../../hooks/useBracketGeneration";
 
 import cx from "classnames";
 import ReplaceTrackModal from "./ReplaceTrackModal";
+import OpenInSpotifyButton from "./OpenInSpotifyButton";
 
 export default function SongButton({
     styling,
@@ -282,21 +282,10 @@ export default function SongButton({
                         </button>
                     ) : null}
                     {!editMode && song && !disabled ? (
-                        <button
-                            onClick={() => {
-                                window.open(
-                                    `http://open.spotify.com/track/${song.id}`
-                                );
-                            }}
-                            className="border-0 p-0 w-[20px] h-[20px] hover:bg-white bg-black text-white absolute -top-2 -right-2 rounded-full z-20 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-opacity-50"
-                        >
-                            <img
-                                src={spotifyIcon}
-                                alt="Spotify Icon"
-                                title="Open in Spotify"
-                                className="h-[20px] text-white"
-                            />
-                        </button>
+                        <OpenInSpotifyButton
+                            songId={song.id}
+                            extraClasses="absolute -top-2 -right-2 "
+                        />
                     ) : null}
                     <button
                         disabled={disabled}

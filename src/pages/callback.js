@@ -1,6 +1,6 @@
 import React, { useEffect, useContext, useCallback, useState } from "react"
 import Layout from "../components/Layout";
-import { navigate, Link } from "gatsby";
+import { navigate } from "gatsby";
 import { Seo } from "../components/SEO";
 import { LoginContext } from "../context/LoginContext";
 import { useAuthentication } from "../hooks/useAuthentication";
@@ -21,7 +21,7 @@ const App = ({ location }) => {
     const urlParams = new URLSearchParams(window.location.search);
     window.history.replaceState({}, document.title, window.location.pathname);
 
-    if (urlParams.size != 0) {
+    if (urlParams.size !== 0) {
       // check to see if the user just logged in
       try {
         await loginCallback(urlParams);

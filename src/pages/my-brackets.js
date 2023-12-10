@@ -139,7 +139,7 @@ const App = ({ location }) => {
         </div>
         <div className={
           cx("pt-3 items-stretch sm:mx-5 gap-5",
-            { "inline-grid xl:grid-cols-3 md:grid-cols-2": brackets && brackets.length >= 3 },
+            { "inline-grid 2xl:grid-cols-4 xl:grid-cols-3 md:grid-cols-2": brackets && brackets.length >= 3 },
             { "flex flex-row flex-wrap justify-center": brackets && brackets.length < 3 }
           )}>
           {activeTab === 0 && maxBrackets && brackets && brackets.length < maxBrackets && loggedIn && (brackets.length === 0 || brackets[0].id) ? <CreateBracketCard /> : null}

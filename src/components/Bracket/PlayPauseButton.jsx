@@ -102,7 +102,7 @@ export default function PlayPauseButton({
             className={cx(
                 "rounded-[inherit]",
                 "bg-green-500",
-                "text-white",
+                "text-black",
                 "border-0",
                 "w-[25%]",
                 "min-h-[var(--buttonheight)]",
@@ -114,7 +114,7 @@ export default function PlayPauseButton({
                 { "rounded-r-[0]": side },
                 { "rounded-l-[0]": !side }
             )}
-            style={song ? colorStyle : {}}
+            style={song ? { ...colorStyle, color: "black" } : {}}
             hidden={!song || disabled || editMode}
         >
             {paused ? <PlayIcon /> : <PauseIcon />}
