@@ -1,106 +1,101 @@
+/* eslint-disable react/prop-types */
 import React, { useContext, useEffect, useState } from "react";
 import NavBar from "./NavBar/NavBar";
 import Clicky from "./Clicky";
 import Footer from "./Footer";
 import { MixpanelContext } from "../context/MixpanelContext";
 import { LoginContext } from "../context/LoginContext";
-import { useAuthentication } from "../hooks/useAuthentication";
-import { useGlobalTimer } from "../hooks/useGlobalTimer";
+import useAuthentication from "../hooks/useAuthentication";
+import useGlobalTimer from "../hooks/useGlobalTimer";
 import LoginExpiredModal from "./LoginExpiredModal";
 
-const Layout = ({
-    children,
-    noChanges,
-    path,
-    showNavBar = true,
-    showFooter = true,
-    saveBracketLocally = () => {},
-    isBracketSavedLocally = false,
-    deleteBracketSavedLocally = () => {},
-}) => {
-    const mixpanel = useContext(MixpanelContext);
-    const { setTimer, clearTimer } = useGlobalTimer();
-    const { loginRef } = useAuthentication();
-    const { loginInfo, loggedIn, loginInProgress } = useContext(LoginContext);
-    const bracketPageRegex = /^\/user\/.+\/bracket\/[a-zA-Z0-9-]+\/?$/;
-    const [showLoginModal, setShowLoginModal] = useState(false);
+export default function Layout({
+  children,
+  noChanges,
+  path,
+  showNavBar = true,
+  showFooter = true,
+  saveBracketLocally = () => {},
+  isBracketSavedLocally = false,
+  deleteBracketSavedLocally = () => {},
+}) {
+  const mixpanel = useContext(MixpanelContext);
+  const { setTimer, clearTimer } = useGlobalTimer();
+  const { loginRef } = useAuthentication();
+  const { loginInfo, loggedIn } = useContext(LoginContext);
+  const bracketPageRegex = /^\/user\/.+\/bracket\/[a-zA-Z0-9-]+\/?$/;
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
-    // Runs once, after page load
-    useEffect(() => {
-        console.debug("Tracked page load", path);
-        //mixpanel.track_pageview();
-    }, [mixpanel, path]);
+  // Runs once, after page load
+  useEffect(() => {
+    console.debug("Tracked page load", path);
+    // mixpanel.track_pageview();
+  }, [mixpanel, path]);
 
-    // set timer to refresh spotify session
-    useEffect(() => {
-        if (
-            loggedIn &&
-            loginInfo.expiresAt &&
-            loginRef.current &&
-            !showLoginModal
-        ) {
-            // refresh access token 1 minute before it expires
-            const refreshTime = loginInfo.expiresAt - 60000 - Date.now();
-            if (refreshTime > 0) {
-                setTimer(
-                    () => {
-                        const onBracketPage = bracketPageRegex.test(
-                            window.location.pathname
-                        );
-                        deleteBracketSavedLocally();
-                        if (onBracketPage) {
-                            console.log("ON BRACKET PAGE");
-                            saveBracketLocally();
-                        }
-
-                        loginRef.current(true).then((loginResult) => {
-                            console.log("login result", loginResult);
-                            if (!loginResult) {
-                                setShowLoginModal(true);
-                            }
-                        });
-                    },
-                    refreshTime,
-                    "auth"
-                );
+  // set timer to refresh spotify session
+  useEffect(() => {
+    if (loggedIn && loginInfo.expiresAt && loginRef.current && !showLoginModal) {
+      // refresh access token 1 minute before it expires
+      const refreshTime = loginInfo.expiresAt - 60000 - Date.now();
+      if (refreshTime > 0) {
+        setTimer(
+          () => {
+            const onBracketPage = bracketPageRegex.test(window.location.pathname);
+            deleteBracketSavedLocally();
+            if (onBracketPage) {
+              console.log("ON BRACKET PAGE");
+              saveBracketLocally();
             }
 
-            return () => {
-                clearTimer("auth");
-            };
-        }
-    }, [
-        loginInfo.expiresAt,
-        setTimer,
-        clearTimer,
-        loggedIn,
-        loginRef,
-        saveBracketLocally,
-        deleteBracketSavedLocally,
-        bracketPageRegex,
-    ]);
+            loginRef.current(true).then((loginResult) => {
+              console.log("login result", loginResult);
+              if (!loginResult) {
+                setShowLoginModal(true);
+              }
+            });
+          },
+          refreshTime,
+          "auth",
+        );
+        return () => {
+          clearTimer("auth");
+        };
+      }
 
-    return (
-        <>
-            <Clicky />
-            {(showFooter || showNavBar || children) && (
-                <div className="text-center clear-both">
-                    <main className="font-sans text-black bg-gradient-radial from-zinc-200 to-zinc-300 relative text-center min-h-screen pb-[24px]">
-                        {/* <div className="fixed w-full h-full top-0 left-0 bg-repeat bg-scroll bg-slate-900 bg-colosseum bg-blend-screen bg-cover opacity-40 -z-10"></div> */}
-                        {showNavBar && <NavBar noChanges={noChanges} />}
-                        <LoginExpiredModal
-                            showModal={showLoginModal}
-                            setShowModal={setShowLoginModal}
-                            login={loginRef.current}
-                            bracketSavedLocally={false && isBracketSavedLocally}
-                        />
-                        {children}
-                    </main>
-                    {showFooter && <Footer path={path} />}
-                </div>
-            )}
-        </>
-    );
-};
+      return () => {};
+    }
+    return undefined;
+  }, [
+    showLoginModal,
+    loginInfo.expiresAt,
+    setTimer,
+    clearTimer,
+    loggedIn,
+    loginRef,
+    saveBracketLocally,
+    deleteBracketSavedLocally,
+    bracketPageRegex,
+  ]);
 
-export default Layout;
+  return (
+    <>
+      <Clicky />
+      {(showFooter || showNavBar || children) && (
+        <div className="text-center clear-both">
+          <main className="font-sans text-black bg-gradient-radial from-zinc-200 to-zinc-300 relative text-center min-h-screen pb-[24px]">
+            {/* <div className="fixed w-full h-full top-0 left-0 bg-repeat bg-scroll bg-slate-900 bg-colosseum bg-blend-screen bg-cover opacity-40 -z-10"></div> */}
+            {showNavBar && <NavBar noChanges={noChanges} />}
+            <LoginExpiredModal
+              showModal={showLoginModal}
+              setShowModal={setShowLoginModal}
+              login={loginRef.current}
+              bracketSavedLocally={false && isBracketSavedLocally}
+            />
+            {children}
+          </main>
+          {showFooter && <Footer path={path} />}
+        </div>
+      )}
+    </>
+  );
+}

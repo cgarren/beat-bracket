@@ -36,9 +36,20 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.8",
+    "eslint": "^8.55.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-node": "^4.1.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-jsx-a11y": "^6.8.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^5.0.1",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
     "gatsby-plugin-postcss": "^6.3.0",
     "gh-pages": "^4.0.0",
     "postcss": "^8.4.20",
+    "prettier": "^3.1.1",
     "tailwindcss": "^3.3.1"
   }
 }
