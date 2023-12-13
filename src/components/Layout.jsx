@@ -34,7 +34,7 @@ export default function Layout({
 
   // set timer to refresh spotify session
   useEffect(() => {
-    if (loggedIn && loginInfo.expiresAt && loginRef.current && !showLoginModal) {
+    if (loggedIn && loginInfo && loginInfo.expiresAt && loginRef.current && !showLoginModal) {
       // refresh access token 1 minute before it expires
       const refreshTime = loginInfo.expiresAt - 60000 - Date.now();
       if (refreshTime > 0) {
@@ -67,7 +67,7 @@ export default function Layout({
     return undefined;
   }, [
     showLoginModal,
-    loginInfo.expiresAt,
+    loginInfo,
     setTimer,
     clearTimer,
     loggedIn,
