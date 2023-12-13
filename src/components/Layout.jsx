@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import NavBar from "./NavBar/NavBar";
 import Clicky from "./Clicky";
 import Footer from "./Footer";
@@ -16,15 +16,15 @@ export default function Layout({
   showNavBar = true,
   showFooter = true,
   track = true,
-  saveBracketLocally = () => {},
+  saveBracketLocally,
   isBracketSavedLocally = false,
-  deleteBracketSavedLocally = () => {},
+  deleteBracketSavedLocally,
 }) {
   const mixpanel = useContext(MixpanelContext);
   const { setTimer, clearTimer } = useGlobalTimer();
   const { loginRef } = useAuthentication();
   const { loginInfo, loggedIn } = useContext(LoginContext);
-  const bracketPageRegex = /^\/user\/.+\/bracket\/[a-zA-Z0-9-]+\/?$/;
+  const bracketPageRegex = useMemo(() => /^\/user\/.+\/bracket\/[a-zA-Z0-9-]+\/?$/, []);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   // Runs once, after page load
@@ -44,11 +44,10 @@ export default function Layout({
         setTimer(
           () => {
             const onBracketPage = bracketPageRegex.test(window.location.pathname);
-            deleteBracketSavedLocally();
-            if (onBracketPage) {
-              console.log("ON BRACKET PAGE");
-              saveBracketLocally();
-            }
+            // if (deleteBracketSavedLocally) deleteBracketSavedLocally();
+            // if (onBracketPage) {
+            //   if (saveBracketLocally) saveBracketLocally();
+            // }
 
             loginRef.current(true).then((loginResult) => {
               console.log("login result", loginResult);
@@ -67,7 +66,7 @@ export default function Layout({
 
       return () => {};
     }
-    return undefined;
+    return () => {};
   }, [
     showLoginModal,
     loginInfo,
@@ -75,8 +74,8 @@ export default function Layout({
     clearTimer,
     loggedIn,
     loginRef,
-    saveBracketLocally,
-    deleteBracketSavedLocally,
+    // saveBracketLocally,
+    // deleteBracketSavedLocally,
     bracketPageRegex,
   ]);
 
