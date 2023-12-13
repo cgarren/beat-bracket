@@ -16,7 +16,6 @@ export default function SaveIndicator({ saving, isSaved, lastSaved, waitingToSav
     if (saving || (lastSaved && lastSaved.commandsLength !== 0) || waitingToSave) {
       return "saving";
     }
-    // !saving && !isSaved && lastSaved && lastSaved.commandsLength === 0;
     return "waiting";
   }, [saving, isSaved, lastSaved]);
 

@@ -13,8 +13,7 @@
     "build": "gatsby build",
     "serve": "gatsby serve",
     "clean": "gatsby clean",
-    "deploy-qa": "gatsby build --prefix-paths && gh-pages -d public --repo https://github.com/cgarren/beat-bracket-qa.git",
-    "deploy-qa-src": "gh-pages -d . -b main --repo https://github.com/cgarren/beat-bracket-qa.git"
+    "deploy-qa": "gatsby build --prefix-paths && gh-pages -d public --repo https://github.com/cgarren/beat-bracket-qa.git"
   },
   "dependencies": {
     "@fontsource/righteous": "^4.5.7",
@@ -35,6 +34,7 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
+    "@babel/eslint-parser": "^7.23.3",
     "autoprefixer": "^10.4.8",
     "eslint": "^8.55.0",
     "eslint-config-airbnb": "^19.0.4",
@@ -51,5 +51,10 @@
     "postcss": "^8.4.20",
     "prettier": "^3.1.1",
     "tailwindcss": "^3.3.1"
+  },
+  "overrides": {
+    "react-server-dom-webpack@0.0.0-experimental-c8b778b7f-20220825": {
+      "react": "^18.2.0"
+    }
   }
 }
