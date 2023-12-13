@@ -19,7 +19,7 @@ export default function App({ location }) {
   const [alertInfo, setAlertInfo] = useState({ show: false, message: null, type: null, timeoutId: null });
   const [error, setError] = useState(null);
   const shownBrackets = useMemo(() => {
-    console.debug("brackets:", brackets);
+    // console.debug("brackets:", brackets);
     if (!brackets) return [];
     return brackets.filter((bracket) => {
       if (activeTab === 0) return true;

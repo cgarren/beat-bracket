@@ -543,7 +543,7 @@ export default function App({ params, location }) {
   // INITIALIZE BRACKET
 
   const kickOff = useCallback(async () => {
-    console.debug("Kicking off", bracketId, locationState);
+    // console.debug("Kicking off", bracketId, locationState);
     if (bracketId && owner.id) {
       try {
         const loadedBracket = await getBracket(bracketId, owner.id);
