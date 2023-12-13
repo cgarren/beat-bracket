@@ -15,6 +15,7 @@ export default function Layout({
   path,
   showNavBar = true,
   showFooter = true,
+  track = true,
   saveBracketLocally = () => {},
   isBracketSavedLocally = false,
   deleteBracketSavedLocally = () => {},
@@ -28,8 +29,10 @@ export default function Layout({
 
   // Runs once, after page load
   useEffect(() => {
-    console.debug("Tracked page load", path);
-    // mixpanel.track_pageview();
+    if (track) {
+      mixpanel.track_pageview();
+      console.debug("Tracked page load", path);
+    }
   }, [mixpanel, path]);
 
   // set timer to refresh spotify session

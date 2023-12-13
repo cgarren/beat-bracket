@@ -5,7 +5,7 @@ import Seo from "../components/SEO";
 
 export default function NotFoundPage() {
   return (
-    <Layout noChanges>
+    <Layout noChanges track={false}>
       <main className="text-center">
         <h1 className="font-bold text-2xl mb-2">Page not found</h1>
         <button className="border-black" type="button">
