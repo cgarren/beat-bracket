@@ -12,13 +12,13 @@ export default function LoginExpiredModal({ showModal, setShowModal, bracketSave
             Your session has expired! We were unable to refresh your token automatically due to a system issue. Login
             again using the button below
           </p>
-          {bracketSavedLocally && bracketSavedLocally() && (
+          {/* {bracketSavedLocally && bracketSavedLocally() && (
             <p className="mt-2 text-s">
               <span className="font-bold text-green-600">
                 Your bracket in progess has been saved and will be restored after successful login
               </span>
             </p>
-          )}
+          )} */}
           <div className="mt-2 flex flex-row justify-around">
             <LoginButton
               cleanupFunc={() => {
