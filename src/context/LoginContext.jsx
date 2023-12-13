@@ -38,39 +38,39 @@ export function LoginProvider({ children }) {
 
   const { getCurrentUserInfo } = useSpotify();
 
-  // keep loginInfo in sync with localstorage
-  useEffect(() => {
-    // set new loginInfo object when localstorage changes in another tab
-    if (typeof window !== "undefined") {
-      window.onstorage = async (e) => {
-        console.debug("UPDATING INFO FROM STORAGE");
-        const { key, newValue } = e;
-        console.log(key, newValue, e);
-        if (key === null) {
-          console.log("setting login info to null");
-          // setLoginInfo({
-          //     userId: null,
-          //     accessToken: null,
-          //     sessionId: null,
-          //     expiresAt: null,
-          //     refreshToken: null,
-          //     fromStorage: true,
-          // });
-        } else if (key in loginInfo) {
-          setLoginInfo({
-            ...loginInfo,
-            [key]: newValue,
-            fromStorage: true,
-          });
-        }
-      };
-    } else {
-      return null;
-    }
-    return () => {
-      window.onstorage = null;
-    };
-  }, [loginInfo, setLoginInfo]);
+  // // keep loginInfo in sync with localstorage
+  // useEffect(() => {
+  //   // set new loginInfo object when localstorage changes in another tab
+  //   if (typeof window !== "undefined") {
+  //     window.onstorage = async (e) => {
+  //       console.debug("UPDATING INFO FROM STORAGE");
+  //       const { key, newValue } = e;
+  //       console.log(key, newValue, e);
+  //       if (key === null) {
+  //         console.log("setting login info to null");
+  //         // setLoginInfo({
+  //         //     userId: null,
+  //         //     accessToken: null,
+  //         //     sessionId: null,
+  //         //     expiresAt: null,
+  //         //     refreshToken: null,
+  //         //     fromStorage: true,
+  //         // });
+  //       } else if (key in loginInfo) {
+  //         setLoginInfo({
+  //           ...loginInfo,
+  //           [key]: newValue,
+  //           fromStorage: true,
+  //         });
+  //       }
+  //     };
+  //   } else {
+  //     return null;
+  //   }
+  //   return () => {
+  //     window.onstorage = null;
+  //   };
+  // }, [loginInfo, setLoginInfo]);
 
   // keep localstorage in sync with loginInfo
 
