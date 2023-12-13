@@ -3,15 +3,15 @@ import { useCallback } from "react";
 export default function useGlobalTimer() {
   const setTimer = useCallback((callback, delay, timerId = "") => {
     const storageKey = `timeout${timerId}`;
-    if (localStorage.getItem(storageKey)) {
-      clearTimeout(localStorage.getItem(storageKey));
+    if (sessionStorage.getItem(storageKey)) {
+      clearTimeout(sessionStorage.getItem(storageKey));
       console.debug("replacing timer", timerId);
     }
 
-    localStorage.setItem(
+    sessionStorage.setItem(
       storageKey,
       setTimeout(() => {
-        localStorage.removeItem(storageKey);
+        sessionStorage.removeItem(storageKey);
         callback();
       }, delay),
     );
@@ -20,9 +20,9 @@ export default function useGlobalTimer() {
 
   const clearTimer = useCallback((timerId = "") => {
     const storageKey = `timeout${timerId}`;
-    clearTimeout(localStorage.getItem(storageKey));
+    clearTimeout(sessionStorage.getItem(storageKey));
     console.debug("cancelled timer", timerId);
-    localStorage.removeItem(storageKey);
+    sessionStorage.removeItem(storageKey);
   }, []);
 
   return {
