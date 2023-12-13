@@ -1,10 +1,25 @@
-import React from "react";
+import React, { useMemo } from "react";
 import cx from "classnames";
 import CheckmarkIcon from "../../assets/svgs/checkmarkIcon.svg";
 import SyncIcon from "../../assets/svgs/syncIcon.svg";
 import XIcon from "../../assets/svgs/xIcon.svg";
+import WaitingIcon from "../../assets/svgs/waitingIcon.svg";
 
-export default function SaveIndicator({ saving, isSaved, lastSaved }) {
+export default function SaveIndicator({ saving, isSaved, lastSaved, waitingToSave }) {
+  const savingState = useMemo(() => {
+    if (saving === "error") {
+      return "error";
+    }
+    if (isSaved) {
+      return "saved";
+    }
+    if (saving || (lastSaved && lastSaved.commandsLength !== 0) || waitingToSave) {
+      return "saving";
+    }
+    // !saving && !isSaved && lastSaved && lastSaved.commandsLength === 0;
+    return "waiting";
+  }, [saving, isSaved, lastSaved]);
+
   return (
     <div
       className={cx(
@@ -12,7 +27,7 @@ export default function SaveIndicator({ saving, isSaved, lastSaved }) {
         { "!text-red-500 !font-bold": saving === "error" },
       )}
     >
-      {saving === "error" && (
+      {savingState === "error" && (
         <>
           <div className="">
             <XIcon />
@@ -20,15 +35,15 @@ export default function SaveIndicator({ saving, isSaved, lastSaved }) {
           Not Saved
         </>
       )}{" "}
-      {!saving && !isSaved && lastSaved.time === 0 && (
+      {savingState === "waiting" && (
         <>
-          <div className="animate-spin-reverse">
-            <SyncIcon />
+          <div className="">
+            <WaitingIcon />
           </div>
           Waiting
         </>
       )}
-      {saving !== "error" && !isSaved && (
+      {savingState === "saving" && (
         <>
           <div className="animate-spin-reverse">
             <SyncIcon />
@@ -36,7 +51,7 @@ export default function SaveIndicator({ saving, isSaved, lastSaved }) {
           Saving
         </>
       )}
-      {saving !== "error" && isSaved && (
+      {savingState === "saved" && (
         <>
           <CheckmarkIcon />
           Saved

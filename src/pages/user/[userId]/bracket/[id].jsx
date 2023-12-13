@@ -930,7 +930,7 @@ export default function App({ params, location }) {
             {/* <GeneratePlaylistButton tracks={tracks} artist={artist} /> */}
             {editable && !bracketWinner && !editMode ? (
               <>
-                <SaveIndicator saving={saving} isSaved={isSaved} lastSaved={lastSaved} />
+                <SaveIndicator saving={saving} isSaved={isSaved} lastSaved={lastSaved} waitingToSave={waitingToSave} />
 
                 {/* <ActionButton
                   onClick={undo}
