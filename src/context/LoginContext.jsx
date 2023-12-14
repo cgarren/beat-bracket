@@ -76,7 +76,7 @@ export function LoginProvider({ children }) {
 
   useEffect(() => {
     if (loginInfo && !loginInfo.fromStorage) {
-      console.debug("UPDATING STORAGE FROM INFO");
+      // console.debug("UPDATING STORAGE FROM INFO");
       Object.keys(loginInfo).forEach((key) => {
         if (loginInfo[key]) {
           localStorage.setItem(key, loginInfo[key]);

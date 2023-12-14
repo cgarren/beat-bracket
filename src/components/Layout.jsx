@@ -29,7 +29,6 @@ export default function Layout({
 
   // Runs once, after page load
   useEffect(() => {
-    console.log("attempting to track");
     if (track && mixpanel && mixpanel.track_pageview) {
       mixpanel.track_pageview();
       console.debug("Tracked page load");
