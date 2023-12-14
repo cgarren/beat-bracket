@@ -1,22 +1,15 @@
 import React from "react";
 
-const OptionsDropdown = ({
-    label,
-    onChange,
-    value,
-    disabled,
-    children,
-    minWidth,
-}) => {
-    return (
-        <div className={`relative max-w-fit ${minWidth}`}>
-            <select
-                name={label}
-                id={`${label}-select`}
-                value={value}
-                onChange={onChange}
-                disabled={disabled}
-                className="
+export default function OptionsDropdown({ label, onChange, value, disabled, children, minWidth }) {
+  return (
+    <div className={`relative max-w-fit ${minWidth}`}>
+      <select
+        name={label}
+        id={`${label}-select`}
+        value={value}
+        onChange={onChange}
+        disabled={disabled}
+        className="
                 block
                 pl-2.5
                 pb-2
@@ -39,11 +32,11 @@ const OptionsDropdown = ({
                 bg-right
                 bg-no-repeat
                 peer"
-            >
-                {children}
-            </select>
-            <label
-                className="absolute 
+      >
+        {children}
+      </select>
+      <label
+        className="absolute 
                 text-xs
                 text-black
                 transform 
@@ -60,12 +53,10 @@ const OptionsDropdown = ({
                 border
                 peer-focus:border-blue-600
                 left-1"
-                htmlFor={`${label}-select`}
-            >
-                {label}
-            </label>
-        </div>
-    );
-};
-
-export default OptionsDropdown;
+        htmlFor={`${label}-select`}
+      >
+        {label}
+      </label>
+    </div>
+  );
+}

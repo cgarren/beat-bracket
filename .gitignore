@@ -4,3 +4,6 @@ public
 .DS_Store
 *.code-workspace
 backend
+.env
+.env.production
+.env.development
