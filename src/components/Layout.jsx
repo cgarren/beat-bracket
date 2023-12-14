@@ -50,7 +50,6 @@ export default function Layout({
             // }
 
             loginRef.current(true).then((loginResult) => {
-              console.log("login result", loginResult);
               if (!loginResult) {
                 setShowLoginModal(true);
               }
