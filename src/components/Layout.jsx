@@ -12,7 +12,7 @@ import LoginExpiredModal from "./LoginExpiredModal";
 export default function Layout({
   children,
   noChanges = () => true,
-  path = window ? window.location.pathname : undefined,
+  path = typeof window !== "undefined" ? window.location.pathname : undefined,
   showNavBar = true,
   showFooter = true,
   track = true,
