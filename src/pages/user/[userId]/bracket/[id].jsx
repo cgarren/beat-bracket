@@ -366,7 +366,7 @@ export default function App({ params, location }) {
         setLimit(power);
       }
       setLoadingText("Generating bracket...");
-      console.log("Done getting tracks...");
+      console.debug("Done getting tracks...");
       return templist;
     },
     [
@@ -528,9 +528,8 @@ export default function App({ params, location }) {
       setSongSource(newSongSource);
 
       // get tracks from spotify
-      console.log("Kicking off track getting...");
+      console.debug("Kicking off track getting...");
       const tempTrackList = await getTracks(newSongSource, newLimit);
-      console.log("new track list done");
 
       // kick off the bracket creation process
       await changeBracket(tempTrackList);
