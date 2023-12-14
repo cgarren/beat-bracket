@@ -24,6 +24,34 @@ export default function useAuthentication() {
 
   const { clearTimer } = useGlobalTimer();
 
+  // prev path helpers
+
+  const getPrevPath = useCallback(() => {
+    const prevPath = sessionStorage.getItem(prevKey);
+    if (prevPath) {
+      return prevPath;
+    }
+    return "/my-brackets";
+  }, []);
+
+  const removePrevPath = useCallback(() => {
+    sessionStorage.removeItem(prevKey);
+  }, []);
+
+  const setPrevPath = useCallback((path) => {
+    removePrevPath();
+    const callbackRegex = /^\/callback(\/?\?.*|\/?)?$/;
+    if (!callbackRegex.test(path)) {
+      sessionStorage.setItem(prevKey, path);
+    }
+  }, []);
+
+  const toPrevPage = useCallback(() => {
+    const prevPath = getPrevPath();
+    removePrevPath();
+    navigate(prevPath);
+  }, []);
+
   // auth functions
 
   const logout = useCallback(async () => {
@@ -42,10 +70,8 @@ export default function useAuthentication() {
   }, [mixpanel, setLoginInfo, clearTimer]);
 
   const setupSpotifyLogin = useCallback(async () => {
-    sessionStorage.removeItem(prevKey);
-    const callbackRegex = /^\/callback(\/?\?.*|\/?)?$/;
-    if (!callbackRegex.test(window.location.pathname)) {
-      sessionStorage.setItem(prevKey, window.location.pathname);
+    if (window.location.pathname !== "/") {
+      setPrevPath(window.location.pathname);
     }
     await spotifyLogin();
   }, [prevKey, spotifyLogin]);
@@ -175,16 +201,6 @@ export default function useAuthentication() {
     },
     [backendLogin, getCurrentUserInfo, mixpanel, setLoginInfo, spotifyLoginCallback, setLoginInProgress],
   );
-
-  const toPrevPage = useCallback(() => {
-    const prevPath = sessionStorage.getItem(prevKey);
-    if (prevPath) {
-      sessionStorage.removeItem(prevKey);
-      navigate(prevPath);
-    } else {
-      navigate("/my-brackets");
-    }
-  }, []);
 
   const loginRef = useRef(login);
 
