@@ -109,7 +109,7 @@ export default function SongButton({
       console.log(`Winner is ${song.name}`);
       modifyBracket(id, "winner", true, true);
       // setBracketWinner(song);
-      // setCurrentlyPlayingId(id);
+      setCurrentlyPlayingId(null);
     }
   }
 
