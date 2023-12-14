@@ -1,16 +1,14 @@
 import React, { useEffect, useContext } from "react";
 import { navigate } from "gatsby";
-import Clicky from "../components/Clicky";
+import Layout from "../components/Layout";
 import LoginButton from "../components/LoginButton";
 import FooterText from "../components/FooterText";
 import Seo from "../components/SEO";
-import { LoginContext } from "../context/LoginContext";
 import LoadingIndicator from "../components/LoadingIndicator";
-import { MixpanelContext } from "../context/MixpanelContext";
+import { LoginContext } from "../context/LoginContext";
 
 export default function App({ location }) {
   const { loggedIn, loginInProgress } = useContext(LoginContext);
-  const mixpanel = useContext(MixpanelContext);
   // scroll to top of window on page load
   useEffect(() => window.scrollTo(0, 0), []);
   useEffect(() => {
@@ -19,21 +17,8 @@ export default function App({ location }) {
     }
   }, [loggedIn, loginInProgress]);
 
-  // Runs once, after page load
-  useEffect(() => {
-    if (mixpanel && mixpanel.track_pageview) {
-      try {
-        mixpanel.track_pageview();
-        console.debug("Tracked page load", "/");
-      } catch (error) {
-        console.log("Error tracking pageview");
-      }
-    }
-  }, [mixpanel]);
-
   return (
-    <>
-      <Clicky />
+    <Layout path="/" showNavBar={false} showFooter={false}>
       <main className="h-screen bg-gradient-radial from-zinc-100 from-60% to-zinc-400 relative">
         {loginInProgress || loggedIn ? (
           <div className="flex flex-row justify-center items-center h-full px-4 sm:w-9/12 m-auto">
@@ -70,7 +55,7 @@ export default function App({ location }) {
           <FooterText whiteText={false} />
         </div>
       </main>
-    </>
+    </Layout>
   );
 }
 

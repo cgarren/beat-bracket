@@ -42,7 +42,7 @@ export default function App({ location }) {
   }, []);
 
   return (
-    <Layout noChanges={() => true} path={location.pathname} showNavBar={false} showFooter={false} track={false}>
+    <Layout noChanges={() => true} path="/callback/" showNavBar={false} showFooter={false} track={false}>
       <div className="h-screen bg-gradient-radial from-zinc-100 from-60% to-zinc-400 relative">
         <div className="flex flex-row justify-center items-center h-full px-4 sm:w-9/12 m-auto">
           {loginInProgress ? (

@@ -11,8 +11,8 @@ import LoginExpiredModal from "./LoginExpiredModal";
 
 export default function Layout({
   children,
-  noChanges,
-  path,
+  noChanges = () => true,
+  path = window ? window.location.pathname : undefined,
   showNavBar = true,
   showFooter = true,
   track = true,
@@ -29,11 +29,12 @@ export default function Layout({
 
   // Runs once, after page load
   useEffect(() => {
-    if (track) {
+    console.log("attempting to track");
+    if (track && mixpanel && mixpanel.track_pageview) {
       mixpanel.track_pageview();
-      console.debug("Tracked page load", path);
+      console.debug("Tracked page load");
     }
-  }, [mixpanel, path]);
+  }, [mixpanel, track]);
 
   // set timer to refresh spotify session
   useEffect(() => {
