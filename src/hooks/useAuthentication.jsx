@@ -110,6 +110,7 @@ export default function useAuthentication() {
       try {
         setLoginInProgress(true);
         // case where user has been here before and has a refresh token
+        localStorage.clear();
         if (loginInfo.refreshToken) {
           try {
             await loginWithRefreshToken(loginInfo.refreshToken);
