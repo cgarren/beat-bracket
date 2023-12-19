@@ -737,7 +737,9 @@ export default function App({ params, location }) {
       console.debug(`Create New Bracket with id: ${uuid}`);
 
       // navigate to new bracket psge (same page really)
-      navigate(`/user/${userInfo.id}/bracket/${uuid}`, { template: template });
+      await navigate(`/user/${userInfo.id}/bracket/${uuid}`, { template: template });
+      // window.location.state = { template: template };
+      // window.location.reload();
 
       // const newBracket = await fillBracket(bracketTracks, getNumberOfColumns(bracketTracks.length));
       // console.debug("old bracket:", bracket);
@@ -750,8 +752,8 @@ export default function App({ params, location }) {
       // setBracketId(uuid);
       // setOwner({ id: userInfo.id, name: undefined });
       setLocationState({ template: template });
-      setLoadingText("Duplicating bracket...");
-      // setBracket(newBracket);
+      // setLoadingText("Duplicating bracket...");
+      // // setBracket(newBracket);
 
       initializeBracketFromTemplate(template, userInfo.id, uuid);
 
