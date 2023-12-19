@@ -98,7 +98,7 @@ export default function App({ location }) {
       setError(null);
       try {
         if (!loginInProgress && loggedIn) {
-          const loadedBrackets = await getBrackets(loginInfo.userId, loginInfo.sessionId);
+          const loadedBrackets = await getBrackets(loginInfo.userId);
           console.debug(loadedBrackets);
           setBrackets(loadedBrackets);
         } else {
@@ -113,8 +113,8 @@ export default function App({ location }) {
               Error loading brackets. Try logging out and back in again!
               <br />
               <br />
-              It&apos;s possible you logged in from another device. Only one session can be active for a user at any
-              given time.
+              {/* It&apos;s possible you logged in from another device. Only one session can be active for a user at any
+              given time. */}
             </div>,
           );
           showAlert(e.message, "error", false);

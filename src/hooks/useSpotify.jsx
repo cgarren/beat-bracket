@@ -309,7 +309,6 @@ export default function useSpotify() {
           accessToken: data.access_token,
           refreshToken: data.refresh_token,
           expiresAt: expiresAt,
-          state: urlParams.get("state"),
         };
       }
       throw new Error("Invalid url params");

@@ -59,7 +59,7 @@ export default function useAuthentication() {
     setLoginInfo({
       userId: undefined,
       accessToken: undefined,
-      sessionId: undefined,
+      backendToken: undefined,
       expiresAt: undefined,
       refreshToken: undefined,
     });
@@ -77,28 +77,22 @@ export default function useAuthentication() {
   }, [prevKey, spotifyLogin]);
 
   const loginWithRefreshToken = useCallback(
-    async (inputRefreshToken, inputSessionId) => {
+    async (inputRefreshToken) => {
       const { accessToken, refreshToken, expiresAt } = await spotifyRefreshLogin(inputRefreshToken);
 
-      // get info about user from spotify and set session storage
+      // get info about user from spotify
       const res = await getCurrentUserInfo(accessToken);
       const userId = res.id;
 
-      // get session id from session storage and set it if it doesn't exist
-      let sessionId = inputSessionId;
-      if (!sessionId) {
-        sessionId = generateRandomString(128);
-      }
-
       // refresh backend
-      await backendLogin(userId, sessionId, expiresAt, accessToken);
+      const backendToken = await backendLogin(userId, expiresAt, accessToken);
 
       // identify user in mixpanel
       mixpanel.identify(userId);
 
       // set timer info
       setLoginInfo({
-        sessionId: sessionId,
+        backendToken: backendToken,
         userId: userId,
         accessToken: accessToken,
         expiresAt: expiresAt,
@@ -118,7 +112,7 @@ export default function useAuthentication() {
         // case where user has been here before and has a refresh token
         if (loginInfo.refreshToken) {
           try {
-            await loginWithRefreshToken(loginInfo.refreshToken, loginInfo.sessionId);
+            await loginWithRefreshToken(loginInfo.refreshToken);
             return true;
           } catch (error) {
             console.log("Problem refreshing with refresh token:");
@@ -155,25 +149,22 @@ export default function useAuthentication() {
     async (urlParams) => {
       try {
         setLoginInProgress(true);
-        // get data from spotify login callback and set session storage
-        const { refreshToken, accessToken, expiresAt, state } = await spotifyLoginCallback(urlParams);
+        // get data from spotify login callback
+        const { refreshToken, accessToken, expiresAt } = await spotifyLoginCallback(urlParams);
 
-        // get info about user from spotify and set session storage
+        // get info about user from spotify
         const res = await getCurrentUserInfo(accessToken);
         const userId = res.id;
 
-        // use the state value for the new session id
-        const sessionId = state;
-
         // authenticate with backend
-        await backendLogin(userId, sessionId, expiresAt, accessToken);
+        const backendToken = await backendLogin(userId, expiresAt, accessToken);
 
         // identify user in mixpanel
         mixpanel.identify(userId);
 
         // set login info
         setLoginInfo({
-          sessionId: sessionId,
+          backendToken: backendToken,
           userId: userId,
           accessToken: accessToken,
           expiresAt: expiresAt,
@@ -188,7 +179,7 @@ export default function useAuthentication() {
           navigate("/my-brackets");
         }
 
-        return { userId: userId, sessionId: sessionId };
+        return { userId: userId };
       } catch (error) {
         if (error.message !== "Invalid url params") {
           throw error;

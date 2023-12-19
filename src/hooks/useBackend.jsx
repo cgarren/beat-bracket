@@ -49,10 +49,10 @@ export default function useBackend() {
   );
 
   const getBrackets = useCallback(
-    async (userId, sessionId) => {
+    async (userId) => {
       const response = await loadBackendRequest("/brackets", "GET", {
         ownerId: userId,
-        sessionId: sessionId,
+        token: loginInfo.backendToken,
       });
       return response.json();
     },
@@ -86,7 +86,7 @@ export default function useBackend() {
       await loadBackendRequest(
         "/bracket",
         "PUT",
-        { ownerId: loginInfo.userId, sessionId: loginInfo.sessionId },
+        { ownerId: loginInfo.userId, token: loginInfo.backendToken },
         bracket,
       );
       console.debug("Written Bracket:", bracket);
@@ -102,7 +102,7 @@ export default function useBackend() {
         {
           id: id,
           ownerId: loginInfo.userId,
-          sessionId: loginInfo.sessionId,
+          token: loginInfo.backendToken,
         },
         updateObject,
       );
@@ -115,7 +115,7 @@ export default function useBackend() {
       await loadBackendRequest("/bracket", "DELETE", {
         id: id,
         ownerId: loginInfo.userId,
-        sessionId: loginInfo.sessionId,
+        token: loginInfo.backendToken,
       });
     },
     [loadBackendRequest, loginInfo],
@@ -130,23 +130,22 @@ export default function useBackend() {
   }, []);
 
   const authenticate = useCallback(
-    async (userId, sessionId, expireTime, accessToken) => {
+    async (userId, expireTime, accessToken) => {
       const response = await loadBackendRequest(
         "/auth",
         "POST",
         null,
         {
           userId: userId,
-          sessionId: sessionId,
           expireTime: expireTime,
           accessToken: accessToken,
         },
         "include",
         {},
       );
-      const { maxBrackets } = await response.json();
+      const { maxBrackets, token } = await response.json();
       localStorage.setItem(maxBracketsKey, maxBrackets);
-      window.dispatchEvent(new Event("storage"));
+      return token;
     },
     [loadBackendRequest],
   );
