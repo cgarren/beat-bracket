@@ -276,7 +276,7 @@ export default function useSpotify() {
     window.location = `https://accounts.spotify.com/authorize?${args}`;
   }, [generateCodeChallenge, generateRandomString, redirectUri]);
 
-  const calculateExpiresAt = useCallback((expiresIn) => Date.now() + parseInt(expiresIn, 10) * 1000, []); // parseInt(expiresIn) * 1000;
+  const calculateExpiresAt = useCallback((expiresIn) => Date.now() + parseInt(expiresIn, 10) * 1000, []);
 
   const loginCallback = useCallback(
     async (urlParams) => {
