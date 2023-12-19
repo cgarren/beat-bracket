@@ -725,7 +725,7 @@ export default function App({ params, location }) {
     console.debug("copied link");
     mixpanel.track("Share bracket", { bracketId: bracketId });
     showAlert("Link copied to clipboard!", "success");
-  }, [location.href]);
+  }, [location.href, bracketId, mixpanel, showAlert]);
 
   // DUPLICATE
 
