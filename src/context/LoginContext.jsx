@@ -12,7 +12,7 @@ export function LoginProvider({ children }) {
   const [loginInfo, setLoginInfo] = useState({
     userId: localStorage.getItem("userId"),
     accessToken: localStorage.getItem("accessToken"),
-    sessionId: localStorage.getItem("sessionId"),
+    backendToken: localStorage.getItem("backendToken"),
     expiresAt: localStorage.getItem("expiresAt"),
     refreshToken: localStorage.getItem("refreshToken"),
   });
@@ -23,7 +23,7 @@ export function LoginProvider({ children }) {
     const expiresAtDate = new Date(parseInt(loginInfo.expiresAt, 10));
     if (
       loginInfo.accessToken &&
-      loginInfo.sessionId &&
+      loginInfo.backendToken &&
       loginInfo.userId &&
       loginInfo.expiresAt &&
       expiresAtDate.toString() !== "Invalid Date" &&
@@ -51,7 +51,7 @@ export function LoginProvider({ children }) {
   //         // setLoginInfo({
   //         //     userId: null,
   //         //     accessToken: null,
-  //         //     sessionId: null,
+  //         //     backendToken: null,
   //         //     expiresAt: null,
   //         //     refreshToken: null,
   //         //     fromStorage: true,
@@ -124,7 +124,7 @@ export function LoginProvider({ children }) {
   useEffect(() => {
     if (
       loginInfo.accessToken === undefined &&
-      loginInfo.sessionId === undefined &&
+      loginInfo.backendToken === undefined &&
       loginInfo.userId === undefined &&
       loginInfo.expiresAt === undefined &&
       loginInfo.refreshToken === undefined
