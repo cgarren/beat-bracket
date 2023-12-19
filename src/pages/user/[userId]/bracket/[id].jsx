@@ -8,6 +8,7 @@ import Mousetrap from "mousetrap";
 import Confetti from "react-confetti";
 import { v4 as uuidv4 } from "uuid";
 import { backOff } from "exponential-backoff";
+import mixpanel from "mixpanel-browser";
 // Components
 import Seo from "../../../../components/SEO";
 import Bracket from "../../../../components/Bracket/Bracket";
@@ -722,6 +723,7 @@ export default function App({ params, location }) {
   const share = useCallback(() => {
     navigator.clipboard.writeText(location.href);
     console.debug("copied link");
+    mixpanel.track("Share bracket", { bracketId: bracketId });
     showAlert("Link copied to clipboard!", "success");
   }, [location.href]);
 

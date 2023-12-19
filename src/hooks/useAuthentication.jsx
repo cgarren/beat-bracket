@@ -56,6 +56,7 @@ export default function useAuthentication() {
 
   const logout = useCallback(async () => {
     // clear storage including refresh token key
+    mixpanel.track("Log out");
     setLoginInfo({
       userId: undefined,
       accessToken: undefined,

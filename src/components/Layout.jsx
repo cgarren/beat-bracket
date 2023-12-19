@@ -51,6 +51,7 @@ export default function Layout({
 
             loginRef.current(true).then((loginResult) => {
               if (!loginResult) {
+                mixpanel.track("Show login expired modal");
                 setShowLoginModal(true);
               }
             });
