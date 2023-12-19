@@ -103,6 +103,8 @@ export default function App({ params, location }) {
         }
       });
     }
+    console.log("bracket:", bracket);
+    console.log("tracks:", tracks);
     return tracks;
   }, [bracket]);
   const bracketWinner = useMemo(() => {
@@ -728,25 +730,32 @@ export default function App({ params, location }) {
   // DUPLICATE
 
   const duplicateBracket = useCallback(async () => {
-    if (template && template.id && template.ownerId && userInfo && userInfo.userId) {
+    console.log(template, template.id, template.ownerId, userInfo, userInfo.id);
+    if (template && template.id && template.ownerId && userInfo && userInfo.id) {
       // generate new bracket id
       const uuid = uuidv4();
       console.debug(`Create New Bracket with id: ${uuid}`);
 
       // navigate to new bracket psge (same page really)
-      navigate(`/user/${userInfo.userId}/bracket/${uuid}`, { template: template });
+      navigate(`/user/${userInfo.id}/bracket/${uuid}`, { template: template });
+
+      // const newBracket = await fillBracket(bracketTracks, getNumberOfColumns(bracketTracks.length));
+      // console.debug("old bracket:", bracket);
+      // console.debug("New bracket:", newBracket);
 
       // reset state because we stay on the same page
       await resetState();
 
       // set state for new bracket
-      setBracketId(uuid);
-      setOwner({ id: userInfo.userId, name: undefined });
+      // setBracketId(uuid);
+      // setOwner({ id: userInfo.id, name: undefined });
       setLocationState({ template: template });
       setLoadingText("Duplicating bracket...");
+      // setBracket(newBracket);
+
+      initializeBracketFromTemplate(template, userInfo.id, uuid);
 
       // kick off new bracket creation
-      // await kickOff(uuid, { id: userId, name: undefined }, { template: template });
     } else {
       showAlert("Error duplicating bracket", "error");
       console.error("Error duplicating bracket. Something is wrong with the template:", template);
