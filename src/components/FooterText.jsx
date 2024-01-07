@@ -7,7 +7,7 @@ export default function FooterText({ whiteText = true }) {
   return (
     <div className={cx("relative text-center", { "text-white": whiteText }, { "text-black": !whiteText })}>
       <span className="inline-flex items-center sm:flex-row flex-col">
-        © Cooper Garren 2023
+        © Cooper Garren {new Date().getFullYear()}
         <span className="hidden sm:block">&nbsp;|&nbsp;</span>
         <a
           className={cx(

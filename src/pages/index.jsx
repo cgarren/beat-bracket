@@ -19,7 +19,7 @@ export default function App({ location }) {
 
   return (
     <Layout path="/" showNavBar={false} showFooter={false}>
-      <main className="h-screen bg-gradient-radial from-zinc-100 from-60% to-zinc-400 relative">
+      <div className="h-screen bg-gradient-radial from-zinc-100 from-60% to-zinc-400 relative">
         {loginInProgress || loggedIn ? (
           <div className="flex flex-row justify-center items-center h-full px-4 sm:w-9/12 m-auto">
             <h3 className="text-xl text-black">
@@ -54,7 +54,7 @@ export default function App({ location }) {
         <div className="absolute bottom-0 w-full text-black p-2">
           <FooterText whiteText={false} />
         </div>
-      </main>
+      </div>
     </Layout>
   );
 }
