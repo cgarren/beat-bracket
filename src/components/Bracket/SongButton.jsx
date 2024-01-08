@@ -80,34 +80,45 @@ export default function SongButton({
   // }
 
   function undoChoice() {
-    modifyBracket(id, "disabled", false);
-    modifyBracket(opponentId, "disabled", false);
-    modifyBracket(opponentId, "eliminated", false);
+    modifyBracket([
+      [id, "disabled", false],
+      [opponentId, "disabled", false],
+      [opponentId, "eliminated", false],
+    ]);
     setCurrentlyPlayingId(null);
     // undoEliminatePrevious(opponentId);
     if (nextId) {
-      modifyBracket(nextId, "song", null);
-      modifyBracket(nextId, "disabled", true);
-      modifyBracket(nextId, "color", null, true);
+      modifyBracket(
+        [
+          [nextId, "song", null],
+          [nextId, "disabled", true],
+          [nextId, "color", null],
+        ],
+        true,
+      );
     } else {
-      modifyBracket(id, "winner", false, true);
+      modifyBracket([[id, "winner", false]], true);
     }
   }
 
   function makeChoice() {
-    modifyBracket(id, "disabled", true);
-    modifyBracket(opponentId, "disabled", true);
-    modifyBracket(opponentId, "eliminated", true);
+    modifyBracket([
+      [id, "disabled", true],
+      [opponentId, "disabled", true],
+      [opponentId, "eliminated", true],
+    ]);
     // eliminatePrevious(opponentId);
     if (nextId) {
-      modifyBracket(nextId, "song", song);
-      modifyBracket(nextId, "disabled", false);
-      modifyBracket(nextId, "color", color, true);
-      modifyBracket(nextId, "undoFunc", undoChoice);
+      modifyBracket([
+        [nextId, "song", song],
+        [nextId, "disabled", false],
+        [nextId, "color", color, true],
+        [nextId, "undoFunc", undoChoice],
+      ]);
       setCurrentlyPlayingId(null);
     } else {
       console.log(`Winner is ${song.name}`);
-      modifyBracket(id, "winner", true, true);
+      modifyBracket([[id, "winner", true]], true);
       // setBracketWinner(song);
       setCurrentlyPlayingId(null);
     }
@@ -158,12 +169,18 @@ export default function SongButton({
     const switchId = event.dataTransfer.getData("application/plain");
     // switch the songs
     const tempSong = getBracket(switchId).song;
-    modifyBracket(switchId, "song", song);
-    modifyBracket(id, "song", tempSong);
     // switch the colors
     const tempColor = getBracket(switchId).color;
-    modifyBracket(switchId, "color", color);
-    modifyBracket(id, "color", tempColor, true);
+    // modify the bracket
+    modifyBracket(
+      [
+        [switchId, "song", song],
+        [id, "song", tempSong],
+        [switchId, "color", color],
+        [id, "color", tempColor],
+      ],
+      true,
+    );
   }
 
   // song replacement functionality
@@ -172,8 +189,13 @@ export default function SongButton({
     async (newSong) => {
       console.debug("replacing", id);
       const newColor = await getColorsFromImage(newSong.art);
-      modifyBracket(id, "song", newSong);
-      modifyBracket(id, "color", newColor, true);
+      modifyBracket(
+        [
+          [id, "song", newSong],
+          [id, "color", newColor],
+        ],
+        true,
+      );
       setInclusionMethod("custom");
     },
     [modifyBracket, id, getColorsFromImage, setInclusionMethod],
