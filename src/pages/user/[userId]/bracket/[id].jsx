@@ -733,7 +733,6 @@ export default function App({ params, location }) {
   // DUPLICATE
 
   const duplicateBracket = useCallback(async () => {
-    console.log(template, template.id, template.ownerId, loginInfo, loginInfo.userId);
     if (template && template.id && template.ownerId && loginInfo && loginInfo.userId) {
       // generate new bracket id
       const uuid = uuidv4();
