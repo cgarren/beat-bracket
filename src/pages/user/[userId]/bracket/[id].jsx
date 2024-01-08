@@ -964,14 +964,14 @@ export default function App({ params, location }) {
               </>
             ) : null}
             {!editMode ? <ActionButton onClick={share} icon={<ShareIcon />} text="Share" /> : null}
-            {!editMode && !editable && template.ownerId !== loginInfo.userId ? (
+            {!editMode && !editable && template.ownerId !== (loginInfo ? loginInfo.userId : null) && (
               <ActionButton
                 onClick={duplicateBracket}
                 icon={<DuplicateIcon />}
                 text={loggedIn ? "Make my own picks" : "Login to pick your own winners!"}
                 disabled={!loggedIn}
               />
-            ) : null}
+            )}
             {editable && !bracketWinner && editMode ? (
               <div className="">
                 <BracketOptions
