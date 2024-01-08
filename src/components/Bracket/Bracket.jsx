@@ -73,16 +73,20 @@ export default function Bracket({
   const getBracket = useCallback((key) => bracket.get(key), [bracket]);
 
   const modifyBracket = useCallback(
-    (key, attribute, value, save = false) => {
-      const payload = getBracket(key);
-      if (attribute === "song" && key[1] === "0") {
-        setSeedingMethod("custom");
-      }
-      payload[attribute] = value;
+    (modificationTriples, save = false) => {
+      const bracketCopy = new Map(bracket);
+      modificationTriples.forEach(([key, attribute, value]) => {
+        const payload = bracketCopy.get(key);
+        if (attribute === "song" && key[1] === "0") {
+          setSeedingMethod("custom");
+        }
+        payload[attribute] = value;
+        bracketCopy.set(key, payload);
+      });
       if (save) {
-        setBracket(new Map(bracket.set(key, payload)));
+        setBracket(new Map(bracketCopy));
       } else {
-        setBracket(new Map(bracket.set(key, payload)));
+        setBracket(new Map(bracketCopy));
       }
     },
     [bracket, getBracket, setBracket, setSeedingMethod],
