@@ -267,6 +267,7 @@ export default function App({ params, location }) {
         console.debug("Bracket created");
         setSaving(false);
         setWaitingToSave(false);
+        return true;
       } catch (error) {
         if (error.cause && error.cause.code === 429) {
           showAlert("Error creating bracket! Please try again later", "error", false);
@@ -278,6 +279,7 @@ export default function App({ params, location }) {
         setSaving("error");
         setEditMode(true);
         setWaitingToSave(false);
+        return false;
       }
     },
     [makeCreationObject, showAlert, createBracket],
