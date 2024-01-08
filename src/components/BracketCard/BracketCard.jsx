@@ -77,6 +77,7 @@ export default function BracketCard({ bracket, userId, showAlert }) {
           displayName={bracket.displayName}
           songSource={bracket.songSource}
           numTracks={bracket && bracket.tracks ? bracket.tracks.length : null}
+          ownsTemplate={bracket.ownerId === bracket.templateOwnerId}
           completed={bracket.completed || bracket.winner}
         />
       }
