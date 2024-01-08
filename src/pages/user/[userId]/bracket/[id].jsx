@@ -763,7 +763,7 @@ export default function App({ params, location }) {
       showAlert("Error duplicating bracket", "error");
       console.error("Error duplicating bracket. Something is wrong with the template:", template);
     }
-  }, [template, loginInfo.userId, resetState]);
+  }, [template, loginInfo, resetState]);
 
   // UNDO
 
