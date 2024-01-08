@@ -64,6 +64,7 @@ export default function useAuthentication() {
       refreshToken: undefined,
     });
     localStorage.clear();
+    sessionStorage.clear();
     mixpanel.reset();
     clearTimer("auth");
     console.log("logged out");
@@ -110,7 +111,7 @@ export default function useAuthentication() {
       try {
         setLoginInProgress(true);
         // case where user has been here before and has a refresh token
-        localStorage.clear();
+        localStorage.removeItem("refreshToken");
         if (loginInfo.refreshToken) {
           try {
             await loginWithRefreshToken(loginInfo.refreshToken);
