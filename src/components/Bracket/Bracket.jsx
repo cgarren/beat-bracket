@@ -85,7 +85,7 @@ export default function Bracket({
         setBracket(new Map(bracket.set(key, payload)));
       }
     },
-    [getBracket, setBracket, setSeedingMethod, bracket],
+    [bracket, getBracket, setBracket, setSeedingMethod],
   );
 
   const generateComponentArray = useCallback(

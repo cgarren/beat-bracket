@@ -168,13 +168,16 @@ export default function SongButton({
 
   // song replacement functionality
 
-  const handleReplacement = useCallback(async (newSong) => {
-    console.debug("replacing", id);
-    const newColor = await getColorsFromImage(newSong.art);
-    modifyBracket(id, "song", newSong);
-    modifyBracket(id, "color", newColor, true);
-    setInclusionMethod("custom");
-  }, []);
+  const handleReplacement = useCallback(
+    async (newSong) => {
+      console.debug("replacing", id);
+      const newColor = await getColorsFromImage(newSong.art);
+      modifyBracket(id, "song", newSong);
+      modifyBracket(id, "color", newColor, true);
+      setInclusionMethod("custom");
+    },
+    [modifyBracket, id, getColorsFromImage, setInclusionMethod],
+  );
 
   return (
     <>
