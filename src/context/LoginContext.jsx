@@ -8,12 +8,12 @@ export const LoginContext = createContext([null, () => {}]);
 export function LoginProvider({ children }) {
   // state variables
   const [loginInProgress, setLoginInProgress] = useState(false);
-  // set logininfo from localstorage on page load
+  // set logininfo from storage on page load
   const [loginInfo, setLoginInfo] = useState({
-    userId: localStorage.getItem("userId"),
-    accessToken: localStorage.getItem("accessToken"),
-    backendToken: localStorage.getItem("backendToken"),
-    expiresAt: localStorage.getItem("expiresAt"),
+    userId: sessionStorage.getItem("userId"),
+    accessToken: sessionStorage.getItem("accessToken"),
+    backendToken: sessionStorage.getItem("backendToken"),
+    expiresAt: sessionStorage.getItem("expiresAt"),
     refreshToken: localStorage.getItem("refreshToken"),
   });
   const [userInfo, setUserInfo] = useState(null);
@@ -78,8 +78,10 @@ export function LoginProvider({ children }) {
     if (loginInfo && !loginInfo.fromStorage) {
       // console.debug("UPDATING STORAGE FROM INFO");
       Object.keys(loginInfo).forEach((key) => {
-        if (loginInfo[key]) {
+        if (key === "refreshToken" && loginInfo[key]) {
           localStorage.setItem(key, loginInfo[key]);
+        } else if (loginInfo[key]) {
+          sessionStorage.setItem(key, loginInfo[key]);
         } else {
           localStorage.removeItem(key);
         }
