@@ -175,9 +175,9 @@ export default function useAuthentication() {
         const prevPath = sessionStorage.getItem(prevKey);
         if (prevPath) {
           sessionStorage.removeItem(prevKey);
-          navigate(prevPath);
+          navigate(prevPath, { replace: true });
         } else {
-          navigate("/my-brackets");
+          navigate("/my-brackets", { replace: true });
         }
 
         return { userId: userId };

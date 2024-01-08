@@ -30,6 +30,7 @@ import useSongProcessing from "../../../../hooks/useSongProcessing";
 // Assets
 import ShareIcon from "../../../../assets/svgs/shareIcon.svg";
 import DuplicateIcon from "../../../../assets/svgs/duplicateIcon.svg";
+import OpenPreviousIcon from "../../../../assets/svgs/openPreviousIcon.svg";
 // Context
 import { LoginContext } from "../../../../context/LoginContext";
 
@@ -83,7 +84,7 @@ export default function App({ params, location }) {
   const [playbackEnabled, setPlaybackEnabled] = useState(defaultValues.playbackEnabled);
   const [alertInfo, setAlertInfo] = useState(defaultValues.alertInfo);
 
-  const { loggedIn, userInfo } = useContext(LoginContext);
+  const { loggedIn, loginInfo } = useContext(LoginContext);
   const { isCurrentUser, getUserInfo, getArtist, getPlaylist } = useSpotify();
   const { bracketSorter, bracketUnchanged, nearestLesserPowerOf2 } = useHelper();
   const { createBracket, getBracket, updateBracket, getTemplate } = useBackend();
@@ -266,6 +267,7 @@ export default function App({ params, location }) {
         console.debug("Bracket created");
         setSaving(false);
         setWaitingToSave(false);
+        return true;
       } catch (error) {
         if (error.cause && error.cause.code === 429) {
           showAlert("Error creating bracket! Please try again later", "error", false);
@@ -277,6 +279,7 @@ export default function App({ params, location }) {
         setSaving("error");
         setEditMode(true);
         setWaitingToSave(false);
+        return false;
       }
     },
     [makeCreationObject, showAlert, createBracket],
@@ -425,9 +428,6 @@ export default function App({ params, location }) {
 
   const initializeLoadedBracket = useCallback(
     async (loadedBracket) => {
-      // log bracket details
-      console.debug("Loaded bracket:", loadedBracket);
-
       // set owner details
       setOwner({ id: loadedBracket.ownerId, name: loadedBracket.ownerUsername });
       checkAndUpdateOwnerUsername(loadedBracket.ownerId);
@@ -492,7 +492,12 @@ export default function App({ params, location }) {
       setSeedingMethod(loadedTemplate.seedingMethod);
       setLimit(loadedTemplate.tracks.length);
       setFills(loadedTemplate.fills);
-      setTemplate({ id: loadedTemplate.id, ownerId: loadedTemplate.ownerId, displayName: loadedTemplate.displayName });
+      setTemplate({
+        id: loadedTemplate.id,
+        ownerId: loadedTemplate.ownerId,
+        displayName: loadedTemplate.displayName,
+        ownerUsername: loadedTemplate.ownerUsername,
+      });
 
       // update preview urls
       loadedTemplate.tracks = await updatePreviewUrls(loadedTemplate.tracks);
@@ -728,30 +733,38 @@ export default function App({ params, location }) {
   // DUPLICATE
 
   const duplicateBracket = useCallback(async () => {
-    if (template && template.id && template.ownerId && userInfo && userInfo.userId) {
+    if (template && template.id && template.ownerId && loginInfo && loginInfo.userId) {
       // generate new bracket id
       const uuid = uuidv4();
       console.debug(`Create New Bracket with id: ${uuid}`);
 
       // navigate to new bracket psge (same page really)
-      navigate(`/user/${userInfo.userId}/bracket/${uuid}`, { template: template });
+      await navigate(`/user/${loginInfo.userId}/bracket/${uuid}`, { template: template });
+      // window.location.state = { template: template };
+      // window.location.reload();
+
+      // const newBracket = await fillBracket(bracketTracks, getNumberOfColumns(bracketTracks.length));
+      // console.debug("old bracket:", bracket);
+      // console.debug("New bracket:", newBracket);
 
       // reset state because we stay on the same page
       await resetState();
 
       // set state for new bracket
       setBracketId(uuid);
-      setOwner({ id: userInfo.userId, name: undefined });
+      setOwner({ id: loginInfo.userId, name: undefined });
       setLocationState({ template: template });
-      setLoadingText("Duplicating bracket...");
+      // setLoadingText("Duplicating bracket...");
+      // // setBracket(newBracket);
+
+      await initializeBracketFromTemplate(template, loginInfo.userId, uuid);
 
       // kick off new bracket creation
-      // await kickOff(uuid, { id: userId, name: undefined }, { template: template });
     } else {
       showAlert("Error duplicating bracket", "error");
       console.error("Error duplicating bracket. Something is wrong with the template:", template);
     }
-  }, [template, userInfo, resetState]);
+  }, [template, loginInfo, resetState]);
 
   // UNDO
 
@@ -901,7 +914,7 @@ export default function App({ params, location }) {
               </div>
               <span className="text-md">by {owner.name}</span>
               {template.ownerId !== owner.id && template.ownerUsername && (
-                <span className="text-md">original by {template.ownerUsername}</span>
+                <span className="text-sm">{`Created from a template by ${template.ownerUsername}`}</span>
               )}
               {/* {fills && fills > 0 && bracketWinner ? <span className="text-md">Filled out {fills} {fills === 1 ? "time" : "times"}!</span> : null} */}
             </div>
@@ -952,14 +965,14 @@ export default function App({ params, location }) {
               </>
             ) : null}
             {!editMode ? <ActionButton onClick={share} icon={<ShareIcon />} text="Share" /> : null}
-            {!editMode && !editable ? (
+            {!editMode && !editable && template.ownerId !== (loginInfo ? loginInfo.userId : null) && (
               <ActionButton
                 onClick={duplicateBracket}
                 icon={<DuplicateIcon />}
                 text={loggedIn ? "Make my own picks" : "Login to pick your own winners!"}
                 disabled={!loggedIn}
               />
-            ) : null}
+            )}
             {editable && !bracketWinner && editMode ? (
               <div className="">
                 <BracketOptions
