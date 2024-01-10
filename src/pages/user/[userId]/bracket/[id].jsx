@@ -918,7 +918,7 @@ export default function App({ params, location }) {
               )}
               {/* {fills && fills > 0 && bracketWinner ? <span className="text-md">Filled out {fills} {fills === 1 ? "time" : "times"}!</span> : null} */}
             </div>
-          ) : bracket && bracket.size > 0 ? (
+          ) : bracket?.size > 0 ? (
             <div>Error fetching bracket details!</div>
           ) : (
             <div className="font-bold mb-2">{bracket ? "Getting bracket..." : "Bracket not found"}</div>
