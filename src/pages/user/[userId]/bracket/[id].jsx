@@ -965,7 +965,7 @@ export default function App({ params, location }) {
               </>
             ) : null}
             {!editMode ? <ActionButton onClick={share} icon={<ShareIcon />} text="Share" /> : null}
-            {!editMode && !editable && template.ownerId !== (loginInfo ? loginInfo.userId : null) && (
+            {!editMode && !editable && template.ownerId !== loginInfo?.userId && (
               <ActionButton
                 onClick={duplicateBracket}
                 icon={<DuplicateIcon />}
