@@ -143,9 +143,12 @@ export default function useBackend() {
         "include",
         {},
       );
-      const { maxBrackets, token } = await response.json();
-      localStorage.setItem(maxBracketsKey, maxBrackets);
-      return token;
+      if (response.ok) {
+        const { maxBrackets, token } = await response.json();
+        localStorage.setItem(maxBracketsKey, maxBrackets);
+        return token;
+      }
+      throw new Error("Authentication failed");
     },
     [loadBackendRequest],
   );
