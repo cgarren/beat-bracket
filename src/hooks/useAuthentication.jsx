@@ -91,7 +91,7 @@ export default function useAuthentication() {
       // identify user in mixpanel
       mixpanel.identify(userId);
 
-      // set timer info
+      // set login info
       setLoginInfo({
         backendToken: backendToken,
         userId: userId,
