@@ -56,7 +56,7 @@ export default function useBackend() {
       });
       return response.json();
     },
-    [loadBackendRequest],
+    [loadBackendRequest, loginInfo],
   );
 
   const getBracket = useCallback(
