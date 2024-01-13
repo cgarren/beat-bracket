@@ -1,15 +1,31 @@
-import React, { useState, useEffect, useContext, useCallback } from "react";
+import React, { useEffect, useContext, useCallback } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Card from "./Card";
 import CardName from "./CardName";
 import useBackend from "../../hooks/useBackend";
 import useSpotify from "../../hooks/useSpotify";
-import { LoginContext } from "../../context/LoginContext";
 
-export default function BracketCard({ bracket, userId, showAlert }) {
-  const { loggedIn } = useContext(LoginContext);
-  const [cardImage, setCardImage] = useState(null);
+export default function BracketCard({ bracket, userId }) {
   const { deleteBracket } = useBackend();
   const { getArtistImage, getPlaylistImage, openBracket } = useSpotify();
+  const cardImage = useQuery({
+    queryKey: ["bracketImage", { bracketId: bracket.id }],
+    queryFn: () => {
+      switch (bracket?.songSource?.type) {
+        case "artist":
+          return getArtistImage(bracket.songSource.artist.id);
+        case "playlist":
+          return getPlaylistImage(bracket.songSource.playlist.id);
+        default:
+          return null;
+      }
+    },
+    staleTime: 3600000,
+    meta: {
+      errorMessage: "Error loading bracket image",
+    },
+  });
+
   const name = (() => {
     if (bracket.songSource && bracket.songSource.type) {
       switch (bracket.songSource.type) {
@@ -26,31 +42,6 @@ export default function BracketCard({ bracket, userId, showAlert }) {
     return null;
   })();
 
-  useEffect(() => {
-    async function getBracketImage() {
-      if (bracket.songSource && bracket.songSource.type && loggedIn) {
-        try {
-          let image;
-          switch (bracket.songSource.type) {
-            case "artist":
-              image = await getArtistImage(bracket.songSource.artist.id);
-              setCardImage(image);
-              break;
-            case "playlist":
-              image = await getPlaylistImage(bracket.songSource.playlist.id);
-              setCardImage(image);
-              break;
-            default:
-              break;
-          }
-        } catch (error) {
-          console.error(error);
-        }
-      }
-    }
-    getBracketImage();
-  }, [bracket, getArtistImage, getPlaylistImage, loggedIn]);
-
   const removeBracket = useCallback(async () => {
     if (window.confirm(`Are you sure you want to permanently delete this ${name} bracket?`)) {
       try {
@@ -58,20 +49,20 @@ export default function BracketCard({ bracket, userId, showAlert }) {
         window.location.reload();
       } catch (error) {
         if (error.cause && error.cause.code === 429) {
-          showAlert("Error deleting bracket. Please try again in a couple of minutes.", "error", false);
+          // showAlert("Error deleting bracket. Please try again in a couple of minutes.", "error", false);
         } else if (error.message) {
-          showAlert(error.message, "error", false);
+          // showAlert(error.message, "error", false);
         } else {
-          showAlert("Unkown error deleting bracket", "error", false);
+          // showAlert("Unkown error deleting bracket", "error", false);
         }
       }
     }
-  }, [bracket.id, deleteBracket, name, showAlert, userId]);
+  }, [bracket.id, deleteBracket, name, userId]);
 
   return (
     <Card
-      image={cardImage}
-      imageAlt={`${name} bracket`}
+      imageRequest={cardImage}
+      imageAlt={name}
       cardText={
         <CardName
           displayName={bracket.displayName}

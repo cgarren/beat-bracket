@@ -39,7 +39,6 @@ export default function useBackend() {
             cause: { code: response.status },
           });
         } else {
-          console.log("Backend response:", response);
           throw new Error("Unknown error");
         }
       }

@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import React, { useContext, useEffect, useMemo, useState } from "react";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import NavBar from "./NavBar/NavBar";
 import Clicky from "./Clicky";
 import Footer from "./Footer";
@@ -80,6 +81,7 @@ export default function Layout({
 
   return (
     <>
+      <ReactQueryDevtools initialIsOpen={false} />
       <Clicky />
       {(showFooter || showNavBar || children) && (
         <div className="text-center clear-both">
