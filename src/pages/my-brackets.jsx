@@ -10,7 +10,6 @@ import Seo from "../components/SEO";
 import { LoginContext } from "../context/LoginContext";
 import useBackend from "../hooks/useBackend";
 
-// markup
 export default function App({ location }) {
   const [activeTab, setActiveTab] = useState(0);
   const { loginInfo, loggedIn } = useContext(LoginContext);
