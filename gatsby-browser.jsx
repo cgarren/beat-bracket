@@ -4,7 +4,7 @@ import "./global-styles.css";
 import React from "react";
 import mixpanel from "mixpanel-browser";
 import { ErrorBoundary } from "react-error-boundary";
-import { QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import toast, { Toaster } from "react-hot-toast";
 
 import { LoginProvider } from "./src/context/LoginContext";
@@ -16,15 +16,41 @@ const queryClient = new QueryClient({
     onError: (error, query) => {
       console.error(error);
       if (error?.cause?.code === 429) {
-        toast.error("The server is busy right now. Try again in a few minutes!", { id: "429" });
+        toast.error("Traffic is high right now. Try again in a few minutes!", { id: "429" });
       } else if (error?.cause?.code === 403) {
-        toast.error("User not authenticated. Please login again!", { id: "403" });
+        toast.error("User not authenticated. Please login!", { id: "403" });
       } else if (query?.meta?.errorMessage) {
         toast.error(query.meta.errorMessage);
       } else if (error?.message) {
         toast.error(error.message);
       } else {
         toast.error("Unknown error occured");
+      }
+    },
+    onSuccess: (data, query) => {
+      if (query.meta?.successMessage) {
+        toast.success(query.meta.successMessage);
+      }
+    },
+  }),
+  mutationCache: new MutationCache({
+    onError: (error, variables, context, mutation) => {
+      console.error(error);
+      if (error?.cause?.code === 429) {
+        toast.error("Traffic is high right now. Try again in a few minutes!", { id: "429" });
+      } else if (error?.cause?.code === 403) {
+        toast.error("User not authenticated. Please login!", { id: "403" });
+      } else if (mutation?.meta?.errorMessage) {
+        toast.error(mutation.meta.errorMessage);
+      } else if (error.message) {
+        toast.error(error.message);
+      } else {
+        toast.error("Unknown error occured");
+      }
+    },
+    onSuccess: (data, variables, context, mutation) => {
+      if (mutation.meta?.successMessage) {
+        toast.success(mutation.meta.successMessage);
       }
     },
   }),
@@ -44,6 +70,15 @@ if (process.env.GATSBY_MIXPANEL_TOKEN && process.env.GATSBY_BACKEND_URL) {
   console.warn("Mixpanel token not set");
 }
 
+export function wrapPageElement({ element }) {
+  return (
+    <>
+      <Toaster />
+      {element}
+    </>
+  );
+}
+
 // eslint-disable-next-line import/prefer-default-export
 export function wrapRootElement({ element }) {
   return (
@@ -53,14 +88,6 @@ export function wrapRootElement({ element }) {
           <QueryClientProvider client={queryClient}>{element}</QueryClientProvider>
         </LoginProvider>
       </MixpanelProvider>
-
-      <Toaster
-        toastOptions={{
-          error: {
-            duration: 6000,
-          },
-        }}
-      />
     </ErrorBoundary>
   );
 }

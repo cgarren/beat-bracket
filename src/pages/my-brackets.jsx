@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useContext, useCallback } from "react";
+import React, { useEffect, useState, useMemo, useContext } from "react";
 import { useQuery } from "@tanstack/react-query";
 import cx from "classnames";
 import Layout from "../components/Layout";
@@ -6,17 +6,14 @@ import BracketCard from "../components/BracketCard/BracketCard";
 import Tab from "../components/Tab";
 import LoadingBracketCard from "../components/BracketCard/LoadingBracketCard";
 import CreateBracketCard from "../components/BracketCard/CreateBracketCard";
-import Alert from "../components/Alert";
 import Seo from "../components/SEO";
 import { LoginContext } from "../context/LoginContext";
 import useBackend from "../hooks/useBackend";
 
 // markup
 export default function App({ location }) {
-  // const [brackets, setBrackets] = useState(null);
   const [activeTab, setActiveTab] = useState(0);
-  const [alertInfo, setAlertInfo] = useState({ show: false, message: null, type: null, timeoutId: null });
-  const { loginInfo, loginInProgress, loggedIn } = useContext(LoginContext);
+  const { loginInfo, loggedIn } = useContext(LoginContext);
   const { getBrackets, getMaxBrackets } = useBackend();
   const maxBrackets = getMaxBrackets();
   const {
@@ -37,7 +34,6 @@ export default function App({ location }) {
   });
 
   const shownBrackets = useMemo(() => {
-    // console.debug("brackets:", brackets);
     if (!brackets) return [];
     return brackets.filter((bracket) => {
       if (activeTab === 0) return true;
@@ -49,47 +45,16 @@ export default function App({ location }) {
 
   // scroll to top of window on page load
   useEffect(() => window.scrollTo(0, 0), []);
-  //   async function loadBrackets() {
-  //     setError(null);
-  //     try {
-  //       if (!loginInProgress && loggedIn) {
-  //         const loadedBrackets = await getBrackets(loginInfo.userId);
-  //         console.debug(loadedBrackets);
-  //         setBrackets(loadedBrackets);
-  //       } else {
-  //         setBrackets(null);
-  //       }
-  //     } catch (e) {
-  //       console.error("Error loading brackets:", e);
-  //       if (e.cause && e.cause.code === 403) {
-  //         // showAlert("Not authenticated!", "error", false);
-  //         setError(
-  //           <div className="text-center">
-  //             Error loading brackets. Try logging out and back in again!
-  //             <br />
-  //             <br />
-  //             {/* It&apos;s possible you logged in from another device. Only one session can be active for a user at any
-  //             given time. */}
-  //           </div>,
-  //         );
-  //         showAlert(e.message, "error", false);
-  //       } else if (e.cause && e.cause.code === 429) {
-  //         showAlert("Your brackets can't be loaded right now. Try again in a few minutes.", "error", false);
-  //       } else if (e.message) {
-  //         showAlert(e.message, "error", false);
-  //       } else {
-  //         showAlert("Unknown Error loading brackets", "error", false);
-  //       }
-  //     }
-  //   }
-  //   loadBrackets();
-  // }, [loginInfo, loggedIn, getBrackets, showAlert, loginInProgress]);
 
   return (
     <Layout noChanges={() => true} path={location.pathname}>
       <div className="text-center">
         <h1 className="text-4xl font-extrabold">My Brackets</h1>
-        {isError && <div className="text-md text-gray-600 mb-2 mt-2">Error loading brackets</div>}
+        {isError && (
+          <div className="text-md text-gray-600 mb-2 mt-2">
+            Error loading brackets! {!loggedIn && "You must be logged in to view your brackets."}
+          </div>
+        )}
         {!isError && (
           <>
             {isSuccess && maxBrackets && (
@@ -111,15 +76,9 @@ export default function App({ location }) {
             >
               {activeTab === 0 && isSuccess && brackets.length < maxBrackets && <CreateBracketCard />}
               {isPending && <LoadingBracketCard />}
-              {!loginInProgress && !loggedIn ? (
-                <div className="text-center">
-                  <p className="text-md text-gray-600 mb-2">You must be logged in to view your brackets.</p>
-                </div>
-              ) : null}
-              {loggedIn &&
-                shownBrackets.map((bracket) => (
-                  <BracketCard bracket={bracket} key={bracket.id} userId={loginInfo.userId} />
-                ))}
+              {shownBrackets.map((bracket) => (
+                <BracketCard bracket={bracket} key={bracket.id} />
+              ))}
             </div>
           </>
         )}

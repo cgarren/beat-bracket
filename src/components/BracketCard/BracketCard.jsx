@@ -1,14 +1,20 @@
-import React, { useEffect, useContext, useCallback } from "react";
-import { useQuery } from "@tanstack/react-query";
+import React, { useState, useContext } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 import Card from "./Card";
 import CardName from "./CardName";
 import useBackend from "../../hooks/useBackend";
 import useSpotify from "../../hooks/useSpotify";
+import { LoginContext } from "../../context/LoginContext";
+import RemoveBracketModal from "../Bracket/RemoveBracketModal";
 
-export default function BracketCard({ bracket, userId }) {
+export default function BracketCard({ bracket }) {
+  const [showModal, setShowModal] = useState(false);
   const { deleteBracket } = useBackend();
   const { getArtistImage, getPlaylistImage, openBracket } = useSpotify();
-  const cardImage = useQuery({
+  const { loginInfo } = useContext(LoginContext);
+  const queryClient = useQueryClient();
+  const { data: cardImage, isPending: imageIsLoading } = useQuery({
     queryKey: ["bracketImage", { bracketId: bracket.id }],
     queryFn: () => {
       switch (bracket?.songSource?.type) {
@@ -24,6 +30,17 @@ export default function BracketCard({ bracket, userId }) {
     meta: {
       errorMessage: "Error loading bracket image",
     },
+  });
+  const { isPending, mutate: removeBracket } = useMutation({
+    mutationFn: async (bracketId) => {
+      // toast.success("Bracket deleted successfully", { duration: Infinity });
+      await deleteBracket(bracketId);
+    },
+    meta: {
+      errorMessage: "Error deleting bracket",
+      successMessage: "Bracket deleted successfully",
+    },
+    onSettled: async () => queryClient.invalidateQueries({ queryKey: ["brackets", { userId: loginInfo.userId }] }),
   });
 
   const name = (() => {
@@ -42,40 +59,37 @@ export default function BracketCard({ bracket, userId }) {
     return null;
   })();
 
-  const removeBracket = useCallback(async () => {
-    if (window.confirm(`Are you sure you want to permanently delete this ${name} bracket?`)) {
-      try {
-        await deleteBracket(bracket.id, userId);
-        window.location.reload();
-      } catch (error) {
-        if (error.cause && error.cause.code === 429) {
-          // showAlert("Error deleting bracket. Please try again in a couple of minutes.", "error", false);
-        } else if (error.message) {
-          // showAlert(error.message, "error", false);
-        } else {
-          // showAlert("Unkown error deleting bracket", "error", false);
-        }
-      }
-    }
-  }, [bracket.id, deleteBracket, name, userId]);
-
   return (
-    <Card
-      imageRequest={cardImage}
-      imageAlt={name}
-      cardText={
-        <CardName
-          displayName={bracket.displayName}
-          songSource={bracket.songSource}
-          numTracks={bracket && bracket.tracks ? bracket.tracks.length : null}
-          ownsTemplate={bracket.ownerId === bracket.templateOwnerId}
-          completed={bracket.completed || bracket.winner}
+    <>
+      <RemoveBracketModal
+        showModal={showModal}
+        setShowModal={setShowModal}
+        removeBracket={() => {
+          setShowModal(false);
+          removeBracket(bracket.id);
+        }}
+        bracketName={name}
+      />
+      <div className={isPending ? "opacity-50" : ""}>
+        <Card
+          image={cardImage}
+          imageLoading={imageIsLoading}
+          imageAlt={name}
+          cardText={
+            <CardName
+              displayName={bracket.displayName}
+              songSource={bracket.songSource}
+              numTracks={bracket && bracket.tracks ? bracket.tracks.length : null}
+              ownsTemplate={bracket.ownerId === bracket.templateOwnerId}
+              completed={bracket.completed || bracket.winner}
+            />
+          }
+          removeFunc={() => setShowModal(true)}
+          onClick={() => {
+            openBracket(bracket.id, loginInfo.userId);
+          }}
         />
-      }
-      removeFunc={removeBracket}
-      onClick={() => {
-        openBracket(bracket.id, userId);
-      }}
-    />
+      </div>
+    </>
   );
 }

@@ -2,17 +2,25 @@ import React from "react";
 import LoadingIndicator from "../LoadingIndicator";
 import CornerButton from "./CornerButton";
 
-export default function Card({ children, imageRequest, imageAlt, cardText, onClick = () => {}, removeFunc = null }) {
+export default function Card({
+  children,
+  image,
+  imageLoading,
+  imageAlt,
+  cardText,
+  onClick = () => {},
+  removeFunc = null,
+}) {
   return (
     <div className="relative">
-      {removeFunc && imageRequest?.isSuccess ? <CornerButton removeFunc={removeFunc} /> : null}
-      <button className="text-center p-3 bg-white" onClick={onClick} disabled={!imageRequest?.isSuccess} type="button">
+      {removeFunc && image ? <CornerButton removeFunc={removeFunc} /> : null}
+      <button className="text-center p-3 bg-white" onClick={onClick} disabled={imageLoading} type="button">
         <div className="rounded-lg w-[320px] h-[320px]">
-          {imageRequest?.isError && <div className="w-[320px] h-[320px] rounded-lg bg-gray-200">Error</div>}
-          {imageRequest?.isPending && <LoadingIndicator loadingText="" hidden={false} />}
-          {imageRequest?.data && (
+          {!image && !imageLoading && <div className="w-[320px] h-[320px] rounded-lg bg-gray-200">Error</div>}
+          {imageLoading && <LoadingIndicator loadingText="" hidden={false} />}
+          {image && (
             <img
-              src={imageRequest?.data}
+              src={image}
               className="w-[320px] h-[320px] rounded-lg"
               width="320px"
               height="320px"

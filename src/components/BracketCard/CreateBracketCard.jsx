@@ -8,7 +8,7 @@ export default function CreateBracketCard() {
   return (
     <div>
       <Card
-        imageRequest={{ data: createBracketPic, isSuccess: true }}
+        image={createBracketPic}
         imageAlt="Plus sign"
         cardText="Create Bracket"
         onClick={() => {

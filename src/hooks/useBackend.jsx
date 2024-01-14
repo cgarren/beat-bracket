@@ -110,13 +110,12 @@ export default function useBackend() {
   );
 
   const deleteBracket = useCallback(
-    async (id) => {
-      await loadBackendRequest("/bracket", "DELETE", {
+    async (id) =>
+      loadBackendRequest("/bracket", "DELETE", {
         id: id,
         ownerId: loginInfo.userId,
         token: loginInfo.backendToken,
-      });
-    },
+      }),
     [loadBackendRequest, loginInfo],
   );
 
