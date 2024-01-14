@@ -2,7 +2,7 @@ import React from "react";
 
 export default function BracketWinnerInfo({ bracketWinner, showSongInfo }) {
   return (
-    <div className="text-center text-lg">
+    <div className="text-center text-md">
       {bracketWinner.art && (
         <img
           src={bracketWinner.art}
