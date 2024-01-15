@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useContext, useCallback } from "react";
+import React, { useState, useContext, useCallback } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { useQuery } from "@tanstack/react-query";
 import ArtistSearchBar from "../Search/ArtistSearchBar";
 import UserPlaylistSearchBar from "../Search/UserPlaylistSearchBar";
 import Modal from "../Modal";
@@ -7,21 +8,34 @@ import Tab from "../Tab";
 import useSongProcessing from "../../hooks/useSongProcessing";
 import { LoginContext } from "../../context/LoginContext";
 import useSpotify from "../../hooks/useSpotify";
+import LoadingIndicator from "../LoadingIndicator";
 // import Badge from "../Badge";
 
 export default function CreateBracketModal({ showModal, setShowModal }) {
   const [activeTab, setActiveTab] = useState(0);
-  const [allPlaylists, setAllPlaylists] = useState([]);
   const { loginInfo } = useContext(LoginContext);
   const { openBracket } = useSpotify();
   const { loadPlaylists } = useSongProcessing();
+  const {
+    data: userPlaylists,
+    isPending,
+    isSuccess,
+    isError,
+  } = useQuery({
+    queryKey: ["playlists", { userId: loginInfo.userId }],
+    queryFn: () => loadPlaylists("https://api.spotify.com/v1/me/playlists?limit=50"),
+    staleTime: 1000 * 60 * 60, // 1 hour
+    meta: {
+      errorMessage: "Error loading playlists",
+    },
+  });
 
   const createArtistBracket = useCallback(
     (artist) => {
       if (artist) {
         // Generate unique id for new bracket
         const uuid = uuidv4();
-        console.debug(`Create New Bracket with id: ${uuid}`);
+        console.debug(`Creating new bracket with id: ${uuid}`);
         openBracket(uuid, loginInfo.userId, {
           type: "artist",
           artist: artist,
@@ -36,7 +50,7 @@ export default function CreateBracketModal({ showModal, setShowModal }) {
       if (playlist) {
         // Generate unique id for new bracket
         const uuid = uuidv4();
-        console.debug(`Create New Bracket with id: ${uuid}`);
+        console.debug(`Creating new bracket with id: ${uuid}`);
         openBracket(uuid, loginInfo.userId, {
           type: "playlist",
           playlist: playlist,
@@ -46,21 +60,15 @@ export default function CreateBracketModal({ showModal, setShowModal }) {
     [loginInfo.userId, openBracket],
   );
 
-  useEffect(() => {
-    if (showModal && allPlaylists.length === 0) {
-      const url = "https://api.spotify.com/v1/me/playlists?limit=50";
-      loadPlaylists(url).then((playlists) => {
-        if (playlists) {
-          setAllPlaylists(playlists);
-        }
-      });
-    }
-  }, [showModal, allPlaylists, loadPlaylists]);
-
   return (
     <div>
       {showModal && (
-        <Modal onClose={() => setShowModal(false)}>
+        <Modal
+          onClose={() => {
+            setShowModal(false);
+            setActiveTab(0);
+          }}
+        >
           <h1 className="text-xl font-bold">Create Bracket</h1>
           <div className="mb-2">
             <nav className="inline-flex flex-row items-center gap-0">
@@ -74,26 +82,33 @@ export default function CreateBracketModal({ showModal, setShowModal }) {
                   <div className="flex gap-1 align-middle">
                     Playlist{" "}
                     {/* <Badge
-                                            text="New"
-                                            backgroundColor="bg-green-100"
-                                            textColor="text-green-800"
-                                        /> */}
+                          text="New"
+                          backgroundColor="bg-green-100"
+                          textColor="text-green-800"
+                        /> */}
                   </div>
                 }
               />
               {/* <Tab
-                                id={2}
-                                activeTab={activeTab}
-                                setActiveTab={setActiveTab}
-                                text="Blank"
-                                disabled={true}
-                            /> */}
+                    id={2}
+                    activeTab={activeTab}
+                    setActiveTab={setActiveTab}
+                    text="Top Artists"
+                    disabled={true}
+                  /> */}
             </nav>
           </div>
-          {activeTab === 0 ? <ArtistSearchBar setArtist={createArtistBracket} /> : null}
-          {activeTab === 1 ? (
-            <UserPlaylistSearchBar setPlaylist={createPlaylistBracket} allPlaylists={allPlaylists} />
-          ) : null}
+          {activeTab === 0 && <ArtistSearchBar setArtist={createArtistBracket} />}
+          {activeTab === 1 && isError && <div className="mt-2">The was a problem loading your playlists!</div>}
+          {activeTab === 1 && isPending && (
+            <div className="mt-2">
+              <LoadingIndicator />
+              Loading playlists...
+            </div>
+          )}
+          {activeTab === 1 && isSuccess && (
+            <UserPlaylistSearchBar setPlaylist={createPlaylistBracket} allPlaylists={userPlaylists} />
+          )}
         </Modal>
       )}
     </div>
