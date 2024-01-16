@@ -23,8 +23,6 @@ import ShareIcon from "../../../../../assets/svgs/shareIcon.svg";
 import DuplicateIcon from "../../../../../assets/svgs/duplicateIcon.svg";
 // Context
 import { LoginContext } from "../../../../../context/LoginContext";
-import Bracket from "../../../../../components/Bracket/Bracket";
-import FillSongButton from "../../../../../components/Bracket/SongButton/FillSongButton";
 
 export default function App({ params, location }) {
   const defaultValues = useMemo(
@@ -65,7 +63,6 @@ export default function App({ params, location }) {
   const [songSource, setSongSource] = useState(defaultValues.songSource);
   const [showBracket, setShowBracket] = useState(defaultValues.showBracket);
   const [saving, setSaving] = useState(defaultValues.saving);
-  const [alertInfo, setAlertInfo] = useState(defaultValues.alertInfo);
 
   const { loggedIn, loginInfo } = useContext(LoginContext);
   const { isCurrentUser, getUserInfo, getArtist, getPlaylist } = useSpotify();
@@ -150,7 +147,6 @@ export default function App({ params, location }) {
     setSongSource(defaultValues.songSource);
     setShowBracket(defaultValues.showBracket);
     setSaving(defaultValues.saving);
-    setAlertInfo(defaultValues.alertInfo);
   }, [defaultValues]);
 
   // START BRACKET
@@ -291,9 +287,8 @@ export default function App({ params, location }) {
     }
   }, [template, loginInfo, resetState]);
 
+  // redirect
   if (bracket?.size > 0 && !bracketWinner && params.userId === loginInfo?.userId) {
-    console.log(location.state);
-    console.log("winner1", bracketWinner);
     navigate(`/user/${params.userId}/bracket/${params.id}/fill`, { state: location.state });
     // return <Redirect to={`/user/${params.userId}/bracket/${params.id}/fill`} />;
   }

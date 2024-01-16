@@ -107,7 +107,7 @@ export default function SongButton({
       >
         {song !== null ? song.name : ""}
       </button>
-      {showPlayPauseButton && (
+      {showPlayPauseButton && song?.preview_url && !disabled && (
         <PlayPauseButton
           id={id}
           song={song}
@@ -118,10 +118,10 @@ export default function SongButton({
           audioRef={audioRef}
         />
       )}
-      {song && song.preview_url ? (
+      {song?.preview_url && !disabled && (
         // eslint-disable-next-line jsx-a11y/media-has-caption
-        <audio src={song !== null && !disabled ? song.preview_url : null} className="hidden" ref={audioRef} />
-      ) : null}
+        <audio src={song.preview_url} className="hidden" ref={audioRef} />
+      )}
     </div>
   );
 }

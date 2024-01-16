@@ -95,7 +95,6 @@ export default function CreateBracket({
             saveCommand: () => {},
             getBracket: getBracket,
             editable: editable,
-            editMode: true,
             replaceTrack: (id) => {
               setButtonReplacementId(id);
             },

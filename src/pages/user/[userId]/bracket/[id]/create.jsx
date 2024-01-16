@@ -5,12 +5,12 @@ import { navigate } from "gatsby";
 import toast from "react-hot-toast";
 // Third Party
 // import Mousetrap from "mousetrap";
+import { useQuery } from "@tanstack/react-query";
 // Components
 import Seo from "../../../../../components/SEO";
 import Layout from "../../../../../components/Layout";
 import LoadingIndicator from "../../../../../components/LoadingIndicator";
 import BracketOptions from "../../../../../components/Controls/BracketOptions";
-import TrackNumber from "../../../../../components/BracketCard/TrackNumber";
 import CreateBracket from "../../../../../components/Bracket/CreateBracket";
 // Hooks
 import useBracketGeneration from "../../../../../hooks/useBracketGeneration";
@@ -20,7 +20,6 @@ import useSpotify from "../../../../../hooks/useSpotify";
 import useSongProcessing from "../../../../../hooks/useSongProcessing";
 // Context
 import { LoginContext } from "../../../../../context/LoginContext";
-import { useQuery } from "@tanstack/react-query";
 
 export default function App({ params, location }) {
   const defaultValues = useMemo(
@@ -47,7 +46,6 @@ export default function App({ params, location }) {
   const [allTracks, setAllTracks] = useState(defaultValues.allTracks);
   // const [commands, setCommands] = useState(defaultValues.commands);
   const [bracket, setBracket] = useState(defaultValues.bracket);
-  const [template, setTemplate] = useState(defaultValues.template);
   const [songSource, setSongSource] = useState(defaultValues.songSource);
   const [showBracket, setShowBracket] = useState(defaultValues.showBracket);
   const [loadingText, setLoadingText] = useState(defaultValues.loadingText);
@@ -55,9 +53,8 @@ export default function App({ params, location }) {
   const { loggedIn } = useContext(LoginContext);
   const { isCurrentUser, getUserInfo, getArt } = useSpotify();
   const { nearestLesserPowerOf2 } = useHelper();
-  const { createBracket, getBracket, getTemplate } = useBackend();
-  const { seedBracket, sortTracks, loadAlbums, processTracks, loadPlaylistTracks, updatePreviewUrls } =
-    useSongProcessing();
+  const { createBracket, getBracket } = useBackend();
+  const { seedBracket, sortTracks, loadAlbums, processTracks, loadPlaylistTracks } = useSongProcessing();
   const { getNumberOfColumns, fillBracket } = useBracketGeneration();
 
   const editable = loggedIn && isCurrentUser(owner.id);
@@ -95,29 +92,24 @@ export default function App({ params, location }) {
     };
   }, [bracket, bracketTracks, inclusionMethod, owner.name, seedingMethod, songSource]);
 
-  const startBracket = useCallback(
-    async (creationObject) => {
-      try {
-        let creationObj = creationObject;
-        if (!creationObj) {
-          creationObj = await makeCreationObject();
-        }
-        await createBracket(creationObj);
-        console.debug("Bracket created");
-        return true;
-      } catch (error) {
-        if (error.cause && error.cause.code === 429) {
-          toast.error("Error creating bracket! Please try again later");
-          console.error(error);
-        } else {
-          toast.error(error.message);
-          console.error(error);
-        }
-        return false;
+  const startBracket = useCallback(async () => {
+    try {
+      const creationObj = await makeCreationObject();
+      await createBracket(creationObj);
+      console.debug("Bracket created");
+      navigate(`/user/${owner.id}/bracket/${params.id}/fill`);
+      return true;
+    } catch (error) {
+      if (error.cause && error.cause.code === 429) {
+        toast.error("Error creating bracket! Please try again later");
+        console.error(error);
+      } else {
+        toast.error(error.message);
+        console.error(error);
       }
-    },
-    [makeCreationObject, createBracket],
-  );
+      return false;
+    }
+  }, [makeCreationObject, createBracket]);
 
   // GET TRACKS
 
@@ -223,60 +215,6 @@ export default function App({ params, location }) {
     ],
   );
 
-  const initializeBracketFromTemplate = useCallback(
-    async (templateData, ownerId, newBracketId) => {
-      console.debug("Creating new bracket from template...", templateData);
-      // load template from backend
-      let loadedTemplate;
-      try {
-        loadedTemplate = await getTemplate(templateData.id, templateData.ownerId);
-      } catch (e) {
-        toast.error("Error loading template for bracket");
-        console.error(e);
-        return;
-      }
-      // log template details
-      console.debug("Loaded template:", loadedTemplate);
-
-      // set owner details
-      const newUserInfo = await getUserInfo(ownerId);
-      setOwner({ id: newUserInfo.id, name: newUserInfo.display_name });
-
-      // don't show the bracket while we get things ready
-      setShowBracket(false);
-
-      // set song source from passed in data
-      setSongSource(loadedTemplate.songSource);
-
-      setInclusionMethod(loadedTemplate.inclusionMethod);
-      setSeedingMethod(loadedTemplate.seedingMethod);
-      setLimit(loadedTemplate.tracks.length);
-      setTemplate({
-        id: loadedTemplate.id,
-        ownerId: loadedTemplate.ownerId,
-        displayName: loadedTemplate.displayName,
-        ownerUsername: loadedTemplate.ownerUsername,
-      });
-
-      // update preview urls
-      loadedTemplate.tracks = await updatePreviewUrls(loadedTemplate.tracks);
-
-      // fill bracket with template tracks
-      const filledBracket = await fillBracket(loadedTemplate.tracks, getNumberOfColumns(loadedTemplate.tracks.length));
-      setBracket(filledBracket);
-
-      // create bracket and set it up for the user to fill
-      startBracket({
-        bracketId: newBracketId,
-        ownerUsername: newUserInfo.display_name,
-        templateId: loadedTemplate.id,
-        templateOwnerId: loadedTemplate.ownerId,
-        bracketData: Object.fromEntries(filledBracket),
-      });
-    },
-    [getTemplate, startBracket, getUserInfo, fillBracket, getNumberOfColumns, updatePreviewUrls],
-  );
-
   const initializeBracketFromSource = useCallback(
     async (newSongSource, ownerId, newLimit) => {
       console.debug("Creating new bracket...");
@@ -304,9 +242,7 @@ export default function App({ params, location }) {
   // INITIALIZE BRACKET
 
   const kickOff = useCallback(async () => {
-    if (location.state?.template) {
-      await initializeBracketFromTemplate(location.state.template, owner.id, params.id);
-    } else if (location.state?.artist || location.state?.playlist) {
+    if (location.state?.artist || location.state?.playlist) {
       try {
         const initObject = location.state;
         delete initObject.key;
@@ -320,7 +256,7 @@ export default function App({ params, location }) {
       // Bracket doesn't exist and no artist was passed in
       setBracket(null);
     }
-  }, [initializeBracketFromSource, initializeBracketFromTemplate, owner.id, limit, setBracket, getBracket]);
+  }, [initializeBracketFromSource, owner.id, limit, setBracket, getBracket]);
 
   useEffect(() => {
     kickOff();
@@ -400,8 +336,8 @@ export default function App({ params, location }) {
     [seedingMethod, changeBracket],
   );
 
+  // redirect
   if (!location.state) {
-    console.log(location.state);
     navigate(`/user/${params.userId}/bracket/${params.id}`);
     // return <Redirect to={`/user/${params.userId}/bracket/${params.id}/fill`} />;
   }

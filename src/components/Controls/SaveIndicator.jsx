@@ -5,7 +5,16 @@ import SyncIcon from "../../assets/svgs/syncIcon.svg";
 import XIcon from "../../assets/svgs/xIcon.svg";
 import WaitingIcon from "../../assets/svgs/waitingIcon.svg";
 
-export default function SaveIndicator({ saving, isSaved, lastSaved, waitingToSave }) {
+export default function SaveIndicator({
+  saving,
+  isSaved,
+  lastSaved,
+  waitingToSave,
+  errorText = "Not Saved",
+  waitingText = "Waiting",
+  savedText = "Saved",
+  savingText = "Saving",
+}) {
   const savingState = useMemo(() => {
     if (saving === "error") {
       return "error";
@@ -31,7 +40,7 @@ export default function SaveIndicator({ saving, isSaved, lastSaved, waitingToSav
           <div className="">
             <XIcon />
           </div>
-          Not Saved
+          {errorText}
         </>
       )}{" "}
       {savingState === "waiting" && (
@@ -39,7 +48,7 @@ export default function SaveIndicator({ saving, isSaved, lastSaved, waitingToSav
           <div className="">
             <WaitingIcon />
           </div>
-          Waiting
+          {waitingText}
         </>
       )}
       {savingState === "saving" && (
@@ -47,13 +56,13 @@ export default function SaveIndicator({ saving, isSaved, lastSaved, waitingToSav
           <div className="animate-spin-reverse">
             <SyncIcon />
           </div>
-          Saving
+          {savingText}
         </>
       )}
       {savingState === "saved" && (
         <>
           <CheckmarkIcon />
-          Saved
+          {savedText}
         </>
       )}
     </div>
