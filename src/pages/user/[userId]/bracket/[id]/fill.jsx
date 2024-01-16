@@ -9,30 +9,30 @@ import Confetti from "react-confetti";
 import { v4 as uuidv4 } from "uuid";
 import { backOff } from "exponential-backoff";
 // Components
-import Seo from "../../../../components/SEO";
-import Bracket from "../../../../components/Bracket/Bracket";
-import Layout from "../../../../components/Layout";
-import LoadingIndicator from "../../../../components/LoadingIndicator";
-import Alert from "../../../../components/Alert";
-import BracketOptions from "../../../../components/Bracket/BracketOptions";
-import BracketWinnerInfo from "../../../../components/Bracket/BracketWinnerInfo";
-import ActionButton from "../../../../components/Bracket/ActionButton";
-import SaveIndicator from "../../../../components/Bracket/SaveIndicator";
-import TrackNumber from "../../../../components/BracketCard/TrackNumber";
+import Seo from "../../../../../components/SEO";
+import Bracket from "../../../../../components/Bracket/Bracket";
+import Layout from "../../../../../components/Layout";
+import LoadingIndicator from "../../../../../components/LoadingIndicator";
+import Alert from "../../../../../components/Alert";
+import BracketOptions from "../../../../../components/Bracket/BracketOptions";
+import BracketWinnerInfo from "../../../../../components/Bracket/BracketWinnerInfo";
+import ActionButton from "../../../../../components/Bracket/ActionButton";
+import SaveIndicator from "../../../../../components/Bracket/SaveIndicator";
+import TrackNumber from "../../../../../components/BracketCard/TrackNumber";
 // import GeneratePlaylistButton from "../../../../components/GeneratePlaylistButton";
-import BracketCompleteModal from "../../../../components/Bracket/BracketCompleteModal";
+import BracketCompleteModal from "../../../../../components/Bracket/BracketCompleteModal";
 // Hooks
-import useBracketGeneration from "../../../../hooks/useBracketGeneration";
-import useHelper from "../../../../hooks/useHelper";
-import useBackend from "../../../../hooks/useBackend";
-import useSpotify from "../../../../hooks/useSpotify";
-import useSongProcessing from "../../../../hooks/useSongProcessing";
+import useBracketGeneration from "../../../../../hooks/useBracketGeneration";
+import useHelper from "../../../../../hooks/useHelper";
+import useBackend from "../../../../../hooks/useBackend";
+import useSpotify from "../../../../../hooks/useSpotify";
+import useSongProcessing from "../../../../../hooks/useSongProcessing";
 // Assets
-import ShareIcon from "../../../../assets/svgs/shareIcon.svg";
-import DuplicateIcon from "../../../../assets/svgs/duplicateIcon.svg";
-import OpenPreviousIcon from "../../../../assets/svgs/openPreviousIcon.svg";
+import ShareIcon from "../../../../../assets/svgs/shareIcon.svg";
+import DuplicateIcon from "../../../../../assets/svgs/duplicateIcon.svg";
+import OpenPreviousIcon from "../../../../../assets/svgs/openPreviousIcon.svg";
 // Context
-import { LoginContext } from "../../../../context/LoginContext";
+import { LoginContext } from "../../../../../context/LoginContext";
 
 export default function App({ params, location }) {
   const defaultValues = useMemo(
@@ -874,6 +874,11 @@ export default function App({ params, location }) {
   const playbackChange = useCallback(() => {
     setPlaybackEnabled(!playbackEnabled);
   }, [playbackEnabled]);
+
+  if (params.userId !== loginInfo?.userId || bracketWinner) {
+    navigate(`/user/${params.userId}/bracket/${params.id}`, { state: location.state });
+    // return <Redirect to={`/user/${params.userId}/bracket/${params.id}/fill`} />;
+  }
 
   return (
     <Layout

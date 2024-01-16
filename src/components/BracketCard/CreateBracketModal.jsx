@@ -1,6 +1,7 @@
 import React, { useState, useContext, useCallback } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { useQuery } from "@tanstack/react-query";
+import { navigate } from "gatsby";
 import ArtistSearchBar from "../Search/ArtistSearchBar";
 import UserPlaylistSearchBar from "../Search/UserPlaylistSearchBar";
 import Modal from "../Modal";
@@ -30,30 +31,15 @@ export default function CreateBracketModal({ showModal, setShowModal }) {
     },
   });
 
-  const createArtistBracket = useCallback(
-    (artist) => {
-      if (artist) {
+  const createBracket = useCallback(
+    (state) => {
+      if (state) {
         // Generate unique id for new bracket
         const uuid = uuidv4();
         console.debug(`Creating new bracket with id: ${uuid}`);
-        openBracket(uuid, loginInfo.userId, {
-          type: "artist",
-          artist: artist,
-        });
-      }
-    },
-    [loginInfo.userId, openBracket],
-  );
-
-  const createPlaylistBracket = useCallback(
-    (playlist) => {
-      if (playlist) {
-        // Generate unique id for new bracket
-        const uuid = uuidv4();
-        console.debug(`Creating new bracket with id: ${uuid}`);
-        openBracket(uuid, loginInfo.userId, {
-          type: "playlist",
-          playlist: playlist,
+        // openBracket(uuid, loginInfo.userId, state);
+        navigate(`/user/${loginInfo.userId}/bracket/${uuid}/create`, {
+          state: state,
         });
       }
     },
@@ -98,7 +84,13 @@ export default function CreateBracketModal({ showModal, setShowModal }) {
                   /> */}
             </nav>
           </div>
-          {activeTab === 0 && <ArtistSearchBar setArtist={createArtistBracket} />}
+          {activeTab === 0 && (
+            <ArtistSearchBar
+              setArtist={(artist) => {
+                createBracket({ type: "artist", artist: artist });
+              }}
+            />
+          )}
           {activeTab === 1 && isError && <div className="mt-2">The was a problem loading your playlists!</div>}
           {activeTab === 1 && isPending && (
             <div className="mt-2">
@@ -107,7 +99,12 @@ export default function CreateBracketModal({ showModal, setShowModal }) {
             </div>
           )}
           {activeTab === 1 && isSuccess && (
-            <UserPlaylistSearchBar setPlaylist={createPlaylistBracket} allPlaylists={userPlaylists} />
+            <UserPlaylistSearchBar
+              setPlaylist={(playlist) => {
+                createBracket({ type: "playlist", playlist: playlist });
+              }}
+              allPlaylists={userPlaylists}
+            />
           )}
         </Modal>
       )}
