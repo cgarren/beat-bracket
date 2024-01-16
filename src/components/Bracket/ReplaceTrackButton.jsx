@@ -1,6 +1,6 @@
 import React from "react";
 import SwapIcon from "../../assets/svgs/swapIcon.svg";
-import SongButtonAction from "./SongActionButton";
+import SongButtonAction from "./SongButtonAction";
 
 export default function ReplaceTrackButton({ replacementFunction }) {
   return (

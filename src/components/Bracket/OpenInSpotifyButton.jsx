@@ -1,6 +1,6 @@
 import React from "react";
 import spotifyIcon from "../../assets/images/Spotify_Icon_RGB_Green.png";
-import SongButtonAction from "./SongActionButton";
+import SongButtonAction from "./SongButtonAction";
 
 export default function OpenInSpotifyButton({ songId }) {
   return (
