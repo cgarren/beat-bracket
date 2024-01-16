@@ -1,10 +1,10 @@
 import React, { useRef, useState, useMemo } from "react";
 import Vibrant from "node-vibrant";
 import cx from "classnames";
-import SwapIcon from "../../assets/svgs/swapIcon.svg";
 import UndoIcon from "../../assets/svgs/undoIcon.svg";
 import PlayPauseButton from "./PlayPauseButton";
 import OpenInSpotifyButton from "./OpenInSpotifyButton";
+import ReplaceTrackButton from "./ReplaceTrackButton";
 
 export default function SongButton({
   styling,
@@ -24,7 +24,6 @@ export default function SongButton({
   eliminated,
   winner,
   color,
-  playbackEnabled,
   editMode,
   editable,
   replaceTrack,
@@ -245,24 +244,8 @@ export default function SongButton({
                         />
                     </div>
                 ) : null} */}
-        {editMode && editable && song ? (
-          <button
-            type="button"
-            onClick={() => {
-              // setShowTrackSelector(true);
-              replaceTrack();
-            }}
-            className="border-0 p-0 flex items-center justify-center w-[20px] h-[20px] hover:bg-gray-200 bg-white text-black absolute -top-2 -right-2 rounded-full z-20 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-opacity-50"
-            aria-label="Replace track"
-          >
-            <div className="w-[16px] h-[16px]">
-              <SwapIcon />
-            </div>
-          </button>
-        ) : null}
-        {!editMode && song && !disabled ? (
-          <OpenInSpotifyButton songId={song.id} extraClasses="absolute -top-2 -right-2 " />
-        ) : null}
+        {editMode && editable && song && <ReplaceTrackButton replacementFunction={replaceTrack} />}
+        {!editMode && song && !disabled && <OpenInSpotifyButton songId={song.id} />}
         <button
           type="button"
           disabled={disabled}
