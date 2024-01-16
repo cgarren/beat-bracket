@@ -7,14 +7,10 @@ export default function PlayPauseButton({
   song,
   id,
   side,
-  disabled,
   currentlyPlayingId,
   setCurrentlyPlayingId,
   colorStyle,
-  // playbackEnabled,
-  // buttonRef,
   audioRef,
-  editMode,
 }) {
   const [paused, setPaused] = useState(true);
 
@@ -124,7 +120,6 @@ export default function PlayPauseButton({
         { "rounded-l-[0]": !side },
       )}
       style={song ? { ...colorStyle, color: "black" } : {}}
-      hidden={!song || disabled || editMode}
     >
       {paused ? <PlayIcon /> : <PauseIcon />}
     </button>

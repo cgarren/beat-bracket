@@ -291,22 +291,17 @@ export default function SongButton({
         >
           {song !== null ? song.name : ""}
         </button>
-        {song && song.preview_url ? (
+        {song && song.preview_url && !disabled && !editMode && (
           <PlayPauseButton
             id={id}
             song={song}
             side={side}
-            disabled={disabled}
             currentlyPlayingId={currentlyPlayingId}
             setCurrentlyPlayingId={setCurrentlyPlayingId}
             colorStyle={colorStyle}
-            playbackEnabled={playbackEnabled}
-            buttonRef={buttonRef}
             audioRef={audioRef}
-            editMode={editMode}
-            editable={editable}
           />
-        ) : null}
+        )}
         {song && song.preview_url ? (
           // eslint-disable-next-line jsx-a11y/media-has-caption
           <audio src={song !== null && !disabled ? song.preview_url : null} className="hidden" ref={audioRef} />
