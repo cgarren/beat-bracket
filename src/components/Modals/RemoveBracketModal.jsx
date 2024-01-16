@@ -1,6 +1,6 @@
 import React from "react";
-import Modal from "../Modal";
-import ActionButton from "./ActionButton";
+import Modal from "./Modal";
+import ActionButton from "../Controls/ActionButton";
 
 export default function RemoveBracketModal({ showModal, setShowModal, removeBracket, bracketName }) {
   if (showModal)

@@ -1,7 +1,7 @@
 import React, { useRef, useState, useMemo } from "react";
 import Vibrant from "node-vibrant";
 import cx from "classnames";
-import UndoIcon from "../../assets/svgs/undoIcon.svg";
+import UndoIcon from "../../../assets/svgs/undoIcon.svg";
 import PlayPauseButton from "./PlayPauseButton";
 import OpenInSpotifyButton from "./OpenInSpotifyButton";
 import ReplaceTrackButton from "./ReplaceTrackButton";

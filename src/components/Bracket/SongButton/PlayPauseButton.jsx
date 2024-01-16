@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import cx from "classnames";
-import PlayIcon from "../../assets/svgs/playIcon.svg";
-import PauseIcon from "../../assets/svgs/pauseIcon.svg";
+import PlayIcon from "../../../assets/svgs/playIcon.svg";
+import PauseIcon from "../../../assets/svgs/pauseIcon.svg";
 
 export default function PlayPauseButton({
   song,

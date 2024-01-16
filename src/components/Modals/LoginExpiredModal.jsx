@@ -1,6 +1,6 @@
 import React from "react";
 import Modal from "./Modal";
-import LoginButton from "./LoginButton";
+import LoginButton from "../Controls/LoginButton";
 
 export default function LoginExpiredModal({ showModal, setShowModal, bracketSavedLocally }) {
   return (

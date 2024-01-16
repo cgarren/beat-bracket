@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import Modal from "../Modal";
+import Modal from "./Modal";
 import SearchBar from "../Search/SearchBar";
 
 export default function ReplaceTrackModal({ replacementTracks, handleReplacement, setShow, showSongInfo }) {

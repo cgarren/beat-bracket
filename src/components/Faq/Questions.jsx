@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "gatsby";
 import CornerButton from "../BracketCard/CornerButton";
 import PlayIcon from "../../assets/svgs/playIcon.svg";
-import OpenInSpotifyButton from "../Bracket/OpenInSpotifyButton";
+import OpenInSpotifyButton from "../Bracket/SongButton/OpenInSpotifyButton";
 
 const questions = [
   {

@@ -1,7 +1,6 @@
 /* eslint-disable react/prop-types */
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { Toaster } from "react-hot-toast";
 import NavBar from "./NavBar/NavBar";
 import Clicky from "./Clicky";
 import Footer from "./Footer";
@@ -9,7 +8,7 @@ import { MixpanelContext } from "../context/MixpanelContext";
 import { LoginContext } from "../context/LoginContext";
 import useAuthentication from "../hooks/useAuthentication";
 import useGlobalTimer from "../hooks/useGlobalTimer";
-import LoginExpiredModal from "./LoginExpiredModal";
+import LoginExpiredModal from "./Modals/LoginExpiredModal";
 
 export default function Layout({
   children,

@@ -4,8 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { navigate } from "gatsby";
 import ArtistSearchBar from "../Search/ArtistSearchBar";
 import UserPlaylistSearchBar from "../Search/UserPlaylistSearchBar";
-import Modal from "../Modal";
-import Tab from "../Tab";
+import Modal from "./Modal";
+import Tab from "../Controls/Tab";
 import useSongProcessing from "../../hooks/useSongProcessing";
 import { LoginContext } from "../../context/LoginContext";
 import useSpotify from "../../hooks/useSpotify";
@@ -101,6 +101,7 @@ export default function CreateBracketModal({ showModal, setShowModal }) {
           {activeTab === 1 && isSuccess && (
             <UserPlaylistSearchBar
               setPlaylist={(playlist) => {
+                console.debug("Selected playlist:", playlist);
                 createBracket({ type: "playlist", playlist: playlist });
               }}
               allPlaylists={userPlaylists}

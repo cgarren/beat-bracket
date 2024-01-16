@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import cx from "classnames";
 import Layout from "../components/Layout";
 import BracketCard from "../components/BracketCard/BracketCard";
-import Tab from "../components/Tab";
+import Tab from "../components/Controls/Tab";
 import LoadingBracketCard from "../components/BracketCard/LoadingBracketCard";
 import CreateBracketCard from "../components/BracketCard/CreateBracketCard";
 import Seo from "../components/SEO";

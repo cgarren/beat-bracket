@@ -14,13 +14,13 @@ import Bracket from "../../../../../components/Bracket/Bracket";
 import Layout from "../../../../../components/Layout";
 import LoadingIndicator from "../../../../../components/LoadingIndicator";
 import Alert from "../../../../../components/Alert";
-import BracketOptions from "../../../../../components/Bracket/BracketOptions";
+import BracketOptions from "../../../../../components/Controls/BracketOptions";
 import BracketWinnerInfo from "../../../../../components/Bracket/BracketWinnerInfo";
-import ActionButton from "../../../../../components/Bracket/ActionButton";
-import SaveIndicator from "../../../../../components/Bracket/SaveIndicator";
+import ActionButton from "../../../../../components/Controls/ActionButton";
+import SaveIndicator from "../../../../../components/Controls/SaveIndicator";
 import TrackNumber from "../../../../../components/BracketCard/TrackNumber";
 // import GeneratePlaylistButton from "../../../../components/GeneratePlaylistButton";
-import BracketCompleteModal from "../../../../../components/Bracket/BracketCompleteModal";
+import BracketCompleteModal from "../../../../../components/Modals/BracketCompleteModal";
 // Hooks
 import useBracketGeneration from "../../../../../hooks/useBracketGeneration";
 import useHelper from "../../../../../hooks/useHelper";

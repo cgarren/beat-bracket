@@ -1,9 +1,9 @@
 import React from "react";
 import { navigate } from "gatsby";
-import Modal from "../Modal";
-import ActionButton from "./ActionButton";
-import BracketWinnerInfo from "./BracketWinnerInfo";
-import SaveIndicator from "./SaveIndicator";
+import Modal from "./Modal";
+import ActionButton from "../Controls/ActionButton";
+import BracketWinnerInfo from "../Bracket/BracketWinnerInfo";
+import SaveIndicator from "../Controls/SaveIndicator";
 
 export default function BracketCompleteModal({ showModal, setShowModal, bracketWinner, songSource, isSaved, saving }) {
   return (

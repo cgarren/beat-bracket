@@ -1,7 +1,7 @@
 import React, { useEffect, useContext } from "react";
 import { navigate } from "gatsby";
 import Layout from "../components/Layout";
-import LoginButton from "../components/LoginButton";
+import LoginButton from "../components/Controls/LoginButton";
 import FooterText from "../components/FooterText";
 import Seo from "../components/SEO";
 import LoadingIndicator from "../components/LoadingIndicator";

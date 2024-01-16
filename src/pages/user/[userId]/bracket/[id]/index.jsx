@@ -5,12 +5,13 @@ import { navigate } from "gatsby";
 // Third Party
 import { v4 as uuidv4 } from "uuid";
 import { backOff } from "exponential-backoff";
+import toast from "react-hot-toast";
 // Components
 import Seo from "../../../../../components/SEO";
-import BracketView from "../../../../../components/Bracket/BracketView";
+import BracketView from "../../../../../components/Bracket/ViewBracket";
 import Layout from "../../../../../components/Layout";
 import BracketWinnerInfo from "../../../../../components/Bracket/BracketWinnerInfo";
-import ActionButton from "../../../../../components/Bracket/ActionButton";
+import ActionButton from "../../../../../components/Controls/ActionButton";
 import TrackNumber from "../../../../../components/BracketCard/TrackNumber";
 // Hooks
 import useBracketGeneration from "../../../../../hooks/useBracketGeneration";
@@ -22,6 +23,8 @@ import ShareIcon from "../../../../../assets/svgs/shareIcon.svg";
 import DuplicateIcon from "../../../../../assets/svgs/duplicateIcon.svg";
 // Context
 import { LoginContext } from "../../../../../context/LoginContext";
+import Bracket from "../../../../../components/Bracket/Bracket";
+import FillSongButton from "../../../../../components/Bracket/SongButton/FillSongButton";
 
 export default function App({ params, location }) {
   const defaultValues = useMemo(
@@ -97,24 +100,6 @@ export default function App({ params, location }) {
     return null;
   }, [bracket, bracketTracks, getNumberOfColumns]);
 
-  // ALERTS
-
-  const showAlert = useCallback(
-    (message, type = "info", timeout = true) => {
-      if (alertInfo.timeoutId) {
-        clearTimeout(alertInfo.timeoutId);
-      }
-      let timeoutId = null;
-      if (timeout) {
-        timeoutId = setTimeout(() => {
-          setAlertInfo({ show: false, message: null, type: null, timeoutId: null });
-        }, 5000);
-      }
-      setAlertInfo({ show: true, message: message, type: type, timeoutId: timeoutId });
-    },
-    [alertInfo],
-  );
-
   // SAVE
 
   async function saveBracket(data) {
@@ -142,9 +127,9 @@ export default function App({ params, location }) {
         setSaving(false);
       } catch (error) {
         if (error.cause && error.cause.code === 429) {
-          showAlert("Error saving bracket! Wait a minute or two and then try making another choice", "error");
+          toast.error("Error saving bracket! Wait a minute or two and then try making another choice");
         } else {
-          showAlert(error.message, "error");
+          toast.error(error.message);
         }
         setSaving("error");
       }
@@ -241,21 +226,21 @@ export default function App({ params, location }) {
         try {
           await initializeLoadedBracket(loadedBracket);
         } catch (e) {
-          showAlert("Error loading bracket", "error", false);
+          toast.error("Error loading bracket!");
           console.error(e);
         }
       } catch (error) {
         if (error.cause && error.cause.code === 404) {
           setBracket(null);
         } else if (error.cause && error.cause.code === 429) {
-          showAlert("Error loading bracket! Please try again later", "error", false);
+          toast.error("Error loading bracket! Wait a minute or two and then try again");
         } else {
-          showAlert(error.message, "error", false);
+          toast.error(error.message);
           console.error(error);
         }
       }
     }
-  }, [initializeLoadedBracket, bracketId, owner.id, locationState, limit, showAlert, setBracket, getBracket]);
+  }, [initializeLoadedBracket, bracketId, owner.id, locationState, limit, setBracket, getBracket]);
 
   useEffect(() => {
     kickOff();
@@ -266,7 +251,7 @@ export default function App({ params, location }) {
   const share = useCallback(() => {
     navigator.clipboard.writeText(location.href);
     console.debug("copied link");
-    showAlert("Link copied to clipboard!", "success");
+    toast.success("Link copied to clipboard!");
   }, [location.href]);
 
   // DUPLICATE
@@ -301,7 +286,7 @@ export default function App({ params, location }) {
 
       // kick off new bracket creation
     } else {
-      showAlert("Error duplicating bracket", "error");
+      toast.error("Error duplicating bracket");
       console.error("Error duplicating bracket. Something is wrong with the template:", template);
     }
   }, [template, loginInfo, resetState]);

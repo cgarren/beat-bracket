@@ -1,5 +1,5 @@
 import React from "react";
-import SwapIcon from "../../assets/svgs/swapIcon.svg";
+import SwapIcon from "../../../assets/svgs/swapIcon.svg";
 import SongButtonAction from "./SongButtonAction";
 
 export default function ReplaceTrackButton({ replacementFunction }) {

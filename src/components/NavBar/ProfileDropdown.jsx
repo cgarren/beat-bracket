@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext, useMemo } from "react";
 import guestProfileImage from "../../assets/images/guestProfileImage.png";
-import LoginButton from "../LoginButton";
+import LoginButton from "../Controls/LoginButton";
 import LoadingIndicator from "../LoadingIndicator";
 import { LoginContext } from "../../context/LoginContext";
 import useAuthentication from "../../hooks/useAuthentication";
