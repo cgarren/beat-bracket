@@ -290,13 +290,20 @@ export default function App({ params, location }) {
       setSaving(true);
 
       // create bracket and set it up for the user to fill
-      await createBracket({
-        bracketId: newBracketId,
-        ownerUsername: newUserInfo.display_name,
-        templateId: loadedTemplate.id,
-        templateOwnerId: loadedTemplate.ownerId,
-        bracketData: Object.fromEntries(filledBracket),
-      });
+      // Make this a mutation eventually
+      try {
+        await createBracket({
+          bracketId: newBracketId,
+          ownerUsername: newUserInfo.display_name,
+          templateId: loadedTemplate.id,
+          templateOwnerId: loadedTemplate.ownerId,
+          bracketData: Object.fromEntries(filledBracket),
+        });
+      } catch (e) {
+        toast.error(`Error creating bracket! ${e.message}`);
+        console.error(e);
+        return;
+      }
       setSaving(false);
       setWaitingToSave(false);
     },
@@ -317,6 +324,7 @@ export default function App({ params, location }) {
         }
       } catch (error) {
         if (error.cause && error.cause.code === 404) {
+          console.log("404!", locationState);
           if (locationState && locationState.template) {
             await initializeBracketFromTemplate(locationState.template, owner.id, bracketId);
           } else {

@@ -259,8 +259,9 @@ export default function App({ params, location }) {
       const uuid = uuidv4();
       console.debug(`Create New Bracket with id: ${uuid}`);
 
-      // navigate to new bracket psge (same page really)
-      await navigate(`/user/${loginInfo.userId}/bracket/${uuid}`, { template: template });
+      // navigate to new bracket page
+      // await navigate(`/user/${loginInfo.userId}/bracket/${uuid}/fill`, { template: template });
+      openBracket(uuid, loginInfo.userId, "fill", { template: template });
       // window.location.state = { template: template };
       // window.location.reload();
 
@@ -269,17 +270,17 @@ export default function App({ params, location }) {
       // console.debug("New bracket:", newBracket);
 
       // reset state because we stay on the same page
-      await resetState();
+      // await resetState();
 
-      // set state for new bracket
-      setBracketId(uuid);
-      setOwner({ id: loginInfo.userId, name: undefined });
-      setLocationState({ template: template });
+      // // set state for new bracket
+      // setBracketId(uuid);
+      // setOwner({ id: loginInfo.userId, name: undefined });
+      // setLocationState({ template: template });
       // setLoadingText("Duplicating bracket...");
       // // setBracket(newBracket);
 
       // await initializeBracketFromTemplate(template, loginInfo.userId, uuid);
-      navigate(`/user/${loginInfo.userId}/bracket/${uuid}`, { state: { template: template } });
+      //navigate(`/user/${loginInfo.userId}/bracket/${uuid}`, { state: { template: template } });
 
       // kick off new bracket creation
     } else {
