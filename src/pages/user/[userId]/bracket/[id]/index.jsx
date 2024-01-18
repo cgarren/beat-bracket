@@ -18,6 +18,7 @@ import useBracketGeneration from "../../../../../hooks/useBracketGeneration";
 import useHelper from "../../../../../hooks/useHelper";
 import useBackend from "../../../../../hooks/useBackend";
 import useSpotify from "../../../../../hooks/useSpotify";
+import useAuthentication from "../../../../../hooks/useAuthentication";
 // Assets
 import ShareIcon from "../../../../../assets/svgs/shareIcon.svg";
 import DuplicateIcon from "../../../../../assets/svgs/duplicateIcon.svg";
@@ -65,12 +66,12 @@ export default function App({ params, location }) {
   const [saving, setSaving] = useState(defaultValues.saving);
 
   const { loggedIn, loginInfo } = useContext(LoginContext);
-  const { isCurrentUser, getUserInfo, getArtist, getPlaylist } = useSpotify();
+  const { getUserInfo, getArtist, getPlaylist, openBracket } = useSpotify();
+  const { isCurrentUser } = useAuthentication();
   const { bracketSorter } = useHelper();
   const { getBracket, updateBracket } = useBackend();
   const { getNumberOfColumns } = useBracketGeneration();
 
-  const editable = loggedIn && isCurrentUser(owner.id);
   const bracketTracks = useMemo(() => {
     const tracks = [];
     if (bracket) {
@@ -253,7 +254,7 @@ export default function App({ params, location }) {
   // DUPLICATE
 
   const duplicateBracket = useCallback(async () => {
-    if (template && template.id && template.ownerId && loginInfo && loginInfo.userId) {
+    if (template?.id && template?.ownerId && loginInfo?.userId) {
       // generate new bracket id
       const uuid = uuidv4();
       console.debug(`Create New Bracket with id: ${uuid}`);
@@ -288,8 +289,9 @@ export default function App({ params, location }) {
   }, [template, loginInfo, resetState]);
 
   // redirect
-  if (bracket?.size > 0 && !bracketWinner && params.userId === loginInfo?.userId) {
-    navigate(`/user/${params.userId}/bracket/${params.id}/fill`, { state: location.state });
+  if (bracket?.size > 0 && !bracketWinner && isCurrentUser(params.userId)) {
+    // navigate(`/user/${params.userId}/bracket/${params.id}/fill`, { state: location.state });
+    openBracket(params.id, params.userId, "fill", location.state);
     // return <Redirect to={`/user/${params.userId}/bracket/${params.id}/fill`} />;
   }
 
@@ -330,7 +332,7 @@ export default function App({ params, location }) {
         <div className="text-xs -space-x-px rounded-md sticky mx-auto top-0 w-fit z-30">
           <div className="flex items-center gap-2">
             <ActionButton onClick={share} icon={<ShareIcon />} text="Share" />
-            {!editable && template.ownerId !== loginInfo?.userId && (
+            {!isCurrentUser(params.userId) && !isCurrentUser(template.ownerId) && (
               <ActionButton
                 onClick={duplicateBracket}
                 icon={<DuplicateIcon />}

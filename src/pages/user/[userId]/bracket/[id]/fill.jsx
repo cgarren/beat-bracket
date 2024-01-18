@@ -1,8 +1,7 @@
 /* eslint-disable prettier/prettier */
 // React
-import React, { useEffect, useState, useMemo, useCallback, useContext } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { useDebounce } from "react-use";
-import { navigate } from "gatsby";
 // Third Party
 import Mousetrap from "mousetrap";
 import Confetti from "react-confetti";
@@ -16,6 +15,7 @@ import BracketWinnerInfo from "../../../../../components/Bracket/BracketWinnerIn
 import ActionButton from "../../../../../components/Controls/ActionButton";
 import SaveIndicator from "../../../../../components/Controls/SaveIndicator";
 import TrackNumber from "../../../../../components/BracketCard/TrackNumber";
+import FillBracket from "../../../../../components/Bracket/FillBracket";
 // import GeneratePlaylistButton from "../../../../components/GeneratePlaylistButton";
 import BracketCompleteModal from "../../../../../components/Modals/BracketCompleteModal";
 // Hooks
@@ -24,11 +24,10 @@ import useHelper from "../../../../../hooks/useHelper";
 import useBackend from "../../../../../hooks/useBackend";
 import useSpotify from "../../../../../hooks/useSpotify";
 import useSongProcessing from "../../../../../hooks/useSongProcessing";
+import useAuthentication from "../../../../../hooks/useAuthentication";
 // Assets
 import ShareIcon from "../../../../../assets/svgs/shareIcon.svg";
 // Context
-import { LoginContext } from "../../../../../context/LoginContext";
-import FillBracket from "../../../../../components/Bracket/FillBracket";
 
 export default function App({ params, location }) {
   const defaultValues = useMemo(
@@ -80,16 +79,15 @@ export default function App({ params, location }) {
   const [playbackEnabled, setPlaybackEnabled] = useState(defaultValues.playbackEnabled);
   const [alertInfo, setAlertInfo] = useState(defaultValues.alertInfo);
 
-  const { loggedIn, loginInfo } = useContext(LoginContext);
-  const { isCurrentUser, getUserInfo, getArtist, getPlaylist } = useSpotify();
+  const { getUserInfo, getArtist, getPlaylist, openBracket } = useSpotify();
   const { bracketSorter, bracketUnchanged } = useHelper();
+  const { isCurrentUser } = useAuthentication();
   const { getBracket, updateBracket, getTemplate, createBracket } = useBackend();
   const { updatePreviewUrls } = useSongProcessing();
   const { getNumberOfColumns, fillBracket } = useBracketGeneration();
 
   const localSaveKey = "savedBracket";
 
-  const editable = loggedIn && isCurrentUser(owner.id);
   const bracketTracks = useMemo(() => {
     const tracks = [];
     if (bracket) {
@@ -127,7 +125,7 @@ export default function App({ params, location }) {
 
   async function saveBracket(data) {
     // Called on these occasions: on initial bracket load, user clicks save button, user completes bracket
-    if (saving !== true && editable && bracket.size > 0 && !editMode) {
+    if (saving !== true && bracket.size > 0 && !editMode) {
       try {
         setSaving(true);
         // write to database and stuff
@@ -185,22 +183,20 @@ export default function App({ params, location }) {
 
   const checkAndUpdateSongSource = useCallback(
     async (tempSongSource) => {
-      if (loggedIn) {
-        if (tempSongSource.type === "artist") {
-          const artist = await getArtist(tempSongSource.artist.id);
-          setSongSource({ type: "artist", artist: { name: artist.name, id: artist.id } });
-        } else if (tempSongSource.type === "playlist") {
-          const playlist = await getPlaylist(tempSongSource.playlist.id);
-          setSongSource({ type: "playlist", playlist: { name: playlist.name, id: playlist.id } });
-        }
+      if (tempSongSource.type === "artist") {
+        const artist = await getArtist(tempSongSource.artist.id);
+        setSongSource({ type: "artist", artist: { name: artist.name, id: artist.id } });
+      } else if (tempSongSource.type === "playlist") {
+        const playlist = await getPlaylist(tempSongSource.playlist.id);
+        setSongSource({ type: "playlist", playlist: { name: playlist.name, id: playlist.id } });
       }
     },
-    [getArtist, getPlaylist, loggedIn],
+    [getArtist, getPlaylist],
   );
 
   const checkAndUpdateOwnerUsername = useCallback(
     async (ownerId) => {
-      if (ownerId && loggedIn) {
+      if (ownerId) {
         getUserInfo(ownerId).then((newUserInfo) => {
           if (newUserInfo) {
             setOwner({ id: newUserInfo.id, name: newUserInfo.display_name });
@@ -208,7 +204,7 @@ export default function App({ params, location }) {
         });
       }
     },
-    [getUserInfo, loggedIn],
+    [getUserInfo],
   );
 
   const initializeLoadedBracket = useCallback(
@@ -354,7 +350,7 @@ export default function App({ params, location }) {
   }, []);
 
   const saveBracketLocally = useCallback(() => {
-    if (editable && !isSaved && !bracketWinner) {
+    if (!isSaved && !bracketWinner) {
       console.log("saving bracket locally");
       sessionStorage.setItem(
         localSaveKey,
@@ -407,7 +403,6 @@ export default function App({ params, location }) {
     alertInfo,
     bracketWinner,
     isSaved,
-    editable,
   ]);
 
   const loadBracketLocally = useCallback(() => {
@@ -533,8 +528,9 @@ export default function App({ params, location }) {
     Mousetrap.bind("mod+z", undo);
   }
 
-  if (params.userId !== loginInfo?.userId || (!showBracketCompleteModal && bracketWinner)) {
-    navigate(`/user/${params.userId}/bracket/${params.id}`, { state: location.state });
+  if (!isCurrentUser(params.userId) || (!showBracketCompleteModal && bracketWinner)) {
+    // navigate(`/user/${params.userId}/bracket/${params.id}`, { state: location.state });
+    openBracket(params.id, params.userId, "", location.state);
     // return <Redirect to={`/user/${params.userId}/bracket/${params.id}/fill`} />;
   }
 
@@ -626,7 +622,6 @@ export default function App({ params, location }) {
         <FillBracket
           showBracket={showBracket}
           setShowBracket={setShowBracket}
-          editable={editable}
           bracketTracks={bracketTracks}
           songSource={songSource}
           bracket={bracket}

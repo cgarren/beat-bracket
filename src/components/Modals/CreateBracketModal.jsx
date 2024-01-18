@@ -37,10 +37,10 @@ export default function CreateBracketModal({ showModal, setShowModal }) {
         // Generate unique id for new bracket
         const uuid = uuidv4();
         console.debug(`Creating new bracket with id: ${uuid}`);
-        // openBracket(uuid, loginInfo.userId, state);
-        navigate(`/user/${loginInfo.userId}/bracket/${uuid}/create`, {
-          state: state,
-        });
+        openBracket(uuid, loginInfo.userId, "create", state);
+        // navigate(`/user/${loginInfo.userId}/bracket/${uuid}/create`, {
+        //   state: state,
+        // });
       }
     },
     [loginInfo.userId, openBracket],

@@ -18,13 +18,13 @@ import useHelper from "../../../../../hooks/useHelper";
 import useBackend from "../../../../../hooks/useBackend";
 import useSpotify from "../../../../../hooks/useSpotify";
 import useSongProcessing from "../../../../../hooks/useSongProcessing";
+import useAuthentication from "../../../../../hooks/useAuthentication";
 // Context
 import { LoginContext } from "../../../../../context/LoginContext";
 
 export default function App({ params, location }) {
   const defaultValues = useMemo(
     () => ({
-      owner: { name: undefined, id: params.userId },
       seedingMethod: "popularity",
       inclusionMethod: "popularity",
       limit: 32,
@@ -39,7 +39,6 @@ export default function App({ params, location }) {
     [params.userId],
   );
 
-  const [owner, setOwner] = useState(defaultValues.owner);
   const [seedingMethod, setSeedingMethod] = useState(defaultValues.seedingMethod);
   const [inclusionMethod, setInclusionMethod] = useState(defaultValues.inclusionMethod);
   const [limit, setLimit] = useState(defaultValues.limit);
@@ -50,18 +49,23 @@ export default function App({ params, location }) {
   const [showBracket, setShowBracket] = useState(defaultValues.showBracket);
   const [loadingText, setLoadingText] = useState(defaultValues.loadingText);
   const [playbackEnabled] = useState(defaultValues.playbackEnabled);
-  const { loggedIn } = useContext(LoginContext);
-  const { isCurrentUser, getUserInfo, getArt } = useSpotify();
+  const { getArt, openBracket } = useSpotify();
+  const { isCurrentUser } = useAuthentication();
   const { nearestLesserPowerOf2 } = useHelper();
-  const { createBracket, getBracket } = useBackend();
+  const { createBracket } = useBackend();
   const { seedBracket, sortTracks, loadAlbums, processTracks, loadPlaylistTracks } = useSongProcessing();
   const { getNumberOfColumns, fillBracket } = useBracketGeneration();
+  const { userInfo } = useContext(LoginContext);
 
-  const editable = loggedIn && isCurrentUser(owner.id);
+  const owner = useMemo(
+    () => ({ name: userInfo?.display_name, id: params.userId }),
+    [userInfo?.display_name, params?.userId],
+  );
+
   const { data: art } = useQuery({
     queryKey: ["art-large", { spotifyId: songSource[songSource.type] && songSource[songSource.type].id }],
     queryFn: () => getArt(songSource[songSource.type].images, songSource.type, true),
-    enabled: songSource && Boolean(songSource[songSource.type]?.images),
+    enabled: Boolean(songSource && songSource[songSource.type]?.images),
   });
 
   const bracketTracks = useMemo(() => {
@@ -79,36 +83,44 @@ export default function App({ params, location }) {
   // START BRACKET
 
   const makeCreationObject = useCallback(async () => {
-    const bracketObject = Object.fromEntries(bracket);
-    return {
-      bracketId: params.id,
-      ownerUsername: owner.name,
-      seedingMethod: seedingMethod,
-      inclusionMethod: inclusionMethod,
-      displayName: null,
-      songSource: songSource,
-      tracks: bracketTracks,
-      bracketData: bracketObject,
-    };
-  }, [bracket, bracketTracks, inclusionMethod, owner.name, seedingMethod, songSource]);
+    if (owner?.name) {
+      const bracketObject = Object.fromEntries(bracket);
+      return {
+        bracketId: params.id,
+        ownerUsername: owner.name,
+        seedingMethod: seedingMethod,
+        inclusionMethod: inclusionMethod,
+        displayName: null,
+        songSource: songSource,
+        tracks: bracketTracks,
+        bracketData: bracketObject,
+      };
+    }
+    return null;
+  }, [bracket, bracketTracks, inclusionMethod, owner?.name, seedingMethod, songSource]);
 
   const startBracket = useCallback(async () => {
-    try {
-      const creationObj = await makeCreationObject();
-      await createBracket(creationObj);
-      console.debug("Bracket created");
-      navigate(`/user/${owner.id}/bracket/${params.id}/fill`);
-      return true;
-    } catch (error) {
-      if (error.cause && error.cause.code === 429) {
-        toast.error("Error creating bracket! Please try again later");
-        console.error(error);
-      } else {
-        toast.error(error.message);
-        console.error(error);
+    if (owner?.name) {
+      try {
+        const creationObj = await makeCreationObject();
+        await createBracket(creationObj);
+        console.debug("Bracket created");
+        navigate(`/user/${owner.id}/bracket/${params.id}/fill`);
+        return true;
+      } catch (error) {
+        if (error.cause && error.cause.code === 429) {
+          toast.error("Error creating bracket! Please try again later");
+          console.error(error);
+        } else {
+          toast.error(error.message);
+          console.error(error);
+        }
+        return false;
       }
-      return false;
+    } else {
+      toast.error("Error creating bracket! Please try again later");
     }
+    return false;
   }, [makeCreationObject, createBracket]);
 
   // GET TRACKS
@@ -216,12 +228,8 @@ export default function App({ params, location }) {
   );
 
   const initializeBracketFromSource = useCallback(
-    async (newSongSource, ownerId, newLimit) => {
+    async (newSongSource, newLimit) => {
       console.debug("Creating new bracket...");
-
-      // set owner details
-      const newUserInfo = await getUserInfo(ownerId);
-      setOwner({ id: newUserInfo.id, name: newUserInfo.display_name });
 
       // don't show the bracket while we get things ready
       setShowBracket(false);
@@ -236,7 +244,7 @@ export default function App({ params, location }) {
       // kick off the bracket creation process
       await changeBracket(tempTrackList);
     },
-    [changeBracket, getTracks, getUserInfo, setShowBracket, setSongSource],
+    [changeBracket, getTracks, setShowBracket, setSongSource],
   );
 
   // INITIALIZE BRACKET
@@ -256,7 +264,7 @@ export default function App({ params, location }) {
       // Bracket doesn't exist and no artist was passed in
       setBracket(null);
     }
-  }, [initializeBracketFromSource, owner.id, limit, setBracket, getBracket]);
+  }, [initializeBracketFromSource, owner?.id, limit, setBracket]);
 
   useEffect(() => {
     kickOff();
@@ -337,8 +345,9 @@ export default function App({ params, location }) {
   );
 
   // redirect
-  if (!(location.state?.artist || location.state?.playlist)) {
+  if (!(location.state?.artist || location.state?.playlist) || !isCurrentUser(params.userId)) {
     navigate(`/user/${params.userId}/bracket/${params.id}`);
+    openBracket(params.id, params.userId);
     // return <Redirect to={`/user/${params.userId}/bracket/${params.id}/fill`} />;
   }
 
@@ -346,42 +355,40 @@ export default function App({ params, location }) {
     <Layout noChanges={noChanges} path={location.pathname}>
       <div className="text-center">
         <h1>
-          {owner.name && songSource && bracket && bracketTracks && (
+          {owner?.name && songSource && bracket && bracketTracks && (
             <div className="mx-auto mb-2 flex flex-col gap-0 items-center justify-center max-w-[90%]">
               <div className="flex flex-row text-xl items-center justify-center gap-1 max-w-full">
                 <span className="truncate w-auto font-bold">Customize Bracket</span>
               </div>
-              {art && <img src={art} alt={songSource[songSource.type].name} className="h-32 w-32" />}
-              {songSource[songSource.type].name}
+              {art && <img src={art} alt={songSource[songSource.type]?.name} className="h-32 w-32" />}
+              {songSource[songSource.type]?.name}
             </div>
           )}
         </h1>
       </div>
       <hr />
-      <LoadingIndicator hidden={showBracket || !owner.name || !songSource} loadingText={loadingText} />
-      <div hidden={!showBracket || !editable} className="text-lg">
-        {"<CHANGE THIS FOR EDIT MODE>"}Customize using the controls below. Drag and drop to rearrange songs!
-      </div>
+      {!showBracket && owner.name && songSource && <LoadingIndicator loadingText={loadingText} />}
+      {showBracket && (
+        <div className="text-lg">
+          {"<CHANGE THIS FOR EDIT MODE>"}Customize using the controls below. Drag and drop to rearrange songs!
+        </div>
+      )}
       <div hidden={!showBracket || !songSource} className="text-center">
         <div className="text-xs -space-x-px rounded-md sticky mx-auto top-0 w-fit z-30">
           <div className="flex items-center gap-2">
-            {editable ? (
-              <div className="">
-                <BracketOptions
-                  songSourceType={songSource.type}
-                  limitChange={limitChange}
-                  showBracket={showBracket}
-                  limit={limit}
-                  hardLimit={allTracks.length}
-                  seedingChange={seedingChange}
-                  seedingMethod={seedingMethod}
-                  inclusionChange={inclusionChange}
-                  inclusionMethod={inclusionMethod}
-                  playbackEnabled={playbackEnabled}
-                  startBracket={() => startBracket()}
-                />
-              </div>
-            ) : null}
+            <BracketOptions
+              songSourceType={songSource.type}
+              limitChange={limitChange}
+              showBracket={showBracket}
+              limit={limit}
+              hardLimit={allTracks.length}
+              seedingChange={seedingChange}
+              seedingMethod={seedingMethod}
+              inclusionChange={inclusionChange}
+              inclusionMethod={inclusionMethod}
+              playbackEnabled={playbackEnabled}
+              startBracket={() => startBracket()}
+            />
           </div>
         </div>
         <CreateBracket
@@ -391,7 +398,6 @@ export default function App({ params, location }) {
           allTracks={allTracks}
           setShowBracket={setShowBracket}
           showBracket={showBracket}
-          editable={editable}
           songSource={songSource}
           setSeedingMethod={setSeedingMethod}
           setInclusionMethod={setInclusionMethod}

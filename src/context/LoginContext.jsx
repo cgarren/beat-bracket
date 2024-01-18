@@ -113,14 +113,14 @@ export function LoginProvider({ children }) {
 
   // keep userInfo in sync with loginInfo
   useEffect(() => {
-    if (loginInfo.accessToken !== null && loggedIn) {
+    if (loggedIn) {
       getCurrentUserInfo(loginInfo.accessToken).then((info) => {
         setUserInfo(info);
       });
     } else {
       setUserInfo(null);
     }
-  }, [loginInfo.accessToken, getCurrentUserInfo, loggedIn]);
+  }, [getCurrentUserInfo, loggedIn]);
 
   // redirect to login page on logout
   useEffect(() => {
@@ -135,13 +135,6 @@ export function LoginProvider({ children }) {
       navigate("/");
     }
   }, [loginInfo, loggedIn, loginInProgress]);
-
-  // useEffect(() => {
-  //     console.log("loggedIn:", loggedIn);
-  //     if (!loggedIn) {
-  //         // display some kind fo error?
-  //     }
-  // }, [loggedIn]);
 
   const contextValue = useMemo(
     () => ({

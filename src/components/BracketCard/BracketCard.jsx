@@ -85,7 +85,7 @@ export default function BracketCard({ bracket }) {
           }
           removeFunc={() => setShowModal(true)}
           onClick={() => {
-            openBracket(bracket.id, loginInfo.userId);
+            openBracket(bracket.id, loginInfo.userId, !bracket.winner ? "fill" : "");
           }}
         />
       </div>

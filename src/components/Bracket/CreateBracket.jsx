@@ -9,7 +9,6 @@ export default function CreateBracket({
   allTracks,
   showBracket,
   setShowBracket,
-  editable,
   bracketTracks,
   songSource,
   bracket,
@@ -94,12 +93,12 @@ export default function CreateBracket({
             modifyBracket: modifyBracket,
             saveCommand: () => {},
             getBracket: getBracket,
-            editable: editable,
             replaceTrack: (id) => {
               setButtonReplacementId(id);
             },
+            editable: true,
           }),
-          [modifyBracket, getBracket, editable],
+          [modifyBracket, getBracket],
         )}
       />
     </>

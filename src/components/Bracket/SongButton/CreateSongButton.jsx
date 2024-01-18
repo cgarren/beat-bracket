@@ -14,7 +14,6 @@ export default function CreateSongButton({
   eliminated,
   winner,
   color,
-  editable,
   replaceTrack,
 }) {
   const [dragging, setDragging] = useState(false);
@@ -74,7 +73,7 @@ export default function CreateSongButton({
   return (
     <div className="relative">
       <div
-        draggable={editable && col === 0}
+        draggable={col === 0}
         onDragStart={handleDragStart}
         onDrag={handleDrag}
         onDragEnd={handleDragEnd}
@@ -83,7 +82,6 @@ export default function CreateSongButton({
       >
         <SongButton
           actionButton={
-            editable &&
             song && (
               <ReplaceTrackButton
                 replacementFunction={() => {
@@ -105,7 +103,7 @@ export default function CreateSongButton({
           winner={winner}
           color={color}
           editMode
-          editable={editable}
+          editable
         />
       </div>
     </div>

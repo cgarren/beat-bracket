@@ -22,7 +22,6 @@ export default function FillSongButton({
   eliminated,
   winner,
   color,
-  editable,
   undoFunc,
 }) {
   // Recursive function to mark all previous instances of a song in a bracket as eliminated
@@ -94,7 +93,7 @@ export default function FillSongButton({
 
   return (
     <div className="relative">
-      {editable && song && !disabled && col !== 0 && undoFunc && (
+      {song && !disabled && col !== 0 && undoFunc && (
         <button
           type="button"
           onClick={undoFunc}
@@ -126,7 +125,7 @@ export default function FillSongButton({
         winner={winner}
         color={color}
         editMode={false}
-        editable={editable}
+        editable={true}
       />
     </div>
   );

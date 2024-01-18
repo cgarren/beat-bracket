@@ -5,7 +5,6 @@ import FillSongButton from "./SongButton/FillSongButton";
 export default function FillBracket({
   showBracket,
   setShowBracket,
-  editable,
   bracketTracks,
   songSource,
   bracket,
@@ -46,11 +45,11 @@ export default function FillBracket({
           modifyBracket: modifyBracket,
           saveCommand: saveCommand,
           getBracket: getBracket,
-          editable: editable,
           currentlyPlayingId: currentlyPlayingId,
           setCurrentlyPlayingId: setCurrentlyPlayingId,
+          editable: true,
         }),
-        [modifyBracket, getBracket, editable, currentlyPlayingId, setCurrentlyPlayingId],
+        [modifyBracket, getBracket, currentlyPlayingId, setCurrentlyPlayingId],
       )}
     />
   );

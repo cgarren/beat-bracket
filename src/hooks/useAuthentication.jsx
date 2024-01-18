@@ -54,6 +54,16 @@ export default function useAuthentication() {
     navigate(prevPath);
   }, []);
 
+  const isCurrentUser = useCallback(
+    (userId) => {
+      if (userId && userId === loginInfo.userId) {
+        return true;
+      }
+      return false;
+    },
+    [loginInfo],
+  );
+
   // auth functions
 
   const logout = useCallback(async () => {
@@ -208,5 +218,6 @@ export default function useAuthentication() {
     loginCallback,
     logout,
     toPrevPage,
+    isCurrentUser,
   };
 }
