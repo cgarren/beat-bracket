@@ -40,8 +40,6 @@ export default function FillSongButton({
   //     }
   // }
 
-  console.log("rerender");
-
   function undoChoice() {
     modifyBracket([
       [id, "disabled", false],

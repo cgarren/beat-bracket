@@ -44,7 +44,7 @@ export default function Layout({
       if (refreshTime > 0) {
         setTimer(
           () => {
-            const onBracketPage = bracketPageRegex.test(window.location.pathname);
+            // const onBracketPage = bracketPageRegex.test(window.location.pathname);
             // if (deleteBracketSavedLocally) deleteBracketSavedLocally();
             // if (onBracketPage) {
             //   if (saveBracketLocally) saveBracketLocally();

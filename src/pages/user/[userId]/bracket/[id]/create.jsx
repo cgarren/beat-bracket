@@ -337,7 +337,7 @@ export default function App({ params, location }) {
   );
 
   // redirect
-  if (!location.state) {
+  if (!(location.state?.artist || location.state?.playlist)) {
     navigate(`/user/${params.userId}/bracket/${params.id}`);
     // return <Redirect to={`/user/${params.userId}/bracket/${params.id}/fill`} />;
   }
