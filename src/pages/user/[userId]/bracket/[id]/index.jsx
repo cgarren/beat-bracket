@@ -1,7 +1,6 @@
 /* eslint-disable prettier/prettier */
 // React
 import React, { useEffect, useState, useMemo, useCallback, useContext } from "react";
-import { navigate } from "gatsby";
 // Third Party
 import { v4 as uuidv4 } from "uuid";
 import { backOff } from "exponential-backoff";
@@ -280,7 +279,7 @@ export default function App({ params, location }) {
       // // setBracket(newBracket);
 
       // await initializeBracketFromTemplate(template, loginInfo.userId, uuid);
-      //navigate(`/user/${loginInfo.userId}/bracket/${uuid}`, { state: { template: template } });
+      // navigate(`/user/${loginInfo.userId}/bracket/${uuid}`, { state: { template: template } });
 
       // kick off new bracket creation
     } else {

@@ -105,7 +105,8 @@ export default function App({ params, location }) {
         const creationObj = await makeCreationObject();
         await createBracket(creationObj);
         console.debug("Bracket created");
-        navigate(`/user/${owner.id}/bracket/${params.id}/fill`);
+        // navigate(`/user/${owner.id}/bracket/${params.id}/fill`);
+        openBracket(params.id, owner.id, "fill");
         return true;
       } catch (error) {
         if (error.cause && error.cause.code === 429) {
@@ -174,10 +175,9 @@ export default function App({ params, location }) {
         return [];
       }
       setAllTracks(templist);
-      if (templist.length < newLimit) {
-        const power = nearestLesserPowerOf2(templist.length);
-        setLimit(power);
-      }
+      console.log(templist.length, newLimit, templist.length < newLimit);
+      const power = nearestLesserPowerOf2(templist.length);
+      setLimit(limit < power ? limit : power);
       setLoadingText("Generating bracket...");
       console.debug("Done getting tracks...");
       return templist;
@@ -229,12 +229,14 @@ export default function App({ params, location }) {
 
   const initializeBracketFromSource = useCallback(
     async (newSongSource, newLimit) => {
+      console.log(newSongSource, newLimit);
       console.debug("Creating new bracket...");
 
       // don't show the bracket while we get things ready
       setShowBracket(false);
 
       // set song source from passed in data
+      // setSongSource(location.state);
       setSongSource(newSongSource);
 
       // get tracks from spotify
@@ -346,7 +348,7 @@ export default function App({ params, location }) {
 
   // redirect
   if (!(location.state?.artist || location.state?.playlist) || !isCurrentUser(params.userId)) {
-    navigate(`/user/${params.userId}/bracket/${params.id}`);
+    // navigate(`/user/${params.userId}/bracket/${params.id}`);
     openBracket(params.id, params.userId);
     // return <Redirect to={`/user/${params.userId}/bracket/${params.id}/fill`} />;
   }
