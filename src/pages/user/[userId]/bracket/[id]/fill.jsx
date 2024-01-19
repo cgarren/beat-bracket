@@ -7,6 +7,7 @@ import Mousetrap from "mousetrap";
 import Confetti from "react-confetti";
 import { backOff } from "exponential-backoff";
 import toast from "react-hot-toast";
+import { useQuery } from "@tanstack/react-query";
 // Components
 import Seo from "../../../../../components/SEO";
 import Layout from "../../../../../components/Layout";
@@ -27,20 +28,13 @@ import useSongProcessing from "../../../../../hooks/useSongProcessing";
 import useAuthentication from "../../../../../hooks/useAuthentication";
 // Assets
 import ShareIcon from "../../../../../assets/svgs/shareIcon.svg";
+import useUserInfo from "../../../../../hooks/useUserInfo";
 // Context
 
 export default function App({ params, location }) {
   const defaultValues = useMemo(
     () => ({
-      bracketId: params.id,
-      owner: { name: undefined, id: params.userId },
-      locationState: location.state,
-      seedingMethod: "popularity",
-      inclusionMethod: "popularity",
-      limit: 32,
       fills: 0,
-      allTracks: [],
-      editMode: false,
       commands: [],
       bracket: new Map(),
       template: { id: null, ownerId: null, displayName: null },
@@ -51,21 +45,11 @@ export default function App({ params, location }) {
       saving: false,
       waitingToSave: false,
       lastSaved: { time: 0, commandsLength: 0 },
-      playbackEnabled: false,
-      alertInfo: { show: false, message: null, type: null, timeoutId: null },
     }),
-    [params.id, params.userId, location.state],
+    [params.userId, location.state],
   );
 
-  const [bracketId, setBracketId] = useState(defaultValues.bracketId);
-  const [owner, setOwner] = useState(defaultValues.owner);
-  const [locationState, setLocationState] = useState(defaultValues.locationState);
-  const [seedingMethod, setSeedingMethod] = useState(defaultValues.seedingMethod);
-  const [inclusionMethod, setInclusionMethod] = useState(defaultValues.inclusionMethod);
-  const [limit, setLimit] = useState(defaultValues.limit);
   const [fills, setFills] = useState(defaultValues.fills);
-  const [allTracks, setAllTracks] = useState(defaultValues.allTracks);
-  const [editMode, setEditMode] = useState(defaultValues.editMode);
   const [commands, setCommands] = useState(defaultValues.commands);
   const [bracket, setBracket] = useState(defaultValues.bracket);
   const [template, setTemplate] = useState(defaultValues.template);
@@ -76,8 +60,6 @@ export default function App({ params, location }) {
   const [saving, setSaving] = useState(defaultValues.saving);
   const [waitingToSave, setWaitingToSave] = useState(defaultValues.waitingToSave);
   const [lastSaved, setLastSaved] = useState(defaultValues.lastSaved);
-  const [playbackEnabled, setPlaybackEnabled] = useState(defaultValues.playbackEnabled);
-  const [alertInfo, setAlertInfo] = useState(defaultValues.alertInfo);
 
   const { getUserInfo, getArtist, getPlaylist, openBracket } = useSpotify();
   const { bracketSorter, bracketUnchanged } = useHelper();
@@ -87,6 +69,13 @@ export default function App({ params, location }) {
   const { getNumberOfColumns, fillBracket } = useBracketGeneration();
 
   const localSaveKey = "savedBracket";
+
+  const { data: ownerInfo } = useUserInfo(params.userId);
+
+  const owner = useMemo(
+    () => ({ name: ownerInfo?.display_name, id: params.userId }),
+    [ownerInfo?.display_name, params?.userId],
+  );
 
   const bracketTracks = useMemo(() => {
     const tracks = [];
@@ -125,12 +114,12 @@ export default function App({ params, location }) {
 
   async function saveBracket(data) {
     // Called on these occasions: on initial bracket load, user clicks save button, user completes bracket
-    if (saving !== true && bracket.size > 0 && !editMode) {
+    if (saving !== true && bracket.size > 0) {
       try {
         setSaving(true);
         // write to database and stuff
         console.debug("Saving bracket...");
-        await backOff(() => updateBracket(bracketId, data), {
+        await backOff(() => updateBracket(params.id, data), {
           jitter: "full",
           maxDelay: 25000,
           timeMultiple: 5,
@@ -194,25 +183,8 @@ export default function App({ params, location }) {
     [getArtist, getPlaylist],
   );
 
-  const checkAndUpdateOwnerUsername = useCallback(
-    async (ownerId) => {
-      if (ownerId) {
-        getUserInfo(ownerId).then((newUserInfo) => {
-          if (newUserInfo) {
-            setOwner({ id: newUserInfo.id, name: newUserInfo.display_name });
-          }
-        });
-      }
-    },
-    [getUserInfo],
-  );
-
   const initializeLoadedBracket = useCallback(
     async (loadedBracket) => {
-      // set owner details
-      setOwner({ id: loadedBracket.ownerId, name: loadedBracket.ownerUsername });
-      checkAndUpdateOwnerUsername(loadedBracket.ownerId);
-
       // set bracket data
       let mymap = new Map(Object.entries(loadedBracket.bracketData));
       mymap = new Map([...mymap].sort(bracketSorter));
@@ -227,9 +199,6 @@ export default function App({ params, location }) {
         checkAndUpdateSongSource(loadedBracket.template.songSource);
       }
 
-      setInclusionMethod(loadedBracket.template.inclusionMethod);
-      setSeedingMethod(loadedBracket.template.seedingMethod);
-      setLimit(loadedBracket.template.tracks.length);
       setTemplate({
         id: loadedBracket.template.id,
         ownerId: loadedBracket.template.ownerId,
@@ -241,7 +210,7 @@ export default function App({ params, location }) {
       // setTracks(new Array(loadedBracket.tracks).fill(null));
       setLastSaved({ commandsLength: commands.length, time: Date.now() });
     },
-    [commands.length, bracketSorter, checkAndUpdateOwnerUsername, checkAndUpdateSongSource],
+    [commands.length, bracketSorter, checkAndUpdateSongSource],
   );
 
   const initializeBracketFromTemplate = useCallback(
@@ -259,19 +228,12 @@ export default function App({ params, location }) {
       // log template details
       console.debug("Loaded template:", loadedTemplate);
 
-      // set owner details
-      const newUserInfo = await getUserInfo(ownerId);
-      setOwner({ id: newUserInfo.id, name: newUserInfo.display_name });
-
       // don't show the bracket while we get things ready
       setShowBracket(false);
 
       // set song source from passed in data
       setSongSource(loadedTemplate.songSource);
 
-      setInclusionMethod(loadedTemplate.inclusionMethod);
-      setSeedingMethod(loadedTemplate.seedingMethod);
-      setLimit(loadedTemplate.tracks.length);
       setFills(loadedTemplate.fills);
       setTemplate({
         id: loadedTemplate.id,
@@ -294,7 +256,7 @@ export default function App({ params, location }) {
       try {
         await createBracket({
           bracketId: newBracketId,
-          ownerUsername: newUserInfo.display_name,
+          ownerUsername: owner.name,
           templateId: loadedTemplate.id,
           templateOwnerId: loadedTemplate.ownerId,
           bracketData: Object.fromEntries(filledBracket),
@@ -313,9 +275,9 @@ export default function App({ params, location }) {
   // INITIALIZE BRACKET
 
   const kickOff = useCallback(async () => {
-    if (bracketId && isCurrentUser(owner.id)) {
+    if (params.id && isCurrentUser(owner.id)) {
       try {
-        const loadedBracket = await getBracket(bracketId, owner.id);
+        const loadedBracket = await getBracket(params.id, owner.id);
         try {
           await initializeLoadedBracket(loadedBracket);
         } catch (e) {
@@ -324,9 +286,8 @@ export default function App({ params, location }) {
         }
       } catch (error) {
         if (error.cause && error.cause.code === 404) {
-          console.log("404!", locationState);
-          if (locationState && locationState.template) {
-            await initializeBracketFromTemplate(locationState.template, owner.id, bracketId);
+          if (location?.state?.template) {
+            await initializeBracketFromTemplate(location.state.template, owner?.id, params.id);
           } else {
             // Bracket doesn't exist and no artist was passed in
             setBracket(null);
@@ -342,12 +303,11 @@ export default function App({ params, location }) {
   }, [
     initializeBracketFromTemplate,
     initializeLoadedBracket,
-    bracketId,
     owner.id,
-    locationState,
-    limit,
     setBracket,
     getBracket,
+    location.state,
+    params.id,
   ]);
 
   const deleteBracketSavedLocally = useCallback(() => {
@@ -362,15 +322,8 @@ export default function App({ params, location }) {
       sessionStorage.setItem(
         localSaveKey,
         JSON.stringify({
-          bracketId: bracketId,
           owner: owner,
-          locationState: locationState,
-          seedingMethod: seedingMethod,
-          inclusionMethod: inclusionMethod,
-          limit: limit,
           fills: fills,
-          allTracks: allTracks,
-          editMode: editMode,
           commands: commands,
           bracket: bracket,
           template: template,
@@ -381,21 +334,12 @@ export default function App({ params, location }) {
           saving: saving,
           waitingToSave: waitingToSave,
           lastSaved: lastSaved,
-          playbackEnabled: playbackEnabled,
-          alertInfo: alertInfo,
         }),
       );
     }
   }, [
-    bracketId,
     owner,
-    locationState,
-    seedingMethod,
-    inclusionMethod,
-    limit,
     fills,
-    allTracks,
-    editMode,
     commands,
     bracket,
     template,
@@ -406,8 +350,6 @@ export default function App({ params, location }) {
     saving,
     waitingToSave,
     lastSaved,
-    playbackEnabled,
-    alertInfo,
     bracketWinner,
     isSaved,
   ]);
@@ -415,15 +357,8 @@ export default function App({ params, location }) {
   const loadBracketLocally = useCallback(() => {
     const savedState = JSON.parse(sessionStorage.getItem(localSaveKey));
     if (savedState) {
-      setBracketId(savedState.bracketId);
       setOwner(savedState.owner);
-      setLocationState(savedState.locationState);
-      setSeedingMethod(savedState.seedingMethod);
-      setInclusionMethod(savedState.inclusionMethod);
-      setLimit(savedState.limit);
       setFills(savedState.fills);
-      setAllTracks(savedState.allTracks);
-      setEditMode(savedState.editMode);
       setCommands(savedState.commands);
       setBracket(savedState.bracket);
       setTemplate(savedState.template);
@@ -434,21 +369,12 @@ export default function App({ params, location }) {
       setSaving(savedState.saving);
       setWaitingToSave(savedState.waitingToSave);
       setLastSaved(savedState.lastSaved);
-      setPlaybackEnabled(savedState.playbackEnabled);
-      setAlertInfo(savedState.alertInfo);
 
       deleteBracketSavedLocally();
     }
   }, [
-    setBracketId,
     setOwner,
-    setLocationState,
-    setSeedingMethod,
-    setInclusionMethod,
-    setLimit,
     setFills,
-    setAllTracks,
-    setEditMode,
     setCommands,
     setBracket,
     setTemplate,
@@ -459,8 +385,6 @@ export default function App({ params, location }) {
     setSaving,
     setWaitingToSave,
     setLastSaved,
-    setPlaybackEnabled,
-    setAlertInfo,
     deleteBracketSavedLocally,
   ]);
 
@@ -565,7 +489,7 @@ export default function App({ params, location }) {
         songSource={songSource}
         isSaved={isSaved}
         saving={saving}
-        viewLink={`/user/${owner.id}/bracket/${bracketId}`}
+        viewLink={`/user/${owner.id}/bracket/${params.id}`}
       />
       <div className="text-center">
         <h1>
@@ -611,18 +535,6 @@ export default function App({ params, location }) {
                   icon={<UndoIcon />}
                   text="Undo"
                 /> */}
-            {/* <ActionButton
-                  onClick={() => {
-                    setEditMode(true);
-                    setCurrentlyPlayingId(null);
-                    if (!allTracks.length && bracket.size > 0) {
-                      getTracks(songSource);
-                    }
-                  }}
-                  disabled={commands.length !== 0 || !bracketUnchanged(bracket)}
-                  icon={<EditIcon />}
-                  text="Edit"
-                /> */}
             <ActionButton onClick={share} icon={<ShareIcon />} text="Share" />
           </div>
         </div>
@@ -633,7 +545,6 @@ export default function App({ params, location }) {
           songSource={songSource}
           bracket={bracket}
           setBracket={setBracket}
-          setSeedingMethod={setSeedingMethod}
           currentlyPlayingId={currentlyPlayingId}
           setCurrentlyPlayingId={setCurrentlyPlayingId}
           saveCommand={saveCommand}

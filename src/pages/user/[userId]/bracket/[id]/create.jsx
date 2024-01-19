@@ -38,9 +38,8 @@ export default function App({ params, location }) {
       },
       showBracket: false,
       loadingText: "Loading...",
-      alertInfo: { show: false, message: null, type: null, timeoutId: null },
     }),
-    [params.userId],
+    [location.state],
   );
 
   const [seedingMethod, setSeedingMethod] = useState(defaultValues.seedingMethod);

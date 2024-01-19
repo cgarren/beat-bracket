@@ -9,7 +9,6 @@ export default function FillBracket({
   songSource,
   bracket,
   setBracket,
-  setSeedingMethod,
   currentlyPlayingId,
   setCurrentlyPlayingId,
   saveCommand,
@@ -29,7 +28,7 @@ export default function FillBracket({
         setBracket(new Map(bracketCopy));
       }
     },
-    [bracket, getBracket, setBracket, setSeedingMethod],
+    [bracket, getBracket, setBracket],
   );
 
   return (
