@@ -37,15 +37,16 @@ export default function useHelper() {
   }, []);
 
   const switchEveryOther = useCallback((array) => {
-    for (let i = 1; i < array.length / 2; i += 2) {
+    const newArray = [...array];
+    for (let i = 1; i < newArray.length / 2; i += 2) {
       if (i % 2 !== 0) {
-        // console.log("switching", array[array.length - i].name, "AND", array[i].name);
-        const temp = array[i];
-        array[i] = array[array.length - i];
-        array[array.length - i] = temp;
+        // console.log("switching", newArray[newArray.length - i].name, "AND", newArray[i].name);
+        const temp = newArray[i];
+        newArray[i] = newArray[newArray.length - i];
+        newArray[newArray.length - i] = temp;
       }
     }
-    return array;
+    return newArray;
   }, []);
 
   // removes duplicates in an array of objects if a certain key/value is repeated
@@ -116,37 +117,41 @@ export default function useHelper() {
 
     if (value1.side === "r" && value2.side === "l") {
       return -1;
-    } else if (value1.side === "l" && value2.side === "r") {
-      return 1;
-    } else if (value1.side === "l" && value2.side === "l") {
-      if (value1.col > value2.col) {
-        return -1;
-      } else if (value1.col < value2.col) {
-        return 1;
-      } else {
-        if (value1.index > value2.index) {
-          return 1;
-        } else if (value1.index < value2.index) {
-          return -1;
-        } else {
-          return 0;
-        }
-      }
-    } else if (value1.side === "r" && value2.side === "r") {
-      if (value1.col > value2.col) {
-        return 1;
-      } else if (value1.col < value2.col) {
-        return -1;
-      } else if (value1.index > value2.index) {
-        return 1;
-      } else if (value1.index < value2.index) {
-        return -1;
-      } else {
-        return 0;
-      }
-    } else {
-      throw new Error(`Found bracket with invalid side: ${value1.side} or ${value2.side}`);
     }
+    if (value1.side === "l" && value2.side === "r") {
+      return 1;
+    }
+    if (value1.side === "l" && value2.side === "l") {
+      if (value1.col > value2.col) {
+        return -1;
+      }
+      if (value1.col < value2.col) {
+        return 1;
+      }
+      if (value1.index > value2.index) {
+        return 1;
+      }
+      if (value1.index < value2.index) {
+        return -1;
+      }
+      return 0;
+    }
+    if (value1.side === "r" && value2.side === "r") {
+      if (value1.col > value2.col) {
+        return 1;
+      }
+      if (value1.col < value2.col) {
+        return -1;
+      }
+      if (value1.index > value2.index) {
+        return 1;
+      }
+      if (value1.index < value2.index) {
+        return -1;
+      }
+      return 0;
+    }
+    throw new Error(`Found bracket with invalid side: ${value1.side} or ${value2.side}`);
   }, []);
 
   //   const downloadBracket = useCallback((bracketId, artistName) => {

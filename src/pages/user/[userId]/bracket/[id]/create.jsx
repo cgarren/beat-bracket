@@ -31,7 +31,11 @@ export default function App({ params, location }) {
       allTracks: [],
       bracket: new Map(),
       template: { id: null, ownerId: null, displayName: null },
-      songSource: { type: undefined },
+      songSource: () => {
+        const newSongSource = location.state;
+        delete newSongSource.key;
+        return newSongSource;
+      },
       showBracket: false,
       loadingText: "Loading...",
       alertInfo: { show: false, message: null, type: null, timeoutId: null },
@@ -126,64 +130,65 @@ export default function App({ params, location }) {
 
   // GET TRACKS
 
-  const getTracks = useCallback(
-    async (newSongSource, newLimit) => {
-      if (!newSongSource || !newSongSource.type) {
-        return [];
-      }
-
-      console.debug("Getting tracks...");
-      // load the tracks from spotify
-      let templist;
-      let selectionName = "";
-      if (newSongSource.type === "artist") {
-        selectionName = newSongSource.artist.name;
-      } else if (newSongSource.type === "playlist") {
-        selectionName = newSongSource.playlist.name;
-      }
-      if (newSongSource.type === "artist") {
-        setLoadingText(`Gathering Spotify tracks for ${newSongSource.artist.name}...`);
-        const songPossibilities = await loadAlbums(
-          `https://api.spotify.com/v1/artists/${newSongSource.artist.id}/albums?include_groups=album,single,compilation&limit=20`,
-          newSongSource.artist.id,
-        );
-        if (!songPossibilities) {
-          toast.error("Error loading tracks from Spotify");
-          return [];
-        }
-        // load data for the songs
-        setLoadingText("Gathering track information...");
-        templist = await processTracks(songPossibilities);
-      } else if (newSongSource.type === "playlist") {
-        setLoadingText(`Gathering Spotify tracks from ${newSongSource.playlist.name}...`);
-        templist = await loadPlaylistTracks(
-          `https://api.spotify.com/v1/playlists/${newSongSource.playlist.id}/tracks?limit=50`,
-        );
-        // throw new Error("Playlists not supported yet");
-      } else {
-        throw new Error(`Invalid songSource type: ${newSongSource.type}`);
-      }
-      if (!templist) {
+  const getTracks = useCallback(async () => {
+    console.debug("Getting tracks...");
+    // load the tracks from spotify
+    let templist;
+    let selectionName = "";
+    if (songSource.type === "artist") {
+      selectionName = songSource.artist.name;
+    } else if (songSource.type === "playlist") {
+      selectionName = songSource.playlist.name;
+    }
+    if (songSource.type === "artist") {
+      setLoadingText(`Gathering Spotify tracks for ${songSource.artist.name}...`);
+      const songPossibilities = await loadAlbums(
+        `https://api.spotify.com/v1/artists/${songSource.artist.id}/albums?include_groups=album,single,compilation&limit=20`,
+        songSource.artist.id,
+      );
+      if (!songPossibilities) {
         toast.error("Error loading tracks from Spotify");
         return [];
       }
-      // if there are than 8 songs, stop
-      if (templist.length < 8) {
-        alert(`${selectionName} doesn't have enough songs on Spotify! Try another ${newSongSource.type}.`);
-        setSongSource({ type: undefined, name: undefined, id: undefined });
-        navigate("/my-brackets");
-        return [];
-      }
-      setAllTracks(templist);
-      console.log(templist.length, newLimit, templist.length < newLimit);
-      const power = nearestLesserPowerOf2(templist.length);
-      setLimit(limit < power ? limit : power);
-      setLoadingText("Generating bracket...");
-      console.debug("Done getting tracks...");
-      return templist;
-    },
-    [setAllTracks, setLimit, setSongSource, loadAlbums, loadPlaylistTracks, processTracks, nearestLesserPowerOf2],
-  );
+      // load data for the songs
+      setLoadingText("Gathering track information...");
+      templist = await processTracks(songPossibilities);
+    } else if (songSource.type === "playlist") {
+      setLoadingText(`Gathering Spotify tracks from ${songSource.playlist.name}...`);
+      templist = await loadPlaylistTracks(
+        `https://api.spotify.com/v1/playlists/${songSource.playlist.id}/tracks?limit=50`,
+      );
+      // throw new Error("Playlists not supported yet");
+    } else {
+      throw new Error(`Invalid songSource type: ${songSource.type}`);
+    }
+    if (!templist) {
+      toast.error("Error loading tracks from Spotify");
+      return [];
+    }
+    // if there are than 8 songs, stop
+    if (templist.length < 8) {
+      alert(`${selectionName} doesn't have enough songs on Spotify! Try another ${songSource.type}.`);
+      setSongSource({ type: undefined, name: undefined, id: undefined });
+      navigate("/my-brackets");
+      return [];
+    }
+    setAllTracks(templist);
+    const power = nearestLesserPowerOf2(templist.length);
+    setLimit(limit < power ? limit : power);
+    setLoadingText("Generating bracket...");
+    console.debug("Done getting tracks...");
+    return templist;
+  }, [
+    setAllTracks,
+    setLimit,
+    setSongSource,
+    loadAlbums,
+    loadPlaylistTracks,
+    processTracks,
+    nearestLesserPowerOf2,
+    songSource,
+  ]);
 
   const changeBracket = useCallback(
     async (
@@ -192,14 +197,10 @@ export default function App({ params, location }) {
       customSeedingMethod = seedingMethod,
       customInclusionMethod = inclusionMethod,
     ) => {
-      let tracks = customAllTracks;
-      if (!tracks || tracks.length === 0) {
-        tracks = await getTracks(songSource, customLimit);
-      }
-      const power = nearestLesserPowerOf2(tracks.length);
+      const power = nearestLesserPowerOf2(customAllTracks.length);
       // setLoadingText("Seeding tracks by " + seedingMethod + "...");
       // sort the list by include method
-      let newCustomAllTracks = await sortTracks(tracks, customInclusionMethod);
+      let newCustomAllTracks = await sortTracks(customAllTracks, customInclusionMethod);
       const numTracks = customLimit < power ? customLimit : power;
       // cut the list dowwn to the max number of tracks
       newCustomAllTracks = newCustomAllTracks.slice(0, numTracks);
@@ -217,8 +218,6 @@ export default function App({ params, location }) {
       limit,
       seedingMethod,
       inclusionMethod,
-      songSource,
-      getTracks,
       sortTracks,
       seedBracket,
       fillBracket,
@@ -227,49 +226,20 @@ export default function App({ params, location }) {
     ],
   );
 
-  const initializeBracketFromSource = useCallback(
-    async (newSongSource, newLimit) => {
-      console.log(newSongSource, newLimit);
-      console.debug("Creating new bracket...");
-
-      // don't show the bracket while we get things ready
-      setShowBracket(false);
-
-      // set song source from passed in data
-      // setSongSource(location.state);
-      setSongSource(newSongSource);
-
-      // get tracks from spotify
-      console.debug("Kicking off track getting...");
-      const tempTrackList = await getTracks(newSongSource, newLimit);
-
+  const initializeBracketFromSource = useCallback(async () => {
+    try {
+      const tempTrackList = await getTracks(songSource);
       // kick off the bracket creation process
       await changeBracket(tempTrackList);
-    },
-    [changeBracket, getTracks, setShowBracket, setSongSource],
-  );
-
-  // INITIALIZE BRACKET
-
-  const kickOff = useCallback(async () => {
-    if (location.state?.artist || location.state?.playlist) {
-      try {
-        const initObject = location.state;
-        delete initObject.key;
-        await initializeBracketFromSource(initObject, owner.id, limit);
-      } catch (e) {
-        toast.error("Error creating bracket");
-        console.error(e);
-        // throw e;
-      }
-    } else {
-      // Bracket doesn't exist and no artist was passed in
-      setBracket(null);
+    } catch (e) {
+      toast.error("Error creating bracket");
+      console.error(e);
+      // throw e;
     }
-  }, [initializeBracketFromSource, owner?.id, limit, setBracket]);
+  }, [changeBracket, getTracks, songSource]);
 
   useEffect(() => {
-    kickOff();
+    initializeBracketFromSource();
   }, []);
 
   const noChanges = useCallback((navigateAway) => {
