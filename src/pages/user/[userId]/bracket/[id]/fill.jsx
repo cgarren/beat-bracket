@@ -66,7 +66,7 @@ export default function App({ params, location }) {
     [ownerInfo?.display_name, params?.userId],
   );
 
-  const { data: loadedBracket, dataUpdatedAt } = useQuery({
+  const { data: loadedBracket } = useQuery({
     queryKey: ["bracket", { bracketId: params.id, userId: owner.id }],
     queryFn: async () => getBracket(params.id, owner.id),
     enabled: params.id && isCurrentUser(owner.id),
@@ -85,6 +85,9 @@ export default function App({ params, location }) {
       if (lastSaved.saveData) {
         queryClient.setQueryData(["bracket", { bracketId: params.id, userId: owner.id }], lastSaved.saveData);
       }
+      if (lastSaved.commands) {
+        setCommands(lastSaved.commands);
+      }
     },
     meta: {
       errorMessage: "Error saving bracket",
@@ -93,7 +96,7 @@ export default function App({ params, location }) {
     onSettled: async (data) => {
       queryClient.invalidateQueries({ queryKey: ["brackets", { userId: owner.id }] });
 
-      setLastSaved({ commandsLength: commands.length, time: Date.now(), saveData: data });
+      setLastSaved({ commands: commands, time: Date.now(), saveData: data });
     },
   });
 
