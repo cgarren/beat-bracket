@@ -16,7 +16,6 @@ export default function FillSongButton({
   disabled,
   currentlyPlayingId,
   setCurrentlyPlayingId,
-  modifyBracket,
   saveCommand,
   getBracket,
   eliminated,
@@ -55,8 +54,8 @@ export default function FillSongButton({
     saveCommand(
       () => undoChoice(id, previousIds),
       () => {
-        const picked = previousIds.find((id) => getBracket(id).eliminated === false);
-        const notPicked = previousIds.find((id) => getBracket(id).eliminated === true);
+        const picked = previousIds.find((buttonId) => getBracket(buttonId).eliminated === false);
+        const notPicked = previousIds.find((buttonId) => getBracket(buttonId).eliminated === true);
         makeChoice(picked, notPicked, id, song, color);
       },
     );
