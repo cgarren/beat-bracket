@@ -22,7 +22,8 @@ export default function FillSongButton({
   eliminated,
   winner,
   color,
-  undoFunc,
+  undoChoice,
+  makeChoice,
 }) {
   // Recursive function to mark all previous instances of a song in a bracket as eliminated
   // function eliminatePrevious(thisId) {
@@ -39,64 +40,34 @@ export default function FillSongButton({
   //     }
   // }
 
-  function undoChoice() {
-    modifyBracket([
-      [id, "disabled", false],
-      [opponentId, "disabled", false],
-      [opponentId, "eliminated", false],
-    ]);
-    setCurrentlyPlayingId(null);
-    // undoEliminatePrevious(opponentId);
-    if (nextId) {
-      modifyBracket(
-        [
-          [nextId, "song", null],
-          [nextId, "disabled", true],
-          [nextId, "color", null],
-        ],
-        true,
-      );
-    } else {
-      modifyBracket([[id, "winner", false]], true);
-    }
-  }
-
-  function makeChoice() {
-    modifyBracket([
-      [id, "disabled", true],
-      [opponentId, "disabled", true],
-      [opponentId, "eliminated", true],
-    ]);
-    // eliminatePrevious(opponentId);
-    if (nextId) {
-      modifyBracket([
-        [nextId, "song", song],
-        [nextId, "disabled", false],
-        [nextId, "color", color, true],
-        [nextId, "undoFunc", undoChoice],
-      ]);
-      setCurrentlyPlayingId(null);
-    } else {
-      console.log(`Winner is ${song.name}`);
-      modifyBracket([[id, "winner", true]], true);
-      // setBracketWinner(song);
-      setCurrentlyPlayingId(null);
-    }
-  }
-
   function songChosen() {
     if (opponentId && getBracket(opponentId).song !== null) {
-      makeChoice();
-      saveCommand(makeChoice, undoChoice);
+      makeChoice(id, opponentId, nextId, song, color);
+      saveCommand(
+        () => makeChoice(id, opponentId, nextId),
+        () => undoChoice(nextId, [id, opponentId]),
+      );
     }
+  }
+
+  function choiceUndone() {
+    undoChoice(id, previousIds);
+    saveCommand(
+      () => undoChoice(id, previousIds),
+      () => {
+        const picked = previousIds.find((id) => getBracket(id).eliminated === false);
+        const notPicked = previousIds.find((id) => getBracket(id).eliminated === true);
+        makeChoice(picked, notPicked, id, song, color);
+      },
+    );
   }
 
   return (
     <div className="relative">
-      {song && !disabled && col !== 0 && undoFunc && (
+      {song && !disabled && col !== 0 && (
         <button
           type="button"
-          onClick={undoFunc}
+          onClick={choiceUndone}
           aria-label="Undo"
           className={cx(
             "border-0 w-[26px] h-[26px] p-1 text-xs hover:bg-red-600 hover:text-white bg-transparent text-black absolute rounded-full z-20 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-opacity-50",
@@ -125,7 +96,7 @@ export default function FillSongButton({
         winner={winner}
         color={color}
         editMode={false}
-        editable={true}
+        editable
       />
     </div>
   );

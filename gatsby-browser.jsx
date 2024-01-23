@@ -6,9 +6,13 @@ import mixpanel from "mixpanel-browser";
 import { ErrorBoundary } from "react-error-boundary";
 import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import toast, { Toaster } from "react-hot-toast";
+import { enableMapSet } from "immer";
 
 import { LoginProvider } from "./src/context/LoginContext";
 import { MixpanelProvider } from "./src/context/MixpanelContext";
+
+// Enable Map/Set in immer
+enableMapSet();
 
 // Create a query client
 const queryClient = new QueryClient({

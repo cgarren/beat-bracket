@@ -30,9 +30,9 @@ export default function BracketCard({ bracket }) {
       errorMessage: "Error loading bracket image",
     },
   });
-  const { isPending, mutate: removeBracket } = useMutation({
+
+  const { isPending, mutate: removeBracketMutation } = useMutation({
     mutationFn: async (bracketId) => {
-      // toast.success("Bracket deleted successfully", { duration: Infinity });
       await deleteBracket(bracketId);
     },
     meta: {
@@ -65,7 +65,7 @@ export default function BracketCard({ bracket }) {
         setShowModal={setShowModal}
         removeBracket={() => {
           setShowModal(false);
-          removeBracket(bracket.id);
+          removeBracketMutation(bracket.id);
         }}
         bracketName={name}
       />

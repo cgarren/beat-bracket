@@ -26,6 +26,7 @@
     "gatsby-plugin-manifest": "^5.3.1",
     "gatsby-plugin-react-svg": "^3.3.0",
     "html2canvas": "^1.4.1",
+    "immer": "^10.0.3",
     "mixpanel-browser": "^2.47.0",
     "mousetrap": "^1.6.5",
     "node-vibrant": "^3.1.6",

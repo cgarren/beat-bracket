@@ -81,6 +81,7 @@ export default function Bracket({
                       col: value.col,
                       nextId: value.nextId,
                       opponentId: value.opponentId,
+                      previousIds: value.previousIds,
                       side: side,
                       color: value.color,
                       eliminated: value.eliminated,
