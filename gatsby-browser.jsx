@@ -74,14 +74,14 @@ if (process.env.GATSBY_MIXPANEL_TOKEN && process.env.GATSBY_BACKEND_URL) {
   console.warn("Mixpanel token not set");
 }
 
-export function wrapPageElement({ element }) {
-  return (
-    <>
-      <Toaster />
-      {element}
-    </>
-  );
-}
+// export function wrapPageElement({ element }) {
+//   return (
+//     <>
+//       <Toaster position="top-right" containerStyle={{ marginTop: "60px" }} />
+//       {element}
+//     </>
+//   );
+// }
 
 // eslint-disable-next-line import/prefer-default-export
 export function wrapRootElement({ element }) {

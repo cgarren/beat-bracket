@@ -4,12 +4,10 @@ import Bracket from "./Bracket";
 import FillSongButton from "./SongButton/FillSongButton";
 
 export default function FillBracket({
-  showBracket,
-  setShowBracket,
   bracketTracks,
   songSource,
   bracket,
-  setBracket,
+  changeBracket,
   currentlyPlayingId,
   setCurrentlyPlayingId,
   saveCommand,
@@ -22,9 +20,9 @@ export default function FillBracket({
           draft.get(key)[attribute] = value;
         });
       });
-      setBracket(bracketCopy);
+      changeBracket(bracketCopy);
     },
-    [bracket, getBracket, setBracket],
+    [bracket, getBracket, changeBracket],
   );
 
   const undoChoice = useCallback(
@@ -82,8 +80,8 @@ export default function FillBracket({
     <Bracket
       bracket={bracket}
       bracketSize={bracketTracks.length}
-      setShowBracket={setShowBracket}
-      showBracket={showBracket}
+      setShowBracket={() => {}}
+      showBracket
       songSourceType={songSource?.type}
       songButtonType={FillSongButton}
       songButtonProps={useMemo(

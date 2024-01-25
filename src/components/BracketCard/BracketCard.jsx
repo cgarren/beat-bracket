@@ -39,7 +39,12 @@ export default function BracketCard({ bracket }) {
       errorMessage: "Error deleting bracket",
       successMessage: "Bracket deleted successfully",
     },
-    onSettled: async () => queryClient.invalidateQueries({ queryKey: ["brackets", { userId: loginInfo.userId }] }),
+    onSettled: async (data, error, bracketId) => {
+      queryClient.invalidateQueries({ queryKey: ["brackets", { userId: loginInfo.userId }] });
+      queryClient.invalidateQueries({
+        queryKey: ["bracket", { bracketId: bracketId, userId: loginInfo.id }],
+      });
+    },
   });
 
   const name = (() => {

@@ -1,6 +1,11 @@
 /* eslint-disable react/prop-types */
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { Toaster } from "react-hot-toast";
+import useWindowSize from "react-use/lib/useWindowSize";
+import resolveConfig from "tailwindcss/resolveConfig";
+// eslint-disable-next-line import/extensions
+import tailwindConfig from "../../tailwind.config.js";
 import NavBar from "./NavBar/NavBar";
 import Clicky from "./Clicky";
 import Footer from "./Footer";
@@ -27,6 +32,8 @@ export default function Layout({
   const { loginInfo, loggedIn } = useContext(LoginContext);
   const bracketPageRegex = useMemo(() => /^\/user\/.+\/bracket\/[a-zA-Z0-9-]+\/?$/, []);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const { width } = useWindowSize();
+  const fullConfig = resolveConfig(tailwindConfig);
 
   // Runs once, after page load
   useEffect(() => {
@@ -91,6 +98,10 @@ export default function Layout({
             }`}
           >
             {showNavBar && <NavBar noChanges={noChanges} />}
+            {width > Number(fullConfig.theme.screens.sm.replace("px", "")) && (
+              <Toaster position="top-right" containerClassName="!sticky" />
+            )}
+            {width <= Number(fullConfig.theme.screens.sm.replace("px", "")) && <Toaster position="bottom-center" />}
             <LoginExpiredModal
               showModal={showLoginModal}
               setShowModal={setShowLoginModal}

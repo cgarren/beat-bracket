@@ -158,7 +158,6 @@ export default function useSongProcessing() {
       for (const idList of Object.values(songs)) {
         if (runningList.length + idList.length > 50) {
           const tempData = await loadTrackData(runningList, trackOptionsAmounts);
-          console.log(tempData);
           if (tempData) {
             tempDataList = tempDataList.concat(tempData);
             runningList = [];
@@ -177,7 +176,6 @@ export default function useSongProcessing() {
       } else {
         return null;
       }
-      console.log(tempDataList.length, await Promise.all(tempDataList));
       return tempDataList;
     },
     [loadTrackData],
