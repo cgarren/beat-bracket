@@ -5,7 +5,7 @@ import React from "react";
 import mixpanel from "mixpanel-browser";
 import { ErrorBoundary } from "react-error-boundary";
 import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { enableMapSet } from "immer";
 
 import { LoginProvider } from "./src/context/LoginContext";
@@ -58,6 +58,19 @@ const queryClient = new QueryClient({
       }
     },
   }),
+  defaultOptions: {
+    queries: {
+      retryDelay: (attemptIndex, error) => {
+        let startingDelay = 1000;
+        let maxDelay = 30000;
+        if (error?.cause?.code === 429) {
+          startingDelay = 5000;
+          maxDelay = 60000;
+        }
+        Math.min(startingDelay * 2 ** attemptIndex, maxDelay);
+      },
+    },
+  },
 });
 
 if (process.env.GATSBY_MIXPANEL_TOKEN && process.env.GATSBY_BACKEND_URL) {

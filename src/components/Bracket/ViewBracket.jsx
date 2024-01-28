@@ -2,13 +2,13 @@ import React from "react";
 import Bracket from "./Bracket";
 import FillSongButton from "./SongButton/FillSongButton";
 
-export default function ViewBracket({ showBracket, editable, bracketTracks, songSource, bracket, setShowBracket }) {
+export default function ViewBracket({ editable, bracketTracks, songSource, bracket }) {
   return (
     <Bracket
       bracket={bracket}
       bracketSize={bracketTracks.length}
-      setShowBracket={setShowBracket}
-      showBracket={showBracket}
+      setShowBracket={() => {}}
+      showBracket
       songSourceType={songSource.type}
       songButtonType={FillSongButton}
       songButtonProps={{

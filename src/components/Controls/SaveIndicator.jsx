@@ -8,7 +8,6 @@ import WaitingIcon from "../../assets/svgs/waitingIcon.svg";
 export default function SaveIndicator({
   saving,
   isSaved,
-  lastSaved,
   waitingToSave,
   errorText = "Not Saved",
   waitingText = "Waiting",
@@ -22,11 +21,11 @@ export default function SaveIndicator({
     if (isSaved) {
       return "saved";
     }
-    if (saving || (lastSaved && lastSaved.commandsLength !== 0) || waitingToSave) {
+    if (saving || waitingToSave) {
       return "saving";
     }
     return "waiting";
-  }, [saving, isSaved, lastSaved]);
+  }, [saving, isSaved]);
 
   return (
     <div
@@ -37,7 +36,7 @@ export default function SaveIndicator({
     >
       {savingState === "error" && (
         <>
-          <div className="">
+          <div className="" aria-label="Error saving">
             <XIcon />
           </div>
           {errorText}
@@ -45,26 +44,26 @@ export default function SaveIndicator({
       )}{" "}
       {savingState === "waiting" && (
         <>
-          <div className="">
+          <div className="" aria-label="Waiting to save" title="Waiting to save">
             <WaitingIcon />
           </div>
-          {waitingText}
+          {/* {waitingText} */}
         </>
       )}
       {savingState === "saving" && (
         <>
-          <div className="animate-spin-reverse">
+          <div className="animate-spin-reverse" aria-label="Saving" title="Saving">
             <SyncIcon />
           </div>
-          {savingText}
+          {/* {savingText} */}
         </>
       )}
-      {savingState === "saved" && (
+      {/* {savingState === "saved" && (
         <>
           <CheckmarkIcon />
           {savedText}
         </>
-      )}
+      )} */}
     </div>
   );
 }

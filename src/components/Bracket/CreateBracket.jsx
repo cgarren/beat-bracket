@@ -85,7 +85,7 @@ export default function CreateBracket({
         bracketSize={bracketTracks.length}
         setShowBracket={setShowBracket}
         showBracket={showBracket}
-        songSourceType={songSource.type}
+        songSourceType={songSource?.type}
         songButtonType={CreateSongButton}
         greyBackground
         songButtonProps={useMemo(

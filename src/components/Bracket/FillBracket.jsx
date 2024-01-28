@@ -17,7 +17,9 @@ export default function FillBracket({
     (modificationTriples) => {
       const bracketCopy = produce(bracket, (draft) => {
         modificationTriples.forEach(([key, attribute, value]) => {
-          draft.get(key)[attribute] = value;
+          if (draft.has(key)) {
+            draft.get(key)[attribute] = value;
+          }
         });
       });
       changeBracket(bracketCopy);

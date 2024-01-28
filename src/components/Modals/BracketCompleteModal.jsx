@@ -3,24 +3,25 @@ import { navigate } from "gatsby";
 import Modal from "./Modal";
 import ActionButton from "../Controls/ActionButton";
 import BracketWinnerInfo from "../Bracket/BracketWinnerInfo";
-import SaveIndicator from "../Controls/SaveIndicator";
-import LoadingIndicator from "../LoadingIndicator";
+import SyncIcon from "../../assets/svgs/syncIcon.svg";
 
 export default function BracketCompleteModal({
   showModal,
   setShowModal,
   bracketWinner,
   songSource,
-  isSaved,
-  saving,
+  savePending,
+  saveError,
+  retrySave,
   viewLink,
+  share,
 }) {
   return (
     <div>
       {showModal && (
         <Modal
           onClose={() => {
-            if (isSaved) {
+            if (!savePending) {
               navigate(viewLink);
               setShowModal(false);
             }
@@ -32,7 +33,14 @@ export default function BracketCompleteModal({
               bracketWinner={bracketWinner}
               showSongInfo={songSource && songSource.type === "playlist"}
             />
-            {isSaved && (
+            <ActionButton
+              onClick={() => {
+                share();
+              }}
+              text="Share"
+              variant="secondary"
+            />
+            {!savePending && !saveError && (
               <div className="mt-2 flex flex-row justify-around">
                 <ActionButton
                   onClick={() => {
@@ -41,7 +49,7 @@ export default function BracketCompleteModal({
                   }}
                   text="Admire my masterpiece"
                   variant="secondary"
-                  disabled={!isSaved}
+                  disabled={savePending}
                 />
                 <ActionButton
                   onClick={() => {
@@ -50,19 +58,23 @@ export default function BracketCompleteModal({
                   text="Start a new bracket"
                   autoFocus
                   variant="primary"
-                  disabled={!isSaved}
+                  disabled={savePending}
                 />
               </div>
             )}
-            {!isSaved && (
-              <div className="flex flex-row justify-around">
-                <SaveIndicator
-                  saving={saving}
-                  isSaved={isSaved}
-                  savingText="Hang tight! Saving your bracket"
-                  waitingText="Hang tight! Saving your bracket"
-                />
+            {savePending && (
+              <div className="flex items-center gap-1 justify-center">
+                <div className="animate-spin-reverse w-fit h-fit" aria-label="Saving" title="Saving">
+                  <SyncIcon />
+                </div>
+                Hang tight! Saving your bracket...
               </div>
+            )}
+            {saveError && (
+              <>
+                <div className="flex flex-row justify-around text-red-500 font-bold">Error saving your bracket!</div>
+                <ActionButton onClick={retrySave} text="Retry save" variant="secondary" />
+              </>
             )}
           </div>
         </Modal>

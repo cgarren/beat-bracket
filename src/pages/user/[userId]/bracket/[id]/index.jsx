@@ -1,75 +1,99 @@
 /* eslint-disable prettier/prettier */
 // React
-import React, { useEffect, useState, useMemo, useCallback, useContext } from "react";
+import React, { useMemo, useCallback, useContext } from "react";
 // Third Party
 import { v4 as uuidv4 } from "uuid";
-import { backOff } from "exponential-backoff";
 import toast from "react-hot-toast";
+import { useQuery } from "@tanstack/react-query";
 // Components
 import Seo from "../../../../../components/SEO";
 import BracketView from "../../../../../components/Bracket/ViewBracket";
 import Layout from "../../../../../components/Layout";
 import BracketWinnerInfo from "../../../../../components/Bracket/BracketWinnerInfo";
 import ActionButton from "../../../../../components/Controls/ActionButton";
-import TrackNumber from "../../../../../components/BracketCard/TrackNumber";
+import LoadingIndicator from "../../../../../components/LoadingIndicator";
 // Hooks
 import useBracketGeneration from "../../../../../hooks/useBracketGeneration";
 import useHelper from "../../../../../hooks/useHelper";
 import useBackend from "../../../../../hooks/useBackend";
 import useSpotify from "../../../../../hooks/useSpotify";
 import useAuthentication from "../../../../../hooks/useAuthentication";
+import useUserInfo from "../../../../../hooks/useUserInfo";
 // Assets
 import ShareIcon from "../../../../../assets/svgs/shareIcon.svg";
 import DuplicateIcon from "../../../../../assets/svgs/duplicateIcon.svg";
 // Context
 import { LoginContext } from "../../../../../context/LoginContext";
+import BracketHeader from "../../../../../components/BracketHeader";
+import LoginButton from "../../../../../components/Controls/LoginButton";
 
 export default function App({ params, location }) {
-  const defaultValues = useMemo(
-    () => ({
-      bracketId: params.id,
-      owner: { name: undefined, id: params.userId },
-      locationState: location.state,
-      seedingMethod: "popularity",
-      inclusionMethod: "popularity",
-      limit: 32,
-      fills: 0,
-      editMode: false,
-      commands: [],
-      bracket: new Map(),
-      template: { id: null, ownerId: null, displayName: null },
-      songSource: { type: undefined },
-      currentlyPlayingId: null,
-      showBracket: false,
-      loadingText: "Loading...",
-      saving: false,
-      waitingToSave: false,
-      lastSaved: { time: 0, commandsLength: 0 },
-      playbackEnabled: false,
-      alertInfo: { show: false, message: null, type: null, timeoutId: null },
-    }),
-    [params.id, params.userId, location.state],
-  );
-
-  const [bracketId, setBracketId] = useState(defaultValues.bracketId);
-  const [owner, setOwner] = useState(defaultValues.owner);
-  const [locationState, setLocationState] = useState(defaultValues.locationState);
-  const [limit, setLimit] = useState(defaultValues.limit);
-  const [fills, setFills] = useState(defaultValues.fills);
-  const [editMode, setEditMode] = useState(defaultValues.editMode);
-  const [commands, setCommands] = useState(defaultValues.commands);
-  const [bracket, setBracket] = useState(defaultValues.bracket);
-  const [template, setTemplate] = useState(defaultValues.template);
-  const [songSource, setSongSource] = useState(defaultValues.songSource);
-  const [showBracket, setShowBracket] = useState(defaultValues.showBracket);
-  const [saving, setSaving] = useState(defaultValues.saving);
-
   const { loggedIn, loginInfo } = useContext(LoginContext);
-  const { getUserInfo, getArtist, getPlaylist, openBracket } = useSpotify();
+  const { openBracket } = useSpotify();
   const { isCurrentUser } = useAuthentication();
   const { bracketSorter } = useHelper();
-  const { getBracket, updateBracket } = useBackend();
+  const { getBracket } = useBackend();
   const { getNumberOfColumns } = useBracketGeneration();
+
+  const { data: ownerInfo } = useUserInfo(params.userId);
+
+  const owner = useMemo(
+    () => ({ name: ownerInfo?.display_name, id: params.userId }),
+    [ownerInfo?.display_name, params?.userId],
+  );
+
+  const { data: loadedBracket, isPending: fetchPending } = useQuery({
+    queryKey: ["bracket", { bracketId: params.id, userId: owner.id }],
+    queryFn: async () => getBracket(params.id, owner.id),
+    enabled: Boolean(params.id && owner.id),
+    refetchOnWindowFocus: false,
+    staleTime: 3600000,
+    retry: (failureCount, error) => error?.cause?.code !== 404,
+  });
+
+  const songSource = useMemo(() => {
+    if (loadedBracket?.template?.songSource?.type === "artist") {
+      return {
+        type: "artist",
+        artist: {
+          name: loadedBracket.template.songSource.artist.name,
+          id: loadedBracket.template.songSource.artist.id,
+        },
+      };
+    }
+    if (loadedBracket?.template?.songSource?.type === "playlist") {
+      return {
+        type: "playlist",
+        playlist: {
+          name: loadedBracket.template.songSource.playlist.name,
+          id: loadedBracket.template.songSource.playlist.id,
+        },
+      };
+    }
+    return null;
+  }, [loadedBracket?.template?.songSource]);
+
+  const bracket = useMemo(() => {
+    // console.log(loadedBracket?.bracketData);
+    if (loadedBracket?.bracketData) {
+      let mymap = new Map(Object.entries(loadedBracket.bracketData));
+      mymap = new Map([...mymap].sort(bracketSorter));
+      return mymap;
+    }
+    return null;
+  }, [loadedBracket?.bracketData, bracketSorter]);
+
+  const template = useMemo(() => {
+    if (loadedBracket?.template) {
+      return {
+        id: loadedBracket.template.id,
+        ownerId: loadedBracket.template.ownerId,
+        displayName: loadedBracket.template.displayName,
+        ownerUsername: loadedBracket.template.ownerUsername,
+      };
+    }
+    return { id: null, ownerId: null, displayName: null };
+  }, [loadedBracket?.template]);
 
   const bracketTracks = useMemo(() => {
     const tracks = [];
@@ -82,6 +106,7 @@ export default function App({ params, location }) {
     }
     return tracks;
   }, [bracket]);
+
   const bracketWinner = useMemo(() => {
     if (bracket) {
       const cols = getNumberOfColumns(bracketTracks.length) - 1;
@@ -96,151 +121,6 @@ export default function App({ params, location }) {
     }
     return null;
   }, [bracket, bracketTracks, getNumberOfColumns]);
-
-  // SAVE
-
-  async function saveBracket(data) {
-    // Called on these occasions: on initial bracket load, user clicks save button, user completes bracket
-    if (saving !== true && editable && bracket.size > 0 && !editMode) {
-      try {
-        setSaving(true);
-        // write to database and stuff
-        console.debug("Saving bracket...");
-        await backOff(() => updateBracket(bracketId, data), {
-          jitter: "full",
-          maxDelay: 25000,
-          timeMultiple: 5,
-          retry: (e) => {
-            console.debug(e);
-            if (e.cause && e.cause.code === 429) {
-              console.debug("429 error! Retrying with delay...", e);
-              return true;
-            }
-            return false;
-          },
-        });
-        console.debug("Bracket Saved");
-        // show notification Saved", "success");
-        setSaving(false);
-      } catch (error) {
-        if (error.cause && error.cause.code === 429) {
-          toast.error("Error saving bracket! Wait a minute or two and then try making another choice");
-        } else {
-          toast.error(error.message);
-        }
-        setSaving("error");
-      }
-    }
-  }
-
-  // RESET STATE
-  const resetState = useCallback(async () => {
-    setBracketId(defaultValues.bracketId);
-    setOwner(defaultValues.owner);
-    setLocationState(defaultValues.locationState);
-    setLimit(defaultValues.limit);
-    setFills(defaultValues.fills);
-    setEditMode(defaultValues.editMode);
-    setCommands(defaultValues.commands);
-    setBracket(defaultValues.bracket);
-    setTemplate(defaultValues.template);
-    setSongSource(defaultValues.songSource);
-    setShowBracket(defaultValues.showBracket);
-    setSaving(defaultValues.saving);
-  }, [defaultValues]);
-
-  // START BRACKET
-
-  const checkAndUpdateSongSource = useCallback(
-    async (tempSongSource) => {
-      if (loggedIn) {
-        if (tempSongSource.type === "artist") {
-          const artist = await getArtist(tempSongSource.artist.id);
-          setSongSource({ type: "artist", artist: { name: artist.name, id: artist.id } });
-        } else if (tempSongSource.type === "playlist") {
-          const playlist = await getPlaylist(tempSongSource.playlist.id);
-          setSongSource({ type: "playlist", playlist: { name: playlist.name, id: playlist.id } });
-        }
-      }
-    },
-    [getArtist, getPlaylist, loggedIn],
-  );
-
-  const checkAndUpdateOwnerUsername = useCallback(
-    async (ownerId) => {
-      if (ownerId && loggedIn) {
-        getUserInfo(ownerId).then((newUserInfo) => {
-          if (newUserInfo) {
-            setOwner({ id: newUserInfo.id, name: newUserInfo.display_name });
-          }
-        });
-      }
-    },
-    [getUserInfo, loggedIn],
-  );
-
-  const initializeLoadedBracket = useCallback(
-    async (loadedBracket) => {
-      // set owner details
-      setOwner({ id: loadedBracket.ownerId, name: loadedBracket.ownerUsername });
-      checkAndUpdateOwnerUsername(loadedBracket.ownerId);
-
-      // set bracket data
-      let mymap = new Map(Object.entries(loadedBracket.bracketData));
-      mymap = new Map([...mymap].sort(bracketSorter));
-      setBracket(mymap);
-
-      // set song source
-      if (
-        loadedBracket.template.songSource &&
-        (loadedBracket.template.songSource.type === "artist" || loadedBracket.template.songSource.type === "playlist")
-      ) {
-        setSongSource(loadedBracket.template.songSource);
-        checkAndUpdateSongSource(loadedBracket.template.songSource);
-      }
-
-      setLimit(loadedBracket.template.tracks.length);
-      setTemplate({
-        id: loadedBracket.template.id,
-        ownerId: loadedBracket.template.ownerId,
-        ownerUsername: loadedBracket.template.ownerUsername,
-        displayName: loadedBracket.template.displayName,
-      });
-      setFills(loadedBracket.template.fills);
-      setShowBracket(true);
-    },
-    [commands.length, bracketSorter, checkAndUpdateOwnerUsername, checkAndUpdateSongSource],
-  );
-
-  // INITIALIZE BRACKET
-
-  const kickOff = useCallback(async () => {
-    // console.debug("Kicking off", bracketId, locationState);
-    if (bracketId && owner.id) {
-      try {
-        const loadedBracket = await getBracket(bracketId, owner.id);
-        try {
-          await initializeLoadedBracket(loadedBracket);
-        } catch (e) {
-          toast.error("Error loading bracket!");
-          console.error(e);
-        }
-      } catch (error) {
-        if (error.cause && error.cause.code === 404) {
-          setBracket(null);
-        } else if (error.cause && error.cause.code === 429) {
-          toast.error("Error loading bracket! Wait a minute or two and then try again");
-        } else {
-          toast.error(error.message);
-          console.error(error);
-        }
-      }
-    }
-  }, [initializeLoadedBracket, bracketId, owner.id, locationState, limit, setBracket, getBracket]);
-
-  useEffect(() => {
-    kickOff();
-  }, []);
 
   // SHARE
 
@@ -259,34 +139,12 @@ export default function App({ params, location }) {
       console.debug(`Create New Bracket with id: ${uuid}`);
 
       // navigate to new bracket page
-      // await navigate(`/user/${loginInfo.userId}/bracket/${uuid}/fill`, { template: template });
       openBracket(uuid, loginInfo.userId, "fill", { template: template });
-      // window.location.state = { template: template };
-      // window.location.reload();
-
-      // const newBracket = await fillBracket(bracketTracks, getNumberOfColumns(bracketTracks.length));
-      // console.debug("old bracket:", bracket);
-      // console.debug("New bracket:", newBracket);
-
-      // reset state because we stay on the same page
-      // await resetState();
-
-      // // set state for new bracket
-      // setBracketId(uuid);
-      // setOwner({ id: loginInfo.userId, name: undefined });
-      // setLocationState({ template: template });
-      // setLoadingText("Duplicating bracket...");
-      // // setBracket(newBracket);
-
-      // await initializeBracketFromTemplate(template, loginInfo.userId, uuid);
-      // navigate(`/user/${loginInfo.userId}/bracket/${uuid}`, { state: { template: template } });
-
-      // kick off new bracket creation
     } else {
       toast.error("Error duplicating bracket");
       console.error("Error duplicating bracket. Something is wrong with the template:", template);
     }
-  }, [template, loginInfo, resetState]);
+  }, [template, loginInfo]);
 
   // redirect
   if (bracket?.size > 0 && !bracketWinner && isCurrentUser(params.userId)) {
@@ -295,31 +153,25 @@ export default function App({ params, location }) {
     // return <Redirect to={`/user/${params.userId}/bracket/${params.id}/fill`} />;
   }
 
+  if (fetchPending || !bracket) {
+    return (
+      <Layout
+        noChanges={() => true}
+        path={location.pathname}
+        // saveBracketLocally={saveBracketLocally}
+        // isBracketSavedLocally={isBracketSavedLocally}
+        // deleteBracketSavedLocally={deleteBracketSavedLocally}
+      >
+        {fetchPending && <LoadingIndicator loadingText="Loading bracket..." />}
+        {!fetchPending && !bracket && <div className="font-bold mb-2">Bracket not found</div>}
+      </Layout>
+    );
+  }
+
   return (
     <Layout noChanges={() => true} path={location.pathname}>
       <div className="text-center">
-        <h1>
-          {owner.name && songSource && bracket && bracketTracks ? (
-            <div className="mx-auto mb-2 flex flex-col gap-0 items-center justify-center max-w-[90%]">
-              <div className="flex flex-row text-xl items-center justify-center gap-1 max-w-full">
-                <span className="truncate w-auto font-bold">
-                  {Boolean(songSource.type === "artist") ? songSource.artist.name : null}
-                  {Boolean(songSource.type === "playlist") ? songSource.playlist.name : null}
-                </span>
-                {Boolean(bracketTracks && bracketTracks.length) && <TrackNumber numTracks={bracketTracks.length} />}
-              </div>
-              <span className="text-md">by {owner.name}</span>
-              {template.ownerId !== owner.id && template.ownerUsername && (
-                <span className="text-sm">{`Created from a template by ${template.ownerUsername}`}</span>
-              )}
-              {/* {fills && fills > 0 && bracketWinner ? <span className="text-md">Filled out {fills} {fills === 1 ? "time" : "times"}!</span> : null} */}
-            </div>
-          ) : bracket?.size > 0 ? (
-            <div>Error fetching bracket details!</div>
-          ) : (
-            <div className="font-bold mb-2">{bracket ? "Getting bracket..." : "Bracket not found"}</div>
-          )}
-        </h1>
+        <BracketHeader songSource={songSource} owner={owner} template={template} bracketTracks={bracketTracks} />
         {bracketWinner && (
           <BracketWinnerInfo
             bracketWinner={bracketWinner}
@@ -327,29 +179,32 @@ export default function App({ params, location }) {
           />
         )}
       </div>
-      <hr />
-      <div hidden={!showBracket || !songSource} className="text-center">
-        <div className="text-xs -space-x-px rounded-md sticky mx-auto top-0 w-fit z-30">
-          <div className="flex items-center gap-2">
-            <ActionButton onClick={share} icon={<ShareIcon />} text="Share" />
-            {!isCurrentUser(params.userId) && !isCurrentUser(template.ownerId) && (
-              <ActionButton
-                onClick={duplicateBracket}
-                icon={<DuplicateIcon />}
-                text={loggedIn ? "Make my own picks" : "Login to pick your own winners!"}
-                disabled={!loggedIn}
-              />
-            )}
+      {bracket && songSource && (
+        <>
+          <div className="text-xs -space-x-px rounded-md sticky mx-auto top-0 w-fit z-30">
+            <div className="flex items-center gap-2">
+              <ActionButton onClick={share} icon={<ShareIcon />} text="Share" />
+              {loggedIn && !isCurrentUser(params.userId) && !isCurrentUser(template.ownerId) && (
+                <ActionButton
+                  onClick={duplicateBracket}
+                  icon={<DuplicateIcon />}
+                  text="Make my own picks"
+                  disabled={!loggedIn}
+                />
+              )}
+              {!loggedIn && (
+                <div className="relative">
+                  <LoginButton />
+                  <div className="absolute top-[105%] left-1/2 -translate-x-1/2 whitespace-nowrap">
+                    ⬆️ Pick your own winners!
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-        <BracketView
-          bracket={bracket}
-          bracketTracks={bracketTracks}
-          setShowBracket={setShowBracket}
-          showBracket={showBracket}
-          songSource={songSource}
-        />
-      </div>
+          <BracketView bracket={bracket} bracketTracks={bracketTracks} songSource={songSource} />
+        </>
+      )}
     </Layout>
   );
 }
