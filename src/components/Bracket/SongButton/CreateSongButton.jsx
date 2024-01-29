@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import SongButton from "./NewSongButton";
+import SongButton from "./SongButton";
 import ReplaceTrackButton from "./ReplaceTrackButton";
 
 export default function CreateSongButton({

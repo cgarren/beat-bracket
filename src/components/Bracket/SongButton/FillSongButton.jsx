@@ -2,7 +2,7 @@ import React from "react";
 import cx from "classnames";
 import UndoIcon from "../../../assets/svgs/undoIcon.svg";
 import OpenInSpotifyButton from "./OpenInSpotifyButton";
-import SongButton from "./NewSongButton";
+import SongButton from "./SongButton";
 
 export default function FillSongButton({
   styling,
