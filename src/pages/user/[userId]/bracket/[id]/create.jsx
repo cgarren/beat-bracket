@@ -257,11 +257,10 @@ export default function App({ params, location }) {
 
   // redirect
   if (!(location.state?.artist || location.state?.playlist) || !isCurrentUser(params.userId)) {
-    // navigate(`/user/${params.userId}/bracket/${params.id}`);
     openBracket(params.id, params.userId);
-    // return <Redirect to={`/user/${params.userId}/bracket/${params.id}/fill`} />;
   }
 
+  // loading tracks state
   if (loadingTracks) {
     return (
       <Layout noChanges={noChanges} path={location.pathname}>
@@ -300,11 +299,6 @@ export default function App({ params, location }) {
         <div className="mb-1">
           Customize Bracket
           <BracketHeader songSource={songSource} owner={null} template={null} bracketTracks={null} />
-          {/* <Badge
-            text="Customize your bracket and click start when done!"
-            textColor="text-white"
-            backgroundColor="bg-green-600"
-          /> */}
           <div className="max-w-lg mx-auto px-3">
             <ExpandedDetails
               question="How do I customize my bracket?"
@@ -330,16 +324,6 @@ export default function App({ params, location }) {
               }
             />
           </div>
-          {/* <ol className="list-decimal list-inside text-left w-fit text-lg">
-                  <li>Select a bracket size</li>
-                  <li>Select a seeding method</li>
-                  <li>Select an inclusion method</li>
-                  <li>Choose different tracks using the swap buttons</li>
-                  <li>Drag and drop to rearrange songs</li>
-                  <li>Click &quot;Start Bracket&quot;</li>
-                </ol> */}
-          {/* {art && <img src={art} alt={songSource[songSource.type]?.name} className="h-32 w-32" />}
-              {songSource[songSource.type]?.name} */}
         </div>
       )}
       {!showBracket && owner.name && songSource && <LoadingIndicator loadingText="Generating bracket..." />}
