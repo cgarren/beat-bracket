@@ -153,6 +153,7 @@ export default function useAuthentication() {
           return true;
         }
       } finally {
+        queryClient.removeQueries();
         setLoginInProgress(false);
       }
     },

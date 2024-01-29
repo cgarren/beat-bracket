@@ -1,5 +1,7 @@
 import React from "react";
 import cx from "classnames";
+import QuestionMarkIcon from "../../assets/svgs/questionMarkIcon.svg";
+import CarrotIcon from "../../assets/svgs/carrotIcon.svg";
 
 export default function FaqSection({ question, answer, expanded, toggleExpanded }) {
   return (
@@ -28,34 +30,18 @@ export default function FaqSection({ question, answer, expanded, toggleExpanded 
           onClick={toggleExpanded}
         >
           <span className="flex items-center">
-            <svg
-              className="w-5 h-5 mr-2 shrink-0"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fillRule="evenodd"
-                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
-                clipRule="evenodd"
-              />
-            </svg>
+            <div className="w-5 h-5 mr-2 shrink-0">
+              <QuestionMarkIcon />
+            </div>
             {question}
           </span>
-          <svg
+          <div
             className={cx("w-6", "h-6", "shrink-0", {
               "rotate-180": expanded,
             })}
-            fill="currentColor"
-            viewBox="0 0 20 20"
-            xmlns="http://www.w3.org/2000/svg"
           >
-            <path
-              fillRule="evenodd"
-              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-              clipRule="evenodd"
-            />
-          </svg>
+            <CarrotIcon />
+          </div>
         </button>
       </h2>
       <div className={cx({ hidden: !expanded })}>

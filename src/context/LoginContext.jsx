@@ -114,9 +114,13 @@ export function LoginProvider({ children }) {
   // keep userInfo in sync with loginInfo
   useEffect(() => {
     if (loggedIn) {
-      getCurrentUserInfo(loginInfo.accessToken).then((info) => {
-        setUserInfo(info);
-      });
+      getCurrentUserInfo(loginInfo.accessToken)
+        .then((info) => {
+          setUserInfo(info);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
     } else {
       setUserInfo(null);
     }

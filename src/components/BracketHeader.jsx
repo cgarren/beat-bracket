@@ -4,7 +4,7 @@ import TrackNumber from "./BracketCard/TrackNumber";
 export default function BracketHeader({ songSource, owner, template, bracketTracks }) {
   return (
     <div className="text-center">
-      <div className="mx-auto mb-2 flex flex-col gap-0 items-center justify-center max-w-[90%]">
+      <div className="mx-auto flex flex-col gap-0 items-center justify-center max-w-[90%]">
         <div className="flex flex-row text-xl items-center justify-center gap-1 max-w-full">
           <h1 className="truncate w-auto font-bold">
             {Boolean(songSource?.type === "artist") ? songSource.artist.name : null}

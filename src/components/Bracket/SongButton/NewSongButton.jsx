@@ -61,7 +61,7 @@ export default function SongButton({
         "hover:h-auto",
         { "cursor-pointer": editable && !editMode && song },
         {
-          "cursor-grab animate-wiggle active:cursor-grabbing": editable && editMode && song,
+          "cursor-grab active:cursor-grabbing": editable && editMode && song,
         },
         {
           "bg-white text-black shadow-md border-0 border-gray-400 cursor-default": song == null,

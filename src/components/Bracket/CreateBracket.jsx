@@ -20,7 +20,7 @@ export default function CreateBracket({
   const { getColorsFromImage } = useBracketGeneration();
   const bracketIds = useMemo(() => bracketTracks.map((track) => track.id), [bracketTracks]);
   const replacementTracks = useMemo(
-    () => allTracks.filter((track) => !bracketIds.includes(track.id)).sort(popularitySort),
+    () => allTracks?.filter((track) => !bracketIds.includes(track.id)).sort(popularitySort),
     [allTracks, popularitySort, bracketIds],
   );
   const [buttonReplacementId, setButtonReplacementId] = useState(null);

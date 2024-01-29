@@ -15,7 +15,7 @@ export default function StartBracketModal({ showModal, setShowModal, startBracke
         }}
       >
         <h1 className="text-xl font-bold">Start Bracket?</h1>
-        <p className="mt-2 text-sm">You will not be able to edit bracket structure after starting</p>
+        <p className="mt-2 text-sm">You won&apos;t be able to edit bracket structure after starting!</p>
         <div className="mt-2 flex flex-row justify-around">
           <ActionButton
             onClick={() => setShowModal(false)}
@@ -38,7 +38,7 @@ export default function StartBracketModal({ showModal, setShowModal, startBracke
                   <LoadingIndicator dark /> Creating...
                 </span>
               ) : (
-                "Start bracket"
+                "Let's go!"
               )
             }
             variant="primary"

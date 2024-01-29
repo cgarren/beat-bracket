@@ -4,6 +4,7 @@ import Modal from "./Modal";
 import ActionButton from "../Controls/ActionButton";
 import BracketWinnerInfo from "../Bracket/BracketWinnerInfo";
 import SyncIcon from "../../assets/svgs/syncIcon.svg";
+import ShareIcon from "../../assets/svgs/shareIcon.svg";
 
 export default function BracketCompleteModal({
   showModal,
@@ -38,6 +39,7 @@ export default function BracketCompleteModal({
                 share();
               }}
               text="Share"
+              icon={<ShareIcon />}
               variant="secondary"
             />
             {!savePending && !saveError && (

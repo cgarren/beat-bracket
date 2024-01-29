@@ -71,6 +71,7 @@ export default function BracketOptions({
             // icon={<RocketIcon />}
             text="Start Bracket"
             variant="primary"
+            // customStyling="animate-pulsate-color"
             // customStyling="bg-gradient-radial bg-gr from-green-400 to-white hover:bg-green-400 hover:bg-none"
           />
         </div>

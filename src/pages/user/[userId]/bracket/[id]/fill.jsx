@@ -432,6 +432,7 @@ export default function App({ params, location }) {
         viewLink={`/user/${owner.id}/bracket/${params.id}`}
         share={share}
       />
+      Fill Bracket
       <BracketHeader songSource={songSource} owner={owner} template={template} bracketTracks={bracketTracks} />
       {bracket && songSource && (
         <>

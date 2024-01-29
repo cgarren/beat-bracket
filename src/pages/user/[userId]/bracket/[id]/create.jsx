@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 // React
 import React, { useEffect, useState, useMemo, useCallback, useContext } from "react";
-import { navigate } from "gatsby";
+import { Link } from "gatsby";
 import toast from "react-hot-toast";
 // Third Party
 // import Mousetrap from "mousetrap";
@@ -12,6 +12,7 @@ import Layout from "../../../../../components/Layout";
 import LoadingIndicator from "../../../../../components/LoadingIndicator";
 import BracketOptions from "../../../../../components/Controls/BracketOptions";
 import CreateBracket from "../../../../../components/Bracket/CreateBracket";
+import ExpandedDetails from "../../../../../components/ExpandedDetails";
 // Hooks
 import useBracketGeneration from "../../../../../hooks/useBracketGeneration";
 import useHelper from "../../../../../hooks/useHelper";
@@ -21,44 +22,58 @@ import useSongProcessing from "../../../../../hooks/useSongProcessing";
 import useAuthentication from "../../../../../hooks/useAuthentication";
 // Context
 import { LoginContext } from "../../../../../context/LoginContext";
+import BracketHeader from "../../../../../components/BracketHeader";
 
 export default function App({ params, location }) {
   const [seedingMethod, setSeedingMethod] = useState("popularity");
   const [inclusionMethod, setInclusionMethod] = useState("popularity");
   const [limit, setLimit] = useState(32);
-  const [allTracks, setAllTracks] = useState([]);
   // const [commands, setCommands] = useState(defaultValues.commands);
   const [bracket, setBracket] = useState(new Map());
-  const [songSource, setSongSource] = useState(() => {
+  const [showBracket, setShowBracket] = useState(false);
+  const [playbackEnabled] = useState(true);
+
+  const { openBracket } = useSpotify();
+  const { isCurrentUser } = useAuthentication();
+  const { nearestLesserPowerOf2 } = useHelper();
+  const { createBracket } = useBackend();
+  const { seedBracket, sortTracks, getArtistTracks, getPlaylistTracks } = useSongProcessing();
+  const { getNumberOfColumns, fillBracket } = useBracketGeneration();
+  const { userInfo } = useContext(LoginContext);
+
+  const songSource = useMemo(() => {
     const newSongSource = location?.state;
     if (newSongSource?.key) {
       delete newSongSource.key;
     }
     return newSongSource;
-  });
-  const [showBracket, setShowBracket] = useState(false);
-  const [loadingText, setLoadingText] = useState("Loading...");
-  const [playbackEnabled] = useState(true);
-  const { getArt, openBracket } = useSpotify();
-  const { isCurrentUser } = useAuthentication();
-  const { nearestLesserPowerOf2 } = useHelper();
-  const { createBracket } = useBackend();
-  const { seedBracket, sortTracks, loadAlbums, processTracks, loadPlaylistTracks } = useSongProcessing();
-  const { getNumberOfColumns, fillBracket } = useBracketGeneration();
-  const { userInfo } = useContext(LoginContext);
+  }, [location?.state]);
 
   const owner = useMemo(
     () => ({ name: userInfo?.display_name, id: params.userId }),
     [userInfo?.display_name, params?.userId],
   );
 
-  const { data: art } = useQuery({
-    queryKey: [
-      "art-large",
-      { spotifyId: songSource && songSource[songSource?.type] && songSource[songSource?.type].id },
-    ],
-    queryFn: () => getArt(songSource[songSource?.type].images, songSource?.type, true),
-    enabled: Boolean(songSource && songSource[songSource.type]?.images),
+  const getTracks = useCallback(async () => {
+    if (songSource?.type === "artist") {
+      return getArtistTracks(songSource.artist.id);
+    }
+
+    if (songSource?.type === "playlist") {
+      return getPlaylistTracks(songSource.playlist.id);
+    }
+    return [];
+  }, [getArtistTracks, getPlaylistTracks, songSource]);
+
+  const { data: allTracks, isPending: loadingTracks } = useQuery({
+    queryKey: ["tracks", { id: songSource[songSource.type].id }],
+    queryFn: async () => getTracks(songSource),
+    enabled: Boolean(songSource),
+    refetchOnWindowFocus: false,
+    staleTime: 3600000,
+    meta: {
+      errorMessage: "Error loading tracks from Spotify",
+    },
   });
 
   const bracketTracks = useMemo(() => {
@@ -117,68 +132,6 @@ export default function App({ params, location }) {
     return false;
   }, [makeCreationObject, createBracket]);
 
-  // GET TRACKS
-
-  const getTracks = useCallback(async () => {
-    console.debug("Getting tracks...");
-    // load the tracks from spotify
-    let templist;
-    let selectionName = "";
-    if (songSource?.type === "artist") {
-      selectionName = songSource.artist.name;
-    } else if (songSource?.type === "playlist") {
-      selectionName = songSource.playlist.name;
-    }
-    if (songSource?.type === "artist") {
-      setLoadingText(`Gathering Spotify tracks for ${songSource.artist.name}...`);
-      const songPossibilities = await loadAlbums(
-        `https://api.spotify.com/v1/artists/${songSource.artist.id}/albums?include_groups=album,single,compilation&limit=20`,
-        songSource.artist.id,
-      );
-      if (!songPossibilities) {
-        toast.error("Error loading tracks from Spotify");
-        return [];
-      }
-      // load data for the songs
-      setLoadingText("Gathering track information...");
-      templist = await processTracks(songPossibilities);
-    } else if (songSource?.type === "playlist") {
-      setLoadingText(`Gathering Spotify tracks from ${songSource.playlist.name}...`);
-      templist = await loadPlaylistTracks(
-        `https://api.spotify.com/v1/playlists/${songSource.playlist.id}/tracks?limit=50`,
-      );
-      // throw new Error("Playlists not supported yet");
-    } else {
-      throw new Error(`Invalid songSource type: ${songSource?.type}`);
-    }
-    if (!templist) {
-      toast.error("Error loading tracks from Spotify");
-      return [];
-    }
-    // if there are than 8 songs, stop
-    if (templist.length < 8) {
-      alert(`${selectionName} doesn't have enough songs on Spotify! Try another ${songSource.type}.`);
-      setSongSource({ type: undefined, name: undefined, id: undefined });
-      navigate("/my-brackets");
-      return [];
-    }
-    setAllTracks(templist);
-    const power = nearestLesserPowerOf2(templist.length);
-    setLimit(limit < power ? limit : power);
-    setLoadingText("Generating bracket...");
-    console.debug("Done getting tracks...");
-    return templist;
-  }, [
-    setAllTracks,
-    setLimit,
-    setSongSource,
-    loadAlbums,
-    loadPlaylistTracks,
-    processTracks,
-    nearestLesserPowerOf2,
-    songSource,
-  ]);
-
   const changeBracket = useCallback(
     async (
       customAllTracks = allTracks,
@@ -215,24 +168,21 @@ export default function App({ params, location }) {
     ],
   );
 
-  const initializeBracketFromSource = useCallback(async () => {
-    try {
-      const tempTrackList = await getTracks(songSource);
-      // kick off the bracket creation process
-      await changeBracket(tempTrackList);
-    } catch (e) {
-      toast.error("Error creating bracket");
-      console.error(e);
-      // throw e;
-    }
-  }, [changeBracket, getTracks, songSource]);
-
   useEffect(() => {
-    initializeBracketFromSource();
-  }, []);
+    if (allTracks) {
+      const power = nearestLesserPowerOf2(allTracks.length);
+      setLimit(limit < power ? limit : power);
+      changeBracket(allTracks);
+    }
+  }, [allTracks]);
 
   const noChanges = useCallback((navigateAway) => {
-    if (navigateAway && window.confirm("You have bracket changes that will be lost! Proceed anyways?")) {
+    if (
+      navigateAway &&
+      window.confirm(
+        "You haven't started this bracket yet! If you leave this page, all customizations will be lost. Proceed anyways?",
+      )
+    ) {
       return true;
     }
     return false;
@@ -312,15 +262,75 @@ export default function App({ params, location }) {
     // return <Redirect to={`/user/${params.userId}/bracket/${params.id}/fill`} />;
   }
 
+  if (loadingTracks) {
+    return (
+      <Layout noChanges={noChanges} path={location.pathname}>
+        <LoadingIndicator
+          loadingText={
+            songSource?.type && songSource[songSource.type].name
+              ? `Gathering Spotify tracks for ${songSource[songSource.type].name}...`
+              : "Loading tracks..."
+          }
+        />
+      </Layout>
+    );
+  }
+
+  if (allTracks?.length < 8) {
+    return (
+      <Layout noChanges={noChanges} path={location.pathname}>
+        <div className="text-center">
+          <h1 className="text-2xl font-bold">Not enough songs</h1>
+          <p className="text-lg">
+            {songSource?.type === "artist"
+              ? `${songSource.artist.name} doesn't have enough songs on Spotify! Try another artist.`
+              : `${songSource.playlist.name} doesn't have enough songs on Spotify! Try another playlist.`}
+          </p>
+          <Link to="/my-brackets" className="text-lg underline">
+            Go back
+          </Link>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout noChanges={noChanges} path={location.pathname}>
-      <div className="text-center">
-        <h1>
-          {owner?.name && songSource && bracket && bracketTracks && (
-            <div className="mx-auto mb-2 flex flex-col gap-0 items-center justify-center max-w-[90%]">
-              <div className="flex flex-col text-xl items-center justify-center gap-1 max-w-full">
-                <span className="truncate w-auto font-bold">Customize your bracket!</span>
-                {/* <ol className="list-decimal list-inside text-left w-fit text-lg">
+      {owner?.name && songSource && bracket && bracketTracks && (
+        <div className="mb-1">
+          Customize Bracket
+          <BracketHeader songSource={songSource} owner={null} template={null} bracketTracks={null} />
+          {/* <Badge
+            text="Customize your bracket and click start when done!"
+            textColor="text-white"
+            backgroundColor="bg-green-600"
+          /> */}
+          <div className="max-w-lg mx-auto px-3">
+            <ExpandedDetails
+              question="How do I customize my bracket?"
+              answer={
+                <div>
+                  <ol className="list-decimal list-inside text-left w-fit">
+                    <li>
+                      Select a <span className="font-bold">bracket size</span>,{" "}
+                      <span className="font-bold">seeding method</span>, and{" "}
+                      <span className="font-bold">inclusion method</span>
+                    </li>
+                    <li>
+                      Optionally, <span className="font-bold">drag and drop</span> songs to rearrange them or{" "}
+                      <span className="font-bold">click the double arrow</span> on any song to switch it out with
+                      another
+                    </li>
+                    <li>
+                      Click &quot;<span className="font-bold">Start Bracket</span>&quot; to start filling out your
+                      bracket
+                    </li>
+                  </ol>
+                </div>
+              }
+            />
+          </div>
+          {/* <ol className="list-decimal list-inside text-left w-fit text-lg">
                   <li>Select a bracket size</li>
                   <li>Select a seeding method</li>
                   <li>Select an inclusion method</li>
@@ -328,14 +338,11 @@ export default function App({ params, location }) {
                   <li>Drag and drop to rearrange songs</li>
                   <li>Click &quot;Start Bracket&quot;</li>
                 </ol> */}
-              </div>
-              {/* {art && <img src={art} alt={songSource[songSource.type]?.name} className="h-32 w-32" />}
+          {/* {art && <img src={art} alt={songSource[songSource.type]?.name} className="h-32 w-32" />}
               {songSource[songSource.type]?.name} */}
-            </div>
-          )}
-        </h1>
-      </div>
-      {!showBracket && owner.name && songSource && <LoadingIndicator loadingText={loadingText} />}
+        </div>
+      )}
+      {!showBracket && owner.name && songSource && <LoadingIndicator loadingText="Generating bracket..." />}
       <div hidden={!showBracket || !songSource} className="text-center">
         <div className="text-xs -space-x-px rounded-md sticky mx-auto top-0 w-fit z-30">
           <div className="flex items-center gap-2">

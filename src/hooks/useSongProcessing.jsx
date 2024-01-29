@@ -289,12 +289,27 @@ export default function useSongProcessing() {
     [loadSpotifyRequest],
   );
 
+  const getArtistTracks = useCallback(
+    async (artistId) => {
+      const tracks = await loadAlbums(
+        `https://api.spotify.com/v1/artists/${artistId}/albums?include_groups=album,single,compilation&limit=20`,
+        artistId,
+      );
+      return processTracks(tracks);
+    },
+    [processTracks, loadAlbums],
+  );
+
+  const getPlaylistTracks = useCallback(
+    async (playlistId) => loadPlaylistTracks(`https://api.spotify.com/v1/playlists/${playlistId}/tracks?limit=50`),
+    [loadPlaylistTracks],
+  );
+
   return {
     sortTracks,
     seedBracket,
-    processTracks,
-    loadAlbums,
-    loadPlaylistTracks,
+    getArtistTracks,
+    getPlaylistTracks,
     loadPlaylists,
     updatePreviewUrls,
   };
