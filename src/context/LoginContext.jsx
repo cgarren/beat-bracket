@@ -9,12 +9,24 @@ export function LoginProvider({ children }) {
   // state variables
   const [loginInProgress, setLoginInProgress] = useState(false);
   // set logininfo from storage on page load
-  const [loginInfo, setLoginInfo] = useState({
-    userId: sessionStorage.getItem("userId"),
-    accessToken: sessionStorage.getItem("accessToken"),
-    backendToken: sessionStorage.getItem("backendToken"),
-    expiresAt: sessionStorage.getItem("expiresAt"),
-    refreshToken: localStorage.getItem("refreshToken"),
+  const [loginInfo, setLoginInfo] = useState(() => {
+    if (typeof window === "undefined") {
+      return {
+        userId: null,
+        accessToken: null,
+        backendToken: null,
+        expiresAt: null,
+        refreshToken: null,
+        fromStorage: true,
+      };
+    }
+    return {
+      userId: sessionStorage.getItem("userId"),
+      accessToken: sessionStorage.getItem("accessToken"),
+      backendToken: sessionStorage.getItem("backendToken"),
+      expiresAt: sessionStorage.getItem("expiresAt"),
+      refreshToken: localStorage.getItem("refreshToken"),
+    };
   });
   const [userInfo, setUserInfo] = useState(null);
 
@@ -113,14 +125,18 @@ export function LoginProvider({ children }) {
 
   // keep userInfo in sync with loginInfo
   useEffect(() => {
-    if (loginInfo.accessToken !== null && loggedIn) {
-      getCurrentUserInfo(loginInfo.accessToken).then((info) => {
-        setUserInfo(info);
-      });
+    if (loggedIn) {
+      getCurrentUserInfo(loginInfo.accessToken)
+        .then((info) => {
+          setUserInfo(info);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
     } else {
       setUserInfo(null);
     }
-  }, [loginInfo.accessToken, getCurrentUserInfo, loggedIn]);
+  }, [getCurrentUserInfo, loggedIn]);
 
   // redirect to login page on logout
   useEffect(() => {
@@ -135,13 +151,6 @@ export function LoginProvider({ children }) {
       navigate("/");
     }
   }, [loginInfo, loggedIn, loginInProgress]);
-
-  // useEffect(() => {
-  //     console.log("loggedIn:", loggedIn);
-  //     if (!loggedIn) {
-  //         // display some kind fo error?
-  //     }
-  // }, [loggedIn]);
 
   const contextValue = useMemo(
     () => ({

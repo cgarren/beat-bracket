@@ -1,15 +1,52 @@
-import React, { useState, useEffect, useContext, useCallback } from "react";
+import React, { useState, useContext } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Card from "./Card";
 import CardName from "./CardName";
 import useBackend from "../../hooks/useBackend";
 import useSpotify from "../../hooks/useSpotify";
 import { LoginContext } from "../../context/LoginContext";
+import RemoveBracketModal from "../Modals/RemoveBracketModal";
 
-export default function BracketCard({ bracket, userId, showAlert }) {
-  const { loggedIn } = useContext(LoginContext);
-  const [cardImage, setCardImage] = useState(null);
+export default function BracketCard({ bracket }) {
+  const [showModal, setShowModal] = useState(false);
   const { deleteBracket } = useBackend();
   const { getArtistImage, getPlaylistImage, openBracket } = useSpotify();
+  const { loginInfo } = useContext(LoginContext);
+  const queryClient = useQueryClient();
+  const { data: cardImage, isPending: imageIsLoading } = useQuery({
+    queryKey: ["art-large", { spotifyId: bracket?.songSource[bracket.songSource.type]?.id }],
+    queryFn: () => {
+      switch (bracket?.songSource?.type) {
+        case "artist":
+          return getArtistImage(bracket.songSource.artist.id);
+        case "playlist":
+          return getPlaylistImage(bracket.songSource.playlist.id);
+        default:
+          return null;
+      }
+    },
+    staleTime: 3600000,
+    meta: {
+      errorMessage: "Error loading bracket image",
+    },
+  });
+
+  const { isPending, mutate: removeBracketMutation } = useMutation({
+    mutationFn: async (bracketId) => {
+      await deleteBracket(bracketId);
+    },
+    meta: {
+      errorMessage: "Error deleting bracket",
+      successMessage: "Bracket deleted successfully",
+    },
+    onSettled: async (data, error, bracketId) => {
+      queryClient.invalidateQueries({ queryKey: ["brackets", { userId: loginInfo.userId }] });
+      queryClient.invalidateQueries({
+        queryKey: ["bracket", { bracketId: bracketId, userId: loginInfo.id }],
+      });
+    },
+  });
+
   const name = (() => {
     if (bracket.songSource && bracket.songSource.type) {
       switch (bracket.songSource.type) {
@@ -26,65 +63,37 @@ export default function BracketCard({ bracket, userId, showAlert }) {
     return null;
   })();
 
-  useEffect(() => {
-    async function getBracketImage() {
-      if (bracket.songSource && bracket.songSource.type && loggedIn) {
-        try {
-          let image;
-          switch (bracket.songSource.type) {
-            case "artist":
-              image = await getArtistImage(bracket.songSource.artist.id);
-              setCardImage(image);
-              break;
-            case "playlist":
-              image = await getPlaylistImage(bracket.songSource.playlist.id);
-              setCardImage(image);
-              break;
-            default:
-              break;
-          }
-        } catch (error) {
-          console.error(error);
-        }
-      }
-    }
-    getBracketImage();
-  }, [bracket, getArtistImage, getPlaylistImage, loggedIn]);
-
-  const removeBracket = useCallback(async () => {
-    if (window.confirm(`Are you sure you want to permanently delete this ${name} bracket?`)) {
-      try {
-        await deleteBracket(bracket.id, userId);
-        window.location.reload();
-      } catch (error) {
-        if (error.cause && error.cause.code === 429) {
-          showAlert("Error deleting bracket. Please try again in a couple of minutes.", "error", false);
-        } else if (error.message) {
-          showAlert(error.message, "error", false);
-        } else {
-          showAlert("Unkown error deleting bracket", "error", false);
-        }
-      }
-    }
-  }, [bracket.id, deleteBracket, name, showAlert, userId]);
-
   return (
-    <Card
-      image={cardImage}
-      imageAlt={`${name} bracket`}
-      cardText={
-        <CardName
-          displayName={bracket.displayName}
-          songSource={bracket.songSource}
-          numTracks={bracket && bracket.tracks ? bracket.tracks.length : null}
-          ownsTemplate={bracket.ownerId === bracket.templateOwnerId}
-          completed={bracket.completed || bracket.winner}
+    <>
+      <RemoveBracketModal
+        showModal={showModal}
+        setShowModal={setShowModal}
+        removeBracket={() => {
+          setShowModal(false);
+          removeBracketMutation(bracket.id);
+        }}
+        bracketName={name}
+      />
+      <div className={isPending ? "opacity-50" : ""}>
+        <Card
+          image={cardImage}
+          imageLoading={imageIsLoading}
+          imageAlt={name}
+          cardText={
+            <CardName
+              displayName={bracket.displayName}
+              songSource={bracket.songSource}
+              numTracks={bracket && bracket.tracks ? bracket.tracks.length : null}
+              ownsTemplate={bracket.ownerId === bracket.templateOwnerId}
+              completed={bracket.completed || bracket.winner}
+            />
+          }
+          removeFunc={() => setShowModal(true)}
+          onClick={() => {
+            openBracket(bracket.id, loginInfo.userId, !bracket.winner ? "fill" : "");
+          }}
         />
-      }
-      removeFunc={removeBracket}
-      onClick={() => {
-        openBracket(bracket.id, userId);
-      }}
-    />
+      </div>
+    </>
   );
 }

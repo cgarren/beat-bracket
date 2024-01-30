@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "gatsby";
 import CornerButton from "../BracketCard/CornerButton";
 import PlayIcon from "../../assets/svgs/playIcon.svg";
-import OpenInSpotifyButton from "../Bracket/OpenInSpotifyButton";
+import OpenInSpotifyButton from "../Bracket/SongButton/OpenInSpotifyButton";
 
 const questions = [
   {
@@ -38,15 +38,12 @@ const questions = [
           </Link>{" "}
           (only appears if your account has room for another bracket)
         </li>
-        <li>
-          Select an artist or playlist* from the popup and a bracket will be created containing the most popular tracks
-          from your chosen source
-        </li>
-        <li>
+        <li>Select an artist or playlist* from the popup</li>
+        {/* <li>
           Customize the bracket by adjusting the number of tracks, tracks to include and seeding method. You can drag
           and drop songs to rearrange them
         </li>
-        <li>Click &quot;Start Bracket&quot;</li>
+        <li>Click &quot;Start Bracket&quot;</li> */}
         <br />
         *Only the playlists that you have liked will appear. If you don&apos;t see a playlist that you&apos;re looking
         for, you can like it from your Spotify account!
@@ -60,7 +57,7 @@ const questions = [
       <>
         After you start a bracket, select songs to advance to the next round by clicking on them! If an audio preview is
         availiable for a track, you&apos;ll see a{" "}
-        <div className="inline-flex items-center align-middle bg-black text-white rounded">
+        <div className="inline-flex items-center align-middle bg-black text-white rounded w-[18px] h-[18px]">
           <PlayIcon />
         </div>{" "}
         icon next to the track name which will play 30 seconds of the song. You can also click the{" "}
@@ -70,20 +67,20 @@ const questions = [
     ),
     paths: ["*"], // user/*/bracket/*
   },
-  {
-    question: "How do I share a bracket?",
-    answer: <>Click &quot;Share&quot; to get a publicly accessible link to your bracket!</>,
-    paths: ["/user/*/bracket/*"],
-  },
-  {
-    question: "How do I delete a bracket?",
-    answer: (
-      <>
-        Click the <CornerButton autoPosition={false} /> button in the top right corner of a bracket&apos;s card
-      </>
-    ),
-    paths: ["*"],
-  },
+  // {
+  //   question: "How do I share a bracket?",
+  //   answer: <>Click &quot;Share&quot; to get a publicly accessible link to your bracket!</>,
+  //   paths: ["/user/*/bracket/*"],
+  // },
+  // {
+  //   question: "How do I delete a bracket?",
+  //   answer: (
+  //     <>
+  //       Click the <CornerButton autoPosition={false} /> button in the top right corner of a bracket&apos;s card
+  //     </>
+  //   ),
+  //   paths: ["*"],
+  // },
   {
     question: "Why is there a limit on the number of brackets that I can have?",
     answer: (

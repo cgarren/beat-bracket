@@ -39,11 +39,21 @@ module.exports = {
           "0%, 100%": { transform: "rotate(-2deg)" },
           "50%": { transform: "rotate(2deg)" },
         },
+        pulsateSize: {
+          "0%, 100%": { transform: "scale(1)" },
+          "50%": { transform: "scale(1.1)" },
+        },
+        pulsateColor: {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.7" },
+        },
       },
       animation: {
         rotate: "rotate 1s linear infinite",
         "spin-reverse": "spin 1s linear infinite reverse",
         wiggle: "wiggle .5s ease-in-out infinite",
+        "pulsate-size": "pulsateSize 1s ease-in-out infinite",
+        "pulsate-color": "pulsateColor 1s ease-in-out infinite",
       },
     },
   },

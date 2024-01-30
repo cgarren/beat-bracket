@@ -63,14 +63,14 @@ export default function useSongProcessing() {
     [arrangeSeeds, popularitySort, shuffleArray],
   );
 
-  const selectTrackVersion = useCallback(async (numTracks, tracks, featuredList) => {
+  const selectTrackVersion = useCallback((numTracks, tracks, featuredList) => {
     let highestPop = 0;
     let selectedTrack = null;
     for (let i = 0; i < numTracks; i += 1) {
       const track = tracks.shift();
       const feature = featuredList.shift();
       try {
-        if (track.popularity >= highestPop) {
+        if (track?.popularity >= highestPop) {
           selectedTrack = track;
           selectedTrack.feature = feature;
           highestPop = track.popularity;
@@ -83,7 +83,7 @@ export default function useSongProcessing() {
     return selectedTrack;
   }, []);
 
-  const makeTrackObject = useCallback(async (track) => {
+  const makeTrackObject = useCallback((track) => {
     try {
       return {
         name: track.name,
@@ -122,7 +122,7 @@ export default function useSongProcessing() {
       const templist = [];
       if (idList.length !== 0) {
         let idString = "";
-        let featuredList = [];
+        const featuredList = [];
         for (let i = 0; i < idList.length; i += 1) {
           idString += idList[i][0];
           if (i !== idList.length - 1) {
@@ -134,9 +134,10 @@ export default function useSongProcessing() {
         const response = await loadSpotifyRequest(url);
         const trackList = await response.json();
         if (trackList.tracks.length > 0) {
-          for (let numTracks of trackOptionsAmounts) {
-            const selectedTrack = await selectTrackVersion(numTracks, trackList.tracks, featuredList);
-            const trackObject = await makeTrackObject(selectedTrack);
+          // eslint-disable-next-line no-restricted-syntax
+          for (const numTracks of trackOptionsAmounts) {
+            const selectedTrack = selectTrackVersion(numTracks, trackList.tracks, featuredList);
+            const trackObject = makeTrackObject(selectedTrack);
             if (trackObject) {
               templist.push(trackObject);
             }
@@ -150,32 +151,32 @@ export default function useSongProcessing() {
 
   const processTracks = useCallback(
     async (songs) => {
-      let templist = [];
+      let tempDataList = [];
       let runningList = [];
       let trackOptionsAmounts = [];
-      for (let idList of Object.values(songs)) {
+      // eslint-disable-next-line no-restricted-syntax
+      for (const idList of Object.values(songs)) {
         if (runningList.length + idList.length > 50) {
-          const temp = await loadTrackData(runningList, trackOptionsAmounts);
-          if (temp) {
-            templist = templist.concat(temp);
+          const tempData = await loadTrackData(runningList, trackOptionsAmounts);
+          if (tempData) {
+            tempDataList = tempDataList.concat(tempData);
             runningList = [];
             trackOptionsAmounts = [];
           } else {
-            return;
+            return null;
           }
         }
         // limit to 50 potential tracks per song so that we don't break the API
-        idList = idList.slice(0, 50);
-        runningList.push(...idList);
+        runningList.push(...idList.slice(0, 50));
         trackOptionsAmounts.push(idList.length);
       }
-      const temp = await loadTrackData(runningList, trackOptionsAmounts);
-      if (temp) {
-        templist = templist.concat(temp);
+      const tempData = await loadTrackData(runningList, trackOptionsAmounts);
+      if (tempData) {
+        tempDataList = tempDataList.concat(tempData);
       } else {
-        return;
+        return null;
       }
-      return templist;
+      return tempDataList;
     },
     [loadTrackData],
   );
@@ -190,6 +191,7 @@ export default function useSongProcessing() {
 
   const loadTracks = useCallback(
     async (url, songs, artistId) => {
+      const newSongs = { ...songs };
       const response = await loadSpotifyRequest(url);
       const albumList = await response.json();
       if (albumList.albums.length > 0) {
@@ -208,14 +210,14 @@ export default function useSongProcessing() {
                   }
 
                   // Check if the track is a Taylor's Version
-                  track.name = checkTaylorSwift(track.name, artistId);
+                  const newTrackName = checkTaylorSwift(track.name, artistId);
                   // Check if the track already exists
-                  if (track.name in songs) {
+                  if (newTrackName in newSongs) {
                     // If it does, add the id to the list
-                    songs[track.name].push([track.id, feature]);
+                    newSongs[newTrackName].push([track.id, feature]);
                   } else {
                     // If it doesn't, create a new entry
-                    songs[track.name] = [[track.id, feature]];
+                    newSongs[newTrackName] = [[track.id, feature]];
                   }
                   break;
                 }
@@ -224,6 +226,7 @@ export default function useSongProcessing() {
           }
         });
       }
+      return newSongs;
     },
     [loadSpotifyRequest, checkTaylorSwift],
   );
@@ -238,7 +241,8 @@ export default function useSongProcessing() {
           albumIds.push(item.id);
         });
         const tracksurl = `https://api.spotify.com/v1/albums?ids=${albumIds.join()}`;
-        await loadTracks(tracksurl, songs, artistId);
+        // eslint-disable-next-line no-param-reassign
+        songs = await loadTracks(tracksurl, songs, artistId);
       }
       if (albumList.next) {
         await loadAlbums(albumList.next, artistId, songs);
@@ -255,7 +259,7 @@ export default function useSongProcessing() {
       if (trackList.items.length > 0) {
         await Promise.all(
           trackList.items.map(async (item) => {
-            const trackObject = await makeTrackObject(item.track);
+            const trackObject = makeTrackObject(item.track);
             if (trackObject) {
               songs.push(trackObject);
             }
@@ -285,12 +289,27 @@ export default function useSongProcessing() {
     [loadSpotifyRequest],
   );
 
+  const getArtistTracks = useCallback(
+    async (artistId) => {
+      const tracks = await loadAlbums(
+        `https://api.spotify.com/v1/artists/${artistId}/albums?include_groups=album,single,compilation&limit=20`,
+        artistId,
+      );
+      return processTracks(tracks);
+    },
+    [processTracks, loadAlbums],
+  );
+
+  const getPlaylistTracks = useCallback(
+    async (playlistId) => loadPlaylistTracks(`https://api.spotify.com/v1/playlists/${playlistId}/tracks?limit=50`),
+    [loadPlaylistTracks],
+  );
+
   return {
     sortTracks,
     seedBracket,
-    processTracks,
-    loadAlbums,
-    loadPlaylistTracks,
+    getArtistTracks,
+    getPlaylistTracks,
     loadPlaylists,
     updatePreviewUrls,
   };

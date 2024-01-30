@@ -5,9 +5,9 @@ import Layout from "../components/Layout";
 import Seo from "../components/SEO";
 import { LoginContext } from "../context/LoginContext";
 import useAuthentication from "../hooks/useAuthentication";
-import LoginButton from "../components/LoginButton";
+import LoginButton from "../components/Controls/LoginButton";
 import LoadingIndicator from "../components/LoadingIndicator";
-import ActionButton from "../components/Bracket/ActionButton";
+import ActionButton from "../components/Controls/ActionButton";
 
 // markup
 export default function App({ location }) {

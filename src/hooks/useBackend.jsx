@@ -39,7 +39,6 @@ export default function useBackend() {
             cause: { code: response.status },
           });
         } else {
-          console.log("Backend response:", response);
           throw new Error("Unknown error");
         }
       }
@@ -111,13 +110,12 @@ export default function useBackend() {
   );
 
   const deleteBracket = useCallback(
-    async (id) => {
-      await loadBackendRequest("/bracket", "DELETE", {
+    async (id) =>
+      loadBackendRequest("/bracket", "DELETE", {
         id: id,
         ownerId: loginInfo.userId,
         token: loginInfo.backendToken,
-      });
-    },
+      }),
     [loadBackendRequest, loginInfo],
   );
 

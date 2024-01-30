@@ -5,7 +5,15 @@ import SyncIcon from "../../assets/svgs/syncIcon.svg";
 import XIcon from "../../assets/svgs/xIcon.svg";
 import WaitingIcon from "../../assets/svgs/waitingIcon.svg";
 
-export default function SaveIndicator({ saving, isSaved, lastSaved, waitingToSave }) {
+export default function SaveIndicator({
+  saving,
+  isSaved,
+  waitingToSave,
+  errorText = "Not Saved",
+  waitingText = "Waiting",
+  savedText = "Saved",
+  savingText = "Saving",
+}) {
   const savingState = useMemo(() => {
     if (saving === "error") {
       return "error";
@@ -13,11 +21,11 @@ export default function SaveIndicator({ saving, isSaved, lastSaved, waitingToSav
     if (isSaved) {
       return "saved";
     }
-    if (saving || (lastSaved && lastSaved.commandsLength !== 0) || waitingToSave) {
+    if (saving || waitingToSave) {
       return "saving";
     }
     return "waiting";
-  }, [saving, isSaved, lastSaved]);
+  }, [saving, isSaved]);
 
   return (
     <div
@@ -28,34 +36,34 @@ export default function SaveIndicator({ saving, isSaved, lastSaved, waitingToSav
     >
       {savingState === "error" && (
         <>
-          <div className="">
+          <div className="" aria-label="Error saving">
             <XIcon />
           </div>
-          Not Saved
+          {errorText}
         </>
       )}{" "}
       {savingState === "waiting" && (
         <>
-          <div className="">
+          <div className="" aria-label="Waiting to save" title="Waiting to save">
             <WaitingIcon />
           </div>
-          Waiting
+          {/* {waitingText} */}
         </>
       )}
       {savingState === "saving" && (
         <>
-          <div className="animate-spin-reverse">
+          <div className="animate-spin-reverse" aria-label="Saving" title="Saving">
             <SyncIcon />
           </div>
-          Saving
+          {/* {savingText} */}
         </>
       )}
-      {savingState === "saved" && (
+      {/* {savingState === "saved" && (
         <>
           <CheckmarkIcon />
-          Saved
+          {savedText}
         </>
-      )}
+      )} */}
     </div>
   );
 }
