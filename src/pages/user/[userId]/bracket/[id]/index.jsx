@@ -181,7 +181,7 @@ export default function App({ params, location }) {
       </div>
       {bracket && songSource && (
         <>
-          <div className="text-xs -space-x-px rounded-md sticky mx-auto top-0 w-fit z-30">
+          <div className="text-xs -space-x-px rounded-md sticky mx-auto top-0 w-fit z-30 mt-1">
             <div className="flex items-center gap-2">
               <ActionButton onClick={share} icon={<ShareIcon />} text="Share" />
               {loggedIn && !isCurrentUser(params.userId) && !isCurrentUser(template.ownerId) && (
