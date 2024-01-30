@@ -22,9 +22,6 @@ export default function Layout({
   showNavBar = true,
   showFooter = true,
   track = true,
-  saveBracketLocally,
-  isBracketSavedLocally = false,
-  deleteBracketSavedLocally,
 }) {
   const mixpanel = useContext(MixpanelContext);
   const { setTimer, clearTimer } = useGlobalTimer();
@@ -106,7 +103,7 @@ export default function Layout({
               showModal={showLoginModal}
               setShowModal={setShowLoginModal}
               login={loginRef.current}
-              bracketSavedLocally={false && isBracketSavedLocally}
+              bracketSavedLocally={false}
             />
             {children}
           </main>
