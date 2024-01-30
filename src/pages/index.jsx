@@ -36,14 +36,14 @@ export default function App({ location }) {
             </nav>
             <div className="flex flex-col justify-center items-center h-full px-4 sm:w-9/12 m-auto">
               <div className="inline-flex flex-col justify-center items-center text-center">
-                <h2 className="mb-0.5 text-black font-bar font-bold sm:text-7xl text-6xl">
+                <h2 className="mb-2 text-black font-bar font-bold sm:text-7xl text-6xl">
                   Make music brackets for artists and playlists.
                 </h2>
                 <h3 className="text-xl text-black">
                   It&apos;s easy to generate, customize, fill, and share your bracket! All you need is a free Spotify
                   account.
                 </h3>
-                <span className="mt-1.5">
+                <span className="mt-2">
                   <LoginButton />
                 </span>
                 {/* <p className="text-sm text-gray-600">You need a free Spotify account to use this site. <a href>Why?</a></p> */}
