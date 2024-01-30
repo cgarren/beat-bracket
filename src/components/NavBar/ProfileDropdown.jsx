@@ -13,12 +13,33 @@ export default function ProfileDropdown({ noChanges }) {
   const { handleNaviagtionAttempt } = useHelper();
   const [showDropdown, setShowDropdown] = useState(false);
 
-  return (
-    <div className="align-middle">
-      {!loggedIn && !loginInProgress && <LoginButton variant="bordered" />}
-      {!loggedIn && loginInProgress && <LoadingIndicator />}
-      {!userInfo && <ActionButton onClick={logout} icon={<LogoutIcon />} variant="danger" text="Log out" />}
-      {loggedIn && userInfo && (
+  if (!loggedIn && !loginInProgress) {
+    return (
+      <div className="align-middle">
+        <LoginButton variant="bordered" />
+      </div>
+    );
+  }
+
+  if (!loggedIn && loginInProgress) {
+    return (
+      <div className="align-middle">
+        <LoadingIndicator />
+      </div>
+    );
+  }
+
+  if (!userInfo) {
+    return (
+      <div className="align-middle">
+        <ActionButton onClick={logout} icon={<LogoutIcon />} variant="danger" text="Log out" />
+      </div>
+    );
+  }
+
+  if (userInfo) {
+    return (
+      <div className="align-middle">
         <div className="inline-block relative">
           <button
             type="button"
@@ -102,7 +123,8 @@ export default function ProfileDropdown({ noChanges }) {
             </li>
           </ul>
         </div>
-      )}
-    </div>
-  );
+      </div>
+    );
+  }
+  return null;
 }
