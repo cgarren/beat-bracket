@@ -20,13 +20,15 @@ const queryClient = new QueryClient({
     onError: (error, query) => {
       console.error(error);
       if (error?.cause?.code === 429) {
-        toast.error("Traffic is high right now. Try again in a few minutes!", { id: "429" });
+        toast.error("Traffic is high right now. Try again in a few minutes!", { id: "tooManyRequests" });
       } else if (error?.cause?.code === 403) {
-        toast.error("User not authenticated. Please login!", { id: "403" });
+        toast.error("User not authenticated. Please login!", { id: "unauthenticated" });
+      } else if (error?.cause?.code === 401) {
+        toast.error("User not authenticated. Please login!", { id: "unauthenticated" });
       } else if (query?.meta?.errorMessage) {
-        toast.error(query.meta.errorMessage);
+        toast.error(query.meta.errorMessage, { id: query.meta.errorMessage });
       } else if (error?.message) {
-        toast.error(error.message);
+        toast.error(error.message, { id: error.message });
       } else {
         toast.error("Unknown error occured");
       }
