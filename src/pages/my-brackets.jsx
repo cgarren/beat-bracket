@@ -21,8 +21,8 @@ export default function App({ location }) {
     isSuccess,
     isPending,
   } = useQuery({
-    queryKey: ["brackets", { userId: loginInfo.userId }],
-    queryFn: () => getBrackets(loginInfo.userId),
+    queryKey: ["brackets", { userId: loginInfo?.userId }],
+    queryFn: () => getBrackets(loginInfo?.userId),
     retry: (failureCount, err) => {
       console.log("failureCount:", failureCount, "error:", err);
       return false;

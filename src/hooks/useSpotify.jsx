@@ -218,8 +218,10 @@ export default function useSpotify() {
     async (uuid, userId, mode = "", state = {}) => {
       console.debug(`Opening Bracket: ${uuid}`);
       // open the bracket editor and pass the bracket id off
-      console.log("nav to", `/user/${userId || getUserInfo(userId).id}/bracket/${uuid}/${mode}`);
-      navigate(`/user/${userId || getUserInfo(userId).id}/bracket/${uuid}/${mode}`, { state: state });
+      if (typeof window !== "undefined") {
+        console.log("nav to", `/user/${userId || getUserInfo(userId).id}/bracket/${uuid}/${mode}`);
+        navigate(`/user/${userId || getUserInfo(userId).id}/bracket/${uuid}/${mode}`, { state: state });
+      }
     },
     [getUserInfo],
   );
