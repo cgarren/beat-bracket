@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Card from "./Card";
 import createBracketPic from "../../assets/images/createBracket.png";
-import CreateBracketModal from "./CreateBracketModal";
+import CreateBracketModal from "../Modals/CreateBracketModal";
 
 export default function CreateBracketCard() {
   const [showModal, setShowModal] = useState(false);

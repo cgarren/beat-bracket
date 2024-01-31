@@ -1,7 +1,7 @@
 import React from "react";
 import cx from "classnames";
 
-export default function LoadingIndicator({ hidden, loadingText }) {
+export default function LoadingIndicator({ hidden, loadingText, dark }) {
   return (
     <div
       className={cx(
@@ -10,7 +10,10 @@ export default function LoadingIndicator({ hidden, loadingText }) {
       )}
     >
       <svg
-        className="inline mr-1 w-6 h-6 text-black animate-spin fill-white"
+        className={cx("inline mr-1 w-6 h-6 animate-spin", {
+          "fill-white text-black": !dark,
+          "fill-gray-900 text-white": dark,
+        })}
         viewBox="0 0 100 101"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"

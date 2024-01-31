@@ -39,7 +39,6 @@ export default function useBackend() {
             cause: { code: response.status },
           });
         } else {
-          console.log("Backend response:", response);
           throw new Error("Unknown error");
         }
       }
@@ -56,7 +55,7 @@ export default function useBackend() {
       });
       return response.json();
     },
-    [loadBackendRequest],
+    [loadBackendRequest, loginInfo],
   );
 
   const getBracket = useCallback(
@@ -111,13 +110,12 @@ export default function useBackend() {
   );
 
   const deleteBracket = useCallback(
-    async (id) => {
-      await loadBackendRequest("/bracket", "DELETE", {
+    async (id) =>
+      loadBackendRequest("/bracket", "DELETE", {
         id: id,
         ownerId: loginInfo.userId,
         token: loginInfo.backendToken,
-      });
-    },
+      }),
     [loadBackendRequest, loginInfo],
   );
 
@@ -143,9 +141,12 @@ export default function useBackend() {
         "include",
         {},
       );
-      const { maxBrackets, token } = await response.json();
-      localStorage.setItem(maxBracketsKey, maxBrackets);
-      return token;
+      if (response.ok) {
+        const { maxBrackets, token } = await response.json();
+        localStorage.setItem(maxBracketsKey, maxBrackets);
+        return token;
+      }
+      throw new Error("Authentication failed");
     },
     [loadBackendRequest],
   );

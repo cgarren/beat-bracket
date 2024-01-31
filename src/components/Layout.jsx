@@ -1,5 +1,11 @@
 /* eslint-disable react/prop-types */
 import React, { useContext, useEffect, useMemo, useState } from "react";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { Toaster } from "react-hot-toast";
+import useWindowSize from "react-use/lib/useWindowSize";
+import resolveConfig from "tailwindcss/resolveConfig";
+// eslint-disable-next-line import/extensions
+import tailwindConfig from "../../tailwind.config.js";
 import NavBar from "./NavBar/NavBar";
 import Clicky from "./Clicky";
 import Footer from "./Footer";
@@ -7,7 +13,7 @@ import { MixpanelContext } from "../context/MixpanelContext";
 import { LoginContext } from "../context/LoginContext";
 import useAuthentication from "../hooks/useAuthentication";
 import useGlobalTimer from "../hooks/useGlobalTimer";
-import LoginExpiredModal from "./LoginExpiredModal";
+import LoginExpiredModal from "./Modals/LoginExpiredModal";
 
 export default function Layout({
   children,
@@ -16,9 +22,6 @@ export default function Layout({
   showNavBar = true,
   showFooter = true,
   track = true,
-  saveBracketLocally,
-  isBracketSavedLocally = false,
-  deleteBracketSavedLocally,
 }) {
   const mixpanel = useContext(MixpanelContext);
   const { setTimer, clearTimer } = useGlobalTimer();
@@ -26,6 +29,8 @@ export default function Layout({
   const { loginInfo, loggedIn } = useContext(LoginContext);
   const bracketPageRegex = useMemo(() => /^\/user\/.+\/bracket\/[a-zA-Z0-9-]+\/?$/, []);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const { width } = useWindowSize();
+  const fullConfig = resolveConfig(tailwindConfig);
 
   // Runs once, after page load
   useEffect(() => {
@@ -43,7 +48,7 @@ export default function Layout({
       if (refreshTime > 0) {
         setTimer(
           () => {
-            const onBracketPage = bracketPageRegex.test(window.location.pathname);
+            // const onBracketPage = bracketPageRegex.test(window.location.pathname);
             // if (deleteBracketSavedLocally) deleteBracketSavedLocally();
             // if (onBracketPage) {
             //   if (saveBracketLocally) saveBracketLocally();
@@ -81,17 +86,25 @@ export default function Layout({
 
   return (
     <>
+      <ReactQueryDevtools initialIsOpen={false} />
       <Clicky />
       {(showFooter || showNavBar || children) && (
         <div className="text-center clear-both">
-          <main className="font-sans text-black bg-gradient-radial from-zinc-200 to-zinc-300 relative text-center min-h-screen pb-[24px]">
-            {/* <div className="fixed w-full h-full top-0 left-0 bg-repeat bg-scroll bg-slate-900 bg-colosseum bg-blend-screen bg-cover opacity-40 -z-10"></div> */}
+          <main
+            className={`font-sans text-black bg-gradient-radial from-zinc-200 to-zinc-300 relative text-center min-h-screen ${
+              showFooter ? "pb-[24px]" : ""
+            }`}
+          >
             {showNavBar && <NavBar noChanges={noChanges} />}
+            {width > Number(fullConfig.theme.screens.sm.replace("px", "")) && (
+              <Toaster position="top-right" containerClassName="!sticky" />
+            )}
+            {width <= Number(fullConfig.theme.screens.sm.replace("px", "")) && <Toaster position="bottom-center" />}
             <LoginExpiredModal
               showModal={showLoginModal}
               setShowModal={setShowLoginModal}
               login={loginRef.current}
-              bracketSavedLocally={false && isBracketSavedLocally}
+              bracketSavedLocally={false}
             />
             {children}
           </main>

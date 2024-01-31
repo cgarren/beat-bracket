@@ -1,9 +1,7 @@
-import React, { useEffect, useCallback, useMemo, useState } from "react";
+import React, { useEffect, useCallback, useMemo, useState, createElement } from "react";
 import useWindowSize from "react-use/lib/useWindowSize";
 import cx from "classnames";
-import SongButton from "./SongButton";
 import useBracketGeneration from "../../hooks/useBracketGeneration";
-import useHelper from "../../hooks/useHelper";
 
 // const styles = [
 //     // "mt-[var(--firstColumnSpacing)]",
@@ -45,51 +43,20 @@ const lineStyles = [
 /*   4  8  16  32  64 */
 
 export default function Bracket({
-  allTracks,
   showBracket,
   setShowBracket,
-  saveCommand,
-  playbackEnabled,
   bracket,
-  setBracket,
-  editable,
-  editMode,
-  bracketTracks,
-  currentlyPlayingId,
-  setCurrentlyPlayingId,
-  songSource,
-  setSeedingMethod,
-  setInclusionMethod,
+  bracketSize,
+  songSourceType,
+  songButtonType,
+  songButtonProps,
+  greyBackground,
 }) {
   const { width } = useWindowSize(); // can also get height if needed
-  const { popularitySort } = useHelper();
   const { getNumberOfColumns } = useBracketGeneration();
-  const bracketIds = useMemo(() => bracketTracks.map((track) => track.id), [bracketTracks]);
-  const replacementTracks = useMemo(
-    () => allTracks.filter((track) => !bracketIds.includes(track.id)).sort(popularitySort),
-    [allTracks, popularitySort, bracketIds],
-  );
-
-  const getBracket = useCallback((key) => bracket.get(key), [bracket]);
-
-  const modifyBracket = useCallback(
-    (key, attribute, value, save = false) => {
-      const payload = getBracket(key);
-      if (attribute === "song" && key[1] === "0") {
-        setSeedingMethod("custom");
-      }
-      payload[attribute] = value;
-      if (save) {
-        setBracket(new Map(bracket.set(key, payload)));
-      } else {
-        setBracket(new Map(bracket.set(key, payload)));
-      }
-    },
-    [getBracket, setBracket, setSeedingMethod, bracket],
-  );
 
   const generateComponentArray = useCallback(
-    (side, mycurrentlyPlayingId, mysetCurrentlyPlayingId, columns, bracketArray, currentBracket) =>
+    (side, columns, bracketArray, currentBracket) =>
       new Array(columns).fill(undefined).map((e, i) => (
         // eslint-disable-next-line react/no-array-index-key
         <div className="flex flex-col" key={side + i}>
@@ -99,38 +66,31 @@ export default function Bracket({
             if (value.side === side && value.col === colExpression) {
               return (
                 <div key={mykey}>
-                  <SongButton
-                    editMode={editMode}
-                    editable={editable}
-                    playbackEnabled={playbackEnabled}
-                    modifyBracket={modifyBracket}
-                    saveCommand={saveCommand}
-                    getBracket={getBracket}
-                    opponentId={value.opponentId}
-                    nextId={value.nextId}
-                    song={value.song}
-                    id={value.id}
-                    col={value.col}
-                    undoFunc={value.undoFunc}
-                    setInclusionMethod={setInclusionMethod}
-                    currentlyPlayingId={mycurrentlyPlayingId}
-                    setCurrentlyPlayingId={mysetCurrentlyPlayingId}
-                    side={side}
-                    styling={cx({
-                      [`${topStyles[colExpression]}`]: value.index === 0,
-                      // [`${styles[colExpression]}`]:
-                      //     value.index !== 0 &&
-                      //     value.index % 2 === 0,
-                    })}
-                    color={value.color}
-                    key={mykey}
-                    eliminated={value.eliminated}
-                    disabled={editable ? value.disabled : true}
-                    winner={value.winner}
-                    // setBracketWinner={setBracketWinner}
-                    replacementTracks={replacementTracks}
-                    showSongInfo={songSource && songSource.type === "playlist"}
-                  />
+                  {createElement(
+                    songButtonType,
+                    {
+                      ...songButtonProps,
+                      styling: cx({
+                        [`${topStyles[colExpression]}`]: value.index === 0,
+                        // [`${styles[colExpression]}`]:
+                        //     value.index !== 0 &&
+                        //     value.index % 2 === 0,
+                      }),
+                      song: value.song,
+                      id: value.id,
+                      col: value.col,
+                      nextId: value.nextId,
+                      opponentId: value.opponentId,
+                      previousIds: value.previousIds,
+                      side: side,
+                      color: value.color,
+                      eliminated: value.eliminated,
+                      winner: value.winner,
+                      undoFunc: value.undoFunc,
+                      disabled: songButtonProps.editable ? value.disabled : true,
+                    },
+                    null,
+                  )}
                   {((value.song && value.col === 0) || currentBracket.has(side + value.col + (value.index + 1))) && (
                     <div className={`w-[var(--buttonwidth)] relative ${lineStyles[colExpression]}`}>
                       {value.index % 2 === 0 && value.nextId != null ? (
@@ -145,11 +105,10 @@ export default function Bracket({
                           key={`${mykey}line`}
                         />
                       ) : null}
-                      {value.song && value.col === 0 && songSource ? (
+                      {value.song && value.col === 0 && songSourceType ? (
                         <div className="px-1 text-center text-black text-xs text-ellipsis line-clamp-1 break-all">
-                          {songSource.type === "playlist" && value.song.artist}
-                          {songSource.type === "artist" && value.song.album}
-                          {/* {`${value.song.popularity} | ${value.song.artist}`} */}
+                          {songSourceType === "playlist" && value.song.artist}
+                          {songSourceType === "artist" && value.song.album}
                         </div>
                       ) : null}
                     </div>
@@ -161,29 +120,19 @@ export default function Bracket({
           })}
         </div>
       )),
-    [
-      editable,
-      songSource,
-      replacementTracks,
-      editMode,
-      getBracket,
-      setInclusionMethod,
-      playbackEnabled,
-      modifyBracket,
-      saveCommand,
-    ],
+    [songButtonType, songSourceType, songButtonProps],
   );
 
   const renderArray = useMemo(() => {
-    const columns = getNumberOfColumns(bracketTracks.length);
+    const columns = getNumberOfColumns(bracketSize);
     const bracketArray = bracket instanceof Map ? Array.from(bracket.entries()) : null;
     return bracket instanceof Map && bracket.size !== 0
       ? [
-          generateComponentArray("l", currentlyPlayingId, setCurrentlyPlayingId, columns, bracketArray, bracket),
-          generateComponentArray("r", currentlyPlayingId, setCurrentlyPlayingId, columns, bracketArray, bracket),
+          generateComponentArray("l", columns, bracketArray, bracket),
+          generateComponentArray("r", columns, bracketArray, bracket),
         ]
       : [];
-  }, [bracket, bracketTracks, setCurrentlyPlayingId, currentlyPlayingId, generateComponentArray, getNumberOfColumns]);
+  }, [bracket, bracketSize, generateComponentArray, getNumberOfColumns]);
 
   const [bracketWidth, setBracketWidth] = useState(0);
 
@@ -213,7 +162,7 @@ export default function Bracket({
         <div
           className={cx({
             "block w-fit flex-col p-2": true,
-            "bg-gray-800/25 rounded-2xl": editMode && editable,
+            "bg-gray-800/25 rounded-2xl": greyBackground,
           })}
           id="bracketHolder"
         >

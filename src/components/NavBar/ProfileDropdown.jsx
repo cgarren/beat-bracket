@@ -1,43 +1,45 @@
-import React, { useEffect, useState, useContext, useMemo } from "react";
-import guestProfileImage from "../../assets/images/guestProfileImage.png";
-import LoginButton from "../LoginButton";
+import React, { useState, useContext } from "react";
+import LogoutIcon from "../../assets/svgs/logoutIcon.svg";
+import LoginButton from "../Controls/LoginButton";
 import LoadingIndicator from "../LoadingIndicator";
 import { LoginContext } from "../../context/LoginContext";
 import useAuthentication from "../../hooks/useAuthentication";
 import useHelper from "../../hooks/useHelper";
+import ActionButton from "../Controls/ActionButton";
 
 export default function ProfileDropdown({ noChanges }) {
   const { userInfo, loginInProgress, loggedIn } = useContext(LoginContext);
   const { logout } = useAuthentication();
   const { handleNaviagtionAttempt } = useHelper();
   const [showDropdown, setShowDropdown] = useState(false);
-  const defaultUserInfo = useMemo(
-    () => ({
-      display_name: "Guest",
-      id: "",
-      images: [
-        {
-          url: guestProfileImage,
-        },
-      ],
-    }),
-    [],
-  );
-  const [shownUserInfo, setShownUserInfo] = useState(defaultUserInfo);
 
-  useEffect(() => {
-    if (loggedIn && userInfo) {
-      setShownUserInfo(userInfo);
-    } else {
-      setShownUserInfo(defaultUserInfo);
-    }
-  }, [loggedIn, userInfo, defaultUserInfo]);
+  if (!loggedIn && !loginInProgress) {
+    return (
+      <div className="align-middle">
+        <LoginButton variant="bordered" />
+      </div>
+    );
+  }
 
-  return (
-    <div>
-      {!loggedIn && !loginInProgress && <LoginButton variant="bordered" />}
-      {!loggedIn && loginInProgress && <LoadingIndicator />}
-      {loggedIn && (
+  if (!loggedIn && loginInProgress) {
+    return (
+      <div className="align-middle">
+        <LoadingIndicator />
+      </div>
+    );
+  }
+
+  if (!userInfo) {
+    return (
+      <div className="align-middle">
+        <ActionButton onClick={logout} icon={<LogoutIcon />} variant="danger" text="Log out" />
+      </div>
+    );
+  }
+
+  if (userInfo) {
+    return (
+      <div className="align-middle">
         <div className="inline-block relative">
           <button
             type="button"
@@ -54,12 +56,12 @@ export default function ProfileDropdown({ noChanges }) {
           >
             <img
               className="object-cover w-10 h-10 rounded-full"
-              src={shownUserInfo.images[0].url}
+              src={userInfo.images[0].url}
               alt="Profile avatar"
-              title={`${shownUserInfo.display_name}'s Profile picture from Spotify`}
+              title={`${userInfo.display_name}'s avatar from Spotify`}
             />
             <p className="hidden ml-2 text-left sm:block">
-              <strong className="block text-s font-bold text-white">{shownUserInfo.display_name}</strong>
+              <strong className="block text-s font-bold text-white">{userInfo.display_name}</strong>
             </p>
             <div hidden={!loggedIn}>
               <svg
@@ -121,7 +123,8 @@ export default function ProfileDropdown({ noChanges }) {
             </li>
           </ul>
         </div>
-      )}
-    </div>
-  );
+      </div>
+    );
+  }
+  return null;
 }

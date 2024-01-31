@@ -69,7 +69,7 @@ export default function useBracketGeneration() {
         if (i >= cols - 1) {
           if (!repeated) {
             repeated = true;
-            temp = new Map([...(await relateSongs(len, theTracks, i, "l", "r")), ...temp]);
+            temp = new Map([...(await relateSongs(len, theTracks, i, "r", "l")), ...temp]);
             forward = false;
             continue;
           }
@@ -84,10 +84,10 @@ export default function useBracketGeneration() {
         }
 
         if (forward) {
-          temp = new Map([...(await relateSongs(len, theTracks, i, "l", "r")), ...temp]);
+          temp = new Map([...(await relateSongs(len, theTracks, i, "r", "l")), ...temp]);
           i += 1;
         } else {
-          temp = new Map([...(await relateSongs(len, theTracks, i, "r", "l")), ...temp]);
+          temp = new Map([...(await relateSongs(len, theTracks, i, "l", "r")), ...temp]);
           i -= 1;
         }
       }

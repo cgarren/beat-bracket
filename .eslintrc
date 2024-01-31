@@ -11,9 +11,13 @@
     "no-process-exit": "off",
     "object-shorthand": "off",
     "class-methods-use-this": "off",
-    "no-extra-boolean-cast": "off"
+    "no-extra-boolean-cast": "off",
+    "no-param-reassign": ["error", { "props": true, "ignorePropertyModificationsForRegex": ["^draft"] }]
   },
   "env": {
     "browser": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 11
   }
 }

@@ -2,11 +2,11 @@ import React, { useContext, useCallback } from "react";
 
 import * as cx from "classnames";
 
-import spotifyLogoGreen from "../assets/images/Spotify_Logo_RGB_Green.png";
-import LoadingIndicator from "./LoadingIndicator";
+import spotifyLogoGreen from "../../assets/images/Spotify_Logo_RGB_Green.png";
+import LoadingIndicator from "../LoadingIndicator";
 
-import { LoginContext } from "../context/LoginContext";
-import useAuthentication from "../hooks/useAuthentication";
+import { LoginContext } from "../../context/LoginContext";
+import useAuthentication from "../../hooks/useAuthentication";
 
 export default function LoginButton({ variant = "borderless", cleanupFunc = () => {} }) {
   const { loginInProgress } = useContext(LoginContext);

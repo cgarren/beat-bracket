@@ -15,7 +15,7 @@ export default function useGlobalTimer() {
         callback();
       }, delay),
     );
-    console.debug("set timer", timerId, "for", delay);
+    console.debug("set timer", timerId, "for", delay, `(${new Date(Date.now() + delay).toLocaleTimeString()})`);
   }, []);
 
   const clearTimer = useCallback((timerId = "") => {

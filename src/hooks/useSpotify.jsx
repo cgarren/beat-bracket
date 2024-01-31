@@ -174,16 +174,6 @@ export default function useSpotify() {
     [postRequest],
   );
 
-  const isCurrentUser = useCallback(
-    (userId) => {
-      if (userId === loginInfo.userId) {
-        return true;
-      }
-      return false;
-    },
-    [loginInfo],
-  );
-
   const getCurrentUserInfo = useCallback(
     async (accessToken) => {
       const url = "https://api.spotify.com/v1/me";
@@ -225,10 +215,13 @@ export default function useSpotify() {
   );
 
   const openBracket = useCallback(
-    async (uuid, userId, state = {}) => {
+    async (uuid, userId, mode = "", state = {}) => {
       console.debug(`Opening Bracket: ${uuid}`);
       // open the bracket editor and pass the bracket id off
-      navigate(`/user/${userId || getUserInfo(userId).id}/bracket/${uuid}`, { state: state });
+      if (typeof window !== "undefined") {
+        console.log("nav to", `/user/${userId || getUserInfo(userId).id}/bracket/${uuid}/${mode}`);
+        navigate(`/user/${userId || getUserInfo(userId).id}/bracket/${uuid}/${mode}`, { state: state });
+      }
     },
     [getUserInfo],
   );
@@ -345,7 +338,6 @@ export default function useSpotify() {
   return {
     addTracksToPlaylist,
     getArt,
-    isCurrentUser,
     login,
     loginCallback,
     refreshLogin,

@@ -1,6 +1,7 @@
 // place for methods which handdle authenitcation for btoh spotify and backend
 import { useContext, useCallback, useRef } from "react";
 import { navigate } from "gatsby";
+import { useQueryClient } from "@tanstack/react-query";
 import useSpotify from "./useSpotify";
 import useHelper from "./useHelper";
 import useBackend from "./useBackend";
@@ -21,6 +22,7 @@ export default function useAuthentication() {
   const { loginInfo, setLoginInfo, setLoginInProgress } = useContext(LoginContext);
   const { authenticate: backendLogin } = useBackend();
   const { generateRandomString } = useHelper();
+  const queryClient = useQueryClient();
 
   const { clearTimer } = useGlobalTimer();
 
@@ -52,6 +54,16 @@ export default function useAuthentication() {
     navigate(prevPath);
   }, []);
 
+  const isCurrentUser = useCallback(
+    (userId) => {
+      if (userId && userId === loginInfo.userId) {
+        return true;
+      }
+      return false;
+    },
+    [loginInfo],
+  );
+
   // auth functions
 
   const logout = useCallback(async () => {
@@ -65,6 +77,7 @@ export default function useAuthentication() {
       refreshToken: undefined,
     });
     localStorage.clear();
+    sessionStorage.clear();
     mixpanel.reset();
     clearTimer("auth");
     console.log("logged out");
@@ -91,7 +104,7 @@ export default function useAuthentication() {
       // identify user in mixpanel
       mixpanel.identify(userId);
 
-      // set timer info
+      // set login info
       setLoginInfo({
         backendToken: backendToken,
         userId: userId,
@@ -111,7 +124,7 @@ export default function useAuthentication() {
       try {
         setLoginInProgress(true);
         // case where user has been here before and has a refresh token
-        localStorage.clear();
+        localStorage.removeItem("refreshToken");
         if (loginInfo.refreshToken) {
           try {
             await loginWithRefreshToken(loginInfo.refreshToken);
@@ -141,6 +154,7 @@ export default function useAuthentication() {
           return true;
         }
       } finally {
+        queryClient.removeQueries();
         setLoginInProgress(false);
       }
     },
@@ -176,9 +190,9 @@ export default function useAuthentication() {
         const prevPath = sessionStorage.getItem(prevKey);
         if (prevPath) {
           sessionStorage.removeItem(prevKey);
-          navigate(prevPath);
+          navigate(prevPath, { replace: true });
         } else {
-          navigate("/my-brackets");
+          navigate("/my-brackets", { replace: true });
         }
 
         return { userId: userId };
@@ -189,6 +203,7 @@ export default function useAuthentication() {
           return "Invalid url parameters";
         }
       } finally {
+        queryClient.removeQueries();
         setLoginInProgress(false);
       }
     },
@@ -205,5 +220,6 @@ export default function useAuthentication() {
     loginCallback,
     logout,
     toPrevPage,
+    isCurrentUser,
   };
 }

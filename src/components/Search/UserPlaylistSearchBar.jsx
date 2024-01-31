@@ -1,7 +1,6 @@
 import React, { useCallback } from "react";
 import SearchBar from "./SearchBar";
 import useSpotify from "../../hooks/useSpotify";
-import LoadingIndicator from "../LoadingIndicator";
 
 export default function UserPlaylistSearchBar({ allPlaylists, setPlaylist }) {
   const { getArt } = useSpotify();
@@ -29,8 +28,6 @@ export default function UserPlaylistSearchBar({ allPlaylists, setPlaylist }) {
   return allPlaylists.length > 0 ? (
     <SearchBar searchSuggestions={searchSuggestions} disabled={false} placeholder="Search for a playlist..." />
   ) : (
-    <div className="">
-      <LoadingIndicator /> Loading your playlists...
-    </div>
+    <div className="">No playlists found. Add some to your Spotify library to get started.</div>
   );
 }

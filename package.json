@@ -17,6 +17,8 @@
   },
   "dependencies": {
     "@fontsource/righteous": "^4.5.7",
+    "@tanstack/react-query": "^5.17.10",
+    "@tanstack/react-query-devtools": "^5.17.10",
     "classnames": "^2.3.2",
     "eslint-webpack-plugin": "^4.0.1",
     "exponential-backoff": "^3.1.1",
@@ -24,6 +26,7 @@
     "gatsby-plugin-manifest": "^5.3.1",
     "gatsby-plugin-react-svg": "^3.3.0",
     "html2canvas": "^1.4.1",
+    "immer": "^10.0.3",
     "mixpanel-browser": "^2.47.0",
     "mousetrap": "^1.6.5",
     "node-vibrant": "^3.1.6",
@@ -31,11 +34,13 @@
     "react-confetti": "^6.1.0",
     "react-dom": "^18.2.0",
     "react-error-boundary": "^4.0.11",
+    "react-hot-toast": "^2.4.1",
     "react-use": "^17.4.0",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.23.3",
+    "@tanstack/eslint-plugin-query": "^5.17.7",
     "autoprefixer": "^10.4.8",
     "eslint": "^8.55.0",
     "eslint-config-airbnb": "^19.0.4",
