@@ -55,6 +55,11 @@ export default function App({ params, location }) {
     [ownerInfo?.display_name, params?.userId],
   );
 
+  const creationPossible = useMemo(
+    () => location?.state?.template && owner?.name && owner.id && params?.id,
+    [location?.state, owner?.name, owner.id, params?.id],
+  );
+
   const {
     data: loadedBracket,
     isPending: fetchPending,
@@ -65,6 +70,9 @@ export default function App({ params, location }) {
     enabled: params.id && isCurrentUser(owner.id),
     refetchOnWindowFocus: false,
     staleTime: 3600000,
+    meta: {
+      errorMessage: creationPossible ? false : "Error loading bracket",
+    },
     retry: (failureCount, error) => error?.cause?.code !== 404,
   });
 
@@ -97,7 +105,11 @@ export default function App({ params, location }) {
     },
   });
 
-  const { isPending: creationPending, mutate: createBracketMutation } = useMutation({
+  const {
+    isPending: creationPending,
+    mutate: createBracketMutation,
+    isError: creationFailure,
+  } = useMutation({
     mutationFn: async (creationObject) => {
       await createBracket(creationObject);
     },
@@ -318,10 +330,18 @@ export default function App({ params, location }) {
   );
 
   useEffect(() => {
-    if (location?.state?.template && owner?.name && owner.id && params?.id && fetchFailure) {
+    if (creationPossible && fetchFailure && !creationFailure && !creationPending) {
       initializeBracketFromTemplate(location.state.template, params.id, owner.name);
     }
-  }, [initializeBracketFromTemplate, location?.state, params?.id, owner?.name, fetchFailure]);
+  }, [
+    initializeBracketFromTemplate,
+    creationPossible,
+    creationFailure,
+    location?.state?.template,
+    params?.id,
+    owner?.name,
+    fetchFailure,
+  ]);
 
   // SHARE
 
@@ -388,30 +408,46 @@ export default function App({ params, location }) {
     // return <Redirect to={`/user/${params.userId}/bracket/${params.id}/fill`} />;
   }
 
-  if (fetchPending || creationPending || !bracket) {
+  if (fetchPending) {
     return (
-      <Layout
-        noChanges={noChanges}
-        path={location.pathname}
-        // saveBracketLocally={saveBracketLocally}
-        // isBracketSavedLocally={isBracketSavedLocally}
-        // deleteBracketSavedLocally={deleteBracketSavedLocally}
-      >
-        {fetchPending && <LoadingIndicator loadingText="Loading bracket..." />}
-        {creationPending && <LoadingIndicator loadingText="Creating bracket..." />}
-        {!fetchPending && !creationPending && !bracket && <div className="font-bold mb-2">Bracket not found</div>}
+      <Layout noChanges={() => true} path={location.pathname}>
+        <LoadingIndicator loadingText="Loading bracket..." />
+      </Layout>
+    );
+  }
+
+  if (creationPending || (!creationFailure && fetchFailure && creationPossible)) {
+    return (
+      <Layout noChanges={() => true} path={location.pathname}>
+        <LoadingIndicator loadingText="Creating bracket..." />
+      </Layout>
+    );
+  }
+
+  if (creationFailure) {
+    return (
+      <Layout noChanges={() => true} path={location.pathname}>
+        <div className="inline-flex justify-center flex-col">
+          <div className="font-bold mb-2">Error creating bracket</div>
+          <ActionButton
+            onClick={() => initializeBracketFromTemplate(location.state.template, params.id, owner.name)}
+            text="Retry"
+          />
+        </div>
+      </Layout>
+    );
+  }
+
+  if (fetchFailure && !creationPossible) {
+    return (
+      <Layout noChanges={() => true} path={location.pathname}>
+        <div className="font-bold mb-2">Bracket not found</div>
       </Layout>
     );
   }
 
   return (
-    <Layout
-      noChanges={noChanges}
-      path={location.pathname}
-      // saveBracketLocally={saveBracketLocally}
-      // isBracketSavedLocally={isBracketSavedLocally}
-      // deleteBracketSavedLocally={deleteBracketSavedLocally}
-    >
+    <Layout noChanges={noChanges} path={location.pathname}>
       {bracketWinner && commands.length !== 0 && (
         <Confetti
           width={window.document.body.offsetWidth}
