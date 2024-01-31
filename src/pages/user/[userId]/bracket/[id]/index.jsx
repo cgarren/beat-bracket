@@ -19,6 +19,7 @@ import useBackend from "../../../../../hooks/useBackend";
 import useSpotify from "../../../../../hooks/useSpotify";
 import useAuthentication from "../../../../../hooks/useAuthentication";
 import useUserInfo from "../../../../../hooks/useUserInfo";
+import useShareBracket from "../../../../../hooks/useShareBracket";
 // Assets
 import ShareIcon from "../../../../../assets/svgs/shareIcon.svg";
 import DuplicateIcon from "../../../../../assets/svgs/duplicateIcon.svg";
@@ -34,6 +35,7 @@ export default function App({ params, location }) {
   const { bracketSorter } = useHelper();
   const { getBracket } = useBackend();
   const { getNumberOfColumns } = useBracketGeneration();
+  const { share } = useShareBracket(location.href);
 
   const { data: ownerInfo } = useUserInfo(params.userId);
 
@@ -121,14 +123,6 @@ export default function App({ params, location }) {
     }
     return null;
   }, [bracket, bracketTracks, getNumberOfColumns]);
-
-  // SHARE
-
-  const share = useCallback(() => {
-    navigator.clipboard.writeText(location.href);
-    console.debug("copied link");
-    toast.success("Link copied to clipboard!");
-  }, [location.href]);
 
   // DUPLICATE
 

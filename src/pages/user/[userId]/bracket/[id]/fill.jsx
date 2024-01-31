@@ -22,6 +22,7 @@ import useBackend from "../../../../../hooks/useBackend";
 import useSpotify from "../../../../../hooks/useSpotify";
 import useSongProcessing from "../../../../../hooks/useSongProcessing";
 import useAuthentication from "../../../../../hooks/useAuthentication";
+import useShareBracket from "../../../../../hooks/useShareBracket";
 // Assets
 import ShareIcon from "../../../../../assets/svgs/shareIcon.svg";
 import useUserInfo from "../../../../../hooks/useUserInfo";
@@ -44,6 +45,7 @@ export default function App({ params, location }) {
   const { updatePreviewUrls } = useSongProcessing();
   const { getNumberOfColumns, fillBracket } = useBracketGeneration();
   const queryClient = useQueryClient();
+  const { share } = useShareBracket(location.href);
 
   // Constants
   // const localSaveKey = "savedBracket";
@@ -342,14 +344,6 @@ export default function App({ params, location }) {
     owner?.name,
     fetchFailure,
   ]);
-
-  // SHARE
-
-  const share = useCallback(() => {
-    navigator.clipboard.writeText(location.href);
-    console.debug("copied link");
-    toast.success("Link copied to clipboard!");
-  }, [location.href]);
 
   // UNDO
 
