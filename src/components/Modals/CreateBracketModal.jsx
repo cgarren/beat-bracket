@@ -10,6 +10,7 @@ import useSongProcessing from "../../hooks/useSongProcessing";
 import { LoginContext } from "../../context/LoginContext";
 import useSpotify from "../../hooks/useSpotify";
 import LoadingIndicator from "../LoadingIndicator";
+import mixpanel from "mixpanel-browser";
 // import Badge from "../Badge";
 
 export default function CreateBracketModal({ showModal, setShowModal }) {
@@ -75,13 +76,24 @@ export default function CreateBracketModal({ showModal, setShowModal }) {
                   </div>
                 }
               />
-              {/* <Tab
-                    id={2}
-                    activeTab={activeTab}
-                    setActiveTab={setActiveTab}
-                    text="Top Artists"
-                    disabled={true}
-                  /> */}
+              <Tab
+                id={2}
+                activeTab={activeTab}
+                setActiveTab={(id) => {
+                  mixpanel.track("Create Bracket - Top Artists");
+                  setActiveTab(id);
+                }}
+                content={
+                  <div className="flex gap-1 align-middle">
+                    Your top tracks{" "}
+                    {/* <Badge
+                          text="New"
+                          backgroundColor="bg-green-100"
+                          textColor="text-green-800"
+                        /> */}
+                  </div>
+                }
+              />
             </nav>
           </div>
           {activeTab === 0 && (
@@ -106,6 +118,11 @@ export default function CreateBracketModal({ showModal, setShowModal }) {
               }}
               allPlaylists={userPlaylists}
             />
+          )}
+          {activeTab === 2 && (
+            <div className="mt-2">
+              <p>Coming soon!</p>
+            </div>
           )}
         </Modal>
       )}
