@@ -1,4 +1,3 @@
-// Guest profile pic
 import { useCallback, useContext } from "react";
 import { navigate } from "gatsby";
 import defaultPlaylistImage from "../assets/images/defaultPlaylistImage.png";
