@@ -6,6 +6,7 @@ import FooterText from "../components/FooterText";
 import Seo from "../components/SEO";
 import LoadingIndicator from "../components/LoadingIndicator";
 import { LoginContext } from "../context/LoginContext";
+import { Button } from "@/components/ui/button";
 
 export default function App({ location }) {
   const { loggedIn, loginInProgress } = useContext(LoginContext);
@@ -19,6 +20,9 @@ export default function App({ location }) {
 
   return (
     <Layout path="/" showNavBar={false} showFooter={false}>
+      <Button variant="default" size="default">
+        hello
+      </Button>
       <div className="h-screen bg-gradient-radial from-zinc-100 from-60% to-zinc-400 relative">
         {loginInProgress || loggedIn ? (
           <div className="flex flex-row justify-center items-center h-full px-4 sm:w-9/12 m-auto">
