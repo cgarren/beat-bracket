@@ -2,7 +2,7 @@ import React from "react";
 import Modal from "./Modal";
 import LoginButton from "../Controls/LoginButton";
 
-export default function LoginExpiredModal({ showModal, setShowModal, bracketSavedLocally }) {
+export default function LoginExpiredModal({ showModal, setShowModal }) {
   return (
     showModal && (
       <Modal onClose={() => setShowModal(false)}>

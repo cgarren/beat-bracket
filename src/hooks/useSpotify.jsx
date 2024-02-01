@@ -44,30 +44,6 @@ export default function useSpotify() {
     [loginInfo],
   );
 
-  const putRequest = useCallback(
-    async (url, params, data) => {
-      const modifiedUrl = params ? `${url}?${new URLSearchParams(params)}` : url;
-      const response = await fetch(modifiedUrl, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "image/jpeg",
-          Authorization: `Bearer ${loginInfo.accessToken}`,
-        },
-        /// body: data
-      });
-
-      if (response.ok) {
-        return response.json(); // parses JSON response into native JavaScript objects
-      }
-      if (response.status === 429) {
-        throw new Error(`Too many requests. Code: ${response.status}`);
-      } else {
-        throw new Error(`Unknown request error. Code: ${response.status}`);
-      }
-    },
-    [loginInfo],
-  );
-
   const loadSpotifyRequest = useCallback(
     async (url, params, accessToken) => {
       const token = accessToken || loginInfo.accessToken;
@@ -343,7 +319,6 @@ export default function useSpotify() {
     getCurrentUserInfo,
     getUserInfo,
     postRequest,
-    putRequest,
     loadSpotifyRequest,
     openBracket,
     getArtist,

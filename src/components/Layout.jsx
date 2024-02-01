@@ -91,7 +91,7 @@ export default function Layout({
       {(showFooter || showNavBar || children) && (
         <div className="text-center clear-both">
           <main
-            className={`font-sans text-black bg-gradient-radial from-zinc-200 to-zinc-300 relative text-center min-h-screen ${
+            className={`font-sans text-black bg-gradient-radial bg-zinc-200 relative text-center min-h-screen ${
               showFooter ? "pb-[24px]" : ""
             }`}
           >

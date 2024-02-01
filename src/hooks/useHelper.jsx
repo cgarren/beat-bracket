@@ -189,6 +189,7 @@ export default function useHelper() {
 
   const handleNaviagtionAttempt = useCallback((path, noChanges) => {
     if (noChanges(true)) {
+      console.log("navigating to", path);
       navigate(path);
     }
   }, []);

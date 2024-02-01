@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 // React
-import React, { useEffect, useState, useMemo, useCallback, useContext } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { Link } from "gatsby";
 import toast from "react-hot-toast";
 // Third Party
@@ -13,6 +13,7 @@ import LoadingIndicator from "../../../../../components/LoadingIndicator";
 import BracketOptions from "../../../../../components/Controls/BracketOptions";
 import CreateBracket from "../../../../../components/Bracket/CreateBracket";
 import ExpandedDetails from "../../../../../components/ExpandedDetails";
+import BracketHeader from "../../../../../components/BracketHeader";
 // Hooks
 import useBracketGeneration from "../../../../../hooks/useBracketGeneration";
 import useHelper from "../../../../../hooks/useHelper";
@@ -20,9 +21,7 @@ import useBackend from "../../../../../hooks/useBackend";
 import useSpotify from "../../../../../hooks/useSpotify";
 import useSongProcessing from "../../../../../hooks/useSongProcessing";
 import useAuthentication from "../../../../../hooks/useAuthentication";
-// Context
-import { LoginContext } from "../../../../../context/LoginContext";
-import BracketHeader from "../../../../../components/BracketHeader";
+import useUserInfo from "../../../../../hooks/useUserInfo";
 
 export default function App({ params, location }) {
   const [seedingMethod, setSeedingMethod] = useState("popularity");
@@ -39,7 +38,8 @@ export default function App({ params, location }) {
   const { createBracket } = useBackend();
   const { seedBracket, sortTracks, getArtistTracks, getPlaylistTracks } = useSongProcessing();
   const { getNumberOfColumns, fillBracket } = useBracketGeneration();
-  const { userInfo } = useContext(LoginContext);
+
+  const { data: userInfo } = useUserInfo();
 
   const songSource = useMemo(() => {
     const newSongSource = location?.state;
