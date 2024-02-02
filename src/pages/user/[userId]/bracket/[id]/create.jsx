@@ -4,6 +4,7 @@ import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { Link } from "gatsby";
 import toast from "react-hot-toast";
 // Third Party
+import mixpanel from "mixpanel-browser";
 // import Mousetrap from "mousetrap";
 import { useQuery } from "@tanstack/react-query";
 // Components
@@ -302,14 +303,15 @@ export default function App({ params, location }) {
           <BracketHeader songSource={songSource} owner={null} template={null} bracketTracks={null} />
           <div className="max-w-lg mx-auto px-3">
             <ExpandedDetails
+              onClickHandler={() => mixpanel.track("Clicked 'How do I customize my bracket?' details")}
               question="How do I customize my bracket?"
               answer={
                 <div>
                   <ol className="list-decimal list-inside text-left w-fit">
                     <li>
                       Select a <span className="font-bold">bracket size</span>,{" "}
-                      <span className="font-bold">seeding method</span>, and{" "}
-                      <span className="font-bold">inclusion method</span>
+                      <span className="font-bold">inclusion method</span>, and{" "}
+                      <span className="font-bold">seeding method</span>
                     </li>
                     <li>
                       Optionally, <span className="font-bold">drag and drop</span> songs to rearrange them or{" "}
