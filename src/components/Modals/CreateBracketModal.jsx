@@ -58,13 +58,13 @@ export default function CreateBracketModal({ showModal, setShowModal }) {
           <Tabs
             defaultValue="artist"
             onValueChange={(value) => {
-              if (value === "topSongs") mixpanel.track("Clicked Top Songs Tab");
+              if (value === "topMusic") mixpanel.track("Clicked Top Music Tab");
             }}
           >
             <TabsList className="mb-0">
               <TabsTrigger value="artist">Artist</TabsTrigger>
               <TabsTrigger value="playlist">Playlist</TabsTrigger>
-              <TabsTrigger value="topTracks">Your top tracks</TabsTrigger>
+              <TabsTrigger value="topMusic">Your top music</TabsTrigger>
             </TabsList>
             <Separator className="my-3" />
             <TabsContent value="artist">
@@ -92,7 +92,7 @@ export default function CreateBracketModal({ showModal, setShowModal }) {
                 />
               )}
             </TabsContent>
-            <TabsContent value="topTracks">
+            <TabsContent value="topMusic">
               <div className="mt-2">
                 <p>Coming soon!</p>
               </div>
@@ -101,55 +101,5 @@ export default function CreateBracketModal({ showModal, setShowModal }) {
         </div>
       </DialogContent>
     </Dialog>
-    // <Modal
-    //   onClose={() => {
-    //     setShowModal(false);
-    //   }}
-    // >
-    // <h1 className="text-xl font-bold mb-2">Create Bracket</h1>
-    // <Tabs
-    //   defaultValue="artist"
-    //   onValueChange={(value) => {
-    //     if (value === "topSongs") mixpanel.track("Clicked Top Songs Tab");
-    //   }}
-    // >
-    //   <TabsList className="mb-0">
-    //     <TabsTrigger value="artist">Artist</TabsTrigger>
-    //     <TabsTrigger value="playlist">Playlist</TabsTrigger>
-    //     <TabsTrigger value="topTracks">Your top tracks</TabsTrigger>
-    //   </TabsList>
-    //   <Separator className="my-4" />
-    //   <TabsContent value="artist">
-    //     <ArtistSearchBar
-    //       setArtist={(artist) => {
-    //         createBracket({ type: "artist", artist: artist });
-    //       }}
-    //     />
-    //   </TabsContent>
-    //   <TabsContent value="playlist">
-    //     {isError && <div className="mt-2">The was a problem loading your playlists!</div>}
-    //     {isPending && (
-    //       <div className="mt-2">
-    //         <LoadingIndicator />
-    //         Loading playlists...
-    //       </div>
-    //     )}
-    //     {isSuccess && (
-    //       <UserPlaylistSearchBar
-    //         setPlaylist={(playlist) => {
-    //           console.debug("Selected playlist:", playlist);
-    //           createBracket({ type: "playlist", playlist: playlist });
-    //         }}
-    //         allPlaylists={userPlaylists}
-    //       />
-    //     )}
-    //   </TabsContent>
-    //   <TabsContent value="topTracks">
-    //     <div className="mt-2">
-    //       <p>Coming soon!</p>
-    //     </div>
-    //   </TabsContent>
-    // </Tabs>
-    // </Modal>
   );
 }
