@@ -22,6 +22,7 @@ import useSpotify from "../../../../../hooks/useSpotify";
 import useSongProcessing from "../../../../../hooks/useSongProcessing";
 import useAuthentication from "../../../../../hooks/useAuthentication";
 import useUserInfo from "../../../../../hooks/useUserInfo";
+import { Button } from "../../../../../components/ui/button";
 
 export default function App({ params, location }) {
   const [seedingMethod, setSeedingMethod] = useState("popularity");
@@ -280,14 +281,14 @@ export default function App({ params, location }) {
       <Layout noChanges={noChanges} path={location.pathname}>
         <div className="text-center">
           <h1 className="text-2xl font-bold">Not enough songs</h1>
-          <p className="text-lg">
+          <p className="text-lg mb-1">
             {songSource?.type === "artist"
               ? `${songSource.artist.name} doesn't have enough songs on Spotify! Try another artist.`
               : `${songSource.playlist.name} doesn't have enough songs on Spotify! Try another playlist.`}
           </p>
-          <Link to="/my-brackets" className="text-lg underline">
-            Go back
-          </Link>
+          <Button asChild>
+            <Link to="/my-brackets">Shucks</Link>
+          </Button>
         </div>
       </Layout>
     );

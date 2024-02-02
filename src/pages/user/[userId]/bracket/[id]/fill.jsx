@@ -11,7 +11,6 @@ import { produce } from "immer";
 // Components
 import Seo from "../../../../../components/SEO";
 import Layout from "../../../../../components/Layout";
-import ActionButton from "../../../../../components/Controls/ActionButton";
 import FillBracket from "../../../../../components/Bracket/FillBracket";
 // import GeneratePlaylistButton from "../../../../components/GeneratePlaylistButton";
 import BracketCompleteModal from "../../../../../components/Modals/BracketCompleteModal";
@@ -29,6 +28,7 @@ import useUserInfo from "../../../../../hooks/useUserInfo";
 import LoadingIndicator from "../../../../../components/LoadingIndicator";
 import SyncIcon from "../../../../../assets/svgs/syncIcon.svg";
 import BracketHeader from "../../../../../components/BracketHeader";
+import { Button } from "@/components/ui/button";
 
 export default function App({ params, location }) {
   // State
@@ -423,10 +423,12 @@ export default function App({ params, location }) {
       <Layout noChanges={() => true} path={location.pathname}>
         <div className="inline-flex justify-center flex-col">
           <div className="font-bold mb-2">Error creating bracket</div>
-          <ActionButton
+          <Button
             onClick={() => initializeBracketFromTemplate(location.state.template, params.id, owner.name)}
-            text="Retry"
-          />
+            variant="secondary"
+          >
+            Retry
+          </Button>
         </div>
       </Layout>
     );
@@ -462,14 +464,16 @@ export default function App({ params, location }) {
         viewLink={`/user/${owner.id}/bracket/${params.id}`}
         share={share}
       />
-      Fill Bracket
       <BracketHeader songSource={songSource} owner={owner} template={template} bracketTracks={bracketTracks} />
       {bracket && songSource && (
         <>
           <div className="text-xs -space-x-px rounded-md sticky mx-auto top-0 w-fit z-30 text-center">
             <div className="flex items-center gap-2">
               {/* <GeneratePlaylistButton tracks={tracks} artist={artist} /> */}
-              <ActionButton onClick={share} icon={<ShareIcon />} text="Share" />
+              <Button onClick={share} variant="secondary" className="flex justify-center gap-1">
+                <ShareIcon />
+                Share
+              </Button>
             </div>
             {saving && !saveError && (
               <div className="absolute left-1/2 -translate-x-1/2 -bottom-3/4 flex items-center gap-1">
@@ -482,7 +486,9 @@ export default function App({ params, location }) {
             {saveError && (
               <div className="absolute left-1/2 -translate-x-1/2 top-full translate-y-1.5 flex flex-col items-center gap-1 !text-red-500 !font-bold whitespace-nowrap">
                 Save Error!
-                <ActionButton onClick={saveCurrentBracket} text="Retry" variant="white" />
+                <Button onClick={saveCurrentBracket} variant="secondary">
+                  Retry
+                </Button>
               </div>
             )}
           </div>

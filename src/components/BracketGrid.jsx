@@ -2,7 +2,6 @@ import React from "react";
 import cx from "classnames";
 
 export default function BracketGrid({ children, numberOfBrackets }) {
-  console.log(numberOfBrackets);
   return (
     <div
       className={cx(

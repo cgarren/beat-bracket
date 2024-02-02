@@ -7,7 +7,7 @@ import { LoginContext } from "../context/LoginContext";
 import useAuthentication from "../hooks/useAuthentication";
 import LoginButton from "../components/Controls/LoginButton";
 import LoadingIndicator from "../components/LoadingIndicator";
-import ActionButton from "../components/Controls/ActionButton";
+import { Button } from "../components/ui/button";
 
 // markup
 export default function App({ location }) {
@@ -54,13 +54,9 @@ export default function App({ location }) {
               <h3 className="text-xl text-black">
                 <LoadingIndicator /> Login successful! Redirecting...
               </h3>
-              <ActionButton
-                customStyling="bg-black text-white hover:bg-black hover:text-gray-200"
-                onClick={() => {
-                  toPrevPage();
-                }}
-                text="Click here if not redirected"
-              />
+              <Button className="" onClick={() => toPrevPage()}>
+                Click here if not redirected
+              </Button>
             </div>
           ) : (
             <div>

@@ -2,8 +2,8 @@ import React, { useState } from "react";
 
 import OptionsDropdown from "./OptionsDropdown";
 
-import ActionButton from "./ActionButton";
 import StartBracketModal from "../Modals/StartBracketModal";
+import { Button } from "../ui/button";
 
 export default function BracketOptions({
   songSourceType,
@@ -65,15 +65,7 @@ export default function BracketOptions({
           {seedingMethod === "custom" ? <option value="custom">Custom</option> : null}
         </OptionsDropdown>
         <div className="min-w-fit h-full font-bold">
-          <ActionButton
-            onClick={() => setShowModal(true)}
-            disabled={false}
-            // icon={<RocketIcon />}
-            text="Start Bracket"
-            variant="primary"
-            // customStyling="animate-pulsate-color"
-            // customStyling="bg-gradient-radial bg-gr from-green-400 to-white hover:bg-green-400 hover:bg-none"
-          />
+          <Button onClick={() => setShowModal(true)}>Start Bracket</Button>
         </div>
         {/* <div className={""}>
           <label htmlFor="playback-select">Hover preview (beta): </label>

@@ -65,21 +65,20 @@ export default function CreateBracket({
 
   return (
     <>
-      {replacementTracks && buttonReplacementId && (
-        <ReplaceTrackModal
-          setShow={(show) => {
-            if (!show) {
-              setButtonReplacementId(null);
-            }
-          }}
-          replacementTracks={replacementTracks}
-          handleReplacement={async (newSong) => {
-            await handleReplacement(buttonReplacementId, newSong);
+      <ReplaceTrackModal
+        showModal={buttonReplacementId && replacementTracks}
+        setShowModal={(show) => {
+          if (!show) {
             setButtonReplacementId(null);
-          }}
-          showSongInfo={songSource && songSource.type === "playlist"}
-        />
-      )}
+          }
+        }}
+        replacementTracks={replacementTracks}
+        handleReplacement={async (newSong) => {
+          await handleReplacement(buttonReplacementId, newSong);
+          setButtonReplacementId(null);
+        }}
+        showSongInfo={songSource && songSource.type === "playlist"}
+      />
       <Bracket
         bracket={bracket}
         bracketSize={bracketTracks.length}

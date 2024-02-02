@@ -1,5 +1,7 @@
 import React from "react";
+import DuplicateIcon from "../assets/svgs/duplicateIcon.svg";
 import TrackNumber from "./BracketCard/TrackNumber";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
 export default function BracketHeader({ songSource, owner, template, bracketTracks }) {
   return (
@@ -11,11 +13,26 @@ export default function BracketHeader({ songSource, owner, template, bracketTrac
             {Boolean(songSource?.type === "playlist") ? songSource.playlist.name : null}
           </h1>
           {Boolean(bracketTracks?.length) && <TrackNumber numTracks={bracketTracks.length} />}
+          {Boolean(template?.ownerId !== owner?.id && template?.ownerUsername) && (
+            <Popover>
+              <PopoverTrigger asChild>
+                <span
+                  title="Created from a template by another user"
+                  className="text-blue-600 text-xs font-medium inline-flex rounded-md cursor-pointer"
+                >
+                  <DuplicateIcon />
+                </span>
+              </PopoverTrigger>
+              <PopoverContent className="text-sm w-fit" side="right">
+                Created from a template by {template.ownerUsername}
+              </PopoverContent>
+            </Popover>
+          )}
         </div>
         {owner?.name && <h2 className="text-md">by {owner.name}</h2>}
-        {template?.ownerId !== owner?.id && template?.ownerUsername && (
+        {/* {template?.ownerId !== owner?.id && template?.ownerUsername && (
           <h3 className="text-sm">{`Created from a template by ${template.ownerUsername}`}</h3>
-        )}
+        )} */}
       </div>
     </div>
   );

@@ -48,7 +48,6 @@ export default function ProfileDropdown({ noChanges }) {
         <Button variant="destructive" onClick={logout}>
           Log out
         </Button>
-        {/* <ActionButton onClick={logout} icon={<LogoutIcon />} variant="danger" text="Log out" /> */}
       </div>
     );
   }

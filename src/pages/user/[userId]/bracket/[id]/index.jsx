@@ -10,7 +10,6 @@ import Seo from "../../../../../components/SEO";
 import BracketView from "../../../../../components/Bracket/ViewBracket";
 import Layout from "../../../../../components/Layout";
 import BracketWinnerInfo from "../../../../../components/Bracket/BracketWinnerInfo";
-import ActionButton from "../../../../../components/Controls/ActionButton";
 import LoadingIndicator from "../../../../../components/LoadingIndicator";
 // Hooks
 import useBracketGeneration from "../../../../../hooks/useBracketGeneration";
@@ -27,6 +26,7 @@ import DuplicateIcon from "../../../../../assets/svgs/duplicateIcon.svg";
 import { LoginContext } from "../../../../../context/LoginContext";
 import BracketHeader from "../../../../../components/BracketHeader";
 import LoginButton from "../../../../../components/Controls/LoginButton";
+import { Button } from "@/components/ui/button";
 
 export default function App({ params, location }) {
   const { loggedIn, loginInfo } = useContext(LoginContext);
@@ -177,14 +177,15 @@ export default function App({ params, location }) {
         <>
           <div className="text-xs -space-x-px rounded-md sticky mx-auto top-0 w-fit z-30 mt-1">
             <div className="flex items-center gap-2">
-              <ActionButton onClick={share} icon={<ShareIcon />} text="Share" />
+              <Button onClick={share} variant="secondary" icon={<ShareIcon />} className="flex justify-center gap-1">
+                <ShareIcon />
+                Share
+              </Button>
               {loggedIn && !isCurrentUser(params.userId) && !isCurrentUser(template.ownerId) && (
-                <ActionButton
-                  onClick={duplicateBracket}
-                  icon={<DuplicateIcon />}
-                  text="Make my own picks"
-                  disabled={!loggedIn}
-                />
+                <Button onClick={duplicateBracket} className="flex justify-center gap-1">
+                  <DuplicateIcon />
+                  Make my own picks
+                </Button>
               )}
               {!loggedIn && (
                 <div className="relative">
