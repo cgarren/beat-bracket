@@ -37,7 +37,7 @@ export default function OptionsDropdown({ label, onChange, value, disabled, chil
       </select>
       <label
         className="absolute 
-                text-xs
+                text-[0.7rem]
                 text-black
                 transform 
                 -translate-y-4
