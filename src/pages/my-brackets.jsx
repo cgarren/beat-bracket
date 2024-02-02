@@ -27,6 +27,7 @@ export default function App({ location }) {
       console.log("failureCount:", failureCount, "error:", err);
       return false;
     },
+    enabled: Boolean(loggedIn && loginInfo?.userId),
     meta: {
       errorMessage: "Error loading brackets",
     },
@@ -61,11 +62,13 @@ export default function App({ location }) {
               <p className="text-sm text-gray-600 mb-2">{`${brackets.length}/${maxBrackets} brackets used`}</p>
             )}
             <Tabs value={activeTab} className="mx-auto" onValueChange={(value) => setActiveTab(value)}>
-              <TabsList className="grid grid-cols-3 w-[400px] mx-auto">
-                <TabsTrigger value="all">All</TabsTrigger>
-                <TabsTrigger value="inProgress">In Progress</TabsTrigger>
-                <TabsTrigger value="completed">Completed</TabsTrigger>
-              </TabsList>
+              {brackets.length > 0 && (
+                <TabsList className="grid grid-cols-3 max-w-[400px] overflow-x-scroll w-screen mx-auto">
+                  <TabsTrigger value="all">All</TabsTrigger>
+                  <TabsTrigger value="inProgress">In Progress</TabsTrigger>
+                  <TabsTrigger value="completed">Completed</TabsTrigger>
+                </TabsList>
+              )}
               <TabsContent
                 value="all"
                 // className={cx(
