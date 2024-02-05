@@ -63,7 +63,7 @@ export default function App({ location }) {
             )}
             <Tabs value={activeTab} className="mx-auto" onValueChange={(value) => setActiveTab(value)}>
               {brackets.length > 0 && (
-                <TabsList className="grid grid-cols-3 max-w-[400px] overflow-x-scroll w-screen mx-auto">
+                <TabsList className="grid grid-cols-3 max-w-[400px] overflow-x-auto mx-auto">
                   <TabsTrigger value="all">All</TabsTrigger>
                   <TabsTrigger value="inProgress">In Progress</TabsTrigger>
                   <TabsTrigger value="completed">Completed</TabsTrigger>
