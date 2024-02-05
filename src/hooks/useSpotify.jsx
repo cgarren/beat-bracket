@@ -190,12 +190,15 @@ export default function useSpotify() {
   );
 
   const openBracket = useCallback(
-    async (uuid, userId, mode = "", state = {}) => {
+    async (uuid, userId, mode = "", state = {}, replace = false) => {
       console.debug(`Opening Bracket: ${uuid}`);
       // open the bracket editor and pass the bracket id off
       if (typeof window !== "undefined") {
-        console.log("nav to", `/user/${userId || getUserInfo(userId).id}/bracket/${uuid}/${mode}`);
-        navigate(`/user/${userId || getUserInfo(userId).id}/bracket/${uuid}/${mode}`, { state: state });
+        console.log("nav to", `/user/${userId || getUserInfo(userId).id}/bracket/${uuid}/${mode}`, state);
+        navigate(`/user/${userId || getUserInfo(userId).id}/bracket/${uuid}/${mode}`, {
+          state: state,
+          replace: replace,
+        });
       }
     },
     [getUserInfo],
