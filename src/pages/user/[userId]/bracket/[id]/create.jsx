@@ -213,8 +213,8 @@ export default function App({ params, location }) {
   // CHANGE HANDLING
 
   const limitChange = useCallback(
-    async (e) => {
-      setLimit(parseInt(e.target.value, 10));
+    async (value) => {
+      setLimit(parseInt(value, 10));
       setShowBracket(false);
       let tempInclusionMethod = inclusionMethod;
       let tempSeedingMethod = seedingMethod;
@@ -226,34 +226,34 @@ export default function App({ params, location }) {
         tempSeedingMethod = "popularity";
         setSeedingMethod("popularity");
       }
-      changeBracket(undefined, e.target.value, tempSeedingMethod, tempInclusionMethod);
+      changeBracket(undefined, value, tempSeedingMethod, tempInclusionMethod);
     },
     [inclusionMethod, seedingMethod, changeBracket],
   );
 
   const seedingChange = useCallback(
-    async (e) => {
-      setSeedingMethod(e.target.value);
+    async (value) => {
+      setSeedingMethod(value);
       setShowBracket(false);
       if (inclusionMethod === "custom") {
-        changeBracket(bracketTracks, undefined, e.target.value);
+        changeBracket(bracketTracks, undefined, value);
       } else {
-        changeBracket(undefined, undefined, e.target.value);
+        changeBracket(undefined, undefined, value);
       }
     },
     [bracketTracks, inclusionMethod, changeBracket],
   );
 
   const inclusionChange = useCallback(
-    async (e) => {
-      setInclusionMethod(e.target.value);
+    async (value) => {
+      setInclusionMethod(value);
       setShowBracket(false);
       let tempSeedingMethod = seedingMethod;
-      if (tempSeedingMethod === "custom" || (e.target.value !== "playlist" && tempSeedingMethod === "playlist")) {
+      if (tempSeedingMethod === "custom" || (value !== "playlist" && tempSeedingMethod === "playlist")) {
         tempSeedingMethod = "popularity";
         setSeedingMethod("popularity");
       }
-      changeBracket(undefined, undefined, tempSeedingMethod, e.target.value);
+      changeBracket(undefined, undefined, tempSeedingMethod, value);
     },
     [seedingMethod, changeBracket],
   );
