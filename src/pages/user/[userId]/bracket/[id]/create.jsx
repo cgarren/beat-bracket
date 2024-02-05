@@ -13,7 +13,6 @@ import Layout from "../../../../../components/Layout";
 import LoadingIndicator from "../../../../../components/LoadingIndicator";
 import BracketOptions from "../../../../../components/Controls/BracketOptions";
 import CreateBracket from "../../../../../components/Bracket/CreateBracket";
-import ExpandedDetails from "../../../../../components/ExpandedDetails";
 import BracketHeader from "../../../../../components/BracketHeader";
 // Hooks
 import useBracketGeneration from "../../../../../hooks/useBracketGeneration";
@@ -24,6 +23,8 @@ import useSongProcessing from "../../../../../hooks/useSongProcessing";
 import useAuthentication from "../../../../../hooks/useAuthentication";
 import useUserInfo from "../../../../../hooks/useUserInfo";
 import { Button } from "../../../../../components/ui/button";
+
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../../../../../components/ui/accordion";
 
 export default function App({ params, location }) {
   const [seedingMethod, setSeedingMethod] = useState("popularity");
@@ -116,7 +117,7 @@ export default function App({ params, location }) {
         await createBracket(creationObj);
         console.debug("Bracket created");
         // navigate(`/user/${owner.id}/bracket/${params.id}/fill`);
-        openBracket(params.id, owner.id, "fill");
+        openBracket(params.id, owner.id, "fill", {}, { replace: true });
         return true;
       } catch (error) {
         if (error.cause && error.cause.code === 429) {
@@ -298,35 +299,35 @@ export default function App({ params, location }) {
   return (
     <Layout noChanges={noChanges} path={location.pathname}>
       {owner?.name && songSource && bracket && bracketTracks && (
-        <div className="mb-1">
+        <div className="mb-1 text-center">
           Customize Bracket
           <BracketHeader songSource={songSource} owner={null} template={null} bracketTracks={null} />
-          <div className="max-w-lg mx-auto px-3">
-            <ExpandedDetails
-              onClickHandler={() => mixpanel.track("Clicked 'How do I customize my bracket?' details")}
-              question="How do I customize my bracket?"
-              answer={
-                <div>
-                  <ol className="list-decimal list-inside text-left w-fit">
-                    <li>
-                      Select a <span className="font-bold">bracket size</span>,{" "}
-                      <span className="font-bold">inclusion method</span>, and{" "}
-                      <span className="font-bold">seeding method</span>
-                    </li>
-                    <li>
-                      Optionally, <span className="font-bold">drag and drop</span> songs to rearrange them or{" "}
-                      <span className="font-bold">click the double arrow</span> on any song to switch it out with
-                      another
-                    </li>
-                    <li>
-                      Click &quot;<span className="font-bold">Start Bracket</span>&quot; to start filling out your
-                      bracket
-                    </li>
-                  </ol>
-                </div>
-              }
-            />
-          </div>
+          <Accordion type="single" collapsible className="w-fit max-w-lg mx-auto m-0">
+            <AccordionItem
+              value="customization-help"
+              className="rounded-lg data-[state=open]:bg-white data-[state=open]:pt-3 data-[state=open]:ring-black/5 data-[state=open]:ring-1 data-[state=open]:shadow-lg px-3"
+            >
+              <AccordionTrigger className="hover:no-underline p-0 mb-1 font-bold">
+                How do I customize my bracket?
+              </AccordionTrigger>
+              <AccordionContent>
+                <ol className="list-decimal list-inside text-left w-fit mx-auto">
+                  <li>
+                    Select a <span className="font-bold">bracket size</span>,{" "}
+                    <span className="font-bold">inclusion method</span>, and{" "}
+                    <span className="font-bold">seeding method</span>
+                  </li>
+                  <li>
+                    Optionally, <span className="font-bold">drag and drop</span> songs to rearrange them or{" "}
+                    <span className="font-bold">click the double arrow</span> on any song to switch it out with another
+                  </li>
+                  <li>
+                    Click &quot;<span className="font-bold">Start Bracket</span>&quot; to start filling out your bracket
+                  </li>
+                </ol>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
       )}
       {!showBracket && owner.name && songSource && <LoadingIndicator loadingText="Generating bracket..." />}
