@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import Suggestion from "./Suggestion";
 import { Input } from "../ui/input";
 
-export default function SearchBar({ searchSuggestions, disabled, placeholder }) {
+export default function SearchBar({ searchSuggestions, disabled, placeholder, id = "searchbar" }) {
   const [searchText, setSearchText] = useState("");
   const {
     data: suggestionList,
@@ -37,7 +37,9 @@ export default function SearchBar({ searchSuggestions, disabled, placeholder }) 
   // }, [searchText, searchSuggestions]);
 
   useEffect(() => {
-    document.getElementById("searchbar").addEventListener("keydown", (e) => {
+    console.log("ran", document.getElementById(id));
+    document.getElementById(id).focus();
+    document.getElementById(id).addEventListener("keydown", (e) => {
       if (e.key === "ArrowDown") {
         e.preventDefault();
         if (document.getElementById("suggestion-list").children.length > 0) {
@@ -51,7 +53,7 @@ export default function SearchBar({ searchSuggestions, disabled, placeholder }) 
           e.preventDefault();
           e.stopPropagation();
           if (document.activeElement === document.getElementById("suggestion-list").firstChild) {
-            document.getElementById("searchbar").focus();
+            document.getElementById(id).focus();
           } else if (document.getElementById("suggestion-list").contains(document.activeElement)) {
             document.activeElement.previousSibling.focus();
           }
@@ -83,8 +85,8 @@ export default function SearchBar({ searchSuggestions, disabled, placeholder }) 
           autoComplete="off"
           autoCorrect="off"
           autoCapitalize="off"
-          id="searchbar"
-          autoFocus
+          id={id}
+          // autoFocus
           onChange={(e) => setSearchText(e.target.value)}
         />
       </div>

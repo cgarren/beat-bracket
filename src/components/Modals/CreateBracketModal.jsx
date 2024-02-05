@@ -58,17 +58,20 @@ export default function CreateBracketModal({ showModal, setShowModal }) {
           <Tabs
             defaultValue="artist"
             onValueChange={(value) => {
+              // const searchbar = document.getElementById("searchbar");
+              // if (searchbar) searchbar.focus();
               if (value === "topMusic") mixpanel.track("Clicked Top Music Tab");
             }}
           >
             <TabsList className="mb-0">
               <TabsTrigger value="artist">Artist</TabsTrigger>
               <TabsTrigger value="playlist">Playlist</TabsTrigger>
-              <TabsTrigger value="topMusic">Your top music</TabsTrigger>
+              {/* <TabsTrigger value="topMusic">Your top music</TabsTrigger> */}
             </TabsList>
             <Separator className="my-3" />
             <TabsContent value="artist">
               <ArtistSearchBar
+                id="searchbar"
                 setArtist={(artist) => {
                   createBracket({ type: "artist", artist: artist });
                 }}
@@ -84,6 +87,7 @@ export default function CreateBracketModal({ showModal, setShowModal }) {
               )}
               {isSuccess && (
                 <UserPlaylistSearchBar
+                  id="searchbar"
                   setPlaylist={(playlist) => {
                     console.debug("Selected playlist:", playlist);
                     createBracket({ type: "playlist", playlist: playlist });

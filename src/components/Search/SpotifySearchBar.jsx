@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 import useSpotify from "../../hooks/useSpotify";
 import SearchBar from "./SearchBar";
 
-export default function SpotifySearchBar({ type, setFunc, disabled }) {
+export default function SpotifySearchBar({ type, setFunc, disabled, id = "spotify-search" }) {
   const placeholder = (() => {
     switch (type) {
       case "artist":
@@ -53,5 +53,5 @@ export default function SpotifySearchBar({ type, setFunc, disabled }) {
     [search, getArt, type, setFunc],
   );
 
-  return <SearchBar searchSuggestions={searchSuggestions} disabled={disabled} placeholder={placeholder} />;
+  return <SearchBar searchSuggestions={searchSuggestions} disabled={disabled} placeholder={placeholder} id={id} />;
 }
