@@ -154,7 +154,7 @@ export default function Bracket({
     <div hidden={!showBracket || renderArray.length === 0}>
       <div
         className={cx({
-          "overflow-x-scroll flex": true,
+          "overflow-x-auto flex": true,
           "justify-center": bracketWidth <= width,
           "justify-start": bracketWidth > width,
         })}

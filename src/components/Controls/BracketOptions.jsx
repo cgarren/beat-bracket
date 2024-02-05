@@ -24,7 +24,7 @@ export default function BracketOptions({
   return (
     <>
       <StartBracketModal showModal={showModal} setShowModal={setShowModal} startBracket={startBracket} />
-      <div className="flex flex-row gap-1 overflow-x-scroll w-screen py-2 items-center min-[450px]:justify-center justify-start">
+      <div className="flex flex-row gap-1 overflow-x-auto w-screen py-2 items-center min-[450px]:justify-center justify-start">
         <BracketOptionsSelect
           label="Size"
           value={limit}

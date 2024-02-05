@@ -98,7 +98,7 @@ export default function SearchBar({ searchSuggestions, disabled, placeholder, id
       <div
         id="suggestion-list"
         // className="m-0 p-0 list-none flex-nowrap gap-0 inline-flex flex-col text-center w-full rounded"
-        className="m-0 mt-1 p-0 list-none flex-nowrap gap-0 inline-flex flex-col text-center w-full rounded max-h-[70vh] overflow-scroll"
+        className="m-0 mt-1 p-0 list-none flex-nowrap gap-0 inline-flex flex-col text-center w-full rounded max-h-[70vh] overflow-y-scroll"
       >
         {isSuccess &&
           suggestionList.map((item) => (
