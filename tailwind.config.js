@@ -6,6 +6,7 @@ module.exports = {
   theme: {
     fontFamily: {
       logo: ["Righteous", "sans-serif"],
+      sans: ["Roboto", "sans-serif"],
     },
     container: {
       center: true,
@@ -28,7 +29,7 @@ module.exports = {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "spin-reverse": "spin 1s linear infinite reverse"
+        "spin-reverse": "spin 1s linear infinite reverse",
       },
     },
   },
