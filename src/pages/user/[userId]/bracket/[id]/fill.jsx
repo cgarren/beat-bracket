@@ -28,7 +28,7 @@ import useUserInfo from "../../../../../hooks/useUserInfo";
 import LoadingIndicator from "../../../../../components/LoadingIndicator";
 import SyncIcon from "../../../../../assets/svgs/syncIcon.svg";
 import BracketHeader from "../../../../../components/BracketHeader";
-import { Button } from "@/components/ui/button";
+import { Button } from "../../../../../components/ui/button";
 
 export default function App({ params, location }) {
   // State

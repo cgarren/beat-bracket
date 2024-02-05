@@ -26,7 +26,7 @@ import DuplicateIcon from "../../../../../assets/svgs/duplicateIcon.svg";
 import { LoginContext } from "../../../../../context/LoginContext";
 import BracketHeader from "../../../../../components/BracketHeader";
 import LoginButton from "../../../../../components/Controls/LoginButton";
-import { Button } from "@/components/ui/button";
+import { Button } from "../../../../../components/ui/button";
 
 export default function App({ params, location }) {
   const { loggedIn, loginInfo } = useContext(LoginContext);
