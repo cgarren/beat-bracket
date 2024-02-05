@@ -19,7 +19,7 @@ export default function App({ location }) {
     data: brackets,
     isError,
     isSuccess,
-    isPending,
+    isLoading,
   } = useQuery({
     queryKey: ["brackets", { userId: loginInfo?.userId }],
     queryFn: () => getBrackets(loginInfo?.userId),
@@ -50,12 +50,12 @@ export default function App({ location }) {
     <Layout noChanges={() => true} path={location.pathname}>
       <div className="text-center">
         <h1 className="text-4xl font-extrabold mb-2">My Brackets</h1>
-        {isError && (
+        {(isError || !loggedIn || !loginInfo?.userId) && (
           <div className="text-md text-gray-600 mb-2">
             Error loading brackets! {!loggedIn && "You must be logged in to view your brackets."}
           </div>
         )}
-        {isPending && <LoadingIndicator loadingText="Loading brackets" />}
+        {isLoading && <LoadingIndicator loadingText="Loading brackets" />}
         {isSuccess && brackets && (
           <div className="flex flex-col justify-center">
             {maxBrackets && (
@@ -100,26 +100,6 @@ export default function App({ location }) {
                 </BracketGrid>
               </TabsContent>
             </Tabs>
-            {/* <div className="">
-              <nav className="inline-flex flex-row">
-                <Tab id={0} activeTab={activeTab} setActiveTab={setActiveTab} content="All" />
-                <Tab id={1} activeTab={activeTab} setActiveTab={setActiveTab} content="In Progress" />
-                <Tab id={2} activeTab={activeTab} setActiveTab={setActiveTab} content="Completed" />
-              </nav>
-            </div>
-            <div
-              className={cx(
-                "pt-3 items-stretch sm:mx-5 gap-5",
-                { "inline-grid 2xl:grid-cols-4 xl:grid-cols-3 md:grid-cols-2": brackets && brackets.length >= 3 },
-                { "flex flex-row flex-wrap justify-center": brackets && brackets.length < 3 },
-              )}
-            >
-              {activeTab === 0 && isSuccess && brackets.length < maxBrackets && <CreateBracketCard />}
-              {isPending && <LoadingBracketCard />}
-              {shownBrackets.map((bracket) => (
-                <BracketCard bracket={bracket} key={bracket.id} />
-              ))}
-              </div> */}
           </div>
         )}
       </div>

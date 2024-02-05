@@ -28,8 +28,8 @@ export default function ProfileDropdown({ noChanges }) {
 
   if (!loggedIn && !loginInProgress) {
     return (
-      <div className="align-middle">
-        <LoginButton variant="defaultWithOutline" />
+      <div className="align-middle border border-white rounded">
+        <LoginButton />
       </div>
     );
   }
