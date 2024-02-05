@@ -28,7 +28,6 @@ export default function StartBracketModal({ showModal, setShowModal, startBracke
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={async (event) => {
-              console.log(event);
               event.preventDefault();
               if (bracketStarting) return;
               setBracketStarting(true);
