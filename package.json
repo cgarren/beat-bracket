@@ -16,8 +16,8 @@
     "deploy-qa": "gatsby build --prefix-paths && gh-pages -d public --repo https://github.com/cgarren/beat-bracket-qa.git"
   },
   "dependencies": {
+    "@fontsource-variable/roboto-flex": "^5.0.8",
     "@fontsource/righteous": "^4.5.7",
-    "@fontsource/roboto": "^5.0.8",
     "@radix-ui/react-accordion": "^1.1.2",
     "@radix-ui/react-alert-dialog": "^1.0.5",
     "@radix-ui/react-avatar": "^1.0.4",

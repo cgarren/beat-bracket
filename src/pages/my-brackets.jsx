@@ -49,7 +49,7 @@ export default function App({ location }) {
   return (
     <Layout noChanges={() => true} path={location.pathname}>
       <div className="text-center">
-        <h1 className="text-4xl font-extrabold mb-2">My Brackets</h1>
+        <h1 className="text-4xl font-bold mb-2">My Brackets</h1>
         {(isError || !loggedIn || !loginInfo?.userId) && (
           <div className="text-md text-gray-600 mb-2">
             Error loading brackets! {!loggedIn && "You must be logged in to view your brackets."}

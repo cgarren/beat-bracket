@@ -1,5 +1,6 @@
 import "@fontsource/righteous";
-import "@fontsource/roboto";
+// Supports weights 100-900 in a single small file.
+import "@fontsource-variable/roboto-flex";
 import "./global-styles.css";
 
 import React from "react";

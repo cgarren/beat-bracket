@@ -6,7 +6,7 @@ module.exports = {
   theme: {
     fontFamily: {
       logo: ["Righteous", "sans-serif"],
-      sans: ["Roboto", "sans-serif"],
+      sans: ["Roboto Flex", "sans-serif"],
     },
     container: {
       center: true,
