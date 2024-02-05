@@ -1,4 +1,5 @@
 import "@fontsource/righteous";
+import "@fontsource/roboto";
 import "./global-styles.css";
 
 import React from "react";
