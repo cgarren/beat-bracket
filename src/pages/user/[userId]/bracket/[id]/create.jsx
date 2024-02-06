@@ -230,6 +230,9 @@ export default function App({ params, location }) {
 
   const limitChange = useCallback(
     async (value) => {
+      mixpanel.track("Change Bracket Size", {
+        Tracks: value,
+      });
       setLimit(parseInt(value, 10));
       setShowBracket(false);
       let tempInclusionMethod = inclusionMethod;
@@ -249,6 +252,9 @@ export default function App({ params, location }) {
 
   const seedingChange = useCallback(
     async (value) => {
+      mixpanel.track("Change Seeding Method", {
+        "Seeding Method": value,
+      });
       setSeedingMethod(value);
       setShowBracket(false);
       if (inclusionMethod === "custom") {
@@ -262,6 +268,9 @@ export default function App({ params, location }) {
 
   const inclusionChange = useCallback(
     async (value) => {
+      mixpanel.track("Change Inclusion Method", {
+        "Inclusion Method": value,
+      });
       setInclusionMethod(value);
       setShowBracket(false);
       let tempSeedingMethod = seedingMethod;
