@@ -69,7 +69,7 @@ export default function App({ location }) {
               value={activeTab}
               className="mx-auto"
               onValueChange={(value) => {
-                mixpanel.track("Click", { Item: "Filter Brackets Tab", Tab: camelCaseToTitleCase(value) });
+                mixpanel.track("Click Tab", { "Tab Group": "Filter Brackets", Tab: camelCaseToTitleCase(value) });
                 setActiveTab(value);
               }}
             >

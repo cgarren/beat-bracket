@@ -52,7 +52,6 @@ export default function Layout({
 
   useEffect(() => {
     if (mixpanel?.register) {
-      // console.log("registering super props", superProps, trackedProps);
       mixpanel.register(superProps);
     }
   }, [mixpanel, superProps, trackedProps]);

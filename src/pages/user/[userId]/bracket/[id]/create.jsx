@@ -323,9 +323,11 @@ export default function App({ params, location }) {
             collapsible
             className="w-fit max-w-lg mx-auto m-0"
             onValueChange={(value) => {
-              console.log(value);
               if (value.length > 0) {
-                mixpanel.track("Click", { Item: "Customization FAQ", "Open Question": camelCaseToTitleCase(value) });
+                mixpanel.track("Open FAQ", {
+                  "FAQ Group": "Customization Help",
+                  "Open Question": camelCaseToTitleCase(value),
+                });
               }
             }}
           >

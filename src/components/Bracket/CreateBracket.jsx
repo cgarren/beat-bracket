@@ -51,10 +51,8 @@ export default function CreateBracket({
 
   const handleReplacement = useCallback(
     async (id, newSong) => {
-      console.debug("replacing", id);
-      mixpanel.track("Click", {
-        Item: "Replace Track",
-        "Replacement Id": id,
+      mixpanel.track("Replace Track", {
+        "Replacement Location Id": id,
         "New Song Id": newSong.id,
         "New Song Name": newSong.name,
       });

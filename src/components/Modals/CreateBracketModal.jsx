@@ -63,7 +63,7 @@ export default function CreateBracketModal({ showModal, setShowModal }) {
             onValueChange={(value) => {
               // const searchbar = document.getElementById("searchbar");
               // if (searchbar) searchbar.focus();
-              mixpanel.track("Click", { Item: "Create Bracket Tab", Tab: camelCaseToTitleCase(value) });
+              mixpanel.track("Click Tab", { "Tab Group": "Create Bracket", Tab: camelCaseToTitleCase(value) });
             }}
           >
             <TabsList className="mb-0">
