@@ -36,6 +36,7 @@ export default function App({ params, location }) {
   const [currentlyPlayingId, setCurrentlyPlayingId] = useState(null);
   const [lastSaved, setLastSaved] = useState({ time: 0, commandsLength: 0 });
   const [savePending, setSavePending] = useState(false);
+  const [percentageFilled, setPercentageFilled] = useState(0);
 
   // Hooks
   const { getArtist, getPlaylist, openBracket } = useSpotify();
@@ -261,7 +262,7 @@ export default function App({ params, location }) {
       const saveData = queryClient.getQueryData(["bracket", { bracketId: params.id, userId: owner.id }])?.bracketData;
       if (saveData) {
         setSavePending(true);
-        const newData = { bracketData: saveData, winner: bracketWinner };
+        const newData = { bracketData: saveData, winner: bracketWinner, percentageFilled: percentageFilled };
         saveBracketMutation(newData);
       }
     }
@@ -333,7 +334,6 @@ export default function App({ params, location }) {
       const filledBracket = await fillBracket(loadedTemplate.tracks, getNumberOfColumns(loadedTemplate.tracks.length));
 
       // create bracket and set it up for the user to fill
-      // Make this a mutation eventually
       createBracketMutation({
         bracketId: newBracketId,
         ownerUsername: ownerUsername,
@@ -489,8 +489,9 @@ export default function App({ params, location }) {
                 Share
               </Button>
             </div>
+            <div className="">{percentageFilled.toFixed(0)}% filled</div>
             {saving && !saveError && (
-              <div className="absolute left-1/2 -translate-x-1/2 -bottom-3/4 flex items-center gap-1">
+              <div className="absolute left-1/2 -translate-x-1/2 -bottom-1/3 flex items-center gap-1">
                 <div className="animate-spin-reverse w-fit h-fit" aria-label="Saving" title="Saving">
                   <SyncIcon />
                 </div>
@@ -514,6 +515,7 @@ export default function App({ params, location }) {
             currentlyPlayingId={currentlyPlayingId}
             setCurrentlyPlayingId={setCurrentlyPlayingId}
             saveCommand={saveCommand}
+            setPercentageFilled={setPercentageFilled}
           />
         </>
       )}
