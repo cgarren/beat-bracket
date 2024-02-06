@@ -1,10 +1,8 @@
 /* eslint-disable prettier/prettier */
 // React
-import React, { useEffect, useState, useMemo, useCallback } from "react";
+import React, { useEffect, useState, useMemo, useCallback, useContext } from "react";
 import { Link } from "gatsby";
 import toast from "react-hot-toast";
-// Third Party
-import mixpanel from "mixpanel-browser";
 // import Mousetrap from "mousetrap";
 import { useQuery } from "@tanstack/react-query";
 // Components
@@ -23,6 +21,8 @@ import useSongProcessing from "../../../../../hooks/useSongProcessing";
 import useAuthentication from "../../../../../hooks/useAuthentication";
 import useUserInfo from "../../../../../hooks/useUserInfo";
 import { Button } from "../../../../../components/ui/button";
+// Context
+import { MixpanelContext } from "../../../../../context/MixpanelContext";
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../../../../../components/ui/accordion";
 
@@ -41,6 +41,8 @@ export default function App({ params, location }) {
   const { createBracket } = useBackend();
   const { seedBracket, sortTracks, getArtistTracks, getPlaylistTracks } = useSongProcessing();
   const { getNumberOfColumns, fillBracket } = useBracketGeneration();
+
+  const mixpanel = useContext(MixpanelContext);
 
   const { data: userInfo } = useUserInfo();
 
@@ -90,6 +92,20 @@ export default function App({ params, location }) {
     }
     return tracks;
   }, [bracket]);
+
+  const trackedProps = useMemo(
+    () => ({
+      "Bracket Id": params?.id,
+      "Owner Username": owner?.name,
+      "Seeding Method": seedingMethod,
+      "Inclusion Method": inclusionMethod,
+      "Song Source Type": songSource?.type,
+      "Song Source Name": songSource?.[songSource?.type]?.name,
+      "Song Source Id": songSource?.[songSource?.type]?.id,
+      Tracks: bracketTracks?.length,
+    }),
+    [params?.id, owner?.name, seedingMethod, inclusionMethod, songSource, bracketTracks?.length],
+  );
 
   // START BRACKET
 
@@ -297,12 +313,17 @@ export default function App({ params, location }) {
   }
 
   return (
-    <Layout noChanges={noChanges} path={location.pathname} pageName="Create Bracket">
+    <Layout noChanges={noChanges} path={location.pathname} pageName="Create Bracket" trackedProps={trackedProps}>
       {owner?.name && songSource && bracket && bracketTracks && (
         <div className="mb-1 text-center">
           Customize Bracket
           <BracketHeader songSource={songSource} owner={null} template={null} bracketTracks={null} />
-          <Accordion type="single" collapsible className="w-fit max-w-lg mx-auto m-0">
+          <Accordion
+            type="single"
+            collapsible
+            className="w-fit max-w-lg mx-auto m-0"
+            onValueChange={() => mixpanel.track("Click", { Item: "Customization Help" })}
+          >
             <AccordionItem
               value="customization-help"
               className="rounded-lg data-[state=open]:bg-white data-[state=open]:pt-3 data-[state=open]:ring-black/5 data-[state=open]:ring-1 data-[state=open]:shadow-lg px-3"

@@ -20,6 +20,7 @@ export default function Layout({
   noChanges = () => true,
   path = typeof window !== "undefined" ? window.location.pathname : undefined,
   pageName,
+  trackedProps = {},
   showNavBar = true,
   showFooter = true,
   track = true,
@@ -37,6 +38,7 @@ export default function Layout({
       "Logged In": loggedIn,
       Path: path,
       ...(pageName && { "Page Name": pageName }),
+      ...trackedProps,
     }),
     [loggedIn, path, pageName],
   );
@@ -46,7 +48,6 @@ export default function Layout({
     if (track && mixpanel && mixpanel.track_pageview && mixpanel.register) {
       mixpanel.track_pageview();
       mixpanel.register(superProps);
-      console.debug("Tracked page load");
     }
   }, [mixpanel, track]);
 

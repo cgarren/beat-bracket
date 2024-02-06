@@ -124,6 +124,20 @@ export default function App({ params, location }) {
     return null;
   }, [bracket, bracketTracks, getNumberOfColumns]);
 
+  const trackedProps = useMemo(
+    () => ({
+      "Bracket Id": params?.id,
+      "Owner Username": owner?.name,
+      "Seeding Method": loadedBracket?.template?.seedingMethod,
+      "Inclusion Method": loadedBracket?.template?.inclusionMethod,
+      "Song Source Type": songSource?.type,
+      "Song Source Name": songSource?.[songSource?.type]?.name,
+      "Song Source Id": songSource?.[songSource?.type]?.id,
+      Tracks: bracketTracks?.length,
+    }),
+    [params.id, owner.name, loadedBracket?.template, songSource, bracketTracks.length],
+  );
+
   // DUPLICATE
 
   const duplicateBracket = useCallback(async () => {
@@ -149,13 +163,7 @@ export default function App({ params, location }) {
 
   if (fetchPending || !bracket) {
     return (
-      <Layout
-        noChanges={() => true}
-        path={location.pathname}
-        // saveBracketLocally={saveBracketLocally}
-        // isBracketSavedLocally={isBracketSavedLocally}
-        // deleteBracketSavedLocally={deleteBracketSavedLocally}
-      >
+      <Layout noChanges={() => true} path={location.pathname} pageName="View Bracket">
         {fetchPending && <LoadingIndicator loadingText="Loading bracket..." />}
         {!fetchPending && !bracket && <div className="font-bold mb-2">Bracket not found</div>}
       </Layout>
@@ -163,7 +171,7 @@ export default function App({ params, location }) {
   }
 
   return (
-    <Layout noChanges={() => true} path={location.pathname} pageName="View Bracket">
+    <Layout noChanges={() => true} path={location.pathname} pageName="View Bracket" trackedProps={trackedProps}>
       <div className="text-center">
         <BracketHeader songSource={songSource} owner={owner} template={template} bracketTracks={bracketTracks} />
         {bracketWinner && (

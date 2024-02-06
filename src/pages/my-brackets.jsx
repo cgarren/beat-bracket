@@ -9,11 +9,15 @@ import useBackend from "../hooks/useBackend";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import LoadingIndicator from "../components/LoadingIndicator";
 import BracketGrid from "../components/BracketGrid";
+import { MixpanelContext } from "../context/MixpanelContext";
+import useHelper from "../hooks/useHelper";
 
 export default function App({ location }) {
   const [activeTab, setActiveTab] = useState("all");
+  const mixpanel = useContext(MixpanelContext);
   const { loginInfo, loggedIn } = useContext(LoginContext);
   const { getBrackets, getMaxBrackets } = useBackend();
+  const { camelCaseToTitleCase } = useHelper();
   const maxBrackets = getMaxBrackets();
   const {
     data: brackets,
@@ -61,7 +65,15 @@ export default function App({ location }) {
             {maxBrackets && (
               <p className="text-sm text-gray-600 mb-2">{`${brackets.length}/${maxBrackets} brackets used`}</p>
             )}
-            <Tabs value={activeTab} className="mx-auto" onValueChange={(value) => setActiveTab(value)}>
+            <Tabs
+              value={activeTab}
+              className="mx-auto"
+              onValueChange={(value) => {
+                console.log({ Item: "Filter Brackets Tab", Tab: camelCaseToTitleCase(value) });
+                mixpanel.track("Click", { Item: "Filter Brackets Tab", Tab: camelCaseToTitleCase(value) });
+                setActiveTab(value);
+              }}
+            >
               {brackets.length > 0 && (
                 <TabsList className="grid grid-cols-3 max-w-[400px] overflow-x-auto mx-auto">
                   <TabsTrigger value="all">All</TabsTrigger>

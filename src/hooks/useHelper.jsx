@@ -1,5 +1,4 @@
 // Screnshot library
-// import html2canvas from "html2canvas";
 import { useCallback } from "react";
 import { navigate } from "gatsby";
 
@@ -154,31 +153,6 @@ export default function useHelper() {
     throw new Error(`Found bracket with invalid side: ${value1.side} or ${value2.side}`);
   }, []);
 
-  //   const downloadBracket = useCallback((bracketId, artistName) => {
-  //     const bracketEl = document.getElementById(bracketId);
-  //     html2canvas(bracketEl, {
-  //       scale: 4,
-  //       scrollX: -bracketEl.offsetLeft,
-  //       scrollY: -bracketEl.offsetTop,
-  //       logging: false,
-  //     }).then(function (canvas) {
-  //       // canvas = document.body.appendChild(canvas); // used for debugging
-  //       const ctx = canvas.getContext("2d");
-  //       ctx.textAlign = "center";
-  //       ctx.textBaseline = "middle";
-  //       ctx.fillStyle = "black";
-  //       ctx.font = "bold 30px sans-serif";
-  //       ctx.fillText(artistName, canvas.width / 8, canvas.height / 16, 225);
-  //       ctx.font = "8px sans-serif";
-  //       ctx.fillText("Bracket made at cgarren.github.io/song-coliseum", canvas.width / 8, canvas.height / 16 + 20, 225);
-  //       const createEl = document.createElement("a");
-  //       createEl.href = canvas.toDataURL("image/svg+xml");
-  //       createEl.download = `${artistName} bracket from Beat Bracket`;
-  //       createEl.click();
-  //       createEl.remove();
-  //     });
-  //   }, []);
-
   const bracketUnchanged = useCallback((bracket) => {
     if (!(bracket instanceof Map)) {
       return false;
@@ -194,6 +168,11 @@ export default function useHelper() {
     }
   }, []);
 
+  const camelCaseToTitleCase = useCallback(
+    (str) => str.replace(/([A-Z])/g, " $1").replace(/^./, (tempstr) => tempstr.toUpperCase()),
+    [],
+  );
+
   return {
     debounce,
     generateRandomString,
@@ -206,5 +185,6 @@ export default function useHelper() {
     bracketSorter,
     bracketUnchanged,
     handleNaviagtionAttempt,
+    camelCaseToTitleCase,
   };
 }

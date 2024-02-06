@@ -203,6 +203,20 @@ export default function App({ params, location }) {
     return false;
   }, [bracketWinner, commands]);
 
+  const trackedProps = useMemo(
+    () => ({
+      "Bracket Id": params?.id,
+      "Owner Username": owner?.name,
+      "Seeding Method": loadedBracket?.template?.seedingMethod,
+      "Inclusion Method": loadedBracket?.template?.inclusionMethod,
+      "Song Source Type": songSource?.type,
+      "Song Source Name": songSource?.[songSource?.type]?.name,
+      "Song Source Id": songSource?.[songSource?.type]?.id,
+      Tracks: bracketTracks?.length,
+    }),
+    [params.id, owner.name, loadedBracket?.template, songSource, bracketTracks.length],
+  );
+
   // SAVE
 
   // async function saveBracket(data) {
@@ -436,14 +450,14 @@ export default function App({ params, location }) {
 
   if (fetchFailure && !creationPossible) {
     return (
-      <Layout noChanges={() => true} path={location.pathname}>
+      <Layout noChanges={() => true} path={location.pathname} pageName="Fill Bracket">
         <div className="font-bold mb-2">Bracket not found</div>
       </Layout>
     );
   }
 
   return (
-    <Layout noChanges={noChanges} path={location.pathname}>
+    <Layout noChanges={noChanges} path={location.pathname} pageName="Fill Bracket" trackedProps={trackedProps}>
       {bracketWinner && commands.length !== 0 && (
         <Confetti
           width={window.document.body.offsetWidth}

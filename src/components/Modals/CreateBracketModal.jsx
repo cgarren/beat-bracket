@@ -1,7 +1,6 @@
 import React, { useContext, useCallback } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { useQuery } from "@tanstack/react-query";
-import mixpanel from "mixpanel-browser";
 import ArtistSearchBar from "../Search/ArtistSearchBar";
 import UserPlaylistSearchBar from "../Search/UserPlaylistSearchBar";
 import useSongProcessing from "../../hooks/useSongProcessing";
@@ -11,11 +10,15 @@ import LoadingIndicator from "../LoadingIndicator";
 import { Tabs, TabsTrigger, TabsList, TabsContent } from "../ui/tabs";
 import { Separator } from "../ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import { MixpanelContext } from "../../context/MixpanelContext";
+import useHelper from "../../hooks/useHelper";
 // import Badge from "../Badge";
 
 export default function CreateBracketModal({ showModal, setShowModal }) {
+  const mixpanel = useContext(MixpanelContext);
   const { loginInfo } = useContext(LoginContext);
   const { openBracket } = useSpotify();
+  const { camelCaseToTitleCase } = useHelper();
   const { loadPlaylists } = useSongProcessing();
   const {
     data: userPlaylists,
@@ -60,7 +63,7 @@ export default function CreateBracketModal({ showModal, setShowModal }) {
             onValueChange={(value) => {
               // const searchbar = document.getElementById("searchbar");
               // if (searchbar) searchbar.focus();
-              if (value === "topMusic") mixpanel.track("Click", { item: "TopMusicTab" });
+              mixpanel.track("Click", { Item: "Create Bracket Tab", Tab: camelCaseToTitleCase(value) });
             }}
           >
             <TabsList className="mb-0">

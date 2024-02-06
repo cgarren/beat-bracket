@@ -1,4 +1,5 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState, useContext } from "react";
+import { MixpanelContext } from "../../context/MixpanelContext";
 import useHelper from "../../hooks/useHelper";
 import useBracketGeneration from "../../hooks/useBracketGeneration";
 import Bracket from "./Bracket";
@@ -16,6 +17,7 @@ export default function CreateBracket({
   setSeedingMethod,
   setInclusionMethod,
 }) {
+  const mixpanel = useContext(MixpanelContext);
   const { popularitySort } = useHelper();
   const { getColorsFromImage } = useBracketGeneration();
   const bracketIds = useMemo(() => bracketTracks.map((track) => track.id), [bracketTracks]);
@@ -50,6 +52,7 @@ export default function CreateBracket({
   const handleReplacement = useCallback(
     async (id, newSong) => {
       console.debug("replacing", id);
+      mixpanel.track("Click", { Item: "Replace Track", "Old Id": id, "New Id": newSong.id });
       const newColor = await getColorsFromImage(newSong.art);
       modifyBracket(
         [

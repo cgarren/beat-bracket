@@ -37,7 +37,7 @@ export default function SearchBar({ searchSuggestions, disabled, placeholder, id
   // }, [searchText, searchSuggestions]);
 
   useEffect(() => {
-    console.log("ran", document.getElementById(id));
+    // console.log("ran", document.getElementById(id));
     document.getElementById(id).focus();
     document.getElementById(id).addEventListener("keydown", (e) => {
       if (e.key === "ArrowDown") {
