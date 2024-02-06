@@ -52,7 +52,12 @@ export default function CreateBracket({
   const handleReplacement = useCallback(
     async (id, newSong) => {
       console.debug("replacing", id);
-      mixpanel.track("Click", { Item: "Replace Track", "Old Id": id, "New Id": newSong.id });
+      mixpanel.track("Click", {
+        Item: "Replace Track",
+        "Replacement Id": id,
+        "New Song Id": newSong.id,
+        "New Song Name": newSong.name,
+      });
       const newColor = await getColorsFromImage(newSong.art);
       modifyBracket(
         [
