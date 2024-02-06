@@ -23,7 +23,7 @@ export default function BracketHeader({ songSource, owner, template, bracketTrac
                   <DuplicateIcon />
                 </span>
               </PopoverTrigger>
-              <PopoverContent className="text-sm w-fit" side="right">
+              <PopoverContent className="text-sm w-fit p-1.5 rounded-lg" side="top" align="center">
                 Created from a template by {template.ownerUsername}
               </PopoverContent>
             </Popover>
