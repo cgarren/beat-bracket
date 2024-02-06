@@ -1,7 +1,5 @@
 import React, { createContext, useState, useEffect, useMemo } from "react";
 import { navigate } from "gatsby";
-// eslint-disable-next-line import/no-cycle
-import useSpotify from "../hooks/useSpotify";
 
 export const LoginContext = createContext([null, () => {}]);
 
@@ -28,7 +26,6 @@ export function LoginProvider({ children }) {
       refreshToken: localStorage.getItem("refreshToken"),
     };
   });
-  const [userInfo, setUserInfo] = useState(null);
 
   // loggedIn status
   const loggedIn = useMemo(() => {
@@ -47,8 +44,6 @@ export function LoginProvider({ children }) {
     console.debug("not logged in");
     return false;
   }, [loginInfo]);
-
-  const { getCurrentUserInfo } = useSpotify();
 
   // // keep loginInfo in sync with localstorage
   // useEffect(() => {
@@ -123,21 +118,6 @@ export function LoginProvider({ children }) {
   //     [timerId, setTimerId]
   // );
 
-  // keep userInfo in sync with loginInfo
-  useEffect(() => {
-    if (loggedIn) {
-      getCurrentUserInfo(loginInfo.accessToken)
-        .then((info) => {
-          setUserInfo(info);
-        })
-        .catch((err) => {
-          console.error(err);
-        });
-    } else {
-      setUserInfo(null);
-    }
-  }, [getCurrentUserInfo, loggedIn]);
-
   // redirect to login page on logout
   useEffect(() => {
     if (
@@ -157,12 +137,10 @@ export function LoginProvider({ children }) {
       loggedIn,
       loginInfo,
       setLoginInfo,
-      userInfo,
-      setUserInfo,
       loginInProgress,
       setLoginInProgress,
     }),
-    [loggedIn, loginInfo, setLoginInfo, userInfo, setUserInfo, loginInProgress, setLoginInProgress],
+    [loggedIn, loginInfo, setLoginInfo, loginInProgress, setLoginInProgress],
   );
 
   return <LoginContext.Provider value={contextValue}>{children}</LoginContext.Provider>;

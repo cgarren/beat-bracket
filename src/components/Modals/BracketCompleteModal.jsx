@@ -1,10 +1,18 @@
 import React from "react";
 import { navigate } from "gatsby";
-import Modal from "./Modal";
-import ActionButton from "../Controls/ActionButton";
 import BracketWinnerInfo from "../Bracket/BracketWinnerInfo";
 import SyncIcon from "../../assets/svgs/syncIcon.svg";
 import ShareIcon from "../../assets/svgs/shareIcon.svg";
+import { Button } from "../ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../ui/alert-dialog";
 
 export default function BracketCompleteModal({
   showModal,
@@ -19,50 +27,27 @@ export default function BracketCompleteModal({
 }) {
   return (
     <div>
-      {showModal && (
-        <Modal
-          onClose={() => {
-            if (!savePending) {
-              navigate(viewLink);
-              setShowModal(false);
-            }
-          }}
-        >
-          <div className="flex flex-col justify-between align-middle gap-0">
-            <h1 className="text-xl font-bold">Bracket Complete!</h1>
+      <AlertDialog open={showModal}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Bracket Complete!</AlertDialogTitle>
+          </AlertDialogHeader>
+          {bracketWinner && (
             <BracketWinnerInfo
               bracketWinner={bracketWinner}
               showSongInfo={songSource && songSource.type === "playlist"}
             />
-            <ActionButton
-              onClick={() => {
-                share();
-              }}
-              text="Share"
-              icon={<ShareIcon />}
-              variant="secondary"
-            />
+          )}
+          <Button onClick={share} variant="secondary" icon={<ShareIcon />} className="flex justify-center gap-1">
+            <ShareIcon />
+            Share
+          </Button>
+          <AlertDialogFooter>
             {!savePending && !saveError && (
-              <div className="mt-2 flex flex-row justify-around">
-                <ActionButton
-                  onClick={() => {
-                    navigate(viewLink);
-                    setShowModal(false);
-                  }}
-                  text="Admire my masterpiece"
-                  variant="secondary"
-                  disabled={savePending}
-                />
-                <ActionButton
-                  onClick={() => {
-                    navigate("/my-brackets");
-                  }}
-                  text="Start a new bracket"
-                  autoFocus
-                  variant="primary"
-                  disabled={savePending}
-                />
-              </div>
+              <>
+                <AlertDialogCancel onClick={() => navigate(viewLink)}>Admire my masterpiece</AlertDialogCancel>
+                <AlertDialogAction onClick={() => navigate("/my-brackets")}>Start a new bracket</AlertDialogAction>
+              </>
             )}
             {savePending && (
               <div className="flex items-center gap-1 justify-center">
@@ -75,12 +60,12 @@ export default function BracketCompleteModal({
             {saveError && (
               <>
                 <div className="flex flex-row justify-around text-red-500 font-bold">Error saving your bracket!</div>
-                <ActionButton onClick={retrySave} text="Retry save" variant="secondary" />
+                <AlertDialogAction onClick={retrySave}>Retry save</AlertDialogAction>
               </>
             )}
-          </div>
-        </Modal>
-      )}
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

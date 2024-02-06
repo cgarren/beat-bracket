@@ -3,7 +3,6 @@
 import React, { useEffect, useState, useMemo, useCallback, useContext } from "react";
 import { Link } from "gatsby";
 import toast from "react-hot-toast";
-// Third Party
 // import Mousetrap from "mousetrap";
 import { useQuery } from "@tanstack/react-query";
 // Components
@@ -12,7 +11,7 @@ import Layout from "../../../../../components/Layout";
 import LoadingIndicator from "../../../../../components/LoadingIndicator";
 import BracketOptions from "../../../../../components/Controls/BracketOptions";
 import CreateBracket from "../../../../../components/Bracket/CreateBracket";
-import ExpandedDetails from "../../../../../components/ExpandedDetails";
+import BracketHeader from "../../../../../components/BracketHeader";
 // Hooks
 import useBracketGeneration from "../../../../../hooks/useBracketGeneration";
 import useHelper from "../../../../../hooks/useHelper";
@@ -20,9 +19,12 @@ import useBackend from "../../../../../hooks/useBackend";
 import useSpotify from "../../../../../hooks/useSpotify";
 import useSongProcessing from "../../../../../hooks/useSongProcessing";
 import useAuthentication from "../../../../../hooks/useAuthentication";
+import useUserInfo from "../../../../../hooks/useUserInfo";
+import { Button } from "../../../../../components/ui/button";
 // Context
-import { LoginContext } from "../../../../../context/LoginContext";
-import BracketHeader from "../../../../../components/BracketHeader";
+import { MixpanelContext } from "../../../../../context/MixpanelContext";
+
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../../../../../components/ui/accordion";
 
 export default function App({ params, location }) {
   const [seedingMethod, setSeedingMethod] = useState("popularity");
@@ -35,11 +37,14 @@ export default function App({ params, location }) {
 
   const { openBracket } = useSpotify();
   const { isCurrentUser } = useAuthentication();
-  const { nearestLesserPowerOf2 } = useHelper();
+  const { nearestLesserPowerOf2, camelCaseToTitleCase } = useHelper();
   const { createBracket } = useBackend();
   const { seedBracket, sortTracks, getArtistTracks, getPlaylistTracks } = useSongProcessing();
   const { getNumberOfColumns, fillBracket } = useBracketGeneration();
-  const { userInfo } = useContext(LoginContext);
+
+  const mixpanel = useContext(MixpanelContext);
+
+  const { data: userInfo } = useUserInfo();
 
   const songSource = useMemo(() => {
     const newSongSource = location?.state;
@@ -88,6 +93,20 @@ export default function App({ params, location }) {
     return tracks;
   }, [bracket]);
 
+  const trackedProps = useMemo(
+    () => ({
+      "Bracket Id": params?.id,
+      "Owner Username": owner?.name,
+      "Seeding Method": seedingMethod,
+      "Inclusion Method": inclusionMethod,
+      "Song Source Type": songSource?.type,
+      "Song Source Name": songSource?.[songSource?.type]?.name,
+      "Song Source Id": songSource?.[songSource?.type]?.id,
+      Tracks: bracketTracks?.length,
+    }),
+    [params?.id, owner?.name, seedingMethod, inclusionMethod, songSource, bracketTracks?.length],
+  );
+
   // START BRACKET
 
   const makeCreationObject = useCallback(async () => {
@@ -114,7 +133,7 @@ export default function App({ params, location }) {
         await createBracket(creationObj);
         console.debug("Bracket created");
         // navigate(`/user/${owner.id}/bracket/${params.id}/fill`);
-        openBracket(params.id, owner.id, "fill");
+        openBracket(params.id, owner.id, "fill", {}, { replace: true });
         return true;
       } catch (error) {
         if (error.cause && error.cause.code === 429) {
@@ -210,8 +229,11 @@ export default function App({ params, location }) {
   // CHANGE HANDLING
 
   const limitChange = useCallback(
-    async (e) => {
-      setLimit(parseInt(e.target.value, 10));
+    async (value) => {
+      mixpanel.track("Change Bracket Size", {
+        Tracks: value,
+      });
+      setLimit(parseInt(value, 10));
       setShowBracket(false);
       let tempInclusionMethod = inclusionMethod;
       let tempSeedingMethod = seedingMethod;
@@ -223,34 +245,40 @@ export default function App({ params, location }) {
         tempSeedingMethod = "popularity";
         setSeedingMethod("popularity");
       }
-      changeBracket(undefined, e.target.value, tempSeedingMethod, tempInclusionMethod);
+      changeBracket(undefined, value, tempSeedingMethod, tempInclusionMethod);
     },
     [inclusionMethod, seedingMethod, changeBracket],
   );
 
   const seedingChange = useCallback(
-    async (e) => {
-      setSeedingMethod(e.target.value);
+    async (value) => {
+      mixpanel.track("Change Seeding Method", {
+        "Seeding Method": value,
+      });
+      setSeedingMethod(value);
       setShowBracket(false);
       if (inclusionMethod === "custom") {
-        changeBracket(bracketTracks, undefined, e.target.value);
+        changeBracket(bracketTracks, undefined, value);
       } else {
-        changeBracket(undefined, undefined, e.target.value);
+        changeBracket(undefined, undefined, value);
       }
     },
     [bracketTracks, inclusionMethod, changeBracket],
   );
 
   const inclusionChange = useCallback(
-    async (e) => {
-      setInclusionMethod(e.target.value);
+    async (value) => {
+      mixpanel.track("Change Inclusion Method", {
+        "Inclusion Method": value,
+      });
+      setInclusionMethod(value);
       setShowBracket(false);
       let tempSeedingMethod = seedingMethod;
-      if (tempSeedingMethod === "custom" || (e.target.value !== "playlist" && tempSeedingMethod === "playlist")) {
+      if (tempSeedingMethod === "custom" || (value !== "playlist" && tempSeedingMethod === "playlist")) {
         tempSeedingMethod = "popularity";
         setSeedingMethod("popularity");
       }
-      changeBracket(undefined, undefined, tempSeedingMethod, e.target.value);
+      changeBracket(undefined, undefined, tempSeedingMethod, value);
     },
     [seedingMethod, changeBracket],
   );
@@ -280,50 +308,63 @@ export default function App({ params, location }) {
       <Layout noChanges={noChanges} path={location.pathname}>
         <div className="text-center">
           <h1 className="text-2xl font-bold">Not enough songs</h1>
-          <p className="text-lg">
+          <p className="text-lg mb-1">
             {songSource?.type === "artist"
               ? `${songSource.artist.name} doesn't have enough songs on Spotify! Try another artist.`
               : `${songSource.playlist.name} doesn't have enough songs on Spotify! Try another playlist.`}
           </p>
-          <Link to="/my-brackets" className="text-lg underline">
-            Go back
-          </Link>
+          <Button asChild>
+            <Link to="/my-brackets">Shucks</Link>
+          </Button>
         </div>
       </Layout>
     );
   }
 
   return (
-    <Layout noChanges={noChanges} path={location.pathname}>
+    <Layout noChanges={noChanges} path={location.pathname} pageName="Create Bracket" trackedProps={trackedProps}>
       {owner?.name && songSource && bracket && bracketTracks && (
-        <div className="mb-1">
+        <div className="mb-1 text-center">
           Customize Bracket
           <BracketHeader songSource={songSource} owner={null} template={null} bracketTracks={null} />
-          <div className="max-w-lg mx-auto px-3">
-            <ExpandedDetails
-              question="How do I customize my bracket?"
-              answer={
-                <div>
-                  <ol className="list-decimal list-inside text-left w-fit">
-                    <li>
-                      Select a <span className="font-bold">bracket size</span>,{" "}
-                      <span className="font-bold">seeding method</span>, and{" "}
-                      <span className="font-bold">inclusion method</span>
-                    </li>
-                    <li>
-                      Optionally, <span className="font-bold">drag and drop</span> songs to rearrange them or{" "}
-                      <span className="font-bold">click the double arrow</span> on any song to switch it out with
-                      another
-                    </li>
-                    <li>
-                      Click &quot;<span className="font-bold">Start Bracket</span>&quot; to start filling out your
-                      bracket
-                    </li>
-                  </ol>
-                </div>
+          <Accordion
+            type="single"
+            collapsible
+            className="w-fit max-w-lg mx-auto m-0"
+            onValueChange={(value) => {
+              if (value.length > 0) {
+                mixpanel.track("Open FAQ", {
+                  "FAQ Group": "Customization Help",
+                  "Open Question": camelCaseToTitleCase(value),
+                });
               }
-            />
-          </div>
+            }}
+          >
+            <AccordionItem
+              value="customizationHelp"
+              className="rounded-lg data-[state=open]:bg-white data-[state=open]:pt-3 data-[state=open]:ring-black/5 data-[state=open]:ring-1 data-[state=open]:shadow-lg px-3"
+            >
+              <AccordionTrigger className="hover:no-underline p-0 mb-1 font-bold">
+                How do I customize my bracket?
+              </AccordionTrigger>
+              <AccordionContent>
+                <ol className="list-decimal list-inside text-left w-fit mx-auto">
+                  <li>
+                    Select a <span className="font-bold">bracket size</span>,{" "}
+                    <span className="font-bold">inclusion method</span>, and{" "}
+                    <span className="font-bold">seeding method</span>
+                  </li>
+                  <li>
+                    Optionally, <span className="font-bold">drag and drop</span> songs to rearrange them or{" "}
+                    <span className="font-bold">click the double arrow</span> on any song to switch it out with another
+                  </li>
+                  <li>
+                    Click &quot;<span className="font-bold">Start Bracket</span>&quot; to start filling out your bracket
+                  </li>
+                </ol>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
       )}
       {!showBracket && owner.name && songSource && <LoadingIndicator loadingText="Generating bracket..." />}
@@ -361,7 +402,7 @@ export default function App({ params, location }) {
   );
 }
 
-export function Head({ params }) {
+export function Head({ params, location }) {
   // const [name, setName] = useState(null);
   // const [userName, setUserName] = useState(null);
 
@@ -388,6 +429,6 @@ export function Head({ params }) {
 
   return (
     // name && userName ? `${name} bracket by ${userName}` : "View/edit bracket"
-    <Seo title="View/edit bracket" />
+    <Seo title="Create Bracket" pathname={location.pathname} />
   );
 }

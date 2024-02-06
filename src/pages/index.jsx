@@ -7,7 +7,7 @@ import Seo from "../components/SEO";
 import LoadingIndicator from "../components/LoadingIndicator";
 import { LoginContext } from "../context/LoginContext";
 
-export default function App({ location }) {
+export default function App() {
   const { loggedIn, loginInProgress } = useContext(LoginContext);
   // scroll to top of window on page load
   useEffect(() => window.scrollTo(0, 0), []);
@@ -18,7 +18,7 @@ export default function App({ location }) {
   }, [loggedIn, loginInProgress]);
 
   return (
-    <Layout path="/" showNavBar={false} showFooter={false}>
+    <Layout path="/" showNavBar={false} showFooter={false} pageName="Landing">
       <div className="h-screen bg-gradient-radial from-zinc-100 from-60% to-zinc-400 relative">
         {loginInProgress || loggedIn ? (
           <div className="flex flex-row justify-center items-center h-full px-4 sm:w-9/12 m-auto">
@@ -30,9 +30,7 @@ export default function App({ location }) {
           <>
             <nav className="absolute w-full z-50 p-2 bg-transparent text-center">
               {/* <img className="inline-block h-16 mr-2" src={logo} alt="Beat Bracket Logo" /> */}
-              <h1 className="inline-block mb-0.5 font-bold font-display sm:text-2xl text-xl text-black">
-                Beat Bracket
-              </h1>
+              <h1 className="inline-block mb-0.5 font-bold font-logo sm:text-2xl text-xl text-black">Beat Bracket</h1>
             </nav>
             <div className="flex flex-col justify-center items-center h-full px-4 sm:w-9/12 m-auto">
               <div className="inline-flex flex-col justify-center items-center text-center">
@@ -61,7 +59,7 @@ export default function App({ location }) {
 
 export function Head() {
   return (
-    <Seo title="Login with Spotify">
+    <Seo>
       <script type="application/ld+json">
         {`
           {

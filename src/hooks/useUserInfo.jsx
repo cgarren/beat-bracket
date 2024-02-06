@@ -5,12 +5,13 @@ import { LoginContext } from "../context/LoginContext";
 
 export default function useUserInfo(userId) {
   const { loadSpotifyRequest } = useSpotify();
-  const { loggedIn } = useContext(LoginContext);
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["spotify-user-info"],
+  const { loggedIn, loginInfo } = useContext(LoginContext);
+  const userIdToFetch = userId || loginInfo?.userId;
+  const { data, isPending, isFetching, error } = useQuery({
+    queryKey: ["spotify-user-info", { userIdToFetch }],
     queryFn: async () => {
       if (loggedIn) {
-        const url = `https://api.spotify.com/v1/users/${userId}`;
+        const url = `https://api.spotify.com/v1/users/${userIdToFetch}`;
         const response = await loadSpotifyRequest(url);
         const responseData = await response.json();
         return responseData;
@@ -21,5 +22,5 @@ export default function useUserInfo(userId) {
     staleTime: 3600000,
     cacheTime: 3600000,
   });
-  return { data, isLoading, error };
+  return { data, isPending, isFetching, error };
 }

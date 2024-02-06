@@ -10,7 +10,6 @@ import Seo from "../../../../../components/SEO";
 import BracketView from "../../../../../components/Bracket/ViewBracket";
 import Layout from "../../../../../components/Layout";
 import BracketWinnerInfo from "../../../../../components/Bracket/BracketWinnerInfo";
-import ActionButton from "../../../../../components/Controls/ActionButton";
 import LoadingIndicator from "../../../../../components/LoadingIndicator";
 // Hooks
 import useBracketGeneration from "../../../../../hooks/useBracketGeneration";
@@ -19,6 +18,7 @@ import useBackend from "../../../../../hooks/useBackend";
 import useSpotify from "../../../../../hooks/useSpotify";
 import useAuthentication from "../../../../../hooks/useAuthentication";
 import useUserInfo from "../../../../../hooks/useUserInfo";
+import useShareBracket from "../../../../../hooks/useShareBracket";
 // Assets
 import ShareIcon from "../../../../../assets/svgs/shareIcon.svg";
 import DuplicateIcon from "../../../../../assets/svgs/duplicateIcon.svg";
@@ -26,6 +26,7 @@ import DuplicateIcon from "../../../../../assets/svgs/duplicateIcon.svg";
 import { LoginContext } from "../../../../../context/LoginContext";
 import BracketHeader from "../../../../../components/BracketHeader";
 import LoginButton from "../../../../../components/Controls/LoginButton";
+import { Button } from "../../../../../components/ui/button";
 
 export default function App({ params, location }) {
   const { loggedIn, loginInfo } = useContext(LoginContext);
@@ -34,6 +35,7 @@ export default function App({ params, location }) {
   const { bracketSorter } = useHelper();
   const { getBracket } = useBackend();
   const { getNumberOfColumns } = useBracketGeneration();
+  const { share } = useShareBracket(location.href);
 
   const { data: ownerInfo } = useUserInfo(params.userId);
 
@@ -122,13 +124,19 @@ export default function App({ params, location }) {
     return null;
   }, [bracket, bracketTracks, getNumberOfColumns]);
 
-  // SHARE
-
-  const share = useCallback(() => {
-    navigator.clipboard.writeText(location.href);
-    console.debug("copied link");
-    toast.success("Link copied to clipboard!");
-  }, [location.href]);
+  const trackedProps = useMemo(
+    () => ({
+      "Bracket Id": params?.id,
+      "Owner Username": owner?.name,
+      "Seeding Method": loadedBracket?.template?.seedingMethod,
+      "Inclusion Method": loadedBracket?.template?.inclusionMethod,
+      "Song Source Type": songSource?.type,
+      "Song Source Name": songSource?.[songSource?.type]?.name,
+      "Song Source Id": songSource?.[songSource?.type]?.id,
+      Tracks: bracketTracks?.length,
+    }),
+    [params.id, owner.name, loadedBracket?.template, songSource, bracketTracks.length],
+  );
 
   // DUPLICATE
 
@@ -155,13 +163,7 @@ export default function App({ params, location }) {
 
   if (fetchPending || !bracket) {
     return (
-      <Layout
-        noChanges={() => true}
-        path={location.pathname}
-        // saveBracketLocally={saveBracketLocally}
-        // isBracketSavedLocally={isBracketSavedLocally}
-        // deleteBracketSavedLocally={deleteBracketSavedLocally}
-      >
+      <Layout noChanges={() => true} path={location.pathname} pageName="View Bracket">
         {fetchPending && <LoadingIndicator loadingText="Loading bracket..." />}
         {!fetchPending && !bracket && <div className="font-bold mb-2">Bracket not found</div>}
       </Layout>
@@ -169,7 +171,7 @@ export default function App({ params, location }) {
   }
 
   return (
-    <Layout noChanges={() => true} path={location.pathname}>
+    <Layout noChanges={() => true} path={location.pathname} pageName="View Bracket" trackedProps={trackedProps}>
       <div className="text-center">
         <BracketHeader songSource={songSource} owner={owner} template={template} bracketTracks={bracketTracks} />
         {bracketWinner && (
@@ -183,14 +185,15 @@ export default function App({ params, location }) {
         <>
           <div className="text-xs -space-x-px rounded-md sticky mx-auto top-0 w-fit z-30 mt-1">
             <div className="flex items-center gap-2">
-              <ActionButton onClick={share} icon={<ShareIcon />} text="Share" />
+              <Button onClick={share} variant="secondary" icon={<ShareIcon />} className="flex justify-center gap-1">
+                <ShareIcon />
+                Share
+              </Button>
               {loggedIn && !isCurrentUser(params.userId) && !isCurrentUser(template.ownerId) && (
-                <ActionButton
-                  onClick={duplicateBracket}
-                  icon={<DuplicateIcon />}
-                  text="Make my own picks"
-                  disabled={!loggedIn}
-                />
+                <Button onClick={duplicateBracket} className="flex justify-center gap-1">
+                  <DuplicateIcon />
+                  Make my own picks
+                </Button>
               )}
               {!loggedIn && (
                 <div className="relative">
@@ -209,7 +212,7 @@ export default function App({ params, location }) {
   );
 }
 
-export function Head({ params }) {
+export function Head({ params, location }) {
   // const [name, setName] = useState(null);
   // const [userName, setUserName] = useState(null);
 
@@ -236,6 +239,6 @@ export function Head({ params }) {
 
   return (
     // name && userName ? `${name} bracket by ${userName}` : "View/edit bracket"
-    <Seo title="View/edit bracket" />
+    <Seo title="View Bracket" pathname={location.pathname} />
   );
 }

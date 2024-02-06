@@ -1,0 +1,1 @@
+// 100% PURE FUNCTIONS ONLY!!!

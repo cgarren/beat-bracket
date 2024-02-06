@@ -1,8 +1,14 @@
 import React, { useCallback } from "react";
-import Modal from "./Modal";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import SearchBar from "../Search/SearchBar";
 
-export default function ReplaceTrackModal({ replacementTracks, handleReplacement, setShow, showSongInfo }) {
+export default function ReplaceTrackModal({
+  replacementTracks,
+  handleReplacement,
+  showModal,
+  setShowModal,
+  showSongInfo,
+}) {
   const searchSuggestions = useCallback(
     async (searchText) => {
       const templist = [];
@@ -14,24 +20,31 @@ export default function ReplaceTrackModal({ replacementTracks, handleReplacement
             id: track.id,
             onClick: () => {
               handleReplacement(track);
-              setShow(false);
+              setShowModal(false);
             },
           });
         }
       });
       return templist;
     },
-    [handleReplacement, replacementTracks, setShow, showSongInfo],
+    [handleReplacement, replacementTracks, setShowModal, showSongInfo],
   );
 
   return (
-    <Modal
-      onClose={() => {
-        setShow(false);
+    <Dialog
+      open={showModal}
+      onOpenChange={(open) => {
+        setShowModal(open);
       }}
     >
-      <h1 className="font-bold text-xl mb-2">Select a replacement track:</h1>
-      <SearchBar searchSuggestions={searchSuggestions} disabled={false} placeholder="Search for a track..." />
-    </Modal>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Select a replacement track</DialogTitle>
+        </DialogHeader>
+        <div className="text-center">
+          <SearchBar searchSuggestions={searchSuggestions} disabled={false} placeholder="Search for a track..." />
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

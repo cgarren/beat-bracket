@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import SongButton from "./SongButton";
 import ReplaceTrackButton from "./ReplaceTrackButton";
+import { MixpanelContext } from "../../../context/MixpanelContext";
 
 export default function CreateSongButton({
   styling,
@@ -17,6 +18,7 @@ export default function CreateSongButton({
   replaceTrack,
 }) {
   const [dragging, setDragging] = useState(false);
+  const mixpanel = useContext(MixpanelContext);
 
   // Darg and drop functionality
 
@@ -58,6 +60,11 @@ export default function CreateSongButton({
     const tempSong = getBracket(switchId).song;
     // switch the colors
     const tempColor = getBracket(switchId).color;
+    // track the drop
+    mixpanel.track("Switch Track", {
+      "From Id": switchId,
+      "To Id": id,
+    });
     // modify the bracket
     modifyBracket(
       [

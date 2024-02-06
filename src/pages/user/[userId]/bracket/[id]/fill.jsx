@@ -11,7 +11,6 @@ import { produce } from "immer";
 // Components
 import Seo from "../../../../../components/SEO";
 import Layout from "../../../../../components/Layout";
-import ActionButton from "../../../../../components/Controls/ActionButton";
 import FillBracket from "../../../../../components/Bracket/FillBracket";
 // import GeneratePlaylistButton from "../../../../components/GeneratePlaylistButton";
 import BracketCompleteModal from "../../../../../components/Modals/BracketCompleteModal";
@@ -22,12 +21,14 @@ import useBackend from "../../../../../hooks/useBackend";
 import useSpotify from "../../../../../hooks/useSpotify";
 import useSongProcessing from "../../../../../hooks/useSongProcessing";
 import useAuthentication from "../../../../../hooks/useAuthentication";
+import useShareBracket from "../../../../../hooks/useShareBracket";
 // Assets
 import ShareIcon from "../../../../../assets/svgs/shareIcon.svg";
 import useUserInfo from "../../../../../hooks/useUserInfo";
 import LoadingIndicator from "../../../../../components/LoadingIndicator";
 import SyncIcon from "../../../../../assets/svgs/syncIcon.svg";
 import BracketHeader from "../../../../../components/BracketHeader";
+import { Button } from "../../../../../components/ui/button";
 
 export default function App({ params, location }) {
   // State
@@ -35,6 +36,7 @@ export default function App({ params, location }) {
   const [currentlyPlayingId, setCurrentlyPlayingId] = useState(null);
   const [lastSaved, setLastSaved] = useState({ time: 0, commandsLength: 0 });
   const [savePending, setSavePending] = useState(false);
+  const [percentageFilled, setPercentageFilled] = useState(0);
 
   // Hooks
   const { getArtist, getPlaylist, openBracket } = useSpotify();
@@ -44,6 +46,7 @@ export default function App({ params, location }) {
   const { updatePreviewUrls } = useSongProcessing();
   const { getNumberOfColumns, fillBracket } = useBracketGeneration();
   const queryClient = useQueryClient();
+  const { share } = useShareBracket(location.href);
 
   // Constants
   // const localSaveKey = "savedBracket";
@@ -53,6 +56,11 @@ export default function App({ params, location }) {
   const owner = useMemo(
     () => ({ name: ownerInfo?.display_name, id: params.userId }),
     [ownerInfo?.display_name, params?.userId],
+  );
+
+  const creationPossible = useMemo(
+    () => location?.state?.template && owner?.name && owner.id && params?.id,
+    [location?.state, owner?.name, owner.id, params?.id],
   );
 
   const {
@@ -65,6 +73,9 @@ export default function App({ params, location }) {
     enabled: params.id && isCurrentUser(owner.id),
     refetchOnWindowFocus: false,
     staleTime: 3600000,
+    meta: {
+      errorMessage: creationPossible ? false : "Error loading bracket",
+    },
     retry: (failureCount, error) => error?.cause?.code !== 404,
   });
 
@@ -97,7 +108,11 @@ export default function App({ params, location }) {
     },
   });
 
-  const { isPending: creationPending, mutate: createBracketMutation } = useMutation({
+  const {
+    isPending: creationPending,
+    mutate: createBracketMutation,
+    isError: creationFailure,
+  } = useMutation({
     mutationFn: async (creationObject) => {
       await createBracket(creationObject);
     },
@@ -189,6 +204,20 @@ export default function App({ params, location }) {
     return false;
   }, [bracketWinner, commands]);
 
+  const trackedProps = useMemo(
+    () => ({
+      "Bracket Id": params?.id,
+      "Owner Username": owner?.name,
+      "Seeding Method": loadedBracket?.template?.seedingMethod,
+      "Inclusion Method": loadedBracket?.template?.inclusionMethod,
+      "Song Source Type": songSource?.type,
+      "Song Source Name": songSource?.[songSource?.type]?.name,
+      "Song Source Id": songSource?.[songSource?.type]?.id,
+      Tracks: bracketTracks?.length,
+    }),
+    [params.id, owner.name, loadedBracket?.template, songSource, bracketTracks.length],
+  );
+
   // SAVE
 
   // async function saveBracket(data) {
@@ -233,7 +262,7 @@ export default function App({ params, location }) {
       const saveData = queryClient.getQueryData(["bracket", { bracketId: params.id, userId: owner.id }])?.bracketData;
       if (saveData) {
         setSavePending(true);
-        const newData = { bracketData: saveData, winner: bracketWinner };
+        const newData = { bracketData: saveData, winner: bracketWinner, percentageFilled: percentageFilled };
         saveBracketMutation(newData);
       }
     }
@@ -305,7 +334,6 @@ export default function App({ params, location }) {
       const filledBracket = await fillBracket(loadedTemplate.tracks, getNumberOfColumns(loadedTemplate.tracks.length));
 
       // create bracket and set it up for the user to fill
-      // Make this a mutation eventually
       createBracketMutation({
         bracketId: newBracketId,
         ownerUsername: ownerUsername,
@@ -318,18 +346,18 @@ export default function App({ params, location }) {
   );
 
   useEffect(() => {
-    if (location?.state?.template && owner?.name && owner.id && params?.id && fetchFailure) {
+    if (creationPossible && fetchFailure && !creationFailure && !creationPending) {
       initializeBracketFromTemplate(location.state.template, params.id, owner.name);
     }
-  }, [initializeBracketFromTemplate, location?.state, params?.id, owner?.name, fetchFailure]);
-
-  // SHARE
-
-  const share = useCallback(() => {
-    navigator.clipboard.writeText(location.href);
-    console.debug("copied link");
-    toast.success("Link copied to clipboard!");
-  }, [location.href]);
+  }, [
+    initializeBracketFromTemplate,
+    creationPossible,
+    creationFailure,
+    location?.state?.template,
+    params?.id,
+    owner?.name,
+    fetchFailure,
+  ]);
 
   // UNDO
 
@@ -388,30 +416,48 @@ export default function App({ params, location }) {
     // return <Redirect to={`/user/${params.userId}/bracket/${params.id}/fill`} />;
   }
 
-  if (fetchPending || creationPending || !bracket) {
+  if (fetchPending) {
     return (
-      <Layout
-        noChanges={noChanges}
-        path={location.pathname}
-        // saveBracketLocally={saveBracketLocally}
-        // isBracketSavedLocally={isBracketSavedLocally}
-        // deleteBracketSavedLocally={deleteBracketSavedLocally}
-      >
-        {fetchPending && <LoadingIndicator loadingText="Loading bracket..." />}
-        {creationPending && <LoadingIndicator loadingText="Creating bracket..." />}
-        {!fetchPending && !creationPending && !bracket && <div className="font-bold mb-2">Bracket not found</div>}
+      <Layout noChanges={() => true} path={location.pathname}>
+        <LoadingIndicator loadingText="Loading bracket..." />
+      </Layout>
+    );
+  }
+
+  if (creationPending || (!creationFailure && fetchFailure && creationPossible)) {
+    return (
+      <Layout noChanges={() => true} path={location.pathname}>
+        <LoadingIndicator loadingText="Creating bracket..." />
+      </Layout>
+    );
+  }
+
+  if (creationFailure) {
+    return (
+      <Layout noChanges={() => true} path={location.pathname} pageName="Fill Bracket">
+        <div className="inline-flex justify-center flex-col">
+          <div className="font-bold mb-2">Error creating bracket</div>
+          <Button
+            onClick={() => initializeBracketFromTemplate(location.state.template, params.id, owner.name)}
+            variant="secondary"
+          >
+            Retry
+          </Button>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (fetchFailure && !creationPossible) {
+    return (
+      <Layout noChanges={() => true} path={location.pathname} pageName="Fill Bracket">
+        <div className="font-bold mb-2">Bracket not found</div>
       </Layout>
     );
   }
 
   return (
-    <Layout
-      noChanges={noChanges}
-      path={location.pathname}
-      // saveBracketLocally={saveBracketLocally}
-      // isBracketSavedLocally={isBracketSavedLocally}
-      // deleteBracketSavedLocally={deleteBracketSavedLocally}
-    >
+    <Layout noChanges={noChanges} path={location.pathname} pageName="Fill Bracket" trackedProps={trackedProps}>
       {bracketWinner && commands.length !== 0 && (
         <Confetti
           width={window.document.body.offsetWidth}
@@ -432,17 +478,20 @@ export default function App({ params, location }) {
         viewLink={`/user/${owner.id}/bracket/${params.id}`}
         share={share}
       />
-      Fill Bracket
       <BracketHeader songSource={songSource} owner={owner} template={template} bracketTracks={bracketTracks} />
       {bracket && songSource && (
         <>
           <div className="text-xs -space-x-px rounded-md sticky mx-auto top-0 w-fit z-30 text-center">
             <div className="flex items-center gap-2">
               {/* <GeneratePlaylistButton tracks={tracks} artist={artist} /> */}
-              <ActionButton onClick={share} icon={<ShareIcon />} text="Share" />
+              <Button onClick={share} variant="secondary" className="flex justify-center gap-1">
+                <ShareIcon />
+                Share
+              </Button>
             </div>
+            <div className="">{percentageFilled.toFixed(0)}% filled</div>
             {saving && !saveError && (
-              <div className="absolute left-1/2 -translate-x-1/2 -bottom-3/4 flex items-center gap-1">
+              <div className="absolute left-1/2 -translate-x-1/2 -bottom-1/3 flex items-center gap-1">
                 <div className="animate-spin-reverse w-fit h-fit" aria-label="Saving" title="Saving">
                   <SyncIcon />
                 </div>
@@ -452,7 +501,9 @@ export default function App({ params, location }) {
             {saveError && (
               <div className="absolute left-1/2 -translate-x-1/2 top-full translate-y-1.5 flex flex-col items-center gap-1 !text-red-500 !font-bold whitespace-nowrap">
                 Save Error!
-                <ActionButton onClick={saveCurrentBracket} text="Retry" variant="white" />
+                <Button onClick={saveCurrentBracket} variant="secondary">
+                  Retry
+                </Button>
               </div>
             )}
           </div>
@@ -464,6 +515,7 @@ export default function App({ params, location }) {
             currentlyPlayingId={currentlyPlayingId}
             setCurrentlyPlayingId={setCurrentlyPlayingId}
             saveCommand={saveCommand}
+            setPercentageFilled={setPercentageFilled}
           />
         </>
       )}
@@ -471,7 +523,7 @@ export default function App({ params, location }) {
   );
 }
 
-export function Head({ params }) {
+export function Head({ params, location }) {
   // const [name, setName] = useState(null);
   // const [userName, setUserName] = useState(null);
 
@@ -498,6 +550,6 @@ export function Head({ params }) {
 
   return (
     // name && userName ? `${name} bracket by ${userName}` : "View/edit bracket"
-    <Seo title="View/edit bracket" />
+    <Seo title="Fill Bracket" pathname={location.pathname} />
   );
 }

@@ -1,4 +1,6 @@
 import "@fontsource/righteous";
+// Supports weights 100-900 in a single small file.
+import "@fontsource-variable/roboto-flex";
 import "./global-styles.css";
 
 import React from "react";
@@ -27,6 +29,8 @@ const queryClient = new QueryClient({
         toast.error("User not authenticated. Please login!", { id: "unauthenticated" });
       } else if (query?.meta?.errorMessage) {
         toast.error(query.meta.errorMessage, { id: query.meta.errorMessage });
+      } else if (query?.meta?.errorMessage === false) {
+        // do nothing
       } else if (error?.message) {
         toast.error(error.message, { id: error.message });
       } else {
@@ -48,6 +52,8 @@ const queryClient = new QueryClient({
         toast.error("User not authenticated. Please login!", { id: "403" });
       } else if (mutation?.meta?.errorMessage) {
         toast.error(mutation.meta.errorMessage);
+      } else if (mutation?.meta?.errorMessage === false) {
+        // do nothing
       } else if (error.message) {
         toast.error(error.message);
       } else {

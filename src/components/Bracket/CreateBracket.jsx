@@ -1,4 +1,5 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState, useContext } from "react";
+import { MixpanelContext } from "../../context/MixpanelContext";
 import useHelper from "../../hooks/useHelper";
 import useBracketGeneration from "../../hooks/useBracketGeneration";
 import Bracket from "./Bracket";
@@ -16,6 +17,7 @@ export default function CreateBracket({
   setSeedingMethod,
   setInclusionMethod,
 }) {
+  const mixpanel = useContext(MixpanelContext);
   const { popularitySort } = useHelper();
   const { getColorsFromImage } = useBracketGeneration();
   const bracketIds = useMemo(() => bracketTracks.map((track) => track.id), [bracketTracks]);
@@ -49,7 +51,11 @@ export default function CreateBracket({
 
   const handleReplacement = useCallback(
     async (id, newSong) => {
-      console.debug("replacing", id);
+      mixpanel.track("Replace Track", {
+        "Replacement Location Id": id,
+        "New Song Id": newSong.id,
+        "New Song Name": newSong.name,
+      });
       const newColor = await getColorsFromImage(newSong.art);
       modifyBracket(
         [
@@ -65,21 +71,20 @@ export default function CreateBracket({
 
   return (
     <>
-      {replacementTracks && buttonReplacementId && (
-        <ReplaceTrackModal
-          setShow={(show) => {
-            if (!show) {
-              setButtonReplacementId(null);
-            }
-          }}
-          replacementTracks={replacementTracks}
-          handleReplacement={async (newSong) => {
-            await handleReplacement(buttonReplacementId, newSong);
+      <ReplaceTrackModal
+        showModal={buttonReplacementId && replacementTracks}
+        setShowModal={(show) => {
+          if (!show) {
             setButtonReplacementId(null);
-          }}
-          showSongInfo={songSource && songSource.type === "playlist"}
-        />
-      )}
+          }
+        }}
+        replacementTracks={replacementTracks}
+        handleReplacement={async (newSong) => {
+          await handleReplacement(buttonReplacementId, newSong);
+          setButtonReplacementId(null);
+        }}
+        showSongInfo={songSource && songSource.type === "playlist"}
+      />
       <Bracket
         bracket={bracket}
         bracketSize={bracketTracks.length}

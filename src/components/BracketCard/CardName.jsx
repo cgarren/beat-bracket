@@ -18,7 +18,7 @@ export default function CardName({ displayName, songSource, numTracks, completed
         )}
         {!ownsTemplate && (
           <span
-            title="Created from another bracket"
+            title="Created from a template by another user"
             className="text-blue-600 text-xs font-medium inline-flex rounded-md"
           >
             <DuplicateIcon />

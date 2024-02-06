@@ -19,6 +19,8 @@ export default function Layout({
   children,
   noChanges = () => true,
   path = typeof window !== "undefined" ? window.location.pathname : undefined,
+  pageName,
+  trackedProps = {},
   showNavBar = true,
   showFooter = true,
   track = true,
@@ -31,14 +33,28 @@ export default function Layout({
   const [showLoginModal, setShowLoginModal] = useState(false);
   const { width } = useWindowSize();
   const fullConfig = resolveConfig(tailwindConfig);
+  const superProps = useMemo(
+    () => ({
+      "Logged In": loggedIn,
+      Path: path,
+      ...(pageName && { "Page Name": pageName }),
+      ...trackedProps,
+    }),
+    [loggedIn, path, pageName, trackedProps],
+  );
 
   // Runs once, after page load
   useEffect(() => {
-    if (track && mixpanel && mixpanel.track_pageview) {
+    if (track && mixpanel?.track_pageview) {
       mixpanel.track_pageview();
-      console.debug("Tracked page load");
     }
   }, [mixpanel, track]);
+
+  useEffect(() => {
+    if (mixpanel?.register) {
+      mixpanel.register(superProps);
+    }
+  }, [mixpanel, superProps, trackedProps]);
 
   // set timer to refresh spotify session
   useEffect(() => {
@@ -56,6 +72,7 @@ export default function Layout({
 
             loginRef.current(true).then((loginResult) => {
               if (!loginResult) {
+                mixpanel.track("Login Expired Modal Shown");
                 setShowLoginModal(true);
               }
             });
@@ -90,7 +107,7 @@ export default function Layout({
       {(showFooter || showNavBar || children) && (
         <div className="text-center clear-both">
           <main
-            className={`font-sans text-black bg-gradient-radial from-zinc-200 to-zinc-300 relative text-center min-h-screen ${
+            className={`font-sans text-black bg-gradient-radial bg-zinc-200 relative text-center min-h-screen ${
               showFooter ? "pb-[24px]" : ""
             }`}
           >
