@@ -40,16 +40,22 @@ export default function Layout({
       ...(pageName && { "Page Name": pageName }),
       ...trackedProps,
     }),
-    [loggedIn, path, pageName],
+    [loggedIn, path, pageName, trackedProps],
   );
 
   // Runs once, after page load
   useEffect(() => {
-    if (track && mixpanel && mixpanel.track_pageview && mixpanel.register) {
+    if (track && mixpanel?.track_pageview) {
       mixpanel.track_pageview();
-      mixpanel.register(superProps);
     }
   }, [mixpanel, track]);
+
+  useEffect(() => {
+    if (mixpanel?.register) {
+      // console.log("registering super props", superProps, trackedProps);
+      mixpanel.register(superProps);
+    }
+  }, [mixpanel, superProps, trackedProps]);
 
   // set timer to refresh spotify session
   useEffect(() => {

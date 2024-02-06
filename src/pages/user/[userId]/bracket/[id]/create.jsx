@@ -322,7 +322,10 @@ export default function App({ params, location }) {
             type="single"
             collapsible
             className="w-fit max-w-lg mx-auto m-0"
-            onValueChange={() => mixpanel.track("Click", { Item: "Customization Help" })}
+            onValueChange={(value) => {
+              console.log(value);
+              mixpanel.track("Click", { Item: "Customization Help" });
+            }}
           >
             <AccordionItem
               value="customization-help"
