@@ -47,7 +47,7 @@ export default function App({ location }) {
   useEffect(() => window.scrollTo(0, 0), []);
 
   return (
-    <Layout noChanges={() => true} path={location.pathname}>
+    <Layout noChanges={() => true} path={location.pathname} pageName="My Brackets">
       <div className="text-center">
         <h1 className="text-4xl font-bold mb-2">My Brackets</h1>
         {(isError || !loggedIn || !loginInfo?.userId) && (
@@ -107,6 +107,6 @@ export default function App({ location }) {
   );
 }
 
-export function Head() {
-  return <Seo title="My brackets" />;
+export function Head({ location }) {
+  return <Seo title="My brackets" pathname={location.pathname} />;
 }

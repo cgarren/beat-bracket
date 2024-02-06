@@ -10,7 +10,7 @@ import LoadingIndicator from "../components/LoadingIndicator";
 import { Button } from "../components/ui/button";
 
 // markup
-export default function App({ location }) {
+export default function App() {
   const { loginCallback, toPrevPage } = useAuthentication(false);
   const { loginInProgress, loggedIn } = useContext(LoginContext);
 
@@ -89,6 +89,6 @@ export default function App({ location }) {
   );
 }
 
-export function Head() {
-  return <Seo title="Logging in..." />;
+export function Head({ location }) {
+  return <Seo title="Logging in..." pathname={location.pathname} />;
 }

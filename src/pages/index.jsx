@@ -18,7 +18,7 @@ export default function App() {
   }, [loggedIn, loginInProgress]);
 
   return (
-    <Layout path="/" showNavBar={false} showFooter={false}>
+    <Layout path="/" showNavBar={false} showFooter={false} pageName="Landing">
       <div className="h-screen bg-gradient-radial from-zinc-100 from-60% to-zinc-400 relative">
         {loginInProgress || loggedIn ? (
           <div className="flex flex-row justify-center items-center h-full px-4 sm:w-9/12 m-auto">
@@ -59,7 +59,7 @@ export default function App() {
 
 export function Head() {
   return (
-    <Seo title="Login with Spotify">
+    <Seo>
       <script type="application/ld+json">
         {`
           {

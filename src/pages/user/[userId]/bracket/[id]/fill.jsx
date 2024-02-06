@@ -420,7 +420,7 @@ export default function App({ params, location }) {
 
   if (creationFailure) {
     return (
-      <Layout noChanges={() => true} path={location.pathname}>
+      <Layout noChanges={() => true} path={location.pathname} pageName="Fill Bracket">
         <div className="inline-flex justify-center flex-col">
           <div className="font-bold mb-2">Error creating bracket</div>
           <Button
@@ -507,7 +507,7 @@ export default function App({ params, location }) {
   );
 }
 
-export function Head({ params }) {
+export function Head({ params, location }) {
   // const [name, setName] = useState(null);
   // const [userName, setUserName] = useState(null);
 
@@ -534,6 +534,6 @@ export function Head({ params }) {
 
   return (
     // name && userName ? `${name} bracket by ${userName}` : "View/edit bracket"
-    <Seo title="View/edit bracket" />
+    <Seo title="Fill Bracket" pathname={location.pathname} />
   );
 }

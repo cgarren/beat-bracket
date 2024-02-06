@@ -19,6 +19,7 @@ export default function Layout({
   children,
   noChanges = () => true,
   path = typeof window !== "undefined" ? window.location.pathname : undefined,
+  pageName,
   showNavBar = true,
   showFooter = true,
   track = true,
@@ -31,11 +32,20 @@ export default function Layout({
   const [showLoginModal, setShowLoginModal] = useState(false);
   const { width } = useWindowSize();
   const fullConfig = resolveConfig(tailwindConfig);
+  const superProps = useMemo(
+    () => ({
+      "Logged In": loggedIn,
+      Path: path,
+      ...(pageName && { "Page Name": pageName }),
+    }),
+    [loggedIn, path, pageName],
+  );
 
   // Runs once, after page load
   useEffect(() => {
-    if (track && mixpanel && mixpanel.track_pageview) {
+    if (track && mixpanel && mixpanel.track_pageview && mixpanel.register) {
       mixpanel.track_pageview();
+      mixpanel.register(superProps);
       console.debug("Tracked page load");
     }
   }, [mixpanel, track]);
@@ -56,7 +66,7 @@ export default function Layout({
 
             loginRef.current(true).then((loginResult) => {
               if (!loginResult) {
-                mixpanel.track("Show login expired modal");
+                mixpanel.track("Login Expired Modal Shown");
                 setShowLoginModal(true);
               }
             });

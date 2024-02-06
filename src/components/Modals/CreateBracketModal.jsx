@@ -60,7 +60,7 @@ export default function CreateBracketModal({ showModal, setShowModal }) {
             onValueChange={(value) => {
               // const searchbar = document.getElementById("searchbar");
               // if (searchbar) searchbar.focus();
-              if (value === "topMusic") mixpanel.track("Clicked Top Music Tab");
+              if (value === "topMusic") mixpanel.track("Click", { item: "TopMusicTab" });
             }}
           >
             <TabsList className="mb-0">

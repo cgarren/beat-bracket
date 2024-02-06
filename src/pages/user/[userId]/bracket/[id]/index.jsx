@@ -163,7 +163,7 @@ export default function App({ params, location }) {
   }
 
   return (
-    <Layout noChanges={() => true} path={location.pathname}>
+    <Layout noChanges={() => true} path={location.pathname} pageName="View Bracket">
       <div className="text-center">
         <BracketHeader songSource={songSource} owner={owner} template={template} bracketTracks={bracketTracks} />
         {bracketWinner && (
@@ -204,7 +204,7 @@ export default function App({ params, location }) {
   );
 }
 
-export function Head({ params }) {
+export function Head({ params, location }) {
   // const [name, setName] = useState(null);
   // const [userName, setUserName] = useState(null);
 
@@ -231,6 +231,6 @@ export function Head({ params }) {
 
   return (
     // name && userName ? `${name} bracket by ${userName}` : "View/edit bracket"
-    <Seo title="View/edit bracket" />
+    <Seo title="View Bracket" pathname={location.pathname} />
   );
 }

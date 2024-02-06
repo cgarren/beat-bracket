@@ -297,7 +297,7 @@ export default function App({ params, location }) {
   }
 
   return (
-    <Layout noChanges={noChanges} path={location.pathname}>
+    <Layout noChanges={noChanges} path={location.pathname} pageName="Create Bracket">
       {owner?.name && songSource && bracket && bracketTracks && (
         <div className="mb-1 text-center">
           Customize Bracket
@@ -365,7 +365,7 @@ export default function App({ params, location }) {
   );
 }
 
-export function Head({ params }) {
+export function Head({ params, location }) {
   // const [name, setName] = useState(null);
   // const [userName, setUserName] = useState(null);
 
@@ -392,6 +392,6 @@ export function Head({ params }) {
 
   return (
     // name && userName ? `${name} bracket by ${userName}` : "View/edit bracket"
-    <Seo title="View/edit bracket" />
+    <Seo title="Create Bracket" pathname={location.pathname} />
   );
 }
