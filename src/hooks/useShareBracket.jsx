@@ -7,10 +7,10 @@ export default function useShareBracket(bracketLink) {
   const share = useCallback(() => {
     navigator.clipboard.writeText(bracketLink);
     mixpanel.track("Bracket Share", {
-      link: bracketLink,
+      "Bracket Link": bracketLink,
     });
     toast.success("Link copied to clipboard!", {
-      id: "copied-link",
+      id: "copiedLink",
     });
   }, [bracketLink]);
 
