@@ -37,7 +37,7 @@ export default function App({ params, location }) {
 
   const { openBracket } = useSpotify();
   const { isCurrentUser } = useAuthentication();
-  const { nearestLesserPowerOf2 } = useHelper();
+  const { nearestLesserPowerOf2, camelCaseToTitleCase } = useHelper();
   const { createBracket } = useBackend();
   const { seedBracket, sortTracks, getArtistTracks, getPlaylistTracks } = useSongProcessing();
   const { getNumberOfColumns, fillBracket } = useBracketGeneration();
@@ -324,11 +324,13 @@ export default function App({ params, location }) {
             className="w-fit max-w-lg mx-auto m-0"
             onValueChange={(value) => {
               console.log(value);
-              mixpanel.track("Click", { Item: "Customization Help" });
+              if (value.length > 0) {
+                mixpanel.track("Click", { Item: "Customization FAQ", "Open Question": camelCaseToTitleCase(value) });
+              }
             }}
           >
             <AccordionItem
-              value="customization-help"
+              value="customizationHelp"
               className="rounded-lg data-[state=open]:bg-white data-[state=open]:pt-3 data-[state=open]:ring-black/5 data-[state=open]:ring-1 data-[state=open]:shadow-lg px-3"
             >
               <AccordionTrigger className="hover:no-underline p-0 mb-1 font-bold">
