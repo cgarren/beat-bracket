@@ -29,7 +29,7 @@ export default function BracketHeader({ songSource, owner, template, bracketTrac
             </Popover>
           )}
         </div>
-        {owner?.name && <h2 className="text-md">by {owner.name}</h2>}
+        {owner?.name && <h2 className="text-md font-normal">by {owner.name}</h2>}
         {/* {template?.ownerId !== owner?.id && template?.ownerUsername && (
           <h3 className="text-sm">{`Created from a template by ${template.ownerUsername}`}</h3>
         )} */}
