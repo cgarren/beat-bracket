@@ -39,7 +39,6 @@
     "gatsby": "^5.3.3",
     "gatsby-plugin-manifest": "^5.3.1",
     "gatsby-plugin-react-svg": "^3.3.0",
-    "html2canvas": "^1.4.1",
     "immer": "^10.0.3",
     "lucide-react": "^0.319.0",
     "mixpanel-browser": "^2.47.0",
