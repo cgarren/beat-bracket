@@ -169,6 +169,8 @@ export default function App({ params, location }) {
         return newTrack;
       });
 
+      console.log(customLimit);
+
       // calculate the number of tracks to use for the base bracket, before byes
       const numTracks = Number(customLimit) === greaterPower / 2 ? customLimit : greaterPower;
       // const numTracks = customLimit < lesserPower ? customLimit : lesserPower;
@@ -206,8 +208,9 @@ export default function App({ params, location }) {
   useEffect(() => {
     if (allTracks) {
       const power = nearestLesserPowerOf2(allTracks.length);
-      setLimit(limit < power ? limit : power);
-      changeBracket(allTracks);
+      const tempLimit = limit < power ? limit : power;
+      setLimit(tempLimit);
+      changeBracket(allTracks, tempLimit);
     }
   }, [allTracks]);
 
@@ -392,7 +395,7 @@ export default function App({ params, location }) {
               limitChange={limitChange}
               showBracket={showBracket}
               limit={limit}
-              hardLimit={allTracks?.length > 350 ? 350 : allTracks?.length}
+              hardLimit={allTracks?.length > 512 ? 512 : allTracks?.length}
               seedingChange={seedingChange}
               seedingMethod={seedingMethod}
               inclusionChange={inclusionChange}
