@@ -75,7 +75,10 @@ export default function Bracket({
                   winner = true;
                 }
                 return (
-                  <div key={mykey}>
+                  <div
+                    key={mykey}
+                    className={cx({ "opacity-0": (!value.song?.name && value.col === 0) || value.eliminated })}
+                  >
                     {createElement(
                       songButtonType,
                       {
@@ -97,7 +100,7 @@ export default function Bracket({
                         eliminated: value.eliminated,
                         winner: value.winner,
                         undoFunc: value.undoFunc,
-                        disabled: songButtonProps.editable ? value.disabled : true,
+                        disabled: songButtonProps.editable && value.song?.name ? value.disabled : true,
                       },
                       null,
                     )}
@@ -115,8 +118,12 @@ export default function Bracket({
                             key={`${mykey}line`}
                           />
                         ) : null}
-                        {value.song && value.col === 0 && songSourceType ? (
+                        {value.song &&
+                        (value.col === 0 ||
+                          (value.col === 1 && value.previousIds?.every((id) => currentBracket.get(id)?.disabled))) &&
+                        songSourceType ? (
                           <div className="px-1 text-center text-black text-xs text-ellipsis line-clamp-1 break-all">
+                            {value.seed + " "}
                             {songSourceType === "playlist" && value.song.artist}
                             {songSourceType === "artist" && value.song.album}
                           </div>

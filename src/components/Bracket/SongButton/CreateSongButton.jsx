@@ -89,7 +89,8 @@ export default function CreateSongButton({
       >
         <SongButton
           actionButton={
-            song && (
+            song?.name &&
+            replaceTrack && (
               <ReplaceTrackButton
                 replacementFunction={() => {
                   replaceTrack(id);

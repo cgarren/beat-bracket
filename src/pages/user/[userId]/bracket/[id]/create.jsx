@@ -37,7 +37,7 @@ export default function App({ params, location }) {
 
   const { openBracket } = useSpotify();
   const { isCurrentUser } = useAuthentication();
-  const { nearestLesserPowerOf2, camelCaseToTitleCase } = useHelper();
+  const { nearestLesserPowerOf2, nearestGreaterPowerOf2, camelCaseToTitleCase } = useHelper();
   const { createBracket } = useBackend();
   const { seedBracket, sortTracks, getArtistTracks, getPlaylistTracks } = useSongProcessing();
   const { getNumberOfColumns, fillBracket } = useBracketGeneration();
@@ -158,13 +158,29 @@ export default function App({ params, location }) {
       customSeedingMethod = seedingMethod,
       customInclusionMethod = inclusionMethod,
     ) => {
-      const power = nearestLesserPowerOf2(customAllTracks.length);
-      // setLoadingText("Seeding tracks by " + seedingMethod + "...");
+      const lesserPower = nearestLesserPowerOf2(customAllTracks.length);
+      const greaterPower = nearestGreaterPowerOf2(customLimit);
+
       // sort the list by include method
       let newCustomAllTracks = await sortTracks(customAllTracks, customInclusionMethod);
-      const numTracks = customLimit < power ? customLimit : power;
-      // cut the list dowwn to the max number of tracks
-      newCustomAllTracks = newCustomAllTracks.slice(0, numTracks);
+      newCustomAllTracks = newCustomAllTracks.slice(0, customLimit);
+      newCustomAllTracks = newCustomAllTracks.map((track, index) => {
+        const newTrack = { ...track, seed: index + 1 };
+        return newTrack;
+      });
+
+      // calculate the number of tracks to use for the base bracket, before byes
+      const numTracks = Number(customLimit) === greaterPower / 2 ? customLimit : greaterPower;
+      // const numTracks = customLimit < lesserPower ? customLimit : lesserPower;
+
+      for (let i = newCustomAllTracks.length; i < numTracks; i += 1) {
+        newCustomAllTracks.push({ popularity: 0, seed: i + 1 });
+      }
+
+      // divide into two lists: base bracket tracks and bye tracks
+      // const baseTracks = newCustomAllTracks.slice(0, newCustomAllTracks);
+      // const byeTracks = newCustomAllTracks.slice(numCoreTracks, customLimit);
+
       // seed the bracket
       newCustomAllTracks = await seedBracket(newCustomAllTracks, customSeedingMethod);
       if (newCustomAllTracks && newCustomAllTracks.length > 0) {
@@ -376,7 +392,7 @@ export default function App({ params, location }) {
               limitChange={limitChange}
               showBracket={showBracket}
               limit={limit}
-              hardLimit={allTracks?.length}
+              hardLimit={allTracks?.length > 350 ? 350 : allTracks?.length}
               seedingChange={seedingChange}
               seedingMethod={seedingMethod}
               inclusionChange={inclusionChange}

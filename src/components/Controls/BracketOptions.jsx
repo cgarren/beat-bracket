@@ -34,10 +34,13 @@ export default function BracketOptions({
         >
           {(hardLimit >= 8 || limit === 8) && <SelectItem value="8">8</SelectItem>}
           {(hardLimit >= 16 || limit === 16) && <SelectItem value="16">16</SelectItem>}
+          <SelectItem value="31">31</SelectItem>
           {(hardLimit >= 32 || limit === 32) && <SelectItem value="32">32</SelectItem>}
+          <SelectItem value="33">33</SelectItem>
           {(hardLimit >= 64 || limit === 64) && <SelectItem value="64">64</SelectItem>}
           {(hardLimit >= 128 || limit === 128) && <SelectItem value="128">128</SelectItem>}
           {(hardLimit >= 256 || limit === 256) && <SelectItem value="256">256</SelectItem>}
+          <SelectItem value={String(hardLimit)}>{`Max (${hardLimit})`}</SelectItem>
         </BracketOptionsSelect>
         <BracketOptionsSelect
           label="Songs to include"
