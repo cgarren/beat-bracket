@@ -11,7 +11,6 @@ import Layout from "../../../../../components/Layout";
 import LoadingIndicator from "../../../../../components/LoadingIndicator";
 import BracketOptions from "../../../../../components/Controls/BracketOptions";
 import CreateBracket from "../../../../../components/Bracket/CreateBracket";
-import BracketHeader from "../../../../../components/BracketHeader";
 // Hooks
 import useBracketGeneration from "../../../../../hooks/useBracketGeneration";
 import useHelper from "../../../../../hooks/useHelper";
@@ -325,8 +324,8 @@ export default function App({ params, location }) {
     <Layout noChanges={noChanges} path={location.pathname} pageName="Create Bracket" trackedProps={trackedProps}>
       {owner?.name && songSource && bracket && bracketTracks && (
         <div className="mb-1 text-center">
-          Customize Bracket
-          <BracketHeader songSource={songSource} owner={null} template={null} bracketTracks={null} />
+          <h2 className="font-bold text-3xl">Customize Layout</h2>
+          {songSource?.[songSource?.type]?.name}
           <Accordion
             type="single"
             collapsible
