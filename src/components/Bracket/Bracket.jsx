@@ -52,6 +52,7 @@ export default function Bracket({
   songButtonProps,
   greyBackground,
   setPercentageFilled,
+  children,
 }) {
   const { width } = useWindowSize(); // can also get height if needed
   const { getNumberOfColumns } = useBracketGeneration();
@@ -179,12 +180,12 @@ export default function Bracket({
         })}
       >
         <div
-          className={cx({
-            "block w-fit flex-col p-2": true,
+          className={cx("block w-fit flex-col p-2 relative", {
             "bg-gray-800/25 rounded-2xl": greyBackground,
           })}
           id="bracketHolder"
         >
+          {children}
           <div className="flex flex-row gap-[10px] justify-start p-[5px]" id="bracket">
             {renderArray}
           </div>
