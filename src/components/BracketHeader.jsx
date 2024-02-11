@@ -8,10 +8,7 @@ export default function BracketHeader({ songSource, owner, template, bracketTrac
     <div className="text-center">
       <div className="mx-auto flex flex-col gap-0 items-center justify-center max-w-[90%]">
         <div className="flex flex-row text-xl items-center justify-center gap-1 max-w-full">
-          <h1 className="truncate w-auto font-bold">
-            {Boolean(songSource?.type === "artist") ? songSource.artist.name : null}
-            {Boolean(songSource?.type === "playlist") ? songSource.playlist.name : null}
-          </h1>
+          <h1 className="truncate w-auto font-bold">{songSource?.[songSource?.type]?.name}</h1>
           {Boolean(bracketTracks?.length) && <TrackNumber numTracks={bracketTracks.length} />}
           {Boolean(template?.ownerId !== owner?.id && template?.ownerUsername) && (
             <Popover>
