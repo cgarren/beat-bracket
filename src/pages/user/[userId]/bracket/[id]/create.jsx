@@ -313,7 +313,7 @@ export default function App({ params, location }) {
               : `${songSource.playlist.name} doesn't have enough songs on Spotify! Try another playlist.`}
           </p>
           <Button asChild>
-            <Link to="/my-brackets">Shucks</Link>
+            <Link to="/my-brackets">Go Back</Link>
           </Button>
         </div>
       </Layout>
