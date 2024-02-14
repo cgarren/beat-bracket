@@ -57,83 +57,94 @@ export default function Bracket({
   const { width } = useWindowSize(); // can also get height if needed
   const { getNumberOfColumns } = useBracketGeneration();
 
+  const [unfilled, setUnfilled] = useState({ l: null, r: null });
+  const [winners, setWinner] = useState({ l: false, r: false });
+
+  const totalUnfilled = unfilled.l !== null && unfilled.r !== null && unfilled.l + unfilled.r;
+  const winnerAddition = !(winners.l || winners.r) ? 1 : 0;
+
+  useEffect(() => {
+    if (setPercentageFilled && totalUnfilled !== null && bracketSize) {
+      setPercentageFilled((1 - (totalUnfilled + winnerAddition) / (bracketSize - 1)) * 100);
+    }
+  }, [totalUnfilled, winnerAddition, setPercentageFilled, bracketSize]);
+
   const generateComponentArray = useCallback(
     (side, columns, bracketArray, currentBracket) => {
-      let unfilled = 0;
+      let unfilledSongs = 0;
       let winner = false;
-      return [
-        new Array(columns).fill(undefined).map((e, i) => (
-          // eslint-disable-next-line react/no-array-index-key
-          <div className="flex flex-col" key={side + i}>
-            {bracketArray.map((entry) => {
-              const [mykey, value] = entry;
-              const colExpression = side === "l" ? i : columns - 1 - i;
-              if (value.side === side && value.col === colExpression) {
-                if (!value.song) {
-                  unfilled += 1;
-                }
-                if (value.winner) {
-                  winner = true;
-                }
-                return (
-                  <div key={mykey}>
-                    {createElement(
-                      songButtonType,
-                      {
-                        ...songButtonProps,
-                        styling: cx({
-                          [`${topStyles[colExpression]}`]: value.index === 0,
-                          // [`${styles[colExpression]}`]:
-                          //     value.index !== 0 &&
-                          //     value.index % 2 === 0,
-                        }),
-                        song: value.song,
-                        id: value.id,
-                        col: value.col,
-                        nextId: value.nextId,
-                        opponentId: value.opponentId,
-                        previousIds: value.previousIds,
-                        side: side,
-                        color: value.color,
-                        eliminated: value.eliminated,
-                        winner: value.winner,
-                        undoFunc: value.undoFunc,
-                        disabled: songButtonProps.editable ? value.disabled : true,
-                      },
-                      null,
-                    )}
-                    {((value.song && value.col === 0) || currentBracket.has(side + value.col + (value.index + 1))) && (
-                      <div className={`w-[var(--buttonwidth)] relative ${lineStyles[colExpression]}`}>
-                        {value.index % 2 === 0 && value.nextId != null ? (
-                          <div
-                            className={cx({
-                              [`${lineStyles[colExpression]}`]: true,
-                              "bg-gray-500 w-[var(--lineWidth)] rounded": true,
-                              absolute: true,
-                              "right-0": side === "l",
-                              "left-0": side === "r",
-                            })}
-                            key={`${mykey}line`}
-                          />
-                        ) : null}
-                        {value.song && value.col === 0 && songSourceType ? (
-                          <div className="px-1 text-center text-black text-xs text-ellipsis line-clamp-1 break-all">
-                            {songSourceType === "playlist" && value.song.artist}
-                            {songSourceType === "artist" && value.song.album}
-                          </div>
-                        ) : null}
-                      </div>
-                    )}
-                  </div>
-                );
+      const returnArray = new Array(columns).fill(undefined).map((e, i) => (
+        // eslint-disable-next-line react/no-array-index-key
+        <div className="flex flex-col" key={side + i}>
+          {bracketArray.map((entry) => {
+            const [mykey, value] = entry;
+            const colExpression = side === "l" ? i : columns - 1 - i;
+            if (value.side === side && value.col === colExpression) {
+              if (!value.song) {
+                unfilledSongs += 1;
               }
-              return null;
-            })}
-          </div>
-        )),
-        unfilled,
-        winner,
-      ];
+              if (value.winner) {
+                winner = true;
+              }
+              return (
+                <div key={mykey}>
+                  {createElement(
+                    songButtonType,
+                    {
+                      ...songButtonProps,
+                      styling: cx({
+                        [`${topStyles[colExpression]}`]: value.index === 0,
+                        // [`${styles[colExpression]}`]:
+                        //     value.index !== 0 &&
+                        //     value.index % 2 === 0,
+                      }),
+                      song: value.song,
+                      id: value.id,
+                      col: value.col,
+                      nextId: value.nextId,
+                      opponentId: value.opponentId,
+                      previousIds: value.previousIds,
+                      side: side,
+                      color: value.color,
+                      eliminated: value.eliminated,
+                      winner: value.winner,
+                      undoFunc: value.undoFunc,
+                      disabled: songButtonProps.editable ? value.disabled : true,
+                    },
+                    null,
+                  )}
+                  {((value.song && value.col === 0) || currentBracket.has(side + value.col + (value.index + 1))) && (
+                    <div className={`w-[var(--buttonwidth)] relative ${lineStyles[colExpression]}`}>
+                      {value.index % 2 === 0 && value.nextId != null ? (
+                        <div
+                          className={cx({
+                            [`${lineStyles[colExpression]}`]: true,
+                            "bg-gray-500 w-[var(--lineWidth)] rounded": true,
+                            absolute: true,
+                            "right-0": side === "l",
+                            "left-0": side === "r",
+                          })}
+                          key={`${mykey}line`}
+                        />
+                      ) : null}
+                      {value.song && value.col === 0 && songSourceType ? (
+                        <div className="px-1 text-center text-black text-xs text-ellipsis line-clamp-1 break-all">
+                          {songSourceType === "playlist" && value.song.artist}
+                          {songSourceType === "artist" && value.song.album}
+                        </div>
+                      ) : null}
+                    </div>
+                  )}
+                </div>
+              );
+            }
+            return null;
+          })}
+        </div>
+      ));
+      setUnfilled((prev) => ({ ...prev, [side]: unfilledSongs }));
+      setWinner((prev) => ({ ...prev, [side]: winner }));
+      return returnArray;
     },
     [songButtonType, songSourceType, songButtonProps],
   );
@@ -142,13 +153,8 @@ export default function Bracket({
     if (bracket instanceof Map && bracket.size !== 0) {
       const columns = getNumberOfColumns(bracketSize);
       const bracketArray = bracket instanceof Map ? Array.from(bracket.entries()) : null;
-      const [leftArray, leftUnfilled, leftWinner] = generateComponentArray("l", columns, bracketArray, bracket);
-      const [rightArray, rightUnfilled, rightWinner] = generateComponentArray("r", columns, bracketArray, bracket);
-      if (setPercentageFilled) {
-        const totalUnfilled = leftUnfilled + rightUnfilled;
-        const winnerAddition = !(leftWinner || rightWinner) ? 1 : 0;
-        setPercentageFilled((1 - (totalUnfilled + winnerAddition) / (bracketSize - 1)) * 100);
-      }
+      const leftArray = generateComponentArray("l", columns, bracketArray, bracket);
+      const rightArray = generateComponentArray("r", columns, bracketArray, bracket);
       return [leftArray, rightArray];
     }
     return [];
