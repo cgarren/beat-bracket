@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import ArtistSearchBar from "../Search/ArtistSearchBar";
 import UserPlaylistSearchBar from "../Search/UserPlaylistSearchBar";
 import useSongProcessing from "../../hooks/useSongProcessing";
-import { LoginContext } from "../../context/LoginContext";
+import { UserInfoContext } from "../../context/UserInfoContext";
 import useSpotify from "../../hooks/useSpotify";
 import LoadingIndicator from "../LoadingIndicator";
 import { Tabs, TabsTrigger, TabsList, TabsContent } from "../ui/tabs";
@@ -16,7 +16,7 @@ import useHelper from "../../hooks/useHelper";
 
 export default function CreateBracketModal({ showModal, setShowModal }) {
   const mixpanel = useContext(MixpanelContext);
-  const { loginInfo } = useContext(LoginContext);
+  const { userInfo } = useContext(UserInfoContext);
   const { openBracket } = useSpotify();
   const { camelCaseToTitleCase } = useHelper();
   const { loadPlaylists } = useSongProcessing();
@@ -26,7 +26,7 @@ export default function CreateBracketModal({ showModal, setShowModal }) {
     isSuccess,
     isError,
   } = useQuery({
-    queryKey: ["playlists", { userId: loginInfo.userId }],
+    queryKey: ["playlists", { userId: userInfo.id }],
     queryFn: () => loadPlaylists("https://api.spotify.com/v1/me/playlists?limit=50"),
     staleTime: 1000 * 60 * 60, // 1 hour
     meta: {
@@ -40,10 +40,10 @@ export default function CreateBracketModal({ showModal, setShowModal }) {
         // Generate unique id for new bracket
         const uuid = uuidv4();
         console.debug(`Creating new bracket with id: ${uuid}`);
-        openBracket(uuid, loginInfo.userId, "create", state);
+        openBracket(uuid, userInfo.id, "create", state);
       }
     },
-    [loginInfo.userId, openBracket],
+    [userInfo.id, openBracket],
   );
 
   return (

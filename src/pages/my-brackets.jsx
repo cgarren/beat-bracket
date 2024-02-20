@@ -15,7 +15,7 @@ import useHelper from "../hooks/useHelper";
 export default function App({ location }) {
   const [activeTab, setActiveTab] = useState("all");
   const mixpanel = useContext(MixpanelContext);
-  const { loginInfo, loggedIn } = useContext(LoginContext);
+  const { loggedIn } = useContext(LoginContext);
   const { getBrackets, getMaxBrackets } = useBackend();
   const { camelCaseToTitleCase } = useHelper();
   const maxBrackets = getMaxBrackets();
@@ -25,13 +25,13 @@ export default function App({ location }) {
     isSuccess,
     isLoading,
   } = useQuery({
-    queryKey: ["brackets", { userId: loginInfo?.userId }],
-    queryFn: () => getBrackets(loginInfo?.userId),
+    queryKey: ["brackets", { userId: userInfo?.id }],
+    queryFn: () => getBrackets(userInfo?.id),
     retry: (failureCount, err) => {
       console.log("failureCount:", failureCount, "error:", err);
       return false;
     },
-    enabled: Boolean(loggedIn && loginInfo?.userId),
+    enabled: Boolean(loggedIn && userInfo?.id),
     meta: {
       errorMessage: "Error loading brackets",
     },
@@ -54,7 +54,7 @@ export default function App({ location }) {
     <Layout noChanges={() => true} path={location.pathname} pageName="My Brackets">
       <div className="text-center">
         <h1 className="text-4xl font-bold mb-2">My Brackets</h1>
-        {(isError || !loggedIn || !loginInfo?.userId) && (
+        {(isError || !loggedIn || !userInfo?.id) && (
           <div className="text-md text-gray-600 mb-2">
             Error loading brackets! {!loggedIn && "You must be logged in to view your brackets."}
           </div>

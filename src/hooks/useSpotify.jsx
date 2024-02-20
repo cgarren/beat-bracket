@@ -2,7 +2,6 @@ import { useCallback, useContext } from "react";
 import { navigate } from "gatsby";
 import defaultPlaylistImage from "../assets/images/defaultPlaylistImage.png";
 import useHelper from "./useHelper";
-import guestProfileImage from "../assets/images/guestProfileImage.png";
 import { LoginContext } from "../context/LoginContext";
 
 export default function useSpotify() {
@@ -17,8 +16,38 @@ export default function useSpotify() {
     "playlist-modify-private playlist-modify-public user-read-private playlist-read-private playlist-read-collaborative";
   const codeChallengeMethod = "S256";
 
-  const { loginInfo, loggedIn } = useContext(LoginContext);
+  const { loginInfo, loggedIn, setLoginInfo } = useContext(LoginContext);
   const { generateRandomString } = useHelper();
+
+  const calculateExpiresAt = useCallback((expiresIn) => Date.now() + parseInt(expiresIn, 10) * 1000, []);
+
+  const refreshLogin = useCallback(async (refreshToken) => {
+    const response = await fetch("https://accounts.spotify.com/api/token", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        grant_type: "refresh_token",
+        refresh_token: refreshToken,
+        client_id: clientId,
+      }),
+    });
+    // Make sure request is successful
+    if (!response.ok) {
+      throw new Error("Problem refreshing login");
+    }
+    // Parse and store data
+    const data = await response.json();
+    const expiresAt = calculateExpiresAt(data.expires_in);
+
+    return {
+      ...loginInfo,
+      accessToken: data.access_token,
+      expiresAt: expiresAt,
+      refreshToken: data.refresh_token,
+    };
+  }, []);
 
   const postRequest = useCallback(
     async (url, params, data) => {
@@ -56,6 +85,15 @@ export default function useSpotify() {
           },
         });
         if (!response.ok) {
+          if (response.status === 401 && loginInfo.refreshToken) {
+            console.debug("refreshing token");
+            const newToken = (await refreshLogin(loginInfo.refreshToken)).accessToken;
+            if (newToken) {
+              setLoginInfo((prev) => ({ ...prev, accessToken: newToken.accessToken, expiresAt: newToken.expiresAt }));
+              return loadSpotifyRequest(url, params, newToken.accessToken);
+            }
+            throw new Error("Problem refreshing token");
+          }
           const errorMessage = await response.text();
           if (errorMessage) {
             throw new Error(errorMessage, {
@@ -149,60 +187,57 @@ export default function useSpotify() {
     [postRequest],
   );
 
-  const getCurrentUserInfo = useCallback(
-    async (accessToken) => {
-      const url = "https://api.spotify.com/v1/me";
-      try {
-        let response = await loadSpotifyRequest(url, {}, accessToken);
-        response = await response.json();
-        if (response.images && response.images.length === 0) {
-          response.images.push({
-            url: guestProfileImage,
-          });
-        }
-        return response;
-      } catch (e) {
-        console.error(e);
-        throw new Error("Problem getting current user info");
-      }
-    },
-    [loadSpotifyRequest],
-  );
+  // const getCurrentUserInfo = useCallback(
+  //   async (accessToken) => {
+  //     const url = "https://api.spotify.com/v1/me";
+  //     try {
+  //       let response = await loadSpotifyRequest(url, {}, accessToken);
+  //       response = await response.json();
+  //       if (response.images && response.images.length === 0) {
+  //         response.images.push({
+  //           url: guestProfileImage,
+  //         });
+  //       }
+  //       return response;
+  //     } catch (e) {
+  //       console.error(e);
+  //       throw new Error("Problem getting current user info");
+  //     }
+  //   },
+  //   [loadSpotifyRequest],
+  // );
 
-  const getUserInfo = useCallback(
-    async (userId) => {
-      try {
-        const url = `https://api.spotify.com/v1/users/${userId}`;
-        const response = await loadSpotifyRequest(url);
-        const responseData = await response.json();
-        if (responseData.images.length === 0) {
-          responseData.images.push({
-            url: guestProfileImage,
-          });
-        }
-        return responseData;
-      } catch (e) {
-        console.error(e);
-        throw new Error("Problem getting user info");
-      }
-    },
-    [loadSpotifyRequest],
-  );
+  // const getUserInfo = useCallback(
+  //   async (userId) => {
+  //     try {
+  //       const url = `https://api.spotify.com/v1/users/${userId}`;
+  //       const response = await loadSpotifyRequest(url);
+  //       const responseData = await response.json();
+  //       if (responseData.images.length === 0) {
+  //         responseData.images.push({
+  //           url: guestProfileImage,
+  //         });
+  //       }
+  //       return responseData;
+  //     } catch (e) {
+  //       console.error(e);
+  //       throw new Error("Problem getting user info");
+  //     }
+  //   },
+  //   [loadSpotifyRequest],
+  // );
 
-  const openBracket = useCallback(
-    async (uuid, userId, mode = "", state = {}, replace = false) => {
-      console.debug(`Opening Bracket: ${uuid}`);
-      // open the bracket editor and pass the bracket id off
-      if (typeof window !== "undefined") {
-        console.log("nav to", `/user/${userId || getUserInfo(userId).id}/bracket/${uuid}/${mode}`, state);
-        navigate(`/user/${userId || getUserInfo(userId).id}/bracket/${uuid}/${mode}`, {
-          state: state,
-          replace: replace,
-        });
-      }
-    },
-    [getUserInfo],
-  );
+  const openBracket = useCallback(async (uuid, userId, mode = "", state = {}, replace = false) => {
+    console.debug(`Opening Bracket: ${uuid}`);
+    // open the bracket editor and pass the bracket id off
+    if (typeof window !== "undefined") {
+      console.log("nav to", `/user/${userId}/bracket/${uuid}/${mode}`, state);
+      navigate(`/user/${userId}/bracket/${uuid}/${mode}`, {
+        state: state,
+        replace: replace,
+      });
+    }
+  }, []);
 
   const generateCodeChallenge = useCallback(async (codeVerifier) => {
     function base64encode(string) {
@@ -247,8 +282,6 @@ export default function useSpotify() {
     window.location = `https://accounts.spotify.com/authorize?${args}`;
   }, [generateCodeChallenge, generateRandomString, redirectUri]);
 
-  const calculateExpiresAt = useCallback((expiresIn) => Date.now() + parseInt(expiresIn, 10) * 1000, []);
-
   const loginCallback = useCallback(
     async (urlParams) => {
       if (urlParams && urlParams.has("code") && urlParams.get("state") === sessionStorage.getItem(stateKey)) {
@@ -287,40 +320,12 @@ export default function useSpotify() {
     [redirectUri],
   );
 
-  const refreshLogin = useCallback(async (refreshToken) => {
-    const response = await fetch("https://accounts.spotify.com/api/token", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: new URLSearchParams({
-        grant_type: "refresh_token",
-        refresh_token: refreshToken,
-        client_id: clientId,
-      }),
-    });
-    // Make sure request is successful
-    if (!response.ok) {
-      throw new Error("Problem refreshing login");
-    }
-    // Parse and store data
-    const data = await response.json();
-    const expiresAt = calculateExpiresAt(data.expires_in);
-    return {
-      accessToken: data.access_token,
-      expiresAt: expiresAt,
-      refreshToken: data.refresh_token,
-    };
-  }, []);
-
   return {
     addTracksToPlaylist,
     getArt,
     login,
     loginCallback,
     refreshLogin,
-    getCurrentUserInfo,
-    getUserInfo,
     postRequest,
     loadSpotifyRequest,
     openBracket,

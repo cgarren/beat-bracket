@@ -12,6 +12,7 @@ import { enableMapSet } from "immer";
 
 import { LoginProvider } from "./src/context/LoginContext";
 import { MixpanelProvider } from "./src/context/MixpanelContext";
+import { UserInfoProvider } from "./src/context/UserInfoContext";
 
 // Enable Map/Set in immer
 enableMapSet();
@@ -110,7 +111,9 @@ export function wrapRootElement({ element }) {
     <ErrorBoundary fallback={<div>Something went wrong</div>}>
       <MixpanelProvider mixpanel={mixpanel}>
         <LoginProvider>
-          <QueryClientProvider client={queryClient}>{element}</QueryClientProvider>
+          <UserInfoProvider>
+            <QueryClientProvider client={queryClient}>{element}</QueryClientProvider>
+          </UserInfoProvider>
         </LoginProvider>
       </MixpanelProvider>
     </ErrorBoundary>

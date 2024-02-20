@@ -1,5 +1,6 @@
 import { useCallback, useContext } from "react";
 import { LoginContext } from "../context/LoginContext";
+import { UserInfoContext } from "../context/UserInfoContext";
 
 export default function useBackend() {
   const maxBracketsKey = "max_brackets";
@@ -7,6 +8,7 @@ export default function useBackend() {
   const baseUrl = process.env.GATSBY_BACKEND_URL;
 
   const { loginInfo } = useContext(LoginContext);
+  const { userInfo } = useContext(UserInfoContext);
 
   const loadBackendRequest = useCallback(
     async (path, method, params, data, credentials, headers = {}) => {
@@ -82,12 +84,7 @@ export default function useBackend() {
 
   const createBracket = useCallback(
     async (bracket) => {
-      await loadBackendRequest(
-        "/bracket",
-        "PUT",
-        { ownerId: loginInfo.userId, token: loginInfo.backendToken },
-        bracket,
-      );
+      await loadBackendRequest("/bracket", "PUT", { ownerId: userInfo.id, token: loginInfo.backendToken }, bracket);
       console.debug("Written Bracket:", bracket);
     },
     [loadBackendRequest, loginInfo],
@@ -100,7 +97,7 @@ export default function useBackend() {
         "PATCH",
         {
           id: id,
-          ownerId: loginInfo.userId,
+          ownerId: userInfo.id,
           token: loginInfo.backendToken,
         },
         updateObject,
@@ -113,7 +110,7 @@ export default function useBackend() {
     async (id) =>
       loadBackendRequest("/bracket", "DELETE", {
         id: id,
-        ownerId: loginInfo.userId,
+        ownerId: userInfo.id,
         token: loginInfo.backendToken,
       }),
     [loadBackendRequest, loginInfo],

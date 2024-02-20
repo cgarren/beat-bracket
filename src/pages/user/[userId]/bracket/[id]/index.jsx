@@ -24,12 +24,14 @@ import ShareIcon from "../../../../../assets/svgs/shareIcon.svg";
 import DuplicateIcon from "../../../../../assets/svgs/duplicateIcon.svg";
 // Context
 import { LoginContext } from "../../../../../context/LoginContext";
+import { UserInfoContext } from "../../../../../context/UserInfoContext";
 import BracketHeader from "../../../../../components/BracketHeader";
 import LoginButton from "../../../../../components/Controls/LoginButton";
 import { Button } from "../../../../../components/ui/button";
 
 export default function App({ params, location }) {
-  const { loggedIn, loginInfo } = useContext(LoginContext);
+  const { loggedIn } = useContext(LoginContext);
+  const { userInfo } = useContext(UserInfoContext);
   const { openBracket } = useSpotify();
   const { isCurrentUser } = useAuthentication();
   const { bracketSorter } = useHelper();
@@ -141,18 +143,18 @@ export default function App({ params, location }) {
   // DUPLICATE
 
   const duplicateBracket = useCallback(async () => {
-    if (template?.id && template?.ownerId && loginInfo?.userId) {
+    if (template?.id && template?.ownerId && userInfo?.id) {
       // generate new bracket id
       const uuid = uuidv4();
       console.debug(`Create New Bracket with id: ${uuid}`);
 
       // navigate to new bracket page
-      openBracket(uuid, loginInfo.userId, "fill", { template: template });
+      openBracket(uuid, userInfo.id, "fill", { template: template });
     } else {
       toast.error("Error duplicating bracket");
       console.error("Error duplicating bracket. Something is wrong with the template:", template);
     }
-  }, [template, loginInfo]);
+  }, [template, userInfo?.id]);
 
   // redirect
   if (bracket?.size > 0 && !bracketWinner && isCurrentUser(params.userId)) {

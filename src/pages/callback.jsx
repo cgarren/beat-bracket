@@ -1,45 +1,60 @@
 /* eslint-disable no-nested-ternary */
-import React, { useEffect, useContext, useCallback, useState } from "react";
+import React, { useEffect, useContext, useState } from "react";
 import { navigate } from "gatsby";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Layout from "../components/Layout";
 import Seo from "../components/SEO";
 import { LoginContext } from "../context/LoginContext";
+import { UserInfoContext } from "../context/UserInfoContext";
 import useAuthentication from "../hooks/useAuthentication";
+import useSpotify from "../hooks/useSpotify";
+import useBackend from "../hooks/useBackend";
 import LoginButton from "../components/Controls/LoginButton";
 import LoadingIndicator from "../components/LoadingIndicator";
 import { Button } from "../components/ui/button";
 
 // markup
 export default function App() {
-  const { loginCallback, toPrevPage } = useAuthentication(false);
-  const { loginInProgress, loggedIn } = useContext(LoginContext);
+  const { loginCallback: spotifyLoginCallback } = useSpotify();
+  const { authenticate: backendLogin } = useBackend();
+  const { toPrevPage } = useAuthentication(false);
+  const { loggedIn, setLoginInfo, loginInfo } = useContext(LoginContext);
+  const userInfo = useContext(UserInfoContext);
+  const queryClient = useQueryClient();
+
+  const urlParams = new URLSearchParams(window.location.search);
 
   const [error, setError] = useState(null);
 
-  const processLogin = useCallback(async () => {
-    // const params = await getParamsFromURL(window.location.pathname)
-    const urlParams = new URLSearchParams(window.location.search);
-    window.history.replaceState({}, document.title, window.location.pathname);
+  const { isLoading: spotifyLoggingIn } = useQuery({
+    queryKey: "SpotifyLogin",
+    queryFn: async () => {
+      const { refreshToken, accessToken, expiresAt } = await spotifyLoginCallback(urlParams);
+      setLoginInfo();
+    },
+    enabled: urlParams.size !== 0,
+  });
 
-    if (urlParams.size !== 0) {
-      // check to see if the user just logged in
-      try {
-        await loginCallback(urlParams);
-      } catch (e) {
-        // if there's an error, redirect to home page
-        console.error("Error authenticating:", e);
-        setError("Error authenticating");
-        // redirect to home page
-        // navigate("/");
-      }
-    } else {
-      setError("No url parameters found in query string");
-    }
-  }, [loginCallback]);
+  const { isLoading: backendLoggingIn } = useQuery({
+    queryKey: ["BackendLogin", { userId: userInfo?.id, accessToken: loginInfo?.accessToken }],
+    queryFn: async () => {
+      const backendToken = await backendLogin(userInfo.id, expiresAt, loginInfo.accessToken);
+      setLoginInfo();
+    },
+    enabled: !spotifyLoggingIn && loginInfo?.accessToken && userInfo?.id,
+  });
 
   useEffect(() => {
-    processLogin();
-  }, []);
+    window.history.replaceState({}, document.title, window.location.pathname);
+    const prevPath = sessionStorage.getItem(prevKey);
+    queryClient.removeQueries();
+    if (prevPath) {
+      sessionStorage.removeItem(prevKey);
+      navigate(prevPath, { replace: true });
+    } else {
+      navigate("/my-brackets", { replace: true });
+    }
+  }, [backendLoggingIn, spotifyLoggingIn]);
 
   return (
     <Layout noChanges={() => true} path="/callback/" showNavBar={false} showFooter={false} track={false}>
@@ -60,7 +75,7 @@ export default function App() {
             </div>
           ) : (
             <div>
-              {error ? (
+              {error || urlParams.size === 0 ? (
                 <>
                   <span className="font-bold text-lg">Error logging in!</span>
                   <div className="">Error: {error}</div>

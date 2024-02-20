@@ -6,6 +6,7 @@ import useSpotify from "./useSpotify";
 import useHelper from "./useHelper";
 import useBackend from "./useBackend";
 import { LoginContext } from "../context/LoginContext";
+import { UserInfoContext } from "../context/UserInfoContext";
 import { MixpanelContext } from "../context/MixpanelContext";
 import useGlobalTimer from "./useGlobalTimer";
 
@@ -13,13 +14,9 @@ export default function useAuthentication() {
   const prevKey = "prevPath";
 
   const mixpanel = useContext(MixpanelContext);
-  const {
-    getCurrentUserInfo,
-    loginCallback: spotifyLoginCallback,
-    login: spotifyLogin,
-    refreshLogin: spotifyRefreshLogin,
-  } = useSpotify();
+  const { loginCallback: spotifyLoginCallback, login: spotifyLogin, refreshLogin: spotifyRefreshLogin } = useSpotify();
   const { loginInfo, setLoginInfo, setLoginInProgress } = useContext(LoginContext);
+  const userInfo = useContext(UserInfoContext);
   const { authenticate: backendLogin } = useBackend();
   const { generateRandomString } = useHelper();
   const queryClient = useQueryClient();
@@ -56,12 +53,12 @@ export default function useAuthentication() {
 
   const isCurrentUser = useCallback(
     (userId) => {
-      if (userId && userId === loginInfo.userId) {
+      if (userId && userId === userInfo.id) {
         return true;
       }
       return false;
     },
-    [loginInfo],
+    [userInfo.id],
   );
 
   // auth functions
@@ -94,20 +91,12 @@ export default function useAuthentication() {
     async (inputRefreshToken) => {
       const { accessToken, refreshToken, expiresAt } = await spotifyRefreshLogin(inputRefreshToken);
 
-      // get info about user from spotify
-      const res = await getCurrentUserInfo(accessToken);
-      const userId = res.id;
-
       // refresh backend
       const backendToken = await backendLogin(userId, expiresAt, accessToken);
-
-      // identify user in mixpanel
-      mixpanel.identify(userId);
 
       // set login info
       setLoginInfo({
         backendToken: backendToken,
-        userId: userId,
         accessToken: accessToken,
         expiresAt: expiresAt,
         refreshToken: refreshToken || inputRefreshToken,
@@ -116,7 +105,7 @@ export default function useAuthentication() {
       console.debug("refreshed spotify and backend sessions successfully");
       return true;
     },
-    [backendLogin, getCurrentUserInfo, generateRandomString, mixpanel, spotifyRefreshLogin, setLoginInfo],
+    [backendLogin, generateRandomString, mixpanel, spotifyRefreshLogin, setLoginInfo],
   );
 
   const login = useCallback(
@@ -161,54 +150,54 @@ export default function useAuthentication() {
     [loginInfo, setLoginInfo, setLoginInProgress, setupSpotifyLogin, loginWithRefreshToken],
   );
 
-  const loginCallback = useCallback(
-    async (urlParams) => {
-      try {
-        setLoginInProgress(true);
-        // get data from spotify login callback
-        const { refreshToken, accessToken, expiresAt } = await spotifyLoginCallback(urlParams);
+  // const loginCallback = useCallback(
+  //   async (urlParams) => {
+  //     try {
+  //       setLoginInProgress(true);
+  //       // get data from spotify login callback
+  //       const { refreshToken, accessToken, expiresAt } = await spotifyLoginCallback(urlParams);
 
-        // get info about user from spotify
-        const res = await getCurrentUserInfo(accessToken);
-        const userId = res.id;
+  //       // get info about user from spotify
+  //       const res = await getCurrentUserInfo(accessToken);
+  //       const userId = res.id;
 
-        // authenticate with backend
-        const backendToken = await backendLogin(userId, expiresAt, accessToken);
+  //       // authenticate with backend
+  //       const backendToken = await backendLogin(userId, expiresAt, accessToken);
 
-        // identify user in mixpanel
-        mixpanel.identify(userId);
+  //       // identify user in mixpanel
+  //       mixpanel.identify(userId);
 
-        // set login info
-        setLoginInfo({
-          backendToken: backendToken,
-          userId: userId,
-          accessToken: accessToken,
-          expiresAt: expiresAt,
-          refreshToken: refreshToken,
-        });
+  //       // set login info
+  //       setLoginInfo({
+  //         backendToken: backendToken,
+  //         userId: userId,
+  //         accessToken: accessToken,
+  //         expiresAt: expiresAt,
+  //         refreshToken: refreshToken,
+  //       });
 
-        const prevPath = sessionStorage.getItem(prevKey);
-        if (prevPath) {
-          sessionStorage.removeItem(prevKey);
-          navigate(prevPath, { replace: true });
-        } else {
-          navigate("/my-brackets", { replace: true });
-        }
+  //       const prevPath = sessionStorage.getItem(prevKey);
+  //       if (prevPath) {
+  //         sessionStorage.removeItem(prevKey);
+  //         navigate(prevPath, { replace: true });
+  //       } else {
+  //         navigate("/my-brackets", { replace: true });
+  //       }
 
-        return { userId: userId };
-      } catch (error) {
-        if (error.message !== "Invalid url params") {
-          throw error;
-        } else {
-          return "Invalid url parameters";
-        }
-      } finally {
-        queryClient.removeQueries();
-        setLoginInProgress(false);
-      }
-    },
-    [backendLogin, getCurrentUserInfo, mixpanel, setLoginInfo, spotifyLoginCallback, setLoginInProgress],
-  );
+  //       return { userId: userId };
+  //     } catch (error) {
+  //       if (error.message !== "Invalid url params") {
+  //         throw error;
+  //       } else {
+  //         return "Invalid url parameters";
+  //       }
+  //     } finally {
+  //       queryClient.removeQueries();
+  //       setLoginInProgress(false);
+  //     }
+  //   },
+  //   [backendLogin, getCurrentUserInfo, mixpanel, setLoginInfo, spotifyLoginCallback, setLoginInProgress],
+  // );
 
   const loginRef = useRef(login);
 

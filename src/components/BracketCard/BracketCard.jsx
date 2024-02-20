@@ -4,14 +4,14 @@ import Card from "./Card";
 import CardName from "./CardName";
 import useBackend from "../../hooks/useBackend";
 import useSpotify from "../../hooks/useSpotify";
-import { LoginContext } from "../../context/LoginContext";
+import { UserInfoContext } from "../../context/UserInfoContext";
 import RemoveBracketModal from "../Modals/RemoveBracketModal";
 
 export default function BracketCard({ bracket }) {
   const [showModal, setShowModal] = useState(false);
   const { deleteBracket } = useBackend();
   const { getArtistImage, getPlaylistImage, openBracket } = useSpotify();
-  const { loginInfo } = useContext(LoginContext);
+  const userInfo = useContext(UserInfoContext);
   const queryClient = useQueryClient();
   const { data: cardImage, isPending: imageIsLoading } = useQuery({
     queryKey: ["art-large", { spotifyId: bracket?.songSource[bracket.songSource.type]?.id }],
@@ -40,9 +40,9 @@ export default function BracketCard({ bracket }) {
       successMessage: "Bracket deleted successfully",
     },
     onSettled: async (data, error, bracketId) => {
-      queryClient.invalidateQueries({ queryKey: ["brackets", { userId: loginInfo.userId }] });
+      queryClient.invalidateQueries({ queryKey: ["brackets", { userId: userInfo.id }] });
       queryClient.invalidateQueries({
-        queryKey: ["bracket", { bracketId: bracketId, userId: loginInfo.id }],
+        queryKey: ["bracket", { bracketId: bracketId, userId: userInfo.id }],
       });
     },
   });
@@ -90,7 +90,7 @@ export default function BracketCard({ bracket }) {
           }
           removeFunc={() => setShowModal(true)}
           onClick={() => {
-            openBracket(bracket.id, loginInfo.userId, !bracket.winner ? "fill" : "");
+            openBracket(bracket.id, userInfo.id, !bracket.winner ? "fill" : "");
           }}
         />
       </div>
