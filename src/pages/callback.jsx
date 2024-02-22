@@ -1,7 +1,7 @@
 /* eslint-disable no-nested-ternary */
-import React, { useEffect, useContext, useState } from "react";
+import React, { useEffect, useContext } from "react";
 import { navigate } from "gatsby";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import Layout from "../components/Layout";
 import Seo from "../components/SEO";
 import { LoginContext } from "../context/LoginContext";
@@ -17,54 +17,76 @@ import { Button } from "../components/ui/button";
 export default function App() {
   const { loginCallback: spotifyLoginCallback } = useSpotify();
   const { authenticate: backendLogin } = useBackend();
-  const { toPrevPage } = useAuthentication(false);
+  const { toPrevPage, getPrevPath } = useAuthentication(false);
   const { loggedIn, setLoginInfo, loginInfo } = useContext(LoginContext);
   const userInfo = useContext(UserInfoContext);
-  const queryClient = useQueryClient();
 
   const urlParams = new URLSearchParams(window.location.search);
 
-  const [error, setError] = useState(null);
-
-  const { isLoading: spotifyLoggingIn } = useQuery({
-    queryKey: "SpotifyLogin",
-    queryFn: async () => {
-      const { refreshToken, accessToken, expiresAt } = await spotifyLoginCallback(urlParams);
-      setLoginInfo();
-    },
+  const {
+    data: spotifyLoginData,
+    isPending: spotifyLoggingIn,
+    isSuccess: spotifyLoginSuccess,
+    error: spotifyLoginError,
+  } = useQuery({
+    queryKey: ["SpotifyLogin", { urlParams: urlParams }],
+    queryFn: async () => spotifyLoginCallback(urlParams),
     enabled: urlParams.size !== 0,
   });
 
-  const { isLoading: backendLoggingIn } = useQuery({
+  const {
+    data: backendLoginData,
+    isPending: backendLoggingIn,
+    isSuccess: backendLoginSuccess,
+    error: backendLoginError,
+  } = useQuery({
     queryKey: ["BackendLogin", { userId: userInfo?.id, accessToken: loginInfo?.accessToken }],
-    queryFn: async () => {
-      const backendToken = await backendLogin(userInfo.id, expiresAt, loginInfo.accessToken);
-      setLoginInfo();
-    },
-    enabled: !spotifyLoggingIn && loginInfo?.accessToken && userInfo?.id,
+    queryFn: async () => ({
+      backendToken: await backendLogin(userInfo?.id, null, loginInfo.accessToken),
+    }),
+    enabled: Boolean(loginInfo?.accessToken && userInfo?.id),
   });
 
   useEffect(() => {
-    window.history.replaceState({}, document.title, window.location.pathname);
-    const prevPath = sessionStorage.getItem(prevKey);
-    queryClient.removeQueries();
-    if (prevPath) {
-      sessionStorage.removeItem(prevKey);
-      navigate(prevPath, { replace: true });
-    } else {
-      navigate("/my-brackets", { replace: true });
+    if (spotifyLoginData?.refreshToken && spotifyLoginData?.accessToken) {
+      setLoginInfo({
+        ...loginInfo,
+        refreshToken: spotifyLoginData.refreshToken,
+        accessToken: spotifyLoginData.accessToken,
+      });
     }
-  }, [backendLoggingIn, spotifyLoggingIn]);
+  }, [spotifyLoginData]);
+
+  useEffect(() => {
+    if (backendLoginData?.backendToken) {
+      setLoginInfo({ ...loginInfo, backendToken: backendLoginData.backendToken });
+    }
+  }, [backendLoginData]);
+
+  const error =
+    urlParams.size === 0
+      ? "No url parameters found in query string"
+      : spotifyLoginError?.message || backendLoginError?.message;
+
+  useEffect(() => {
+    if (spotifyLoginSuccess && backendLoginSuccess && loggedIn) {
+      if (getPrevPath()) {
+        toPrevPage(true);
+      } else {
+        navigate("/my-brackets", { replace: true });
+      }
+    }
+  }, [backendLoginSuccess, spotifyLoginSuccess, loggedIn]);
 
   return (
     <Layout noChanges={() => true} path="/callback/" showNavBar={false} showFooter={false} track={false}>
       <div className="h-screen bg-gradient-radial from-zinc-100 from-60% to-zinc-400 relative">
         <div className="flex flex-row justify-center items-center h-full px-4 sm:w-9/12 m-auto">
-          {loginInProgress ? (
+          {spotifyLoggingIn || backendLoggingIn ? (
             <h3 className="text-xl text-black">
               <LoadingIndicator /> Logging in...
             </h3>
-          ) : loggedIn ? (
+          ) : (spotifyLoginSuccess && backendLoginSuccess) || loggedIn ? (
             <div className="flex flex-inline flex-col items-center">
               <h3 className="text-xl text-black">
                 <LoadingIndicator /> Login successful! Redirecting...
@@ -75,17 +97,8 @@ export default function App() {
             </div>
           ) : (
             <div>
-              {error || urlParams.size === 0 ? (
-                <>
-                  <span className="font-bold text-lg">Error logging in!</span>
-                  <div className="">Error: {error}</div>
-                </>
-              ) : (
-                <>
-                  <span className="font-bold text-lg">Error logging in!</span>
-                  <div className="">Error: Unknown</div>
-                </>
-              )}
+              <span className="font-bold text-lg">Error logging in!</span>
+              <div className="">{error || "Unknown Error"}</div>
               <div className="mt-2">
                 <span className="">Try again? </span>
                 <LoginButton

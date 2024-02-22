@@ -45,7 +45,12 @@ export default function ProfileDropdown({ noChanges }) {
   if (!userInfo) {
     return (
       <div className="align-middle">
-        <Button variant="destructive" onClick={logout}>
+        <Button
+          variant="destructive"
+          onClick={() => {
+            logout();
+          }}
+        >
           Log out
         </Button>
       </div>

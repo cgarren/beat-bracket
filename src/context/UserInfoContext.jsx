@@ -14,7 +14,7 @@ export function UserInfoProvider({ children }) {
     if (userInfo?.id) {
       mixpanel.identify(userInfo.id);
     }
-  }, [userInfo.id]);
+  }, [userInfo?.id]);
 
   return <UserInfoContext.Provider value={userInfo}>{children}</UserInfoContext.Provider>;
 }

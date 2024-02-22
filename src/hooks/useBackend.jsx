@@ -8,7 +8,7 @@ export default function useBackend() {
   const baseUrl = process.env.GATSBY_BACKEND_URL;
 
   const { loginInfo } = useContext(LoginContext);
-  const { userInfo } = useContext(UserInfoContext);
+  const userInfo = useContext(UserInfoContext);
 
   const loadBackendRequest = useCallback(
     async (path, method, params, data, credentials, headers = {}) => {
@@ -132,7 +132,6 @@ export default function useBackend() {
         null,
         {
           userId: userId,
-          expireTime: expireTime,
           accessToken: accessToken,
         },
         "include",

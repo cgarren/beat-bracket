@@ -3,7 +3,7 @@ import "@fontsource/righteous";
 import "@fontsource-variable/roboto-flex";
 import "./global-styles.css";
 
-import React from "react";
+import React, { StrictMode } from "react";
 import mixpanel from "mixpanel-browser";
 import { ErrorBoundary } from "react-error-boundary";
 import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -108,14 +108,16 @@ if (process.env.GATSBY_MIXPANEL_TOKEN && process.env.GATSBY_BACKEND_URL) {
 // eslint-disable-next-line import/prefer-default-export
 export function wrapRootElement({ element }) {
   return (
-    <ErrorBoundary fallback={<div>Something went wrong</div>}>
-      <MixpanelProvider mixpanel={mixpanel}>
-        <LoginProvider>
-          <UserInfoProvider>
-            <QueryClientProvider client={queryClient}>{element}</QueryClientProvider>
-          </UserInfoProvider>
-        </LoginProvider>
-      </MixpanelProvider>
-    </ErrorBoundary>
+    <StrictMode>
+      <ErrorBoundary fallback={<div>Something went wrong</div>}>
+        <MixpanelProvider mixpanel={mixpanel}>
+          <LoginProvider>
+            <QueryClientProvider client={queryClient}>
+              <UserInfoProvider>{element}</UserInfoProvider>
+            </QueryClientProvider>
+          </LoginProvider>
+        </MixpanelProvider>
+      </ErrorBoundary>
+    </StrictMode>
   );
 }

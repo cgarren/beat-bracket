@@ -31,7 +31,7 @@ import { Button } from "../../../../../components/ui/button";
 
 export default function App({ params, location }) {
   const { loggedIn } = useContext(LoginContext);
-  const { userInfo } = useContext(UserInfoContext);
+  const userInfo = useContext(UserInfoContext);
   const { openBracket } = useSpotify();
   const { isCurrentUser } = useAuthentication();
   const { bracketSorter } = useHelper();

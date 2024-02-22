@@ -45,10 +45,10 @@ export default function useAuthentication() {
     }
   }, []);
 
-  const toPrevPage = useCallback(() => {
+  const toPrevPage = useCallback((replace = false) => {
     const prevPath = getPrevPath();
     removePrevPath();
-    navigate(prevPath);
+    navigate(prevPath, { replace: replace });
   }, []);
 
   const isCurrentUser = useCallback(
@@ -58,7 +58,7 @@ export default function useAuthentication() {
       }
       return false;
     },
-    [userInfo.id],
+    [userInfo?.id],
   );
 
   // auth functions
@@ -67,18 +67,16 @@ export default function useAuthentication() {
     // clear storage including refresh token key
     mixpanel.track("User Logout");
     setLoginInfo({
-      userId: undefined,
       accessToken: undefined,
       backendToken: undefined,
-      expiresAt: undefined,
       refreshToken: undefined,
     });
     localStorage.clear();
     sessionStorage.clear();
     mixpanel.reset();
-    clearTimer("auth");
     console.log("logged out");
-  }, [mixpanel, setLoginInfo, clearTimer]);
+    navigate("/", { state: { justLoggedOut: true } });
+  }, [mixpanel, setLoginInfo]);
 
   const setupSpotifyLogin = useCallback(async () => {
     if (window.location.pathname !== "/") {
@@ -92,7 +90,7 @@ export default function useAuthentication() {
       const { accessToken, refreshToken, expiresAt } = await spotifyRefreshLogin(inputRefreshToken);
 
       // refresh backend
-      const backendToken = await backendLogin(userId, expiresAt, accessToken);
+      const backendToken = await backendLogin(userInfo?.id, expiresAt, accessToken);
 
       // set login info
       setLoginInfo({
@@ -206,9 +204,9 @@ export default function useAuthentication() {
   return {
     login,
     loginRef,
-    loginCallback,
     logout,
     toPrevPage,
     isCurrentUser,
+    getPrevPath,
   };
 }

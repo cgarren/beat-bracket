@@ -16,7 +16,7 @@ import useHelper from "../../hooks/useHelper";
 
 export default function CreateBracketModal({ showModal, setShowModal }) {
   const mixpanel = useContext(MixpanelContext);
-  const { userInfo } = useContext(UserInfoContext);
+  const userInfo = useContext(UserInfoContext);
   const { openBracket } = useSpotify();
   const { camelCaseToTitleCase } = useHelper();
   const { loadPlaylists } = useSongProcessing();

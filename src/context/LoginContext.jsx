@@ -12,7 +12,7 @@ export function LoginProvider({ children }) {
       return {
         accessToken: null,
         backendToken: null,
-        expiresAt: null,
+        // expiresAt: null,
         refreshToken: null,
         fromStorage: true,
       };
@@ -20,27 +20,14 @@ export function LoginProvider({ children }) {
     return {
       accessToken: sessionStorage.getItem("accessToken"),
       backendToken: sessionStorage.getItem("backendToken"),
-      expiresAt: sessionStorage.getItem("expiresAt"),
+      // expiresAt: sessionStorage.getItem("expiresAt"),
       refreshToken: localStorage.getItem("refreshToken"),
     };
   });
 
-  // loggedIn status
-  const loggedIn = useMemo(() => {
-    const expiresAtDate = new Date(parseInt(loginInfo.expiresAt, 10));
-    if (
-      loginInfo.accessToken &&
-      loginInfo.backendToken &&
-      loginInfo.expiresAt &&
-      expiresAtDate.toString() !== "Invalid Date" &&
-      Date.now() < expiresAtDate
-    ) {
-      console.debug("logged in");
-      return true;
-    }
-    console.debug("not logged in");
-    return false;
-  }, [loginInfo]);
+  const spotifyLoggedIn = useMemo(() => loginInfo.accessToken !== null, [loginInfo]);
+  const backendLoggedIn = useMemo(() => loginInfo.backendToken !== null, [loginInfo]);
+  const loggedIn = useMemo(() => spotifyLoggedIn && backendLoggedIn, [spotifyLoggedIn, backendLoggedIn]);
 
   // // keep loginInfo in sync with localstorage
   // useEffect(() => {
@@ -115,22 +102,11 @@ export function LoginProvider({ children }) {
   //     [timerId, setTimerId]
   // );
 
-  // redirect to login page on logout
-  useEffect(() => {
-    if (
-      loginInfo.accessToken === undefined &&
-      loginInfo.backendToken === undefined &&
-      loginInfo.expiresAt === undefined &&
-      loginInfo.refreshToken === undefined
-    ) {
-      console.debug("Just logged out, redirecting to home page");
-      navigate("/");
-    }
-  }, [loginInfo, loggedIn, loginInProgress]);
-
   const contextValue = useMemo(
     () => ({
       loggedIn,
+      spotifyLoggedIn,
+      backendLoggedIn,
       loginInfo,
       setLoginInfo,
       loginInProgress,
