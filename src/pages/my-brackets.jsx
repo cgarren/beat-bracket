@@ -16,7 +16,7 @@ import { UserInfoContext } from "../context/UserInfoContext";
 export default function App({ location }) {
   const [activeTab, setActiveTab] = useState("all");
   const mixpanel = useContext(MixpanelContext);
-  const { loggedIn } = useContext(LoginContext);
+  const { isLoggedIn } = useContext(LoginContext);
   const { getBrackets, getMaxBrackets } = useBackend();
   const { camelCaseToTitleCase } = useHelper();
   const maxBrackets = getMaxBrackets();
@@ -33,7 +33,7 @@ export default function App({ location }) {
       console.log("failureCount:", failureCount, "error:", err);
       return false;
     },
-    enabled: Boolean(loggedIn && userInfo?.id),
+    enabled: Boolean(userInfo?.id),
     meta: {
       errorMessage: "Error loading brackets",
     },
@@ -56,9 +56,9 @@ export default function App({ location }) {
     <Layout noChanges={() => true} path={location.pathname} pageName="My Brackets">
       <div className="text-center">
         <h1 className="text-4xl font-bold mb-2">My Brackets</h1>
-        {(isError || !loggedIn || !userInfo?.id) && (
+        {(isError || !userInfo?.id) && (
           <div className="text-md text-gray-600 mb-2">
-            Error loading brackets! {!loggedIn && "You must be logged in to view your brackets."}
+            Error loading brackets! {!isLoggedIn() && "You must be logged in to view your brackets."}
           </div>
         )}
         {isLoading && <LoadingIndicator loadingText="Loading brackets" />}

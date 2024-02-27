@@ -107,8 +107,7 @@ export default function useSongProcessing() {
         trackList.map(async (track) => {
           if (!track.preview_url) {
             const url = `https://api.spotify.com/v1/tracks/${track.id}`;
-            const response = await loadSpotifyRequest(url);
-            const trackData = await response.json();
+            const trackData = await loadSpotifyRequest(url);
             return { ...track, preview_url: trackData.preview_url };
           }
           return track;
@@ -131,8 +130,7 @@ export default function useSongProcessing() {
           featuredList.push(idList[i][1]);
         }
         const url = `https://api.spotify.com/v1/tracks?ids=${idString}`;
-        const response = await loadSpotifyRequest(url);
-        const trackList = await response.json();
+        const trackList = await loadSpotifyRequest(url);
         if (trackList.tracks.length > 0) {
           // eslint-disable-next-line no-restricted-syntax
           for (const numTracks of trackOptionsAmounts) {
@@ -192,8 +190,7 @@ export default function useSongProcessing() {
   const loadTracks = useCallback(
     async (url, songs, artistId) => {
       const newSongs = { ...songs };
-      const response = await loadSpotifyRequest(url);
-      const albumList = await response.json();
+      const albumList = await loadSpotifyRequest(url);
       if (albumList.albums.length > 0) {
         albumList.albums.forEach((album) => {
           if (album.images.length > 0) {
@@ -233,8 +230,7 @@ export default function useSongProcessing() {
 
   const loadAlbums = useCallback(
     async (url, artistId, songs = {}) => {
-      const response = await loadSpotifyRequest(url);
-      const albumList = await response.json();
+      const albumList = await loadSpotifyRequest(url);
       if (albumList.items.length > 0) {
         const albumIds = [];
         albumList.items.forEach((item) => {
@@ -254,8 +250,7 @@ export default function useSongProcessing() {
 
   const loadPlaylistTracks = useCallback(
     async (url, songs = []) => {
-      const response = await loadSpotifyRequest(url);
-      const trackList = await response.json();
+      const trackList = await loadSpotifyRequest(url);
       if (trackList.items.length > 0) {
         await Promise.all(
           trackList.items.map(async (item) => {
@@ -276,9 +271,8 @@ export default function useSongProcessing() {
 
   const loadPlaylists = useCallback(
     async (url, playlists = []) => {
-      const response = await loadSpotifyRequest(url);
-      const playlistList = await response.json();
-      if (playlistList.items.length > 0) {
+      const playlistList = await loadSpotifyRequest(url);
+      if (playlistList?.items.length > 0) {
         playlists.push(...playlistList.items);
       }
       if (playlistList.next) {

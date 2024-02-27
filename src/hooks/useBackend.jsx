@@ -7,14 +7,50 @@ export default function useBackend() {
 
   const baseUrl = process.env.GATSBY_BACKEND_URL;
 
-  const { loginInfo } = useContext(LoginContext);
+  const { setLoginInProgress } = useContext(LoginContext);
   const userInfo = useContext(UserInfoContext);
 
+  const authenticate = useCallback(
+    async (userId, expireTime, accessToken) => {
+      setLoginInProgress(true);
+      // const response = await loadBackendRequest(
+      //   "/auth",
+      //   "POST",
+      //   null,
+      //   {
+      //     userId: userId,
+      //     accessToken: accessToken,
+      //   },
+      //   "include",
+      //   {},
+      // );
+      const url = `${baseUrl}/auth`;
+      const requestOptions = {
+        method: "POST",
+        credentials: "include",
+        body: JSON.stringify({
+          userId: userId,
+          accessToken: accessToken,
+        }),
+      };
+      const response = await fetch(url, requestOptions);
+      setLoginInProgress(false);
+      if (response.ok) {
+        const { maxBrackets, token } = await response.json();
+        localStorage.setItem(maxBracketsKey, maxBrackets);
+        return token;
+      }
+      throw new Error("Authentication failed");
+    },
+    [baseUrl],
+  );
+
   const loadBackendRequest = useCallback(
-    async (path, method, params, data, credentials, headers = {}) => {
+    async (path, method, params, includeToken, data, credentials, headers = {}) => {
       let url = baseUrl + path;
-      if (params) {
-        url = `${url}?${new URLSearchParams(params)}`;
+      const finalParams = includeToken ? { ...params, token: sessionStorage.getItem("backendToken") } : params;
+      if (finalParams) {
+        url = `${url}?${new URLSearchParams(finalParams)}`;
       }
       const requestOptions = {
         method: method,
@@ -27,6 +63,12 @@ export default function useBackend() {
         requestOptions.body = JSON.stringify(data);
       }
 
+      if (includeToken) {
+        console.debug("including token");
+      }
+
+      console.debug("fetching", url, requestOptions);
+
       let response;
       try {
         response = await fetch(url, requestOptions);
@@ -35,6 +77,32 @@ export default function useBackend() {
         throw new Error("Network error");
       }
       if (!response.ok) {
+        if (response.status === 403) {
+          sessionStorage.removeItem("backendToken");
+          const spotifyToken = sessionStorage.getItem("accessToken");
+          if (userInfo?.id && spotifyToken) {
+            console.debug("refreshing backend token");
+            try {
+              const newBackendToken = await authenticate(userInfo?.id, null, spotifyToken);
+              if (newBackendToken) {
+                sessionStorage.setItem("backendToken", newBackendToken);
+                return loadBackendRequest(
+                  path,
+                  method,
+                  { ...params, token: newBackendToken },
+                  false,
+                  data,
+                  credentials,
+                  headers,
+                );
+              }
+            } catch (e) {
+              console.error(e);
+            }
+            throw new Error("Problem refreshing backend token");
+          }
+        }
+
         const errorMessage = await response.text();
         if (errorMessage) {
           throw new Error(errorMessage, {
@@ -51,13 +119,17 @@ export default function useBackend() {
 
   const getBrackets = useCallback(
     async (userId) => {
-      const response = await loadBackendRequest("/brackets", "GET", {
-        ownerId: userId,
-        token: loginInfo.backendToken,
-      });
+      const response = await loadBackendRequest(
+        "/brackets",
+        "GET",
+        {
+          ownerId: userId,
+        },
+        true,
+      );
       return response.json();
     },
-    [loadBackendRequest, loginInfo],
+    [loadBackendRequest],
   );
 
   const getBracket = useCallback(
@@ -84,10 +156,10 @@ export default function useBackend() {
 
   const createBracket = useCallback(
     async (bracket) => {
-      await loadBackendRequest("/bracket", "PUT", { ownerId: userInfo.id, token: loginInfo.backendToken }, bracket);
+      await loadBackendRequest("/bracket", "PUT", { ownerId: userInfo.id }, true, bracket);
       console.debug("Written Bracket:", bracket);
     },
-    [loadBackendRequest, loginInfo],
+    [loadBackendRequest],
   );
 
   const updateBracket = useCallback(
@@ -98,22 +170,26 @@ export default function useBackend() {
         {
           id: id,
           ownerId: userInfo.id,
-          token: loginInfo.backendToken,
         },
+        true,
         updateObject,
       );
     },
-    [loadBackendRequest, loginInfo],
+    [loadBackendRequest],
   );
 
   const deleteBracket = useCallback(
     async (id) =>
-      loadBackendRequest("/bracket", "DELETE", {
-        id: id,
-        ownerId: userInfo.id,
-        token: loginInfo.backendToken,
-      }),
-    [loadBackendRequest, loginInfo],
+      loadBackendRequest(
+        "/bracket",
+        "DELETE",
+        {
+          id: id,
+          ownerId: userInfo.id,
+        },
+        true,
+      ),
+    [loadBackendRequest],
   );
 
   const getMaxBrackets = useCallback(() => {
@@ -123,29 +199,6 @@ export default function useBackend() {
     }
     return null;
   }, []);
-
-  const authenticate = useCallback(
-    async (userId, expireTime, accessToken) => {
-      const response = await loadBackendRequest(
-        "/auth",
-        "POST",
-        null,
-        {
-          userId: userId,
-          accessToken: accessToken,
-        },
-        "include",
-        {},
-      );
-      if (response.ok) {
-        const { maxBrackets, token } = await response.json();
-        localStorage.setItem(maxBracketsKey, maxBrackets);
-        return token;
-      }
-      throw new Error("Authentication failed");
-    },
-    [loadBackendRequest],
-  );
 
   return {
     deleteBracket,

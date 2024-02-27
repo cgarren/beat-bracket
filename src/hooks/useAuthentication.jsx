@@ -8,20 +8,17 @@ import useBackend from "./useBackend";
 import { LoginContext } from "../context/LoginContext";
 import { UserInfoContext } from "../context/UserInfoContext";
 import { MixpanelContext } from "../context/MixpanelContext";
-import useGlobalTimer from "./useGlobalTimer";
 
 export default function useAuthentication() {
   const prevKey = "prevPath";
 
   const mixpanel = useContext(MixpanelContext);
   const { loginCallback: spotifyLoginCallback, login: spotifyLogin, refreshLogin: spotifyRefreshLogin } = useSpotify();
-  const { loginInfo, setLoginInfo, setLoginInProgress } = useContext(LoginContext);
+  const { setLoginInProgress } = useContext(LoginContext);
   const userInfo = useContext(UserInfoContext);
   const { authenticate: backendLogin } = useBackend();
   const { generateRandomString } = useHelper();
   const queryClient = useQueryClient();
-
-  const { clearTimer } = useGlobalTimer();
 
   // prev path helpers
 
@@ -53,7 +50,7 @@ export default function useAuthentication() {
 
   const isCurrentUser = useCallback(
     (userId) => {
-      if (userId && userId === userInfo.id) {
+      if (userId && userId === userInfo?.id) {
         return true;
       }
       return false;
@@ -66,17 +63,12 @@ export default function useAuthentication() {
   const logout = useCallback(async () => {
     // clear storage including refresh token key
     mixpanel.track("User Logout");
-    setLoginInfo({
-      accessToken: undefined,
-      backendToken: undefined,
-      refreshToken: undefined,
-    });
     localStorage.clear();
     sessionStorage.clear();
     mixpanel.reset();
     console.log("logged out");
     navigate("/", { state: { justLoggedOut: true } });
-  }, [mixpanel, setLoginInfo]);
+  }, [mixpanel]);
 
   const setupSpotifyLogin = useCallback(async () => {
     if (window.location.pathname !== "/") {
@@ -92,18 +84,14 @@ export default function useAuthentication() {
       // refresh backend
       const backendToken = await backendLogin(userInfo?.id, expiresAt, accessToken);
 
-      // set login info
-      setLoginInfo({
-        backendToken: backendToken,
-        accessToken: accessToken,
-        expiresAt: expiresAt,
-        refreshToken: refreshToken || inputRefreshToken,
-      });
+      sessionStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
+      sessionStorage.setItem("backendToken", backendToken);
 
       console.debug("refreshed spotify and backend sessions successfully");
       return true;
     },
-    [backendLogin, generateRandomString, mixpanel, spotifyRefreshLogin, setLoginInfo],
+    [backendLogin, generateRandomString, mixpanel, spotifyRefreshLogin],
   );
 
   const login = useCallback(
@@ -111,18 +99,15 @@ export default function useAuthentication() {
       try {
         setLoginInProgress(true);
         // case where user has been here before and has a refresh token
-        localStorage.removeItem("refreshToken");
-        if (loginInfo.refreshToken) {
+        const refreshToken = localStorage.getItem("refreshToken");
+        if (refreshToken) {
           try {
-            await loginWithRefreshToken(loginInfo.refreshToken);
+            localStorage.removeItem("refreshToken");
+            await loginWithRefreshToken(refreshToken);
             return true;
           } catch (error) {
             console.log("Problem refreshing with refresh token:");
             console.error(error);
-            setLoginInfo({
-              ...loginInfo,
-              refreshToken: null,
-            });
 
             if (refreshTokenOnly) {
               return false;
@@ -145,7 +130,7 @@ export default function useAuthentication() {
         setLoginInProgress(false);
       }
     },
-    [loginInfo, setLoginInfo, setLoginInProgress, setupSpotifyLogin, loginWithRefreshToken],
+    [setLoginInProgress, setupSpotifyLogin, loginWithRefreshToken],
   );
 
   // const loginCallback = useCallback(

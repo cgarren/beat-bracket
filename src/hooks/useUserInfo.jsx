@@ -10,20 +10,19 @@ export default function useUserInfo(userId) {
 
   const userIdToFetch = userId || "me";
   const { data, isPending, isFetching, error } = useQuery({
-    queryKey: ["spotify-user-info", { userIdToFetch }],
+    queryKey: ["spotify-user-info", { id: userIdToFetch, spotifyLoggedIn: spotifyLoggedIn }],
     queryFn: async () => {
       let url = `https://api.spotify.com/v1/users/${userIdToFetch}`;
       if (userIdToFetch === "me") {
         url = "https://api.spotify.com/v1/me";
       }
       const response = await loadSpotifyRequest(url);
-      const responseData = await response.json();
-      if (responseData.images.length === 0) {
-        responseData.images.push({
+      if (response.images.length === 0) {
+        response.images.push({
           url: guestProfileImage,
         });
       }
-      return responseData;
+      return response;
     },
     refetchOnWindowFocus: false,
     staleTime: 3600000,

@@ -7,7 +7,6 @@ export const UserInfoContext = createContext([null, () => {}]);
 export function UserInfoProvider({ children }) {
   const mixpanel = useContext(MixpanelContext);
 
-  // set logininfo from storage on page load
   const { data: userInfo } = useUserInfo();
 
   useEffect(() => {

@@ -22,11 +22,11 @@ import useUserInfo from "../../hooks/useUserInfo";
 
 export default function ProfileDropdown({ noChanges }) {
   const { data: userInfo, isPending: userInfoLoading } = useUserInfo();
-  const { loginInProgress, loggedIn } = useContext(LoginContext);
+  const { loginInProgress, isLoggedIn } = useContext(LoginContext);
   const { logout } = useAuthentication();
   const { handleNaviagtionAttempt } = useHelper();
 
-  if (!loggedIn && !loginInProgress) {
+  if (!isLoggedIn() && !loginInProgress) {
     return (
       <div className="align-middle border border-white rounded">
         <LoginButton />
@@ -34,7 +34,7 @@ export default function ProfileDropdown({ noChanges }) {
     );
   }
 
-  if ((!loggedIn && loginInProgress) || userInfoLoading) {
+  if ((!isLoggedIn() && loginInProgress) || userInfoLoading) {
     return (
       <div className="align-middle">
         <LoadingIndicator />

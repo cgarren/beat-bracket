@@ -7,14 +7,14 @@ import Seo from "../components/SEO";
 import { LoginContext } from "../context/LoginContext";
 
 export default function App({ location }) {
-  const { loggedIn } = useContext(LoginContext);
+  const { isLoggedIn } = useContext(LoginContext);
   // scroll to top of window on page load
   useEffect(() => window.scrollTo(0, 0), []);
   useEffect(() => {
-    if (loggedIn && !location?.state?.justLoggedOut) {
+    if (isLoggedIn() && !location?.state?.justLoggedOut) {
       navigate("/my-brackets");
     }
-  }, [loggedIn]);
+  }, [isLoggedIn, location]);
 
   return (
     <Layout path="/" showNavBar={false} showFooter={false} pageName="Landing">

@@ -1,10 +1,14 @@
 import { useCallback, useContext } from "react";
 import { navigate } from "gatsby";
+import axios from "axios";
+import { useQueryClient } from "@tanstack/react-query";
 import defaultPlaylistImage from "../assets/images/defaultPlaylistImage.png";
 import useHelper from "./useHelper";
 import { LoginContext } from "../context/LoginContext";
+import axiosInstance from "../axios/spotifyInstance";
 
 export default function useSpotify() {
+  const queryClient = useQueryClient();
   // auth storage keys
   const codeVerifierKey = "spotify_auth_code_verifier";
   const stateKey = "spotify_auth_state";
@@ -16,101 +20,115 @@ export default function useSpotify() {
     "playlist-modify-private playlist-modify-public user-read-private playlist-read-private playlist-read-collaborative";
   const codeChallengeMethod = "S256";
 
-  const { loginInfo, loggedIn, setLoginInfo } = useContext(LoginContext);
+  const { setLoginInProgress, loginInProgress } = useContext(LoginContext);
   const { generateRandomString } = useHelper();
 
   const calculateExpiresAt = useCallback((expiresIn) => Date.now() + parseInt(expiresIn, 10) * 1000, []);
 
-  const refreshLogin = useCallback(async (refreshToken) => {
-    const response = await fetch("https://accounts.spotify.com/api/token", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: new URLSearchParams({
-        grant_type: "refresh_token",
-        refresh_token: refreshToken,
-        client_id: clientId,
-      }),
-    });
-    // Make sure request is successful
-    if (!response.ok) {
-      throw new Error("Problem refreshing login");
-    }
-    // Parse and store data
-    const data = await response.json();
-    const expiresAt = calculateExpiresAt(data.expires_in);
-
-    return {
-      ...loginInfo,
-      accessToken: data.access_token,
-      expiresAt: expiresAt,
-      refreshToken: data.refresh_token,
-    };
-  }, []);
-
-  const postRequest = useCallback(
-    async (url, params, data) => {
-      const modifiedUrl = params ? `${url}?${new URLSearchParams(params)}` : url;
-      const response = await fetch(modifiedUrl, {
+  const refreshLogin = useCallback(
+    async (refreshToken) => {
+      setLoginInProgress(true);
+      const response = await fetch("https://accounts.spotify.com/api/token", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${loginInfo.accessToken}`,
+          "Content-Type": "application/x-www-form-urlencoded",
         },
-        body: JSON.stringify(data),
+        body: new URLSearchParams({
+          grant_type: "refresh_token",
+          refresh_token: refreshToken,
+          client_id: clientId,
+        }),
+      });
+      // Make sure request is successful
+      if (!response.ok) {
+        setLoginInProgress(false);
+        throw new Error("Problem refreshing login");
+      }
+      // Parse and store data
+      const data = await response.json();
+      const expiresAt = calculateExpiresAt(data.expires_in);
+      setLoginInProgress(false);
+      return {
+        accessToken: data.access_token,
+        expiresAt: expiresAt,
+        refreshToken: data.refresh_token,
+      };
+    },
+    [setLoginInProgress, calculateExpiresAt],
+  );
+
+  const loadSpotifyRequest = useCallback(async (url, params) => {
+    try {
+      const response = await axiosInstance.get(url, { params: params });
+      return response.data;
+    } catch (e) {
+      console.error(e);
+      throw new Error("Problem loading spotify request");
+    }
+  }, []);
+
+  const loadSpotifyRequestOld = useCallback(async (url, params, accessToken) => {
+    const token = accessToken || sessionStorage.getItem("accessToken");
+    const refreshToken = localStorage.getItem("refreshToken");
+    if (token || refreshToken) {
+      const modifiedUrl = params ? `${url}?${new URLSearchParams(params)}` : url;
+      let response = await fetch(modifiedUrl, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
       });
 
-      if (response.ok) {
-        return response.json(); // parses JSON response into native JavaScript objects
-      }
-      if (response.status === 429) {
-        throw new Error(`Too many requests. Code: ${response.status}`);
+      const bad = Math.random() < 0.08;
+      if (bad) {
+        console.debug("bad request");
+        response = {
+          ok: false,
+          status: 401,
+          json: async () => ({ error: { message: "Bad request" } }),
+        };
       } else {
-        throw new Error(`Unknown request error. Code: ${response.status}`);
+        console.debug("good request");
       }
-    },
-    [loginInfo],
-  );
 
-  const loadSpotifyRequest = useCallback(
-    async (url, params, accessToken) => {
-      const token = accessToken || loginInfo.accessToken;
-      if (loggedIn || token) {
-        const modifiedUrl = params ? `${url}?${new URLSearchParams(params)}` : url;
-        const response = await fetch(modifiedUrl, {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!response.ok) {
-          if (response.status === 401 && loginInfo.refreshToken) {
-            console.debug("refreshing token");
-            const newToken = (await refreshLogin(loginInfo.refreshToken)).accessToken;
-            if (newToken) {
-              setLoginInfo((prev) => ({ ...prev, accessToken: newToken.accessToken, expiresAt: newToken.expiresAt }));
-              return loadSpotifyRequest(url, params, newToken.accessToken);
+      if (!response.ok) {
+        if (response.status === 401) {
+          sessionStorage.removeItem("accessToken");
+          if (refreshToken && !loginInProgress) {
+            console.debug("refreshing spotify token");
+            localStorage.removeItem("refreshToken");
+            try {
+              const { accessToken: newAccessToken, refreshToken: newRefreshToken } = await refreshLogin(refreshToken);
+              if (newAccessToken && newRefreshToken) {
+                sessionStorage.setItem("accessToken", newAccessToken);
+                localStorage.setItem("refreshToken", newRefreshToken);
+                return loadSpotifyRequest(url, params);
+              }
+            } catch (e) {
+              console.error(e);
             }
-            throw new Error("Problem refreshing token");
-          }
-          const errorMessage = await response.text();
-          if (errorMessage) {
-            throw new Error(errorMessage, {
-              cause: { code: response.status },
-            });
+            localStorage.removeItem("refreshToken");
+            throw new Error("Problem refreshing spotify token");
           } else {
-            console.log("Spotify response:", response);
-            throw new Error("Unknown error loading spotify request");
+            console.debug("no refresh token, cancelling queries");
+            await queryClient.cancelQueries();
           }
         }
-        return response;
+        const errorMessage = await response.json();
+        if (errorMessage?.error?.message) {
+          throw new Error(errorMessage.error.message, {
+            cause: { code: response.status },
+          });
+        } else {
+          console.log("Spotify response:", response);
+          throw new Error("Unknown error loading spotify request");
+        }
       }
-      throw new Error("Not logged in");
-      // return null;
-    },
-    [loginInfo, loggedIn],
-  );
+      return response;
+    }
+    throw new Error("No access token or refresh token found. Please log in.");
+    // return null;
+  }, []);
 
   const search = useCallback(
     async (query, type, limit) => {
@@ -118,7 +136,7 @@ export default function useSpotify() {
       const response = await loadSpotifyRequest(
         `https://api.spotify.com/v1/search/?${new URLSearchParams(params).toString()}`,
       );
-      return response.json();
+      return response;
     },
     [loadSpotifyRequest],
   );
@@ -126,7 +144,7 @@ export default function useSpotify() {
   const getArtist = useCallback(
     async (artistId) => {
       const res = await loadSpotifyRequest(`https://api.spotify.com/v1/artists/${artistId}`);
-      return res.json();
+      return res;
     },
     [loadSpotifyRequest],
   );
@@ -134,7 +152,7 @@ export default function useSpotify() {
   const getPlaylist = useCallback(
     async (playlistId) => {
       const res = await loadSpotifyRequest(`https://api.spotify.com/v1/playlists/${playlistId}`);
-      return res.json();
+      return res;
     },
     [loadSpotifyRequest],
   );
@@ -177,15 +195,15 @@ export default function useSpotify() {
     [getPlaylist, getArt],
   );
 
-  const addTracksToPlaylist = useCallback(
-    async (playlistId, trackUris) => {
-      const url = `https://api.spotify.com/v1/playlists/${playlistId}/tracks`;
-      return postRequest(url, {
-        uris: trackUris,
-      });
-    },
-    [postRequest],
-  );
+  // const addTracksToPlaylist = useCallback(
+  //   async (playlistId, trackUris) => {
+  //     const url = `https://api.spotify.com/v1/playlists/${playlistId}/tracks`;
+  //     return postRequest(url, {
+  //       uris: trackUris,
+  //     });
+  //   },
+  //   [postRequest],
+  // );
 
   // const getCurrentUserInfo = useCallback(
   //   async (accessToken) => {
@@ -285,25 +303,20 @@ export default function useSpotify() {
   const loginCallback = useCallback(
     async (urlParams) => {
       if (urlParams && urlParams.has("code") && urlParams.get("state") === sessionStorage.getItem(stateKey)) {
-        const response = await fetch("https://accounts.spotify.com/api/token", {
-          method: "POST",
+        const requestData = {
+          grant_type: "authorization_code",
+          code: urlParams.get("code"),
+          redirect_uri: redirectUri,
+          client_id: clientId,
+          code_verifier: sessionStorage.getItem(codeVerifierKey),
+        };
+        const response = await axios.post("https://accounts.spotify.com/api/token", requestData, {
           headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
+            "content-type": "application/x-www-form-urlencoded",
           },
-          body: new URLSearchParams({
-            grant_type: "authorization_code",
-            code: urlParams.get("code"),
-            redirect_uri: redirectUri,
-            client_id: clientId,
-            code_verifier: sessionStorage.getItem(codeVerifierKey),
-          }),
         });
-        // Make sure request is successful
-        if (!response.ok) {
-          throw new Error("Problem logging in");
-        }
         // Parse and store data
-        const data = await response.json();
+        const data = await response.data;
         const expiresAt = calculateExpiresAt(data.expires_in);
         // remove spotify auth state
         sessionStorage.removeItem(stateKey);
@@ -321,12 +334,12 @@ export default function useSpotify() {
   );
 
   return {
-    addTracksToPlaylist,
+    // addTracksToPlaylist,
     getArt,
     login,
     loginCallback,
     refreshLogin,
-    postRequest,
+    // postRequest,
     loadSpotifyRequest,
     openBracket,
     getArtist,

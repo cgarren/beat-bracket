@@ -30,7 +30,7 @@ import LoginButton from "../../../../../components/Controls/LoginButton";
 import { Button } from "../../../../../components/ui/button";
 
 export default function App({ params, location }) {
-  const { loggedIn } = useContext(LoginContext);
+  const { isLoggedIn } = useContext(LoginContext);
   const userInfo = useContext(UserInfoContext);
   const { openBracket } = useSpotify();
   const { isCurrentUser } = useAuthentication();
@@ -191,13 +191,13 @@ export default function App({ params, location }) {
                 <ShareIcon />
                 Share
               </Button>
-              {loggedIn && !isCurrentUser(params.userId) && !isCurrentUser(template.ownerId) && (
+              {isLoggedIn() && !isCurrentUser(params.userId) && !isCurrentUser(template.ownerId) && (
                 <Button onClick={duplicateBracket} className="flex justify-center gap-1">
                   <DuplicateIcon />
                   Make my own picks
                 </Button>
               )}
-              {!loggedIn && (
+              {!isLoggedIn() && (
                 <div className="relative">
                   <LoginButton />
                   <div className="absolute top-[105%] left-1/2 -translate-x-1/2 whitespace-nowrap">

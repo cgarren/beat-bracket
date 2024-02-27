@@ -13,6 +13,7 @@ import { enableMapSet } from "immer";
 import { LoginProvider } from "./src/context/LoginContext";
 import { MixpanelProvider } from "./src/context/MixpanelContext";
 import { UserInfoProvider } from "./src/context/UserInfoContext";
+import { Interceptor as SpotifyInterceptor } from "./src/axios/spotifyInstance";
 
 // Enable Map/Set in immer
 enableMapSet();
@@ -113,7 +114,9 @@ export function wrapRootElement({ element }) {
         <MixpanelProvider mixpanel={mixpanel}>
           <LoginProvider>
             <QueryClientProvider client={queryClient}>
-              <UserInfoProvider>{element}</UserInfoProvider>
+              <UserInfoProvider>
+                <SpotifyInterceptor>{element}</SpotifyInterceptor>
+              </UserInfoProvider>
             </QueryClientProvider>
           </LoginProvider>
         </MixpanelProvider>

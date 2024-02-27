@@ -18,7 +18,7 @@ export default function App() {
   const { loginCallback: spotifyLoginCallback } = useSpotify();
   const { authenticate: backendLogin } = useBackend();
   const { toPrevPage, getPrevPath } = useAuthentication(false);
-  const { loggedIn, setLoginInfo, loginInfo } = useContext(LoginContext);
+  const { isLoggedIn, setSpotifyLoggedIn, setBackendLoggedIn } = useContext(LoginContext);
   const userInfo = useContext(UserInfoContext);
 
   const urlParams = new URLSearchParams(window.location.search);
@@ -40,26 +40,28 @@ export default function App() {
     isSuccess: backendLoginSuccess,
     error: backendLoginError,
   } = useQuery({
-    queryKey: ["BackendLogin", { userId: userInfo?.id, accessToken: loginInfo?.accessToken }],
+    queryKey: ["BackendLogin", { userId: userInfo?.id, accessToken: spotifyLoginData?.accessToken }],
     queryFn: async () => ({
-      backendToken: await backendLogin(userInfo?.id, null, loginInfo.accessToken),
+      backendToken: await backendLogin(userInfo?.id, null, spotifyLoginData?.accessToken),
     }),
-    enabled: Boolean(loginInfo?.accessToken && userInfo?.id),
+    enabled: Boolean(spotifyLoginData?.accessToken && userInfo?.id),
   });
+
+  // console.log(Boolean(spotifyLoginData?.accessToken && userInfo?.id), spotifyLoginData?.accessToken, userInfo?.id);
 
   useEffect(() => {
     if (spotifyLoginData?.refreshToken && spotifyLoginData?.accessToken) {
-      setLoginInfo({
-        ...loginInfo,
-        refreshToken: spotifyLoginData.refreshToken,
-        accessToken: spotifyLoginData.accessToken,
-      });
+      console.log("setting initial spotify tokens");
+      sessionStorage.setItem("accessToken", spotifyLoginData.accessToken);
+      localStorage.setItem("refreshToken", spotifyLoginData.refreshToken);
+      setSpotifyLoggedIn(true);
     }
   }, [spotifyLoginData]);
 
   useEffect(() => {
     if (backendLoginData?.backendToken) {
-      setLoginInfo({ ...loginInfo, backendToken: backendLoginData.backendToken });
+      sessionStorage.setItem("backendToken", backendLoginData.backendToken);
+      setBackendLoggedIn(true);
     }
   }, [backendLoginData]);
 
@@ -69,33 +71,20 @@ export default function App() {
       : spotifyLoginError?.message || backendLoginError?.message;
 
   useEffect(() => {
-    if (spotifyLoginSuccess && backendLoginSuccess && loggedIn) {
+    if (spotifyLoginSuccess && backendLoginSuccess && isLoggedIn()) {
       if (getPrevPath()) {
         toPrevPage(true);
       } else {
         navigate("/my-brackets", { replace: true });
       }
     }
-  }, [backendLoginSuccess, spotifyLoginSuccess, loggedIn]);
+  }, [backendLoginSuccess, spotifyLoginSuccess, isLoggedIn, getPrevPath, toPrevPage]);
 
   return (
     <Layout noChanges={() => true} path="/callback/" showNavBar={false} showFooter={false} track={false}>
       <div className="h-screen bg-gradient-radial from-zinc-100 from-60% to-zinc-400 relative">
         <div className="flex flex-row justify-center items-center h-full px-4 sm:w-9/12 m-auto">
-          {spotifyLoggingIn || backendLoggingIn ? (
-            <h3 className="text-xl text-black">
-              <LoadingIndicator /> Logging in...
-            </h3>
-          ) : (spotifyLoginSuccess && backendLoginSuccess) || loggedIn ? (
-            <div className="flex flex-inline flex-col items-center">
-              <h3 className="text-xl text-black">
-                <LoadingIndicator /> Login successful! Redirecting...
-              </h3>
-              <Button className="" onClick={() => toPrevPage()}>
-                Click here if not redirected
-              </Button>
-            </div>
-          ) : (
+          {error && (
             <div>
               <span className="font-bold text-lg">Error logging in!</span>
               <div className="">{error || "Unknown Error"}</div>
@@ -103,7 +92,7 @@ export default function App() {
                 <span className="">Try again? </span>
                 <LoginButton
                   cleanupFunc={() => {
-                    if (loggedIn) {
+                    if (isLoggedIn()) {
                       navigate("/my-brackets");
                     }
                   }}
@@ -111,6 +100,36 @@ export default function App() {
               </div>
             </div>
           )}
+          {!error &&
+            (spotifyLoggingIn || backendLoggingIn ? (
+              <h3 className="text-xl text-black">
+                <LoadingIndicator /> Logging in...
+              </h3>
+            ) : !error && ((spotifyLoginSuccess && backendLoginSuccess) || isLoggedIn()) ? (
+              <div className="flex flex-inline flex-col items-center">
+                <h3 className="text-xl text-black">
+                  <LoadingIndicator /> Login successful! Redirecting...
+                </h3>
+                <Button className="" onClick={() => toPrevPage()}>
+                  Click here if not redirected
+                </Button>
+              </div>
+            ) : (
+              <div>
+                <span className="font-bold text-lg">Error logging in!</span>
+                <div className="">Unknown Error</div>
+                <div className="mt-2">
+                  <span className="">Try again? </span>
+                  <LoginButton
+                    cleanupFunc={() => {
+                      if (isLoggedIn()) {
+                        navigate("/my-brackets");
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
         </div>
       </div>
     </Layout>
