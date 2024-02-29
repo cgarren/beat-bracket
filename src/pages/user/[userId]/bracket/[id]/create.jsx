@@ -5,6 +5,8 @@ import { Link } from "gatsby";
 import toast from "react-hot-toast";
 // import Mousetrap from "mousetrap";
 import { useQuery } from "@tanstack/react-query";
+// Helpers
+import { nearestLesserPowerOf2, camelCaseToTitleCase } from "../../../../../utils/helpers";
 // Components
 import Seo from "../../../../../components/SEO";
 import Layout from "../../../../../components/Layout";
@@ -16,13 +18,12 @@ import BracketHeader from "../../../../../components/BracketHeader";
 import useBracketGeneration from "../../../../../hooks/useBracketGeneration";
 import useHelper from "../../../../../hooks/useHelper";
 import useBackend from "../../../../../hooks/useBackend";
-import useSpotify from "../../../../../hooks/useSpotify";
 import useSongProcessing from "../../../../../hooks/useSongProcessing";
 import useAuthentication from "../../../../../hooks/useAuthentication";
-import useUserInfo from "../../../../../hooks/useUserInfo";
 import { Button } from "../../../../../components/ui/button";
 // Context
 import { MixpanelContext } from "../../../../../context/MixpanelContext";
+import { UserInfoContext } from "../../../../../context/UserInfoContext";
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../../../../../components/ui/accordion";
 
@@ -35,16 +36,14 @@ export default function App({ params, location }) {
   const [showBracket, setShowBracket] = useState(false);
   const [playbackEnabled] = useState(true);
 
-  const { openBracket } = useSpotify();
   const { isCurrentUser } = useAuthentication();
-  const { nearestLesserPowerOf2, camelCaseToTitleCase } = useHelper();
+  const { openBracket } = useHelper();
   const { createBracket } = useBackend();
   const { seedBracket, sortTracks, getArtistTracks, getPlaylistTracks } = useSongProcessing();
   const { getNumberOfColumns, fillBracket } = useBracketGeneration();
 
   const mixpanel = useContext(MixpanelContext);
-
-  const { data: userInfo } = useUserInfo();
+  const userInfo = useContext(UserInfoContext);
 
   const songSource = useMemo(() => {
     const newSongSource = location?.state;
@@ -71,7 +70,7 @@ export default function App({ params, location }) {
   }, [getArtistTracks, getPlaylistTracks, songSource]);
 
   const { data: allTracks, isPending: loadingTracks } = useQuery({
-    queryKey: ["tracks", { id: songSource ? songSource[songSource.type].id : null }],
+    queryKey: ["spotify", "tracks", { id: songSource ? songSource[songSource.type].id : null }],
     queryFn: async () => getTracks(songSource),
     enabled: Boolean(songSource),
     refetchOnWindowFocus: false,
@@ -174,17 +173,7 @@ export default function App({ params, location }) {
       }
       return null;
     },
-    [
-      allTracks,
-      limit,
-      seedingMethod,
-      inclusionMethod,
-      sortTracks,
-      seedBracket,
-      fillBracket,
-      nearestLesserPowerOf2,
-      getNumberOfColumns,
-    ],
+    [allTracks, limit, seedingMethod, inclusionMethod, sortTracks, seedBracket, fillBracket, getNumberOfColumns],
   );
 
   useEffect(() => {

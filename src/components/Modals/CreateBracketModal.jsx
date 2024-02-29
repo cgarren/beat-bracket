@@ -5,20 +5,19 @@ import ArtistSearchBar from "../Search/ArtistSearchBar";
 import UserPlaylistSearchBar from "../Search/UserPlaylistSearchBar";
 import useSongProcessing from "../../hooks/useSongProcessing";
 import { UserInfoContext } from "../../context/UserInfoContext";
-import useSpotify from "../../hooks/useSpotify";
 import LoadingIndicator from "../LoadingIndicator";
 import { Tabs, TabsTrigger, TabsList, TabsContent } from "../ui/tabs";
 import { Separator } from "../ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { MixpanelContext } from "../../context/MixpanelContext";
 import useHelper from "../../hooks/useHelper";
+import { camelCaseToTitleCase } from "../../utils/helpers";
 // import Badge from "../Badge";
 
 export default function CreateBracketModal({ showModal, setShowModal }) {
   const mixpanel = useContext(MixpanelContext);
   const userInfo = useContext(UserInfoContext);
-  const { openBracket } = useSpotify();
-  const { camelCaseToTitleCase } = useHelper();
+  const { openBracket } = useHelper();
   const { loadPlaylists } = useSongProcessing();
   const {
     data: userPlaylists,
@@ -26,7 +25,7 @@ export default function CreateBracketModal({ showModal, setShowModal }) {
     isSuccess,
     isError,
   } = useQuery({
-    queryKey: ["playlists", { userId: userInfo.id }],
+    queryKey: ["spotify", "playlists", { userId: userInfo.id }],
     queryFn: () => loadPlaylists("https://api.spotify.com/v1/me/playlists?limit=50"),
     staleTime: 1000 * 60 * 60, // 1 hour
     meta: {

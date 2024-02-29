@@ -11,7 +11,7 @@ export default function useBackend() {
   const userInfo = useContext(UserInfoContext);
 
   const authenticate = useCallback(
-    async (userId, expireTime, accessToken) => {
+    async (userId, accessToken) => {
       setLoginInProgress(true);
       // const response = await loadBackendRequest(
       //   "/auth",
@@ -83,7 +83,7 @@ export default function useBackend() {
           if (userInfo?.id && spotifyToken) {
             console.debug("refreshing backend token");
             try {
-              const newBackendToken = await authenticate(userInfo?.id, null, spotifyToken);
+              const newBackendToken = await authenticate(userInfo?.id, spotifyToken);
               if (newBackendToken) {
                 sessionStorage.setItem("backendToken", newBackendToken);
                 return loadBackendRequest(

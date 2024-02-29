@@ -2,22 +2,19 @@
 import { useContext, useCallback, useRef } from "react";
 import { navigate } from "gatsby";
 import { useQueryClient } from "@tanstack/react-query";
-import useSpotify from "./useSpotify";
-import useHelper from "./useHelper";
 import useBackend from "./useBackend";
 import { LoginContext } from "../context/LoginContext";
 import { UserInfoContext } from "../context/UserInfoContext";
 import { MixpanelContext } from "../context/MixpanelContext";
+import { login as spotifyLogin, refreshLogin as spotifyRefreshLogin, tokensExist } from "../axios/spotifyInstance";
 
 export default function useAuthentication() {
   const prevKey = "prevPath";
 
   const mixpanel = useContext(MixpanelContext);
-  const { loginCallback: spotifyLoginCallback, login: spotifyLogin, refreshLogin: spotifyRefreshLogin } = useSpotify();
   const { setLoginInProgress } = useContext(LoginContext);
   const userInfo = useContext(UserInfoContext);
   const { authenticate: backendLogin } = useBackend();
-  const { generateRandomString } = useHelper();
   const queryClient = useQueryClient();
 
   // prev path helpers
@@ -75,35 +72,29 @@ export default function useAuthentication() {
       setPrevPath(window.location.pathname);
     }
     await spotifyLogin();
-  }, [prevKey, spotifyLogin]);
+  }, [prevKey]);
 
-  const loginWithRefreshToken = useCallback(
-    async (inputRefreshToken) => {
-      const { accessToken, refreshToken, expiresAt } = await spotifyRefreshLogin(inputRefreshToken);
+  const loginWithRefreshToken = useCallback(async () => {
+    const { accessToken } = await spotifyRefreshLogin();
 
-      // refresh backend
-      const backendToken = await backendLogin(userInfo?.id, expiresAt, accessToken);
+    // refresh backend
+    const backendToken = await backendLogin(userInfo?.id, accessToken);
 
-      sessionStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("refreshToken", refreshToken);
-      sessionStorage.setItem("backendToken", backendToken);
+    sessionStorage.setItem("backendToken", backendToken);
 
-      console.debug("refreshed spotify and backend sessions successfully");
-      return true;
-    },
-    [backendLogin, generateRandomString, mixpanel, spotifyRefreshLogin],
-  );
+    console.debug("refreshed spotify and backend sessions successfully");
+    return true;
+  }, [backendLogin, mixpanel, setLoginInProgress, userInfo?.id]);
 
   const login = useCallback(
     async (refreshTokenOnly = false) => {
       try {
         setLoginInProgress(true);
         // case where user has been here before and has a refresh token
-        const refreshToken = localStorage.getItem("refreshToken");
+        const refreshToken = tokensExist();
         if (refreshToken) {
           try {
-            localStorage.removeItem("refreshToken");
-            await loginWithRefreshToken(refreshToken);
+            await loginWithRefreshToken();
             return true;
           } catch (error) {
             console.log("Problem refreshing with refresh token:");

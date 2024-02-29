@@ -1,4 +1,5 @@
 import React, { useContext } from "react";
+import { navigate } from "gatsby";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,16 +18,14 @@ import LoginButton from "../Controls/LoginButton";
 import LoadingIndicator from "../LoadingIndicator";
 import { LoginContext } from "../../context/LoginContext";
 import useAuthentication from "../../hooks/useAuthentication";
-import useHelper from "../../hooks/useHelper";
-import useUserInfo from "../../hooks/useUserInfo";
+import { UserInfoContext } from "../../context/UserInfoContext";
 
 export default function ProfileDropdown({ noChanges }) {
-  const { data: userInfo, isPending: userInfoLoading } = useUserInfo();
-  const { loginInProgress, isLoggedIn } = useContext(LoginContext);
+  const userInfo = useContext(UserInfoContext);
+  const { loginInProgress } = useContext(LoginContext);
   const { logout } = useAuthentication();
-  const { handleNaviagtionAttempt } = useHelper();
 
-  if (!isLoggedIn() && !loginInProgress) {
+  if (!userInfo?.id && !loginInProgress) {
     return (
       <div className="align-middle border border-white rounded">
         <LoginButton />
@@ -34,25 +33,10 @@ export default function ProfileDropdown({ noChanges }) {
     );
   }
 
-  if ((!isLoggedIn() && loginInProgress) || userInfoLoading) {
+  if (loginInProgress) {
     return (
       <div className="align-middle">
         <LoadingIndicator />
-      </div>
-    );
-  }
-
-  if (!userInfo) {
-    return (
-      <div className="align-middle">
-        <Button
-          variant="destructive"
-          onClick={() => {
-            logout();
-          }}
-        >
-          Log out
-        </Button>
       </div>
     );
   }
@@ -82,8 +66,7 @@ export default function ProfileDropdown({ noChanges }) {
           <DropdownMenuGroup>
             <DropdownMenuItem
               onSelect={() => {
-                console.log(noChanges(true));
-                handleNaviagtionAttempt("/my-brackets", noChanges);
+                if (noChanges(true)) navigate("/my-brackets");
               }}
             >
               My Brackets

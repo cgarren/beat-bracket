@@ -1,13 +1,13 @@
 /* eslint-disable no-nested-ternary */
 import React, { useEffect, useContext } from "react";
 import { navigate } from "gatsby";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Layout from "../components/Layout";
 import Seo from "../components/SEO";
-import { LoginContext } from "../context/LoginContext";
 import { UserInfoContext } from "../context/UserInfoContext";
+import { LoginContext } from "../context/LoginContext";
 import useAuthentication from "../hooks/useAuthentication";
-import useSpotify from "../hooks/useSpotify";
+import { loginCallback as spotifyLoginCallback } from "../axios/spotifyInstance";
 import useBackend from "../hooks/useBackend";
 import LoginButton from "../components/Controls/LoginButton";
 import LoadingIndicator from "../components/LoadingIndicator";
@@ -15,13 +15,15 @@ import { Button } from "../components/ui/button";
 
 // markup
 export default function App() {
-  const { loginCallback: spotifyLoginCallback } = useSpotify();
   const { authenticate: backendLogin } = useBackend();
   const { toPrevPage, getPrevPath } = useAuthentication(false);
-  const { isLoggedIn, setSpotifyLoggedIn, setBackendLoggedIn } = useContext(LoginContext);
   const userInfo = useContext(UserInfoContext);
+  const { setupDone } = useContext(LoginContext);
+  const queryClient = useQueryClient();
 
-  const urlParams = new URLSearchParams(window.location.search);
+  useEffect(() => {
+    console.log("setupDone", setupDone);
+  }, [setupDone]);
 
   const {
     data: spotifyLoginData,
@@ -29,9 +31,9 @@ export default function App() {
     isSuccess: spotifyLoginSuccess,
     error: spotifyLoginError,
   } = useQuery({
-    queryKey: ["SpotifyLogin", { urlParams: urlParams }],
-    queryFn: async () => spotifyLoginCallback(urlParams),
-    enabled: urlParams.size !== 0,
+    queryKey: ["spotifyLogin", setupDone],
+    queryFn: async () => spotifyLoginCallback(new URLSearchParams(window.location.search)),
+    enabled: setupDone,
   });
 
   const {
@@ -40,45 +42,43 @@ export default function App() {
     isSuccess: backendLoginSuccess,
     error: backendLoginError,
   } = useQuery({
-    queryKey: ["BackendLogin", { userId: userInfo?.id, accessToken: spotifyLoginData?.accessToken }],
+    queryKey: ["backendLogin", { userId: userInfo?.id, accessToken: spotifyLoginData?.accessToken }],
     queryFn: async () => ({
-      backendToken: await backendLogin(userInfo?.id, null, spotifyLoginData?.accessToken),
+      backendToken: await backendLogin(userInfo?.id, spotifyLoginData?.accessToken),
     }),
     enabled: Boolean(spotifyLoginData?.accessToken && userInfo?.id),
   });
 
-  // console.log(Boolean(spotifyLoginData?.accessToken && userInfo?.id), spotifyLoginData?.accessToken, userInfo?.id);
-
-  useEffect(() => {
-    if (spotifyLoginData?.refreshToken && spotifyLoginData?.accessToken) {
-      console.log("setting initial spotify tokens");
-      sessionStorage.setItem("accessToken", spotifyLoginData.accessToken);
-      localStorage.setItem("refreshToken", spotifyLoginData.refreshToken);
-      setSpotifyLoggedIn(true);
-    }
-  }, [spotifyLoginData]);
-
-  useEffect(() => {
-    if (backendLoginData?.backendToken) {
-      sessionStorage.setItem("backendToken", backendLoginData.backendToken);
-      setBackendLoggedIn(true);
-    }
-  }, [backendLoginData]);
-
   const error =
-    urlParams.size === 0
+    new URLSearchParams(window.location.search).size === 0
       ? "No url parameters found in query string"
       : spotifyLoginError?.message || backendLoginError?.message;
 
   useEffect(() => {
-    if (spotifyLoginSuccess && backendLoginSuccess && isLoggedIn()) {
+    console.log("spotifyLoggingIn", spotifyLoggingIn);
+  }, [spotifyLoggingIn]);
+
+  useEffect(() => {
+    console.log("data", spotifyLoginData?.accessToken, userInfo?.id);
+  }, [spotifyLoginData, userInfo]);
+
+  useEffect(() => {
+    if (backendLoginData?.backendToken) {
+      console.log("setting initital backend token");
+      sessionStorage.setItem("backendToken", backendLoginData.backendToken);
+      queryClient.invalidateQueries({ queryKey: ["backend"] });
+    }
+  }, [backendLoginData]);
+
+  useEffect(() => {
+    if (spotifyLoginSuccess && backendLoginSuccess) {
       if (getPrevPath()) {
         toPrevPage(true);
       } else {
         navigate("/my-brackets", { replace: true });
       }
     }
-  }, [backendLoginSuccess, spotifyLoginSuccess, isLoggedIn, getPrevPath, toPrevPage]);
+  }, [backendLoginSuccess, spotifyLoginSuccess, getPrevPath, toPrevPage]);
 
   return (
     <Layout noChanges={() => true} path="/callback/" showNavBar={false} showFooter={false} track={false}>
@@ -91,8 +91,8 @@ export default function App() {
               <div className="mt-2">
                 <span className="">Try again? </span>
                 <LoginButton
-                  cleanupFunc={() => {
-                    if (isLoggedIn()) {
+                  cleanupFunc={(loginResult) => {
+                    if (loginResult) {
                       navigate("/my-brackets");
                     }
                   }}
@@ -105,7 +105,7 @@ export default function App() {
               <h3 className="text-xl text-black">
                 <LoadingIndicator /> Logging in...
               </h3>
-            ) : !error && ((spotifyLoginSuccess && backendLoginSuccess) || isLoggedIn()) ? (
+            ) : !error && spotifyLoginSuccess && backendLoginSuccess ? (
               <div className="flex flex-inline flex-col items-center">
                 <h3 className="text-xl text-black">
                   <LoadingIndicator /> Login successful! Redirecting...
@@ -121,8 +121,8 @@ export default function App() {
                 <div className="mt-2">
                   <span className="">Try again? </span>
                   <LoginButton
-                    cleanupFunc={() => {
-                      if (isLoggedIn()) {
+                    cleanupFunc={(loginResult) => {
+                      if (loginResult) {
                         navigate("/my-brackets");
                       }
                     }}

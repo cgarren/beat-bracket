@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 // React
-import React, { useEffect, useState, useMemo, useCallback } from "react";
+import React, { useEffect, useState, useMemo, useCallback, useContext } from "react";
 import { useDebounce } from "react-use";
 // Third Party
 import Mousetrap from "mousetrap";
@@ -8,6 +8,8 @@ import Confetti from "react-confetti";
 import toast from "react-hot-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { produce } from "immer";
+// Helpers
+import { bracketSorter, bracketUnchanged } from "../../../../../utils/helpers";
 // Components
 import Seo from "../../../../../components/SEO";
 import Layout from "../../../../../components/Layout";
@@ -18,10 +20,11 @@ import BracketCompleteModal from "../../../../../components/Modals/BracketComple
 import useBracketGeneration from "../../../../../hooks/useBracketGeneration";
 import useHelper from "../../../../../hooks/useHelper";
 import useBackend from "../../../../../hooks/useBackend";
-import useSpotify from "../../../../../hooks/useSpotify";
 import useSongProcessing from "../../../../../hooks/useSongProcessing";
 import useAuthentication from "../../../../../hooks/useAuthentication";
 import useShareBracket from "../../../../../hooks/useShareBracket";
+// Context
+import { UserInfoContext } from "../../../../../context/UserInfoContext";
 // Assets
 import ShareIcon from "../../../../../assets/svgs/shareIcon.svg";
 import useUserInfo from "../../../../../hooks/useUserInfo";
@@ -39,8 +42,7 @@ export default function App({ params, location }) {
   const [percentageFilled, setPercentageFilled] = useState(0);
 
   // Hooks
-  const { getArtist, getPlaylist, openBracket } = useSpotify();
-  const { bracketSorter, bracketUnchanged } = useHelper();
+  const { openBracket } = useHelper();
   const { isCurrentUser } = useAuthentication();
   const { getBracket, updateBracket, getTemplate, createBracket } = useBackend();
   const { updatePreviewUrls } = useSongProcessing();
@@ -51,7 +53,8 @@ export default function App({ params, location }) {
   // Constants
   // const localSaveKey = "savedBracket";
 
-  const { data: ownerInfo } = useUserInfo(params.userId);
+  const { data: ownerData } = useUserInfo(params.userId);
+  const ownerInfo = ownerData?.data;
 
   const owner = useMemo(
     () => ({ name: ownerInfo?.display_name, id: params.userId }),
@@ -68,7 +71,7 @@ export default function App({ params, location }) {
     isPending: fetchPending,
     isError: fetchFailure,
   } = useQuery({
-    queryKey: ["bracket", { bracketId: params.id, userId: owner.id }],
+    queryKey: ["backend", "bracket", { bracketId: params.id, userId: owner.id }],
     queryFn: async () => getBracket(params.id, owner.id),
     enabled: params.id && isCurrentUser(owner.id),
     refetchOnWindowFocus: false,
@@ -90,7 +93,10 @@ export default function App({ params, location }) {
     },
     onError: () => {
       if (lastSaved.saveData) {
-        queryClient.setQueryData(["bracket", { bracketId: params.id, userId: owner.id }], lastSaved.saveData);
+        queryClient.setQueryData(
+          ["backend", "bracket", { bracketId: params.id, userId: owner.id }],
+          lastSaved.saveData,
+        );
       }
       if (lastSaved.commands) {
         setCommands(lastSaved.commands);
@@ -101,7 +107,7 @@ export default function App({ params, location }) {
       // successMessage: "Bracket saved successfully",
     },
     onSettled: async (data) => {
-      queryClient.invalidateQueries({ queryKey: ["brackets", { userId: owner.id }] });
+      queryClient.invalidateQueries({ queryKey: ["backend", "brackets", { userId: owner.id }] });
 
       setLastSaved({ commands: commands, time: Date.now(), saveData: data });
       setSavePending(false);
@@ -121,8 +127,8 @@ export default function App({ params, location }) {
       successMessage: "Bracket created successfully",
     },
     onSettled: async () => {
-      queryClient.invalidateQueries({ queryKey: ["brackets", { userId: owner.id }] });
-      queryClient.invalidateQueries({ queryKey: ["bracket", { bracketId: params.id, userId: owner.id }] });
+      queryClient.invalidateQueries({ queryKey: ["backend", "brackets", { userId: owner.id }] });
+      queryClient.invalidateQueries({ queryKey: ["backend", "bracket", { bracketId: params.id, userId: owner.id }] });
     },
   });
 
@@ -156,7 +162,7 @@ export default function App({ params, location }) {
       return mymap;
     }
     return null;
-  }, [loadedBracket?.bracketData, bracketSorter]);
+  }, [loadedBracket?.bracketData]);
 
   const template = useMemo(() => {
     if (loadedBracket?.template) {
@@ -259,7 +265,11 @@ export default function App({ params, location }) {
 
   const saveCurrentBracket = useCallback(() => {
     if (bracket && bracket.size > 0) {
-      const saveData = queryClient.getQueryData(["bracket", { bracketId: params.id, userId: owner.id }])?.bracketData;
+      const saveData = queryClient.getQueryData([
+        "backend",
+        "bracket",
+        { bracketId: params.id, userId: owner.id },
+      ])?.bracketData;
       if (saveData) {
         setSavePending(true);
         const newData = { bracketData: saveData, winner: bracketWinner, percentageFilled: percentageFilled };
@@ -280,10 +290,9 @@ export default function App({ params, location }) {
     async (bracketData) => {
       if (bracketData) {
         const bracketObject = Object.fromEntries(bracketData);
-        queryClient.cancelQueries(["bracket", { bracketId: params.id, userId: owner.id }]);
+        queryClient.cancelQueries(["backend", "bracket", { bracketId: params.id, userId: owner.id }]);
         const newData = { bracketData: bracketObject, winner: bracketWinner };
-        // console.log(newData);
-        await queryClient.setQueryData(["bracket", { bracketId: params.id, userId: owner.id }], (oldData) =>
+        await queryClient.setQueryData(["backend", "bracket", { bracketId: params.id, userId: owner.id }], (oldData) =>
           produce(oldData, (draft) => Object.assign(draft, newData)),
         );
         setSavePending(true);
@@ -346,6 +355,7 @@ export default function App({ params, location }) {
   );
 
   useEffect(() => {
+    console.log(creationPossible, fetchFailure, !creationFailure, !creationPending);
     if (creationPossible && fetchFailure && !creationFailure && !creationPending) {
       initializeBracketFromTemplate(location.state.template, params.id, owner.name);
     }
@@ -392,7 +402,7 @@ export default function App({ params, location }) {
       }
       return true;
     },
-    [savePending, commands, bracket, bracketUnchanged],
+    [savePending, commands, bracket],
   );
 
   function undo() {

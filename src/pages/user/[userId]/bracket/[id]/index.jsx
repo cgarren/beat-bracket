@@ -5,6 +5,8 @@ import React, { useMemo, useCallback, useContext } from "react";
 import { v4 as uuidv4 } from "uuid";
 import toast from "react-hot-toast";
 import { useQuery } from "@tanstack/react-query";
+// Helpers
+import { bracketSorter } from "../../../../../utils/helpers";
 // Components
 import Seo from "../../../../../components/SEO";
 import BracketView from "../../../../../components/Bracket/ViewBracket";
@@ -15,7 +17,6 @@ import LoadingIndicator from "../../../../../components/LoadingIndicator";
 import useBracketGeneration from "../../../../../hooks/useBracketGeneration";
 import useHelper from "../../../../../hooks/useHelper";
 import useBackend from "../../../../../hooks/useBackend";
-import useSpotify from "../../../../../hooks/useSpotify";
 import useAuthentication from "../../../../../hooks/useAuthentication";
 import useUserInfo from "../../../../../hooks/useUserInfo";
 import useShareBracket from "../../../../../hooks/useShareBracket";
@@ -23,18 +24,15 @@ import useShareBracket from "../../../../../hooks/useShareBracket";
 import ShareIcon from "../../../../../assets/svgs/shareIcon.svg";
 import DuplicateIcon from "../../../../../assets/svgs/duplicateIcon.svg";
 // Context
-import { LoginContext } from "../../../../../context/LoginContext";
 import { UserInfoContext } from "../../../../../context/UserInfoContext";
 import BracketHeader from "../../../../../components/BracketHeader";
 import LoginButton from "../../../../../components/Controls/LoginButton";
 import { Button } from "../../../../../components/ui/button";
 
 export default function App({ params, location }) {
-  const { isLoggedIn } = useContext(LoginContext);
   const userInfo = useContext(UserInfoContext);
-  const { openBracket } = useSpotify();
   const { isCurrentUser } = useAuthentication();
-  const { bracketSorter } = useHelper();
+  const { openBracket } = useHelper();
   const { getBracket } = useBackend();
   const { getNumberOfColumns } = useBracketGeneration();
   const { share } = useShareBracket(location.href);
@@ -47,7 +45,7 @@ export default function App({ params, location }) {
   );
 
   const { data: loadedBracket, isPending: fetchPending } = useQuery({
-    queryKey: ["bracket", { bracketId: params.id, userId: owner.id }],
+    queryKey: ["backend", "bracket", { bracketId: params.id, userId: owner.id }],
     queryFn: async () => getBracket(params.id, owner.id),
     enabled: Boolean(params.id && owner.id),
     refetchOnWindowFocus: false,
@@ -85,7 +83,7 @@ export default function App({ params, location }) {
       return mymap;
     }
     return null;
-  }, [loadedBracket?.bracketData, bracketSorter]);
+  }, [loadedBracket?.bracketData]);
 
   const template = useMemo(() => {
     if (loadedBracket?.template) {
@@ -191,13 +189,13 @@ export default function App({ params, location }) {
                 <ShareIcon />
                 Share
               </Button>
-              {isLoggedIn() && !isCurrentUser(params.userId) && !isCurrentUser(template.ownerId) && (
+              {userInfo?.id && !isCurrentUser(params.userId) && !isCurrentUser(template.ownerId) && (
                 <Button onClick={duplicateBracket} className="flex justify-center gap-1">
                   <DuplicateIcon />
                   Make my own picks
                 </Button>
               )}
-              {!isLoggedIn() && (
+              {!userInfo?.id && (
                 <div className="relative">
                   <LoginButton />
                   <div className="absolute top-[105%] left-1/2 -translate-x-1/2 whitespace-nowrap">

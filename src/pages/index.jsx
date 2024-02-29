@@ -1,20 +1,18 @@
-import React, { useEffect, useContext } from "react";
+import React, { useEffect } from "react";
 import { navigate } from "gatsby";
 import Layout from "../components/Layout";
 import LoginButton from "../components/Controls/LoginButton";
 import FooterText from "../components/FooterText";
 import Seo from "../components/SEO";
-import { LoginContext } from "../context/LoginContext";
+import { tokensExist as spotfyTokensExist } from "../axios/spotifyInstance";
 
 export default function App({ location }) {
-  const { isLoggedIn } = useContext(LoginContext);
   // scroll to top of window on page load
   useEffect(() => window.scrollTo(0, 0), []);
-  useEffect(() => {
-    if (isLoggedIn() && !location?.state?.justLoggedOut) {
-      navigate("/my-brackets");
-    }
-  }, [isLoggedIn, location]);
+
+  if (spotfyTokensExist() && !location?.state?.justLoggedOut) {
+    navigate("/my-brackets");
+  }
 
   return (
     <Layout path="/" showNavBar={false} showFooter={false} pageName="Landing">

@@ -1,10 +1,8 @@
 import React, { useCallback } from "react";
 import SearchBar from "./SearchBar";
-import useSpotify from "../../hooks/useSpotify";
+import { getArt } from "../../utils/spotify";
 
 export default function UserPlaylistSearchBar({ allPlaylists, setPlaylist }) {
-  const { getArt } = useSpotify();
-
   const searchSuggestions = useCallback(
     async (searchText) => {
       const templist = [];
@@ -22,7 +20,7 @@ export default function UserPlaylistSearchBar({ allPlaylists, setPlaylist }) {
       });
       return templist;
     },
-    [allPlaylists, getArt, setPlaylist],
+    [allPlaylists, setPlaylist],
   );
 
   return allPlaylists.length > 0 ? (

@@ -7,7 +7,9 @@ export const UserInfoContext = createContext([null, () => {}]);
 export function UserInfoProvider({ children }) {
   const mixpanel = useContext(MixpanelContext);
 
-  const { data: userInfo } = useUserInfo();
+  const { data } = useUserInfo();
+
+  const userInfo = data?.data;
 
   useEffect(() => {
     if (userInfo?.id) {

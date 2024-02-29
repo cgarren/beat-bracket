@@ -8,17 +8,14 @@ import useBackend from "../hooks/useBackend";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import LoadingIndicator from "../components/LoadingIndicator";
 import BracketGrid from "../components/BracketGrid";
-import useHelper from "../hooks/useHelper";
-import { LoginContext } from "../context/LoginContext";
+import { camelCaseToTitleCase } from "../utils/helpers";
 import { MixpanelContext } from "../context/MixpanelContext";
 import { UserInfoContext } from "../context/UserInfoContext";
 
 export default function App({ location }) {
   const [activeTab, setActiveTab] = useState("all");
   const mixpanel = useContext(MixpanelContext);
-  const { isLoggedIn } = useContext(LoginContext);
   const { getBrackets, getMaxBrackets } = useBackend();
-  const { camelCaseToTitleCase } = useHelper();
   const maxBrackets = getMaxBrackets();
   const userInfo = useContext(UserInfoContext);
   const {
@@ -27,7 +24,7 @@ export default function App({ location }) {
     isSuccess,
     isLoading,
   } = useQuery({
-    queryKey: ["brackets", { userId: userInfo?.id }],
+    queryKey: ["backend", "brackets", { userId: userInfo?.id }],
     queryFn: () => getBrackets(userInfo?.id),
     retry: (failureCount, err) => {
       console.log("failureCount:", failureCount, "error:", err);
@@ -58,7 +55,7 @@ export default function App({ location }) {
         <h1 className="text-4xl font-bold mb-2">My Brackets</h1>
         {(isError || !userInfo?.id) && (
           <div className="text-md text-gray-600 mb-2">
-            Error loading brackets! {!isLoggedIn() && "You must be logged in to view your brackets."}
+            Error loading brackets! {!userInfo?.id && "You must be logged in to view your brackets."}
           </div>
         )}
         {isLoading && <LoadingIndicator loadingText="Loading brackets" />}

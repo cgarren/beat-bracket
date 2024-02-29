@@ -1,24 +1,22 @@
-import { useContext } from "react";
 import { useQuery } from "@tanstack/react-query";
-import useSpotify from "./useSpotify";
-import { LoginContext } from "../context/LoginContext";
+import axiosInstance, { tokensExist } from "../axios/spotifyInstance";
 import guestProfileImage from "../assets/images/guestProfileImage.png";
 
 export default function useUserInfo(userId) {
-  const { loadSpotifyRequest } = useSpotify();
-  const { spotifyLoggedIn } = useContext(LoginContext);
-
   const userIdToFetch = userId || "me";
   const { data, isPending, isFetching, error } = useQuery({
-    queryKey: ["spotify-user-info", { id: userIdToFetch, spotifyLoggedIn: spotifyLoggedIn }],
+    queryKey: ["spotify", "userInfo", { id: userIdToFetch }],
     queryFn: async () => {
+      if (!userIdToFetch || !tokensExist()) {
+        return null;
+      }
       let url = `https://api.spotify.com/v1/users/${userIdToFetch}`;
       if (userIdToFetch === "me") {
         url = "https://api.spotify.com/v1/me";
       }
-      const response = await loadSpotifyRequest(url);
-      if (response.images.length === 0) {
-        response.images.push({
+      const response = await axiosInstance.get(url);
+      if (!response?.images?.length) {
+        response?.images?.push({
           url: guestProfileImage,
         });
       }
@@ -27,7 +25,10 @@ export default function useUserInfo(userId) {
     refetchOnWindowFocus: false,
     staleTime: 3600000,
     cacheTime: 3600000,
-    enabled: spotifyLoggedIn,
+    meta: {
+      errorMessage: null,
+    },
   });
+
   return { data, isPending, isFetching, error };
 }

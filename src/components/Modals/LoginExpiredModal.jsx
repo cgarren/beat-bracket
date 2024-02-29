@@ -18,8 +18,7 @@ export default function LoginExpiredModal({ showModal, setShowModal }) {
         <AlertDialogHeader>
           <AlertDialogTitle>Session Expired</AlertDialogTitle>
           <AlertDialogDescription>
-            Your session has expired! We were unable to refresh your token automatically due to a system issue. Login
-            again using the button below
+            We were unable to refresh your token automatically due to a system issue. Login again using the button below
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

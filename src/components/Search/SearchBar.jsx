@@ -11,7 +11,7 @@ export default function SearchBar({ searchSuggestions, disabled, placeholder, id
     isPending,
     isSuccess,
   } = useQuery({
-    queryKey: ["suggestions", { searchText: searchText }],
+    queryKey: ["spotify", "suggestions", { searchText: searchText }],
     queryFn: () => searchSuggestions(searchText),
     meta: {
       errorMessage: "Error loading suggestions",

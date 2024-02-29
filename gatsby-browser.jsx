@@ -111,15 +111,15 @@ export function wrapRootElement({ element }) {
   return (
     <StrictMode>
       <ErrorBoundary fallback={<div>Something went wrong</div>}>
+        {/* <SpotifyInterceptor> */}
         <MixpanelProvider mixpanel={mixpanel}>
           <LoginProvider>
             <QueryClientProvider client={queryClient}>
-              <UserInfoProvider>
-                <SpotifyInterceptor>{element}</SpotifyInterceptor>
-              </UserInfoProvider>
+              <UserInfoProvider>{element}</UserInfoProvider>
             </QueryClientProvider>
           </LoginProvider>
         </MixpanelProvider>
+        {/* </SpotifyInterceptor> */}
       </ErrorBoundary>
     </StrictMode>
   );
