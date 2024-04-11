@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 // React
-import React, { useEffect, useState, useMemo, useCallback, useContext } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { useDebounce } from "react-use";
 // Third Party
 import Mousetrap from "mousetrap";
@@ -10,6 +10,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { produce } from "immer";
 // Helpers
 import { bracketSorter, bracketUnchanged } from "../../../../../utils/helpers";
+import { updateBracket, getBracket, getTemplate, createBracket } from "../../../../../utils/backend";
+import { openBracket } from "../../../../../utils/impureHelpers";
 // Components
 import Seo from "../../../../../components/SEO";
 import Layout from "../../../../../components/Layout";
@@ -18,13 +20,9 @@ import FillBracket from "../../../../../components/Bracket/FillBracket";
 import BracketCompleteModal from "../../../../../components/Modals/BracketCompleteModal";
 // Hooks
 import useBracketGeneration from "../../../../../hooks/useBracketGeneration";
-import useHelper from "../../../../../hooks/useHelper";
-import useBackend from "../../../../../hooks/useBackend";
 import useSongProcessing from "../../../../../hooks/useSongProcessing";
 import useAuthentication from "../../../../../hooks/useAuthentication";
 import useShareBracket from "../../../../../hooks/useShareBracket";
-// Context
-import { UserInfoContext } from "../../../../../context/UserInfoContext";
 // Assets
 import ShareIcon from "../../../../../assets/svgs/shareIcon.svg";
 import useUserInfo from "../../../../../hooks/useUserInfo";
@@ -42,9 +40,7 @@ export default function App({ params, location }) {
   const [percentageFilled, setPercentageFilled] = useState(0);
 
   // Hooks
-  const { openBracket } = useHelper();
   const { isCurrentUser } = useAuthentication();
-  const { getBracket, updateBracket, getTemplate, createBracket } = useBackend();
   const { updatePreviewUrls } = useSongProcessing();
   const { getNumberOfColumns, fillBracket } = useBracketGeneration();
   const queryClient = useQueryClient();
@@ -79,7 +75,7 @@ export default function App({ params, location }) {
     meta: {
       errorMessage: creationPossible ? false : "Error loading bracket",
     },
-    retry: (failureCount, error) => error?.cause?.code !== 404,
+    retry: (failureCount, error) => error?.cause?.code !== 404 && failureCount < 3,
   });
 
   const {

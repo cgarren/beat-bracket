@@ -7,6 +7,8 @@ import toast from "react-hot-toast";
 import { useQuery } from "@tanstack/react-query";
 // Helpers
 import { nearestLesserPowerOf2, camelCaseToTitleCase } from "../../../../../utils/helpers";
+import { createBracket } from "../../../../../utils/backend";
+import { openBracket } from "../../../../../utils/impureHelpers";
 // Components
 import Seo from "../../../../../components/SEO";
 import Layout from "../../../../../components/Layout";
@@ -16,8 +18,6 @@ import CreateBracket from "../../../../../components/Bracket/CreateBracket";
 import BracketHeader from "../../../../../components/BracketHeader";
 // Hooks
 import useBracketGeneration from "../../../../../hooks/useBracketGeneration";
-import useHelper from "../../../../../hooks/useHelper";
-import useBackend from "../../../../../hooks/useBackend";
 import useSongProcessing from "../../../../../hooks/useSongProcessing";
 import useAuthentication from "../../../../../hooks/useAuthentication";
 import { Button } from "../../../../../components/ui/button";
@@ -37,8 +37,6 @@ export default function App({ params, location }) {
   const [playbackEnabled] = useState(true);
 
   const { isCurrentUser } = useAuthentication();
-  const { openBracket } = useHelper();
-  const { createBracket } = useBackend();
   const { seedBracket, sortTracks, getArtistTracks, getPlaylistTracks } = useSongProcessing();
   const { getNumberOfColumns, fillBracket } = useBracketGeneration();
 
@@ -135,7 +133,7 @@ export default function App({ params, location }) {
         openBracket(params.id, owner.id, "fill", {}, { replace: true });
         return true;
       } catch (error) {
-        if (error.cause && error.cause.code === 429) {
+        if (error?.cause?.code === 429) {
           toast.error("Error creating bracket! Traffic is high right now. Try again in a few minutes!");
           console.error(error);
         } else {

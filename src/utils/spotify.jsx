@@ -3,19 +3,17 @@ import axiosInstance from "../axios/spotifyInstance";
 
 export async function search(query, type, limit) {
   const params = { q: query, type: type, limit: limit };
-  const response = await axiosInstance.get(
-    `https://api.spotify.com/v1/search/?${new URLSearchParams(params).toString()}`,
-  );
+  const response = await axiosInstance.get(`search/?${new URLSearchParams(params).toString()}`);
   return response.data;
 }
 
 export async function getArtist(artistId) {
-  const res = await axiosInstance.get(`https://api.spotify.com/v1/artists/${artistId}`);
+  const res = await axiosInstance.get(`artists/${artistId}`);
   return res.data;
 }
 
 export async function getPlaylist(playlistId) {
-  const res = await axiosInstance.get(`https://api.spotify.com/v1/playlists/${playlistId}`);
+  const res = await axiosInstance.get(`playlists/${playlistId}`);
   return res.data;
 }
 

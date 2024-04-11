@@ -7,6 +7,8 @@ import toast from "react-hot-toast";
 import { useQuery } from "@tanstack/react-query";
 // Helpers
 import { bracketSorter } from "../../../../../utils/helpers";
+import { getBracket } from "../../../../../utils/backend";
+import { openBracket } from "../../../../../utils/impureHelpers";
 // Components
 import Seo from "../../../../../components/SEO";
 import BracketView from "../../../../../components/Bracket/ViewBracket";
@@ -15,8 +17,6 @@ import BracketWinnerInfo from "../../../../../components/Bracket/BracketWinnerIn
 import LoadingIndicator from "../../../../../components/LoadingIndicator";
 // Hooks
 import useBracketGeneration from "../../../../../hooks/useBracketGeneration";
-import useHelper from "../../../../../hooks/useHelper";
-import useBackend from "../../../../../hooks/useBackend";
 import useAuthentication from "../../../../../hooks/useAuthentication";
 import useUserInfo from "../../../../../hooks/useUserInfo";
 import useShareBracket from "../../../../../hooks/useShareBracket";
@@ -32,8 +32,6 @@ import { Button } from "../../../../../components/ui/button";
 export default function App({ params, location }) {
   const userInfo = useContext(UserInfoContext);
   const { isCurrentUser } = useAuthentication();
-  const { openBracket } = useHelper();
-  const { getBracket } = useBackend();
   const { getNumberOfColumns } = useBracketGeneration();
   const { share } = useShareBracket(location.href);
 
@@ -50,7 +48,10 @@ export default function App({ params, location }) {
     enabled: Boolean(params.id && owner.id),
     refetchOnWindowFocus: false,
     staleTime: 3600000,
-    retry: (failureCount, error) => error?.cause?.code !== 404,
+    retry: (failureCount, error) => error?.cause?.code !== 404 && failureCount < 3,
+    meta: {
+      errorMessage: "Error loading bracket",
+    },
   });
 
   const songSource = useMemo(() => {

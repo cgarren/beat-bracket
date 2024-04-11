@@ -10,14 +10,13 @@ import { Tabs, TabsTrigger, TabsList, TabsContent } from "../ui/tabs";
 import { Separator } from "../ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { MixpanelContext } from "../../context/MixpanelContext";
-import useHelper from "../../hooks/useHelper";
+import { openBracket } from "../../utils/impureHelpers";
 import { camelCaseToTitleCase } from "../../utils/helpers";
 // import Badge from "../Badge";
 
 export default function CreateBracketModal({ showModal, setShowModal }) {
   const mixpanel = useContext(MixpanelContext);
   const userInfo = useContext(UserInfoContext);
-  const { openBracket } = useHelper();
   const { loadPlaylists } = useSongProcessing();
   const {
     data: userPlaylists,
@@ -26,7 +25,7 @@ export default function CreateBracketModal({ showModal, setShowModal }) {
     isError,
   } = useQuery({
     queryKey: ["spotify", "playlists", { userId: userInfo.id }],
-    queryFn: () => loadPlaylists("https://api.spotify.com/v1/me/playlists?limit=50"),
+    queryFn: () => loadPlaylists("me/playlists?limit=50"),
     staleTime: 1000 * 60 * 60, // 1 hour
     meta: {
       errorMessage: "Error loading playlists",

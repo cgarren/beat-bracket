@@ -4,18 +4,17 @@ import Layout from "../components/Layout";
 import BracketCard from "../components/BracketCard/BracketCard";
 import CreateBracketCard from "../components/BracketCard/CreateBracketCard";
 import Seo from "../components/SEO";
-import useBackend from "../hooks/useBackend";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import LoadingIndicator from "../components/LoadingIndicator";
 import BracketGrid from "../components/BracketGrid";
 import { camelCaseToTitleCase } from "../utils/helpers";
 import { MixpanelContext } from "../context/MixpanelContext";
 import { UserInfoContext } from "../context/UserInfoContext";
+import { getBrackets, getMaxBrackets } from "../utils/backend";
 
 export default function App({ location }) {
   const [activeTab, setActiveTab] = useState("all");
   const mixpanel = useContext(MixpanelContext);
-  const { getBrackets, getMaxBrackets } = useBackend();
   const maxBrackets = getMaxBrackets();
   const userInfo = useContext(UserInfoContext);
   const {

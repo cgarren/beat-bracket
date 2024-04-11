@@ -11,7 +11,7 @@ const tokenURL = "https://accounts.spotify.com/api/token";
 // auth storage keys
 const codeVerifierKey = "spotify_auth_code_verifier";
 const stateKey = "spotify_auth_state";
-const accessTokenKey = "accessToken";
+export const accessTokenKey = "accessToken";
 const refreshTokenKey = "refreshToken";
 // auth constants
 const redirectUri =
@@ -136,7 +136,7 @@ const refreshExpiredTokenClosure = () => {
   };
 };
 
-const refreshExpiredToken = refreshExpiredTokenClosure();
+export const refreshExpiredToken = refreshExpiredTokenClosure();
 
 // Interceptor for axios instance
 
@@ -191,12 +191,12 @@ export const Interceptor = ({ children }) => {
   };
 
   useEffect(() => {
-    console.debug("setting up interceptors");
+    // console.debug("setting up spotify interceptor");
     const interceptor = axiosInstance.interceptors.response.use(resInterceptor, errInterceptor);
     setSetupDone(true);
 
     return () => {
-      console.debug("removing interceptors");
+      // console.debug("removing spotify interceptor");
       axiosInstance.interceptors.response.eject(interceptor);
     };
   }, []);
@@ -205,11 +205,12 @@ export const Interceptor = ({ children }) => {
 
 axiosInstance.interceptors.request.use((config) => {
   const newConfig = config;
-  const bad = Math.random() < 0.08;
-  if (bad && config.url !== tokenURL) {
-    console.debug("simulating bad request");
-    newConfig.headers.Authorization = `Bearer fgdgfd`;
-  } else if (config.url !== tokenURL) {
+  // const bad = Math.random() < 0.08;
+  // if (bad && config.url !== tokenURL) {
+  //   console.debug("simulating bad request");
+  //   newConfig.headers.Authorization = `Bearer fgdgfd`;
+  // } else
+  if (config.url !== tokenURL) {
     newConfig.headers.Authorization = `Bearer ${sessionStorage.getItem(accessTokenKey)}`;
   }
   return newConfig;

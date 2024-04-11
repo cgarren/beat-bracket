@@ -2,18 +2,16 @@ import React, { useState, useContext } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Card from "./Card";
 import CardName from "./CardName";
-import useBackend from "../../hooks/useBackend";
 import { getArtistImage, getPlaylistImage } from "../../utils/spotify";
 import { UserInfoContext } from "../../context/UserInfoContext";
 import RemoveBracketModal from "../Modals/RemoveBracketModal";
-import useHelper from "../../hooks/useHelper";
+import { openBracket } from "../../utils/impureHelpers";
+import { deleteBracket } from "../../utils/backend";
 
 export default function BracketCard({ bracket }) {
   const [showModal, setShowModal] = useState(false);
-  const { deleteBracket } = useBackend();
   const userInfo = useContext(UserInfoContext);
   const queryClient = useQueryClient();
-  const { openBracket } = useHelper();
   const { data: cardImage, isPending: imageIsLoading } = useQuery({
     queryKey: ["spotify", "art-large", { spotifyId: bracket?.songSource[bracket.songSource.type]?.id }],
     queryFn: () => {

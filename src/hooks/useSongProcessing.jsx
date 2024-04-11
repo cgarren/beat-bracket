@@ -100,8 +100,7 @@ export default function useSongProcessing() {
       Promise.all(
         trackList.map(async (track) => {
           if (!track.preview_url) {
-            const url = `https://api.spotify.com/v1/tracks/${track.id}`;
-            const response = await axiosInstance.get(url);
+            const response = await axiosInstance.get(`tracks/${track.id}`);
             const trackData = response.data;
             return { ...track, preview_url: trackData.preview_url };
           }
@@ -124,8 +123,7 @@ export default function useSongProcessing() {
           }
           featuredList.push(idList[i][1]);
         }
-        const url = `https://api.spotify.com/v1/tracks?ids=${idString}`;
-        const response = await axiosInstance.get(url);
+        const response = await axiosInstance.get(`tracks?ids=${idString}`);
         const trackList = response.data;
         if (trackList.tracks.length > 0) {
           // eslint-disable-next-line no-restricted-syntax
@@ -143,6 +141,7 @@ export default function useSongProcessing() {
     [makeTrackObject, selectTrackVersion],
   );
 
+  // could proabbaly amke this mroe efficient by creating the promises and calling them all at once
   const processTracks = useCallback(
     async (songs) => {
       let tempDataList = [];
@@ -234,7 +233,7 @@ export default function useSongProcessing() {
         albumList?.items?.forEach((item) => {
           albumIds.push(item?.id);
         });
-        const tracksurl = `https://api.spotify.com/v1/albums?ids=${albumIds.join()}`;
+        const tracksurl = `albums?ids=${albumIds.join()}`;
         // eslint-disable-next-line no-param-reassign
         songs = await loadTracks(tracksurl, songs, artistId);
       }
@@ -268,14 +267,21 @@ export default function useSongProcessing() {
     [makeTrackObject],
   );
 
-  const loadPlaylists = useCallback(async (url, playlists = []) => {
+  const loadPlaylists = useCallback(async (url, playlists = [], playlistIds = {}) => {
     const response = await axiosInstance.get(url);
     const playlistList = response.data;
     if (playlistList?.items.length > 0) {
-      playlists.push(...playlistList.items);
+      // playlists.push(...playlistList.items);
+      playlistList.items.forEach((playlist) => {
+        // Check if the playlist is already in the list to avoid duplicates (have to do this since the spotify API SUCKS!!!!!!!)
+        if (playlistIds[playlist.id] === undefined) {
+          playlistIds[playlist.id] = playlist.name; // eslint-disable-line no-param-reassign
+          playlists.push(playlist);
+        }
+      });
     }
     if (playlistList.next) {
-      await loadPlaylists(playlistList.next, playlists);
+      await loadPlaylists(playlistList.next, playlists, playlistIds);
     }
     return playlists;
   }, []);
@@ -283,7 +289,7 @@ export default function useSongProcessing() {
   const getArtistTracks = useCallback(
     async (artistId) => {
       const tracks = await loadAlbums(
-        `https://api.spotify.com/v1/artists/${artistId}/albums?include_groups=album,single,compilation&limit=20`,
+        `artists/${artistId}/albums?include_groups=album,single,compilation&limit=20`,
         artistId,
       );
       return processTracks(tracks);
@@ -292,7 +298,7 @@ export default function useSongProcessing() {
   );
 
   const getPlaylistTracks = useCallback(
-    async (playlistId) => loadPlaylistTracks(`https://api.spotify.com/v1/playlists/${playlistId}/tracks?limit=50`),
+    async (playlistId) => loadPlaylistTracks(`playlists/${playlistId}/tracks?limit=50`),
     [loadPlaylistTracks],
   );
 

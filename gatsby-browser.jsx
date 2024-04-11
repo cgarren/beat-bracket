@@ -13,7 +13,6 @@ import { enableMapSet } from "immer";
 import { LoginProvider } from "./src/context/LoginContext";
 import { MixpanelProvider } from "./src/context/MixpanelContext";
 import { UserInfoProvider } from "./src/context/UserInfoContext";
-import { Interceptor as SpotifyInterceptor } from "./src/axios/spotifyInstance";
 
 // Enable Map/Set in immer
 enableMapSet();

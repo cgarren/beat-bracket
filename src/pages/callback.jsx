@@ -1,25 +1,23 @@
 /* eslint-disable no-nested-ternary */
 import React, { useEffect, useContext } from "react";
 import { navigate } from "gatsby";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import Layout from "../components/Layout";
 import Seo from "../components/SEO";
 import { UserInfoContext } from "../context/UserInfoContext";
 import { LoginContext } from "../context/LoginContext";
 import useAuthentication from "../hooks/useAuthentication";
 import { loginCallback as spotifyLoginCallback } from "../axios/spotifyInstance";
-import useBackend from "../hooks/useBackend";
+import { login as backendLogin } from "../axios/backendInstance";
 import LoginButton from "../components/Controls/LoginButton";
 import LoadingIndicator from "../components/LoadingIndicator";
 import { Button } from "../components/ui/button";
 
 // markup
-export default function App() {
-  const { authenticate: backendLogin } = useBackend();
+export default function App({ location }) {
   const { toPrevPage, getPrevPath } = useAuthentication(false);
   const userInfo = useContext(UserInfoContext);
   const { setupDone } = useContext(LoginContext);
-  const queryClient = useQueryClient();
 
   useEffect(() => {
     console.log("setupDone", setupDone);
@@ -32,12 +30,14 @@ export default function App() {
     error: spotifyLoginError,
   } = useQuery({
     queryKey: ["spotifyLogin", setupDone],
-    queryFn: async () => spotifyLoginCallback(new URLSearchParams(window.location.search)),
+    queryFn: async () => {
+      console.log("calling callabck", location, setupDone);
+      return spotifyLoginCallback(new URLSearchParams(window.location.search));
+    },
     enabled: setupDone,
   });
 
   const {
-    data: backendLoginData,
     isPending: backendLoggingIn,
     isSuccess: backendLoginSuccess,
     error: backendLoginError,
@@ -54,21 +54,21 @@ export default function App() {
       ? "No url parameters found in query string"
       : spotifyLoginError?.message || backendLoginError?.message;
 
-  useEffect(() => {
-    console.log("spotifyLoggingIn", spotifyLoggingIn);
-  }, [spotifyLoggingIn]);
+  // useEffect(() => {
+  //   console.log("spotifyLoggingIn", spotifyLoggingIn);
+  // }, [spotifyLoggingIn]);
 
-  useEffect(() => {
-    console.log("data", spotifyLoginData?.accessToken, userInfo?.id);
-  }, [spotifyLoginData, userInfo]);
+  // useEffect(() => {
+  //   console.log("data", spotifyLoginData?.accessToken, userInfo?.id);
+  // }, [spotifyLoginData, userInfo]);
 
-  useEffect(() => {
-    if (backendLoginData?.backendToken) {
-      console.log("setting initital backend token");
-      sessionStorage.setItem("backendToken", backendLoginData.backendToken);
-      queryClient.invalidateQueries({ queryKey: ["backend"] });
-    }
-  }, [backendLoginData]);
+  // useEffect(() => {
+  //   if (backendLoginData?.backendToken) {
+  //     console.log("setting initital backend token");
+  //     sessionStorage.setItem("backendToken", backendLoginData.backendToken);
+  //     queryClient.invalidateQueries({ queryKey: ["backend"] });
+  //   }
+  // }, [backendLoginData]);
 
   useEffect(() => {
     if (spotifyLoginSuccess && backendLoginSuccess) {

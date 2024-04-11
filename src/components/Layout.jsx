@@ -6,7 +6,8 @@ import useWindowSize from "react-use/lib/useWindowSize";
 import resolveConfig from "tailwindcss/resolveConfig";
 // eslint-disable-next-line import/extensions
 import tailwindConfig from "../../tailwind.config.js";
-import { Interceptor } from "../axios/spotifyInstance";
+import { Interceptor as SpotifyInterceptor } from "../axios/spotifyInstance";
+import { Interceptor as BackendInterceptor } from "../axios/backendInstance";
 import NavBar from "./NavBar/NavBar";
 import Clicky from "./Clicky";
 import Footer from "./Footer";
@@ -60,26 +61,28 @@ export default function Layout({
       <Clicky />
       {(showFooter || showNavBar || children) && (
         <div className="text-center clear-both">
-          <Interceptor>
-            <main
-              className={`font-sans text-black bg-gradient-radial bg-zinc-200 relative text-center min-h-screen ${
-                showFooter ? "pb-[24px]" : ""
-              }`}
-            >
-              {showNavBar && <NavBar noChanges={noChanges} />}
-              {width > Number(fullConfig.theme.screens.sm.replace("px", "")) && (
-                <Toaster position="top-right" containerClassName="!sticky" />
-              )}
-              {width <= Number(fullConfig.theme.screens.sm.replace("px", "")) && <Toaster position="bottom-center" />}
-              <LoginExpiredModal
-                showModal={showLoginExpiredModal}
-                setShowModal={setShowLoginExpiredModal}
-                login={loginRef.current}
-                bracketSavedLocally={false}
-              />
-              {children}
-            </main>
-          </Interceptor>
+          <SpotifyInterceptor>
+            <BackendInterceptor>
+              <main
+                className={`font-sans text-black bg-gradient-radial bg-zinc-200 relative text-center min-h-screen ${
+                  showFooter ? "pb-[24px]" : ""
+                }`}
+              >
+                {showNavBar && <NavBar noChanges={noChanges} />}
+                {width > Number(fullConfig.theme.screens.sm.replace("px", "")) && (
+                  <Toaster position="top-right" containerClassName="!sticky" />
+                )}
+                {width <= Number(fullConfig.theme.screens.sm.replace("px", "")) && <Toaster position="bottom-center" />}
+                <LoginExpiredModal
+                  showModal={showLoginExpiredModal}
+                  setShowModal={setShowLoginExpiredModal}
+                  login={loginRef.current}
+                  bracketSavedLocally={false}
+                />
+                {children}
+              </main>
+            </BackendInterceptor>
+          </SpotifyInterceptor>
           {showFooter && <Footer path={path} />}
         </div>
       )}

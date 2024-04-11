@@ -12,7 +12,10 @@ export default function SearchBar({ searchSuggestions, disabled, placeholder, id
     isSuccess,
   } = useQuery({
     queryKey: ["spotify", "suggestions", { searchText: searchText }],
-    queryFn: () => searchSuggestions(searchText),
+    queryFn: async () => {
+      const mylist = await searchSuggestions(searchText);
+      return mylist;
+    },
     meta: {
       errorMessage: "Error loading suggestions",
     },
@@ -36,40 +39,51 @@ export default function SearchBar({ searchSuggestions, disabled, placeholder, id
   //   };
   // }, [searchText, searchSuggestions]);
 
-  useEffect(() => {
-    // console.log("ran", document.getElementById(id));
-    document.getElementById(id).focus();
-    document.getElementById(id).addEventListener("keydown", (e) => {
-      if (e.key === "ArrowDown") {
-        e.preventDefault();
-        if (document.getElementById("suggestion-list").children.length > 0) {
-          document.getElementById("suggestion-list").firstChild.focus();
-        }
-      }
-    });
-    document.getElementById("suggestion-list").addEventListener("keydown", (e) => {
+  function searchBarListener(e) {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
       if (document.getElementById("suggestion-list").children.length > 0) {
-        if (e.key === "ArrowUp") {
-          e.preventDefault();
-          e.stopPropagation();
-          if (document.activeElement === document.getElementById("suggestion-list").firstChild) {
-            document.getElementById(id).focus();
-          } else if (document.getElementById("suggestion-list").contains(document.activeElement)) {
-            document.activeElement.previousSibling.focus();
-          }
-        } else if (e.key === "ArrowDown") {
-          e.preventDefault();
-          e.stopPropagation();
-          if (
-            document.getElementById("suggestion-list").contains(document.activeElement) &&
-            document.activeElement.nextSibling
-          ) {
-            document.activeElement.nextSibling.focus();
-          }
+        document.getElementById("suggestion-list").firstChild.focus();
+      }
+    }
+  }
+
+  function suggestionListListener(e) {
+    if (document.getElementById("suggestion-list").children.length > 0) {
+      if (e.key === "ArrowUp") {
+        e.preventDefault();
+        e.stopPropagation();
+        if (document.activeElement === document.getElementById("suggestion-list").firstChild) {
+          document.getElementById(id).focus();
+        } else if (document.getElementById("suggestion-list").contains(document.activeElement)) {
+          document.activeElement.previousSibling.focus();
+        }
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        e.stopPropagation();
+        if (
+          document.getElementById("suggestion-list").contains(document.activeElement) &&
+          document.activeElement.nextSibling
+        ) {
+          document.activeElement.nextSibling.focus();
         }
       }
-    });
-  }, []);
+    }
+  }
+
+  useEffect(() => {
+    document.getElementById(id).focus();
+    document.getElementById(id).addEventListener("keydown", searchBarListener);
+    document.getElementById("suggestion-list").addEventListener("keydown", suggestionListListener);
+    return () => {
+      if (id && document.getElementById(id)) {
+        document.getElementById(id).removeEventListener("keydown", searchBarListener);
+      }
+      if (document.getElementById("suggestion-list")) {
+        document.getElementById("suggestion-list").removeEventListener("keydown", suggestionListListener);
+      }
+    };
+  }, [id]);
 
   return (
     // <div className="mb-2 max-w-[800px] min-w-[25%] flex flex-col">

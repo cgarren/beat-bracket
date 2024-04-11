@@ -2,11 +2,11 @@
 import { useContext, useCallback, useRef } from "react";
 import { navigate } from "gatsby";
 import { useQueryClient } from "@tanstack/react-query";
-import useBackend from "./useBackend";
 import { LoginContext } from "../context/LoginContext";
 import { UserInfoContext } from "../context/UserInfoContext";
 import { MixpanelContext } from "../context/MixpanelContext";
 import { login as spotifyLogin, refreshLogin as spotifyRefreshLogin, tokensExist } from "../axios/spotifyInstance";
+import { login as backendLogin } from "../axios/backendInstance";
 
 export default function useAuthentication() {
   const prevKey = "prevPath";
@@ -14,7 +14,6 @@ export default function useAuthentication() {
   const mixpanel = useContext(MixpanelContext);
   const { setLoginInProgress } = useContext(LoginContext);
   const userInfo = useContext(UserInfoContext);
-  const { authenticate: backendLogin } = useBackend();
   const queryClient = useQueryClient();
 
   // prev path helpers
@@ -78,13 +77,11 @@ export default function useAuthentication() {
     const { accessToken } = await spotifyRefreshLogin();
 
     // refresh backend
-    const backendToken = await backendLogin(userInfo?.id, accessToken);
-
-    sessionStorage.setItem("backendToken", backendToken);
+    await backendLogin(userInfo?.id, accessToken);
 
     console.debug("refreshed spotify and backend sessions successfully");
     return true;
-  }, [backendLogin, mixpanel, setLoginInProgress, userInfo?.id]);
+  }, [mixpanel, setLoginInProgress, userInfo?.id]);
 
   const login = useCallback(
     async (refreshTokenOnly = false) => {

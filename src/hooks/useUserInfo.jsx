@@ -10,9 +10,9 @@ export default function useUserInfo(userId) {
       if (!userIdToFetch || !tokensExist()) {
         return null;
       }
-      let url = `https://api.spotify.com/v1/users/${userIdToFetch}`;
+      let url = `users/${userIdToFetch}`;
       if (userIdToFetch === "me") {
-        url = "https://api.spotify.com/v1/me";
+        url = "me";
       }
       const response = await axiosInstance.get(url);
       if (!response?.images?.length) {
