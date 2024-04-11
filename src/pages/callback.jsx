@@ -50,7 +50,7 @@ export default function App({ location }) {
   });
 
   const error =
-    new URLSearchParams(window.location.search).size === 0
+    typeof window !== "undefined" && new URLSearchParams(window.location.search).size === 0
       ? "No url parameters found in query string"
       : spotifyLoginError?.message || backendLoginError?.message;
 

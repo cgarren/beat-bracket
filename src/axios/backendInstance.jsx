@@ -6,6 +6,9 @@ import { MixpanelContext } from "../context/MixpanelContext";
 import { UserInfoContext } from "../context/UserInfoContext";
 import { accessTokenKey, refreshExpiredToken as refreshExpiredSpotifyToken } from "./spotifyInstance";
 
+const sessionStorage = typeof window !== "undefined" ? window.sessionStorage : null;
+const localStorage = typeof window !== "undefined" ? window.localStorage : null;
+
 // MARK:Constants
 const authURL = "auth";
 // auth storage keys

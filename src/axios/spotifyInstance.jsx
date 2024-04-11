@@ -20,20 +20,23 @@ const scope =
   "playlist-modify-private playlist-modify-public user-read-private playlist-read-private playlist-read-collaborative";
 const codeChallengeMethod = "S256";
 
+const sessionStorage = typeof window !== "undefined" ? window.sessionStorage : null;
+const localStorage = typeof window !== "undefined" ? window.localStorage : null;
+
 // axios instance
 const axiosInstance = axios.create({
   baseURL: "https://api.spotify.com/v1",
   headers: {
     "Content-Type": "application/json",
-    Authorization: `Bearer ${sessionStorage.getItem(accessTokenKey)}`,
+    Authorization: `Bearer ${sessionStorage?.getItem(accessTokenKey)}`,
   },
 });
 
 // helpers for export
 
 export const tokensExist = () => {
-  const accessToken = sessionStorage.getItem(accessTokenKey);
-  const refreshToken = localStorage.getItem(refreshTokenKey);
+  const accessToken = sessionStorage?.getItem(accessTokenKey);
+  const refreshToken = localStorage?.getItem(refreshTokenKey);
   return Boolean(accessToken && refreshToken);
 };
 
@@ -45,7 +48,7 @@ export const refreshLogin = async () => {
     tokenURL,
     {
       grant_type: "refresh_token",
-      refresh_token: localStorage.getItem(refreshTokenKey),
+      refresh_token: localStorage?.getItem(refreshTokenKey),
       client_id: clientId,
     },
     {
@@ -65,11 +68,11 @@ export const refreshLogin = async () => {
 export async function login() {
   // Generate and save state
   const state = generateRandomString(16);
-  sessionStorage.setItem(stateKey, state);
+  sessionStorage?.setItem(stateKey, state);
 
   // Generate and save code verifier
   const codeVerifier = generateRandomString(128);
-  sessionStorage.setItem(codeVerifierKey, codeVerifier);
+  sessionStorage?.setItem(codeVerifierKey, codeVerifier);
   const codeChallenge = await generateCodeChallenge(codeVerifier);
 
   // Set the authorization parameters
@@ -89,7 +92,7 @@ export async function login() {
 
 export async function loginCallback(urlParams) {
   // Verify state and code parameters
-  if (urlParams && urlParams.get("code") && urlParams.get("state") === sessionStorage.getItem(stateKey)) {
+  if (urlParams && urlParams.get("code") && urlParams.get("state") === sessionStorage?.getItem(stateKey)) {
     // Request the access token
     console.debug("requesting spotify access token");
     const response = await axiosInstance.post(
@@ -99,7 +102,7 @@ export async function loginCallback(urlParams) {
         code: urlParams.get("code"),
         redirect_uri: redirectUri,
         client_id: clientId,
-        code_verifier: sessionStorage.getItem(codeVerifierKey),
+        code_verifier: sessionStorage?.getItem(codeVerifierKey),
       },
       {
         headers: {
@@ -110,8 +113,8 @@ export async function loginCallback(urlParams) {
     );
 
     // remove spotify auth state and auth code verifier
-    sessionStorage.removeItem(stateKey);
-    sessionStorage.removeItem(codeVerifierKey);
+    sessionStorage?.removeItem(stateKey);
+    sessionStorage?.removeItem(codeVerifierKey);
     return {
       accessToken: response.data.access_token,
     };
