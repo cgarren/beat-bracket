@@ -4,7 +4,7 @@ import React, { useEffect, useState, useMemo, useCallback, useContext } from "re
 import { Link } from "gatsby";
 import toast from "react-hot-toast";
 // import Mousetrap from "mousetrap";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 // Helpers
 import { nearestLesserPowerOf2, camelCaseToTitleCase } from "../../../../../utils/helpers";
 import { createBracket } from "../../../../../utils/backend";
@@ -42,6 +42,7 @@ export default function App({ params, location }) {
 
   const mixpanel = useContext(MixpanelContext);
   const userInfo = useContext(UserInfoContext);
+  const queryClient = useQueryClient();
 
   const songSource = useMemo(() => {
     const newSongSource = location?.state;
@@ -129,7 +130,8 @@ export default function App({ params, location }) {
         const creationObj = await makeCreationObject();
         await createBracket(creationObj);
         console.debug("Bracket created");
-        // navigate(`/user/${owner.id}/bracket/${params.id}/fill`);
+        queryClient.invalidateQueries({ queryKey: ["backend", "brackets", { userId: owner.id }] });
+
         openBracket(params.id, owner.id, "fill", {}, { replace: true });
         return true;
       } catch (error) {
