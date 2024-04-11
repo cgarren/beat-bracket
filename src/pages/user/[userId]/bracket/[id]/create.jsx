@@ -130,7 +130,7 @@ export default function App({ params, location }) {
         const creationObj = await makeCreationObject();
         await createBracket(creationObj);
         console.debug("Bracket created");
-        queryClient.invalidateQueries({ queryKey: ["backend", "brackets", { userId: owner.id }] });
+        queryClient.refetchQueries({ queryKey: ["backend", "brackets", { userId: owner.id }] });
 
         openBracket(params.id, owner.id, "fill", {}, { replace: true });
         return true;
