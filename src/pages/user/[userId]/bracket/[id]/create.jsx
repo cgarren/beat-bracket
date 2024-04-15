@@ -69,9 +69,9 @@ export default function App({ params, location }) {
   }, [getArtistTracks, getPlaylistTracks, songSource]);
 
   const { data: allTracks, isPending: loadingTracks } = useQuery({
-    queryKey: ["spotify", "tracks", { id: songSource ? songSource[songSource.type].id : null }],
+    queryKey: ["spotify", "tracks", { id: songSource?.type ? songSource[songSource.type]?.id : null }],
     queryFn: async () => getTracks(songSource),
-    enabled: Boolean(songSource),
+    enabled: Boolean(songSource && songSource?.type && songSource[songSource?.type]?.id),
     refetchOnWindowFocus: false,
     staleTime: 3600000,
     meta: {
