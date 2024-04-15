@@ -107,8 +107,13 @@ export const Interceptor = ({ children }) => {
     // eitrher loguouit the user on auth error or attmept to refresh the token and try again
     if ([400, 401].includes(error?.response?.status) && originalRequest.url === authURL) {
       if (error?.response?.status === 401) {
-        const { accessToken } = await refreshExpiredSpotifyToken();
-        const newRequest = { ...originalRequest, data: { ...originalRequest.data, accessToken: accessToken } };
+        const res = await refreshExpiredSpotifyToken();
+        const { accessToken } = res;
+        const newRequest = {
+          ...originalRequest,
+          data: { ...JSON.parse(originalRequest.data), accessToken: accessToken },
+          params: { ...originalRequest.params, secondTry: true },
+        };
         return axiosInstance(newRequest);
       }
       logoutUser();
@@ -118,7 +123,11 @@ export const Interceptor = ({ children }) => {
 
     if (error?.response?.status === 403) {
       await refreshExpiredToken(userInfo?.id, sessionStorage.getItem(accessTokenKey));
-      return axiosInstance(originalRequest);
+      const newRequest = {
+        ...originalRequest,
+        params: { ...originalRequest.params, secondTry: true },
+      };
+      return axiosInstance(newRequest);
     }
 
     const newError = { ...error, cause: { code: error?.response?.status } };
@@ -128,9 +137,11 @@ export const Interceptor = ({ children }) => {
 
   const reqInterceptor = async (config) => {
     const newConfig = config;
-    const bad = Math.random() < 0.08;
-    // if (bad && config.url !== authURL) {
-    //   console.debug("simulating bad request");
+    // const rand = Math.random();
+    // const bad = rand < 0.5;
+    // if (bad) {
+    //   //  && config.url !== authURL
+    //   console.debug("simulating bad request", rand);
     //   newConfig.params = { ...config.params, token: "bdsjbds" };
     // } else
     if (config.includeAuth && config.url !== authURL) {
