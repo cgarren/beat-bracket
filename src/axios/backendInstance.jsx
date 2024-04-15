@@ -130,7 +130,16 @@ export const Interceptor = ({ children }) => {
       return axiosInstance(newRequest);
     }
 
-    const newError = { ...error, cause: { code: error?.response?.status } };
+    const newError = {
+      ...error,
+      cause: { code: error?.response?.status },
+      message: () => {
+        if (typeof error?.response?.data === "string") return error?.response?.data;
+        return error.message;
+      },
+    };
+
+    console.debug("error", newError);
 
     return Promise.reject(newError);
   };

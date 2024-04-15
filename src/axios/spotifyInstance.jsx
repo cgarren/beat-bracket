@@ -190,7 +190,18 @@ export const Interceptor = ({ children }) => {
       logoutUser();
       console.debug("logging out user");
     }
-    return Promise.reject(error);
+
+    const newError = {
+      ...error,
+      cause: { code: error?.response?.status },
+      message: () => {
+        if (typeof error?.response?.data === "string") return error?.response?.data;
+        if (typeof error?.response?.data.error.message === "string") return error?.response?.data.error.message;
+        return error.message;
+      },
+    };
+
+    return Promise.reject(newError);
   };
 
   useEffect(() => {
