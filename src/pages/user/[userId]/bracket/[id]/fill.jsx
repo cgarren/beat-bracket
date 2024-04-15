@@ -351,7 +351,6 @@ export default function App({ params, location }) {
   );
 
   useEffect(() => {
-    console.log(creationPossible, fetchFailure, !creationFailure, !creationPending);
     if (creationPossible && fetchFailure && !creationFailure && !creationPending) {
       initializeBracketFromTemplate(location.state.template, params.id, owner.name);
     }
