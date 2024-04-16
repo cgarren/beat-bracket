@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState, useContext } from "react";
 import { MixpanelContext } from "../../context/MixpanelContext";
-import useHelper from "../../hooks/useHelper";
+import { popularitySort } from "../../utils/helpers";
 import useBracketGeneration from "../../hooks/useBracketGeneration";
 import Bracket from "./Bracket";
 import CreateSongButton from "./SongButton/CreateSongButton";
@@ -18,12 +18,11 @@ export default function CreateBracket({
   setInclusionMethod,
 }) {
   const mixpanel = useContext(MixpanelContext);
-  const { popularitySort } = useHelper();
   const { getColorsFromImage } = useBracketGeneration();
   const bracketIds = useMemo(() => bracketTracks.map((track) => track.id), [bracketTracks]);
   const replacementTracks = useMemo(
     () => allTracks?.filter((track) => !bracketIds.includes(track.id)).sort(popularitySort),
-    [allTracks, popularitySort, bracketIds],
+    [allTracks, bracketIds],
   );
   const [buttonReplacementId, setButtonReplacementId] = useState(null);
   const getBracket = useCallback((key) => bracket.get(key), [bracket]);

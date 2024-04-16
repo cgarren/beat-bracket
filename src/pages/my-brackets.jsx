@@ -4,34 +4,32 @@ import Layout from "../components/Layout";
 import BracketCard from "../components/BracketCard/BracketCard";
 import CreateBracketCard from "../components/BracketCard/CreateBracketCard";
 import Seo from "../components/SEO";
-import { LoginContext } from "../context/LoginContext";
-import useBackend from "../hooks/useBackend";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import LoadingIndicator from "../components/LoadingIndicator";
 import BracketGrid from "../components/BracketGrid";
+import { camelCaseToTitleCase } from "../utils/helpers";
 import { MixpanelContext } from "../context/MixpanelContext";
-import useHelper from "../hooks/useHelper";
+import { UserInfoContext } from "../context/UserInfoContext";
+import { getBrackets, getMaxBrackets } from "../utils/backend";
 
 export default function App({ location }) {
   const [activeTab, setActiveTab] = useState("all");
   const mixpanel = useContext(MixpanelContext);
-  const { loginInfo, loggedIn } = useContext(LoginContext);
-  const { getBrackets, getMaxBrackets } = useBackend();
-  const { camelCaseToTitleCase } = useHelper();
   const maxBrackets = getMaxBrackets();
+  const userInfo = useContext(UserInfoContext);
   const {
     data: brackets,
     isError,
     isSuccess,
     isLoading,
   } = useQuery({
-    queryKey: ["brackets", { userId: loginInfo?.userId }],
-    queryFn: () => getBrackets(loginInfo?.userId),
+    queryKey: ["backend", "brackets", { userId: userInfo?.id }],
+    queryFn: () => getBrackets(userInfo?.id),
     retry: (failureCount, err) => {
       console.log("failureCount:", failureCount, "error:", err);
       return false;
     },
-    enabled: Boolean(loggedIn && loginInfo?.userId),
+    enabled: Boolean(userInfo?.id),
     meta: {
       errorMessage: "Error loading brackets",
     },
@@ -54,9 +52,9 @@ export default function App({ location }) {
     <Layout noChanges={() => true} path={location.pathname} pageName="My Brackets">
       <div className="text-center">
         <h1 className="text-4xl font-bold mb-2">My Brackets</h1>
-        {(isError || !loggedIn || !loginInfo?.userId) && (
+        {(isError || !userInfo?.id) && (
           <div className="text-md text-gray-600 mb-2">
-            Error loading brackets! {!loggedIn && "You must be logged in to view your brackets."}
+            Error loading brackets! {!userInfo?.id && "You must be logged in to view your brackets."}
           </div>
         )}
         {isLoading && <LoadingIndicator loadingText="Loading brackets" />}

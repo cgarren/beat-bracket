@@ -4,7 +4,11 @@ import React, { useEffect, useState, useMemo, useCallback, useContext } from "re
 import { Link } from "gatsby";
 import toast from "react-hot-toast";
 // import Mousetrap from "mousetrap";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+// Helpers
+import { nearestLesserPowerOf2, camelCaseToTitleCase } from "../../../../../utils/helpers";
+import { createBracket } from "../../../../../utils/backend";
+import { openBracket } from "../../../../../utils/impureHelpers";
 // Components
 import Seo from "../../../../../components/SEO";
 import Layout from "../../../../../components/Layout";
@@ -14,15 +18,12 @@ import CreateBracket from "../../../../../components/Bracket/CreateBracket";
 import BracketHeader from "../../../../../components/BracketHeader";
 // Hooks
 import useBracketGeneration from "../../../../../hooks/useBracketGeneration";
-import useHelper from "../../../../../hooks/useHelper";
-import useBackend from "../../../../../hooks/useBackend";
-import useSpotify from "../../../../../hooks/useSpotify";
 import useSongProcessing from "../../../../../hooks/useSongProcessing";
 import useAuthentication from "../../../../../hooks/useAuthentication";
-import useUserInfo from "../../../../../hooks/useUserInfo";
 import { Button } from "../../../../../components/ui/button";
 // Context
 import { MixpanelContext } from "../../../../../context/MixpanelContext";
+import { UserInfoContext } from "../../../../../context/UserInfoContext";
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../../../../../components/ui/accordion";
 
@@ -35,16 +36,13 @@ export default function App({ params, location }) {
   const [showBracket, setShowBracket] = useState(false);
   const [playbackEnabled] = useState(true);
 
-  const { openBracket } = useSpotify();
   const { isCurrentUser } = useAuthentication();
-  const { nearestLesserPowerOf2, camelCaseToTitleCase } = useHelper();
-  const { createBracket } = useBackend();
   const { seedBracket, sortTracks, getArtistTracks, getPlaylistTracks } = useSongProcessing();
   const { getNumberOfColumns, fillBracket } = useBracketGeneration();
 
   const mixpanel = useContext(MixpanelContext);
-
-  const { data: userInfo } = useUserInfo();
+  const userInfo = useContext(UserInfoContext);
+  const queryClient = useQueryClient();
 
   const songSource = useMemo(() => {
     const newSongSource = location?.state;
@@ -71,9 +69,9 @@ export default function App({ params, location }) {
   }, [getArtistTracks, getPlaylistTracks, songSource]);
 
   const { data: allTracks, isPending: loadingTracks } = useQuery({
-    queryKey: ["tracks", { id: songSource ? songSource[songSource.type].id : null }],
+    queryKey: ["spotify", "tracks", { id: songSource?.type ? songSource[songSource.type]?.id : null }],
     queryFn: async () => getTracks(songSource),
-    enabled: Boolean(songSource),
+    enabled: Boolean(songSource && songSource?.type && songSource[songSource?.type]?.id),
     refetchOnWindowFocus: false,
     staleTime: 3600000,
     meta: {
@@ -132,11 +130,12 @@ export default function App({ params, location }) {
         const creationObj = await makeCreationObject();
         await createBracket(creationObj);
         console.debug("Bracket created");
-        // navigate(`/user/${owner.id}/bracket/${params.id}/fill`);
+        queryClient.refetchQueries({ queryKey: ["backend", "brackets", { userId: owner.id }] });
+
         openBracket(params.id, owner.id, "fill", {}, { replace: true });
         return true;
       } catch (error) {
-        if (error.cause && error.cause.code === 429) {
+        if (error?.cause?.code === 429) {
           toast.error("Error creating bracket! Traffic is high right now. Try again in a few minutes!");
           console.error(error);
         } else {
@@ -174,17 +173,7 @@ export default function App({ params, location }) {
       }
       return null;
     },
-    [
-      allTracks,
-      limit,
-      seedingMethod,
-      inclusionMethod,
-      sortTracks,
-      seedBracket,
-      fillBracket,
-      nearestLesserPowerOf2,
-      getNumberOfColumns,
-    ],
+    [allTracks, limit, seedingMethod, inclusionMethod, sortTracks, seedBracket, fillBracket, getNumberOfColumns],
   );
 
   useEffect(() => {
