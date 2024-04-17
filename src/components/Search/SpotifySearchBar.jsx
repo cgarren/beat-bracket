@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import useSpotify from "../../hooks/useSpotify";
+import { search, getArt } from "../../utils/spotify";
 import SearchBar from "./SearchBar";
 
 export default function SpotifySearchBar({ type, setFunc, disabled, id = "spotify-search" }) {
@@ -17,8 +17,6 @@ export default function SpotifySearchBar({ type, setFunc, disabled, id = "spotif
         return "Search...";
     }
   })();
-
-  const { search, getArt } = useSpotify();
 
   const searchSuggestions = useCallback(
     async (searchText) => {
@@ -50,7 +48,7 @@ export default function SpotifySearchBar({ type, setFunc, disabled, id = "spotif
       }
       return [];
     },
-    [search, getArt, type, setFunc],
+    [type, setFunc],
   );
 
   return <SearchBar searchSuggestions={searchSuggestions} disabled={disabled} placeholder={placeholder} id={id} />;

@@ -153,6 +153,7 @@ export default function Bracket({
       if (setPercentageFilled) {
         const totalUnfilled = leftUnfilled + rightUnfilled;
         const winnerAddition = !(leftWinner || rightWinner) ? 1 : 0;
+        // TODO: need to rework this because it leads to innacurate percentages (in mixpanel) and a render error
         setPercentageFilled((1 - (totalUnfilled + winnerAddition) / (bracketSize - 1)) * 100);
       }
       return [leftArray, rightArray];

@@ -1,11 +1,9 @@
 // Library to get prominent colors from images (for coloring bracket spaces according to album art)
 import Vibrant from "node-vibrant";
 import { useCallback } from "react";
-import useHelper from "./useHelper";
+import { nearestGreaterPowerOf2, nearestLesserPowerOf2 } from "../utils/helpers";
 
 export default function useBracketGeneration() {
-  const { nearestGreaterPowerOf2, nearestLesserPowerOf2 } = useHelper();
-
   // Function to get the prominent colors from an image
   const getColorsFromImage = useCallback(async (image) => {
     // const color = await new FastAverageColor().getColorAsync(image)
@@ -140,16 +138,13 @@ export default function useBracketGeneration() {
       }
       return temp;
     },
-    [relateSongs, nearestGreaterPowerOf2],
+    [relateSongs],
   );
 
-  const getNumberOfColumns = useCallback(
-    (numItems) => {
-      const cols = Math.ceil(Math.log(nearestLesserPowerOf2(numItems)) / Math.log(2));
-      return cols;
-    },
-    [nearestLesserPowerOf2],
-  );
+  const getNumberOfColumns = useCallback((numItems) => {
+    const cols = Math.ceil(Math.log(nearestLesserPowerOf2(numItems)) / Math.log(2));
+    return cols;
+  }, []);
 
   const getNumberOfSongs = useCallback((bracketSize) => {
     // return 2 ** bracketSize - 1;

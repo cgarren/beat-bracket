@@ -5,6 +5,10 @@ import React, { useMemo, useCallback, useContext } from "react";
 import { v4 as uuidv4 } from "uuid";
 import toast from "react-hot-toast";
 import { useQuery } from "@tanstack/react-query";
+// Helpers
+import { bracketSorter } from "../../../../../utils/helpers";
+import { getBracket } from "../../../../../utils/backend";
+import { openBracket } from "../../../../../utils/impureHelpers";
 // Components
 import Seo from "../../../../../components/SEO";
 import BracketView from "../../../../../components/Bracket/ViewBracket";
@@ -13,9 +17,6 @@ import BracketWinnerInfo from "../../../../../components/Bracket/BracketWinnerIn
 import LoadingIndicator from "../../../../../components/LoadingIndicator";
 // Hooks
 import useBracketGeneration from "../../../../../hooks/useBracketGeneration";
-import useHelper from "../../../../../hooks/useHelper";
-import useBackend from "../../../../../hooks/useBackend";
-import useSpotify from "../../../../../hooks/useSpotify";
 import useAuthentication from "../../../../../hooks/useAuthentication";
 import useUserInfo from "../../../../../hooks/useUserInfo";
 import useShareBracket from "../../../../../hooks/useShareBracket";
@@ -23,17 +24,14 @@ import useShareBracket from "../../../../../hooks/useShareBracket";
 import ShareIcon from "../../../../../assets/svgs/shareIcon.svg";
 import DuplicateIcon from "../../../../../assets/svgs/duplicateIcon.svg";
 // Context
-import { LoginContext } from "../../../../../context/LoginContext";
+import { UserInfoContext } from "../../../../../context/UserInfoContext";
 import BracketHeader from "../../../../../components/BracketHeader";
 import LoginButton from "../../../../../components/Controls/LoginButton";
 import { Button } from "../../../../../components/ui/button";
 
 export default function App({ params, location }) {
-  const { loggedIn, loginInfo } = useContext(LoginContext);
-  const { openBracket } = useSpotify();
+  const userInfo = useContext(UserInfoContext);
   const { isCurrentUser } = useAuthentication();
-  const { bracketSorter } = useHelper();
-  const { getBracket } = useBackend();
   const { getNumberOfColumns } = useBracketGeneration();
   const { share } = useShareBracket(location.href);
 
@@ -45,12 +43,15 @@ export default function App({ params, location }) {
   );
 
   const { data: loadedBracket, isPending: fetchPending } = useQuery({
-    queryKey: ["bracket", { bracketId: params.id, userId: owner.id }],
+    queryKey: ["backend", "bracket", { bracketId: params.id, userId: owner.id }],
     queryFn: async () => getBracket(params.id, owner.id),
     enabled: Boolean(params.id && owner.id),
     refetchOnWindowFocus: false,
     staleTime: 3600000,
-    retry: (failureCount, error) => error?.cause?.code !== 404,
+    retry: (failureCount, error) => error?.cause?.code !== 404 && failureCount < 3,
+    meta: {
+      errorMessage: "Error loading bracket",
+    },
   });
 
   const songSource = useMemo(() => {
@@ -83,7 +84,7 @@ export default function App({ params, location }) {
       return mymap;
     }
     return null;
-  }, [loadedBracket?.bracketData, bracketSorter]);
+  }, [loadedBracket?.bracketData]);
 
   const template = useMemo(() => {
     if (loadedBracket?.template) {
@@ -141,18 +142,18 @@ export default function App({ params, location }) {
   // DUPLICATE
 
   const duplicateBracket = useCallback(async () => {
-    if (template?.id && template?.ownerId && loginInfo?.userId) {
+    if (template?.id && template?.ownerId && userInfo?.id) {
       // generate new bracket id
       const uuid = uuidv4();
       console.debug(`Create New Bracket with id: ${uuid}`);
 
       // navigate to new bracket page
-      openBracket(uuid, loginInfo.userId, "fill", { template: template });
+      openBracket(uuid, userInfo.id, "fill", { template: template });
     } else {
       toast.error("Error duplicating bracket");
       console.error("Error duplicating bracket. Something is wrong with the template:", template);
     }
-  }, [template, loginInfo]);
+  }, [template, userInfo?.id]);
 
   // redirect
   if (bracket?.size > 0 && !bracketWinner && isCurrentUser(params.userId)) {
@@ -189,13 +190,13 @@ export default function App({ params, location }) {
                 <ShareIcon />
                 Share
               </Button>
-              {loggedIn && !isCurrentUser(params.userId) && !isCurrentUser(template.ownerId) && (
+              {userInfo?.id && !isCurrentUser(params.userId) && !isCurrentUser(template.ownerId) && (
                 <Button onClick={duplicateBracket} className="flex justify-center gap-1">
                   <DuplicateIcon />
                   Make my own picks
                 </Button>
               )}
-              {!loggedIn && (
+              {!userInfo?.id && (
                 <div className="relative">
                   <LoginButton />
                   <div className="absolute top-[105%] left-1/2 -translate-x-1/2 whitespace-nowrap">

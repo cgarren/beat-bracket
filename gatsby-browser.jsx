@@ -3,7 +3,7 @@ import "@fontsource/righteous";
 import "@fontsource-variable/roboto-flex";
 import "./global-styles.css";
 
-import React from "react";
+import React, { StrictMode } from "react";
 import mixpanel from "mixpanel-browser";
 import { ErrorBoundary } from "react-error-boundary";
 import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -12,6 +12,7 @@ import { enableMapSet } from "immer";
 
 import { LoginProvider } from "./src/context/LoginContext";
 import { MixpanelProvider } from "./src/context/MixpanelContext";
+import { UserInfoProvider } from "./src/context/UserInfoContext";
 
 // Enable Map/Set in immer
 enableMapSet();
@@ -107,12 +108,18 @@ if (process.env.GATSBY_MIXPANEL_TOKEN && process.env.GATSBY_BACKEND_URL) {
 // eslint-disable-next-line import/prefer-default-export
 export function wrapRootElement({ element }) {
   return (
-    <ErrorBoundary fallback={<div>Something went wrong</div>}>
-      <MixpanelProvider mixpanel={mixpanel}>
-        <LoginProvider>
-          <QueryClientProvider client={queryClient}>{element}</QueryClientProvider>
-        </LoginProvider>
-      </MixpanelProvider>
-    </ErrorBoundary>
+    <StrictMode>
+      <ErrorBoundary fallback={<div>Something went wrong</div>}>
+        {/* <SpotifyInterceptor> */}
+        <MixpanelProvider mixpanel={mixpanel}>
+          <LoginProvider>
+            <QueryClientProvider client={queryClient}>
+              <UserInfoProvider>{element}</UserInfoProvider>
+            </QueryClientProvider>
+          </LoginProvider>
+        </MixpanelProvider>
+        {/* </SpotifyInterceptor> */}
+      </ErrorBoundary>
+    </StrictMode>
   );
 }

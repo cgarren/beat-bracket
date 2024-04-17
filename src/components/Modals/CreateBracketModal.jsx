@@ -4,21 +4,19 @@ import { useQuery } from "@tanstack/react-query";
 import ArtistSearchBar from "../Search/ArtistSearchBar";
 import UserPlaylistSearchBar from "../Search/UserPlaylistSearchBar";
 import useSongProcessing from "../../hooks/useSongProcessing";
-import { LoginContext } from "../../context/LoginContext";
-import useSpotify from "../../hooks/useSpotify";
+import { UserInfoContext } from "../../context/UserInfoContext";
 import LoadingIndicator from "../LoadingIndicator";
 import { Tabs, TabsTrigger, TabsList, TabsContent } from "../ui/tabs";
 import { Separator } from "../ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { MixpanelContext } from "../../context/MixpanelContext";
-import useHelper from "../../hooks/useHelper";
+import { openBracket } from "../../utils/impureHelpers";
+import { camelCaseToTitleCase } from "../../utils/helpers";
 // import Badge from "../Badge";
 
 export default function CreateBracketModal({ showModal, setShowModal }) {
   const mixpanel = useContext(MixpanelContext);
-  const { loginInfo } = useContext(LoginContext);
-  const { openBracket } = useSpotify();
-  const { camelCaseToTitleCase } = useHelper();
+  const userInfo = useContext(UserInfoContext);
   const { loadPlaylists } = useSongProcessing();
   const {
     data: userPlaylists,
@@ -26,8 +24,8 @@ export default function CreateBracketModal({ showModal, setShowModal }) {
     isSuccess,
     isError,
   } = useQuery({
-    queryKey: ["playlists", { userId: loginInfo.userId }],
-    queryFn: () => loadPlaylists("https://api.spotify.com/v1/me/playlists?limit=50"),
+    queryKey: ["spotify", "playlists", { userId: userInfo.id }],
+    queryFn: () => loadPlaylists("me/playlists?limit=50"),
     staleTime: 1000 * 60 * 60, // 1 hour
     meta: {
       errorMessage: "Error loading playlists",
@@ -40,10 +38,10 @@ export default function CreateBracketModal({ showModal, setShowModal }) {
         // Generate unique id for new bracket
         const uuid = uuidv4();
         console.debug(`Creating new bracket with id: ${uuid}`);
-        openBracket(uuid, loginInfo.userId, "create", state);
+        openBracket(uuid, userInfo.id, "create", state);
       }
     },
-    [loginInfo.userId, openBracket],
+    [userInfo.id, openBracket],
   );
 
   return (

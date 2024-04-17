@@ -38,15 +38,21 @@ export default function BracketCompleteModal({
               showSongInfo={songSource && songSource.type === "playlist"}
             />
           )}
-          <Button onClick={share} variant="secondary" icon={<ShareIcon />} className="flex justify-center gap-1">
+          <Button onClick={share} variant="outline" icon={<ShareIcon />} className="w-fit mx-auto gap-1">
             <ShareIcon />
             Share
           </Button>
           <AlertDialogFooter>
             {!savePending && !saveError && (
               <>
-                <AlertDialogCancel onClick={() => navigate(viewLink)}>Admire my masterpiece</AlertDialogCancel>
-                <AlertDialogAction onClick={() => navigate("/my-brackets")}>Start a new bracket</AlertDialogAction>
+                {/* <div className="flex justify-around w-full"> */}
+                <AlertDialogCancel className="min-w-[182px]" onClick={() => navigate(viewLink)}>
+                  Admire my masterpiece
+                </AlertDialogCancel>
+                <AlertDialogAction className="min-w-[182px]" onClick={() => navigate("/my-brackets")}>
+                  Start a new bracket
+                </AlertDialogAction>
+                {/* </div> */}
               </>
             )}
             {savePending && (
