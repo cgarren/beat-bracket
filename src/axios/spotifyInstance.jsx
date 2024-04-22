@@ -165,7 +165,6 @@ export const Interceptor = ({ children }) => {
     if (originalRequest.url === tokenURL) {
       sessionStorage.setItem(accessTokenKey, response.data.access_token);
       localStorage.setItem(refreshTokenKey, response.data.refresh_token);
-      console.debug("invalidateQueries");
       queryClient.invalidateQueries({ queryKey: ["spotify"] });
     }
     return response;
