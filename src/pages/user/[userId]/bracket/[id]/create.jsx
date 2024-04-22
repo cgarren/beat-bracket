@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 // import Mousetrap from "mousetrap";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 // Helpers
-import { nearestLesserPowerOf2, camelCaseToTitleCase } from "../../../../../utils/helpers";
+import { nearestLesserPowerOf2, nearestGreaterPowerOf2, camelCaseToTitleCase } from "../../../../../utils/helpers";
 import { createBracket } from "../../../../../utils/backend";
 import { openBracket } from "../../../../../utils/impureHelpers";
 // Components
