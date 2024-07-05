@@ -9,7 +9,7 @@ import toast from "react-hot-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { produce } from "immer";
 // Helpers
-import { bracketSorter, bracketUnchanged } from "../../../../../utils/helpers";
+import { bracketSorter, bracketUnchanged, isEdgeSong } from "../../../../../utils/helpers";
 import { updateBracket, getBracket, getTemplate, createBracket } from "../../../../../utils/backend";
 import { openBracket } from "../../../../../utils/impureHelpers";
 // Components
@@ -37,7 +37,6 @@ export default function App({ params, location }) {
   const [currentlyPlayingId, setCurrentlyPlayingId] = useState(null);
   const [lastSaved, setLastSaved] = useState({ time: 0, commandsLength: 0 });
   const [savePending, setSavePending] = useState(false);
-  const [percentageFilled, setPercentageFilled] = useState(0);
 
   // Hooks
   const { isCurrentUser } = useAuthentication();
@@ -176,7 +175,7 @@ export default function App({ params, location }) {
     const tracks = [];
     if (bracket) {
       bracket.forEach((item) => {
-        if (item.song && item.col === 0) {
+        if (isEdgeSong(item, (id) => bracket.get(id))) {
           tracks.push(item.song);
         }
       });
@@ -205,6 +204,29 @@ export default function App({ params, location }) {
     }
     return false;
   }, [bracketWinner, commands]);
+
+  const percentageFilled = useMemo(() => {
+    if (bracket) {
+      let totalFilled = 0;
+      let autoAdvances = 0;
+      bracket.forEach((item) => {
+        // either the spot is filled or it's empty and it's the first column (indicating an auto-advance)
+        if (Boolean(item.song?.name) && !(!Boolean(bracket.get(item.opponentId)?.song?.name) && item.col === 0)) {
+          totalFilled += 1;
+        } else if (!Boolean(bracket.get(item.opponentId)?.song?.name) && item.col === 0) {
+          autoAdvances += 1;
+        }
+      });
+      const filledExceptStartingTracks = totalFilled - bracketTracks.length;
+      const emptiesExceptStartingTracks = bracket.size - bracketTracks.length - autoAdvances * 2;
+      const winnerAddition = bracketWinner ? 1 : 0;
+      // setPercentageFilled((1 - (totalUnfilled + winnerAddition) / (bracketSize - 1)) * 100);
+      return (
+        ((filledExceptStartingTracks + winnerAddition) / (emptiesExceptStartingTracks + 1)) * 100 // Add one for the winner spot
+      );
+    }
+    return 0;
+  }, [bracket, bracketTracks, bracketWinner]);
 
   const trackedProps = useMemo(
     () => ({
@@ -267,6 +289,7 @@ export default function App({ params, location }) {
         { bracketId: params.id, userId: owner.id },
       ])?.bracketData;
       if (saveData) {
+        // console.log(saveData);
         setSavePending(true);
         const newData = { bracketData: saveData, winner: bracketWinner, percentageFilled: percentageFilled };
         saveBracketMutation(newData);
@@ -520,7 +543,6 @@ export default function App({ params, location }) {
             currentlyPlayingId={currentlyPlayingId}
             setCurrentlyPlayingId={setCurrentlyPlayingId}
             saveCommand={saveCommand}
-            setPercentageFilled={setPercentageFilled}
           />
         </>
       )}

@@ -1,5 +1,16 @@
 // 100% PURE FUNCTIONS ONLY!!!
 
+export function objectIsEmpty(obj) {
+  // eslint-disable-next-line no-restricted-syntax
+  for (const prop in obj) {
+    if (Object.hasOwn(obj, prop)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 export function generateRandomString(length) {
   let text = "";
   const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -72,9 +83,9 @@ export async function shuffleArray(array) {
 export function nearestGreaterPowerOf2(num) {
   let current = 0;
   let j = 0;
-  while (current <= num) {
-    current = 2 ** (j + 1);
+  while (current < num) {
     j += 1;
+    current = 2 ** (j + 1);
   }
   return current;
 }
@@ -139,19 +150,34 @@ export function bracketSorter(a, b) {
   throw new Error(`Found bracket with invalid side: ${value1.side} or ${value2.side}`);
 }
 
+export function isEdgeSong(songObj, bracketGetterFunc) {
+  // Check if the song is an "edge" song, meaning it is in the first column or was promoted automatrically due to a previous song not being filled in
+  const edgeSong =
+    Boolean(songObj?.song?.name && songObj?.col === 0 && Boolean(bracketGetterFunc(songObj.opponentId)?.song?.name)) ||
+    Boolean(
+      songObj?.song?.name && songObj?.col === 1 && songObj.previousIds.some((id) => !bracketGetterFunc(id).song?.name),
+    );
+  return edgeSong;
+}
+
 export function bracketUnchanged(bracket) {
   if (!(bracket instanceof Map)) {
     return false;
   }
   const values = Array.from(bracket.values());
-  return values.every((element) => element.col === 0 || !element.song);
+  return values.every(
+    (element) =>
+      isEdgeSong(element, (id) => {
+        bracket.get(id);
+      }) || !element.song,
+  );
 }
 
 export function camelCaseToTitleCase(str) {
   return str.replace(/([A-Z])/g, " $1").replace(/^./, (tempstr) => tempstr.toUpperCase());
 }
 
-// spotify helpers
+// MARK spotify helpers
 
 export function calculateExpiresAt(expiresIn) {
   return Date.now() + parseInt(expiresIn, 10) * 1000;

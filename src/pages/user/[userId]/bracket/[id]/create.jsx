@@ -6,7 +6,12 @@ import toast from "react-hot-toast";
 // import Mousetrap from "mousetrap";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 // Helpers
-import { nearestLesserPowerOf2, camelCaseToTitleCase } from "../../../../../utils/helpers";
+import {
+  nearestLesserPowerOf2,
+  nearestGreaterPowerOf2,
+  camelCaseToTitleCase,
+  isEdgeSong,
+} from "../../../../../utils/helpers";
 import { createBracket } from "../../../../../utils/backend";
 import { openBracket } from "../../../../../utils/impureHelpers";
 // Components
@@ -37,7 +42,7 @@ export default function App({ params, location }) {
   const [playbackEnabled] = useState(true);
 
   const { isCurrentUser } = useAuthentication();
-  const { seedBracket, sortTracks, getArtistTracks, getPlaylistTracks } = useSongProcessing();
+  const { seedBracket, sortTracks, getArtistTracks, getPlaylistTracks, arrangeSeeds } = useSongProcessing();
   const { getNumberOfColumns, fillBracket } = useBracketGeneration();
 
   const mixpanel = useContext(MixpanelContext);
@@ -83,13 +88,15 @@ export default function App({ params, location }) {
     const tracks = [];
     if (bracket) {
       bracket.forEach((item) => {
-        if (item.song && item.col === 0) {
+        if (item.song && isEdgeSong(item, (id) => bracket.get(id))) {
           tracks.push(item.song);
         }
       });
     }
     return tracks;
   }, [bracket]);
+
+  const hardLimit = allTracks?.length > 512 ? 512 : allTracks?.length;
 
   const trackedProps = useMemo(
     () => ({
@@ -157,16 +164,36 @@ export default function App({ params, location }) {
       customSeedingMethod = seedingMethod,
       customInclusionMethod = inclusionMethod,
     ) => {
-      const power = nearestLesserPowerOf2(customAllTracks.length);
-      // setLoadingText("Seeding tracks by " + seedingMethod + "...");
-      // sort the list by include method
+      const greaterPower = nearestGreaterPowerOf2(customLimit);
+
+      // sort the list by inclusion method
       let newCustomAllTracks = await sortTracks(customAllTracks, customInclusionMethod);
-      const numTracks = customLimit < power ? customLimit : power;
-      // cut the list dowwn to the max number of tracks
-      newCustomAllTracks = newCustomAllTracks.slice(0, numTracks);
-      // seed the bracket
-      newCustomAllTracks = await seedBracket(newCustomAllTracks, customSeedingMethod);
-      if (newCustomAllTracks && newCustomAllTracks.length > 0) {
+
+      // limit the list to the selected limit
+      newCustomAllTracks = newCustomAllTracks.slice(0, customLimit);
+
+      // sort the list by seeding method
+      newCustomAllTracks = await sortTracks(newCustomAllTracks, customSeedingMethod);
+
+      // add seed numbers
+      newCustomAllTracks = newCustomAllTracks.map((track, index) => {
+        const newTrack = { ...track, seed: index + 1 };
+        return newTrack;
+      });
+
+      // calculate the number of tracks to use for the base bracket, before byes
+      const numTracks = Number(customLimit) === greaterPower ? customLimit : greaterPower;
+
+      // fill in the bracket with byes
+      for (let i = newCustomAllTracks.length; i < numTracks; i += 1) {
+        newCustomAllTracks.push({ seed: i + 1 });
+      }
+
+      // arrange the seeds
+      newCustomAllTracks = await arrangeSeeds(newCustomAllTracks);
+
+      if (newCustomAllTracks?.length > 0) {
+        // create the bracket and relate songs
         const temp = await fillBracket(newCustomAllTracks, getNumberOfColumns(newCustomAllTracks.length));
         setBracket(temp);
         return temp;
@@ -179,8 +206,9 @@ export default function App({ params, location }) {
   useEffect(() => {
     if (allTracks) {
       const power = nearestLesserPowerOf2(allTracks.length);
-      setLimit(limit < power ? limit : power);
-      changeBracket(allTracks);
+      const tempLimit = limit < power ? limit : power;
+      setLimit(tempLimit);
+      changeBracket(allTracks, tempLimit);
     }
   }, [allTracks]);
 
@@ -233,6 +261,9 @@ export default function App({ params, location }) {
       if (seedingMethod === "custom") {
         tempSeedingMethod = "popularity";
         setSeedingMethod("popularity");
+      }
+      if (String(hardLimit) === value && songSource?.type === "playlist") {
+        setInclusionMethod("playlist");
       }
       changeBracket(undefined, value, tempSeedingMethod, tempInclusionMethod);
     },
@@ -365,7 +396,7 @@ export default function App({ params, location }) {
               limitChange={limitChange}
               showBracket={showBracket}
               limit={limit}
-              hardLimit={allTracks?.length}
+              hardLimit={hardLimit}
               seedingChange={seedingChange}
               seedingMethod={seedingMethod}
               inclusionChange={inclusionChange}

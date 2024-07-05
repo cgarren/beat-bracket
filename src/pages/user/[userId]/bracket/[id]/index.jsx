@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 import toast from "react-hot-toast";
 import { useQuery } from "@tanstack/react-query";
 // Helpers
-import { bracketSorter } from "../../../../../utils/helpers";
+import { bracketSorter, isEdgeSong } from "../../../../../utils/helpers";
 import { getBracket } from "../../../../../utils/backend";
 import { openBracket } from "../../../../../utils/impureHelpers";
 // Components
@@ -102,7 +102,7 @@ export default function App({ params, location }) {
     const tracks = [];
     if (bracket) {
       bracket.forEach((item) => {
-        if (item.song && item.col === 0) {
+        if (isEdgeSong(item, (id) => bracket.get(id))) {
           tracks.push(item.song);
         }
       });

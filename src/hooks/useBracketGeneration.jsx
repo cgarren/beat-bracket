@@ -1,7 +1,7 @@
 // Library to get prominent colors from images (for coloring bracket spaces according to album art)
 import Vibrant from "node-vibrant";
 import { useCallback } from "react";
-import { nearestGreaterPowerOf2, nearestLesserPowerOf2 } from "../utils/helpers";
+import { nearestGreaterPowerOf2, objectIsEmpty } from "../utils/helpers";
 
 export default function useBracketGeneration() {
   // Function to get the prominent colors from an image
@@ -20,20 +20,27 @@ export default function useBracketGeneration() {
   }, []);
 
   const relateSongs = useCallback(
-    async (len, theTracks, col, side, otherSide) => {
+    async (len, theTracks, col, side, otherSide, oldBracketMap) => {
       const colMap = new Map();
       for (let i = 0; i < len; i += 1) {
         let colorObj = null;
-        if (theTracks && theTracks[i] && theTracks[i].art) {
+        if (theTracks?.[i]?.art) {
           colorObj = await getColorsFromImage(theTracks[i].art);
         }
         let song = null;
-        if (theTracks && theTracks[i]) {
+        let seed = null;
+        if (theTracks?.[i]) {
+          seed = theTracks[i].seed;
           song = theTracks[i];
+          delete song.seed;
+          if (objectIsEmpty(song)) {
+            song = null;
+          }
         }
 
         colMap.set(side + col + i, {
           song: song,
+          seed: seed,
           opponentId: len <= 1 ? otherSide + col + 0 : side + col + (i % 2 === 0 ? i + 1 : i - 1),
           nextId: len <= 1 ? null : side + (col + 1) + Math.floor(i / 2),
           previousIds:
@@ -48,6 +55,43 @@ export default function useBracketGeneration() {
           color: colorObj,
           undoFunc: null,
         });
+
+        // if the opponent has a song and the current song is empty, disable the current song and eliminate the opponent
+        if (col === 0) {
+          const opponentId = colMap.get(side + col + i)?.opponentId;
+          if (colMap.get(opponentId)?.song?.name && !song?.name) {
+            colMap.set(opponentId, {
+              ...colMap.get(opponentId),
+              eliminated: true,
+              disabled: true,
+            });
+            colMap.set(side + col + i, {
+              ...colMap.get(side + col + i),
+              disabled: true,
+            });
+          }
+        }
+
+        // promote songs from previous rounds if all previous songs are disabled
+        if (col === 1) {
+          if (colMap.get(side + col + i).previousIds.length > 0) {
+            if (colMap.get(side + col + i).previousIds.some((id) => !oldBracketMap.get(id)?.song?.name)) {
+              colMap.get(side + col + i).previousIds.forEach((id) => {
+                // console.log(oldBracketMap.get(id));
+                if (oldBracketMap.get(id).song?.name) {
+                  // console.log(oldBracketMap.get(id).song?.name, "setting disabled");
+                  colMap.set(side + col + i, {
+                    ...colMap.get(side + col + i),
+                    song: oldBracketMap.get(id).song,
+                    color: oldBracketMap.get(id).color,
+                    seed: oldBracketMap.get(id).seed,
+                    disabled: false,
+                  });
+                }
+              });
+            }
+          }
+        }
       }
       return colMap;
     },
@@ -61,14 +105,15 @@ export default function useBracketGeneration() {
       let repeated = false;
       let temp = new Map();
 
-      while (i >= 0) {
-        const len = nearestGreaterPowerOf2(tracks.length) / 2 ** (i + 1) / 2;
+      while (i < cols) {
+        const len = nearestGreaterPowerOf2(tracks.length) / 2 ** (i + 1);
         let theTracks = new Array(len);
         if (i >= cols - 1) {
           if (!repeated) {
             repeated = true;
-            temp = new Map([...(await relateSongs(len, theTracks, i, "r", "l")), ...temp]);
+            temp = new Map([...(await relateSongs(len, theTracks, i, "r", "l", temp)), ...temp]);
             forward = false;
+            i = 0;
             continue;
           }
         }
@@ -82,11 +127,11 @@ export default function useBracketGeneration() {
         }
 
         if (forward) {
-          temp = new Map([...(await relateSongs(len, theTracks, i, "r", "l")), ...temp]);
+          temp = new Map([...(await relateSongs(len, theTracks, i, "r", "l", temp)), ...temp]);
           i += 1;
         } else {
-          temp = new Map([...(await relateSongs(len, theTracks, i, "l", "r")), ...temp]);
-          i -= 1;
+          temp = new Map([...(await relateSongs(len, theTracks, i, "l", "r", temp)), ...temp]);
+          i += 1;
         }
       }
       return temp;
@@ -95,7 +140,7 @@ export default function useBracketGeneration() {
   );
 
   const getNumberOfColumns = useCallback((numItems) => {
-    const cols = Math.ceil(Math.log(nearestLesserPowerOf2(numItems)) / Math.log(2));
+    const cols = Math.ceil(Math.log(nearestGreaterPowerOf2(numItems)) / Math.log(2));
     return cols;
   }, []);
 

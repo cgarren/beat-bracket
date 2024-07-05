@@ -3,6 +3,7 @@ import cx from "classnames";
 import UndoIcon from "../../../assets/svgs/undoIcon.svg";
 import OpenInSpotifyButton from "./OpenInSpotifyButton";
 import SongButton from "./SongButton";
+import { isEdgeSong } from "../../../utils/helpers";
 
 export default function FillSongButton({
   styling,
@@ -62,24 +63,27 @@ export default function FillSongButton({
   }
 
   return (
-    <div className="relative">
-      {song && !disabled && col !== 0 && (
-        <button
-          type="button"
-          onClick={choiceUndone}
-          aria-label="Undo"
-          className={cx(
-            "border-0 w-[26px] h-[26px] p-1 text-xs hover:bg-red-600 hover:text-white bg-transparent text-black absolute rounded-full z-20 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-opacity-50",
-            {
-              "-right-8 top-3": side === "l" && getBracket(opponentId).side === side,
-              "-left-8 top-3": side === "r" && getBracket(opponentId).side === side,
-              "-bottom-8 left-11": getBracket(opponentId).side !== side,
-            },
-          )}
-        >
-          <UndoIcon />
-        </button>
-      )}
+    <div className="relative w-fit">
+      {song &&
+        !disabled &&
+        col !== 0 &&
+        !isEdgeSong({ previousIds: previousIds, song: song, col: col, opponentId: opponentId }, getBracket) && (
+          <button
+            type="button"
+            onClick={choiceUndone}
+            aria-label="Undo"
+            className={cx(
+              "border-0 w-[26px] h-[26px] p-1 text-xs hover:bg-red-600 hover:text-white bg-transparent text-black absolute rounded-full z-20 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-opacity-50",
+              {
+                "-right-8 top-3": side === "l" && getBracket(opponentId).side === side,
+                "-left-8 top-3": side === "r" && getBracket(opponentId).side === side,
+                "-bottom-8 left-11": getBracket(opponentId).side !== side,
+              },
+            )}
+          >
+            <UndoIcon />
+          </button>
+        )}
       <SongButton
         actionButton={song && !disabled && <OpenInSpotifyButton songId={song.id} />}
         clickFunction={() => songChosen()}
