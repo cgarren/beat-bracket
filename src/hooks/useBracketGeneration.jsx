@@ -1,7 +1,7 @@
 // Library to get prominent colors from images (for coloring bracket spaces according to album art)
 import Vibrant from "node-vibrant";
 import { useCallback } from "react";
-import { nearestGreaterPowerOf2, nearestLesserPowerOf2 } from "../utils/helpers";
+import { nearestGreaterPowerOf2, objectIsEmpty } from "../utils/helpers";
 
 export default function useBracketGeneration() {
   // Function to get the prominent colors from an image
@@ -33,6 +33,9 @@ export default function useBracketGeneration() {
           seed = theTracks[i].seed;
           song = theTracks[i];
           delete song.seed;
+          if (objectIsEmpty(song)) {
+            song = null;
+          }
         }
 
         colMap.set(side + col + i, {
@@ -53,6 +56,7 @@ export default function useBracketGeneration() {
           undoFunc: null,
         });
 
+        // if the opponent has a song and the current song is empty, disable the current song and eliminate the opponent
         if (col === 0) {
           const opponentId = colMap.get(side + col + i)?.opponentId;
           if (colMap.get(opponentId)?.song?.name && !song?.name) {
@@ -68,6 +72,7 @@ export default function useBracketGeneration() {
           }
         }
 
+        // promote songs from previous rounds if all previous songs are disabled
         if (col === 1) {
           if (colMap.get(side + col + i).previousIds.length > 0) {
             // console.log(
@@ -76,7 +81,13 @@ export default function useBracketGeneration() {
             //     return oldBracketMap.get(id)?.disabled;
             //   }),
             // );
-            if (colMap.get(side + col + i).previousIds.every((id) => oldBracketMap.get(id)?.disabled)) {
+            if (side + col + i === "l10") {
+              console.log(colMap.get(side + col + i).previousIds);
+              for (let id of colMap.get(side + col + i).previousIds) {
+                console.log(!oldBracketMap.get(id)?.song?.name);
+              }
+            }
+            if (colMap.get(side + col + i).previousIds.some((id) => !oldBracketMap.get(id)?.song?.name)) {
               colMap.get(side + col + i).previousIds.forEach((id) => {
                 // console.log(oldBracketMap.get(id));
                 if (oldBracketMap.get(id).song?.name) {
@@ -108,7 +119,7 @@ export default function useBracketGeneration() {
       let temp = new Map();
 
       while (i < cols) {
-        const len = nearestGreaterPowerOf2(tracks.length) / 2 ** (i + 1) / 2;
+        const len = nearestGreaterPowerOf2(tracks.length) / 2 ** (i + 1);
         let theTracks = new Array(len);
         if (i >= cols - 1) {
           if (!repeated) {
@@ -142,7 +153,7 @@ export default function useBracketGeneration() {
   );
 
   const getNumberOfColumns = useCallback((numItems) => {
-    const cols = Math.ceil(Math.log(nearestLesserPowerOf2(numItems)) / Math.log(2));
+    const cols = Math.ceil(Math.log(nearestGreaterPowerOf2(numItems)) / Math.log(2));
     return cols;
   }, []);
 

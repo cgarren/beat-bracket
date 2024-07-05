@@ -80,7 +80,7 @@ export default function CreateSongButton({
   return (
     <div className="relative">
       <div
-        draggable={col === 0}
+        draggable={song && !disabled}
         onDragStart={handleDragStart}
         onDrag={handleDrag}
         onDragEnd={handleDragEnd}

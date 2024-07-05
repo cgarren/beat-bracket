@@ -11,7 +11,6 @@ export default function FillBracket({
   currentlyPlayingId,
   setCurrentlyPlayingId,
   saveCommand,
-  setPercentageFilled,
 }) {
   const getBracket = useCallback((key) => bracket.get(key), [bracket]);
   const modifyBracket = useCallback(
@@ -87,7 +86,6 @@ export default function FillBracket({
       showBracket
       songSourceType={songSource?.type}
       songButtonType={FillSongButton}
-      setPercentageFilled={setPercentageFilled}
       songButtonProps={useMemo(
         () => ({
           modifyBracket: modifyBracket,

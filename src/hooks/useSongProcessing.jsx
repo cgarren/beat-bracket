@@ -39,8 +39,10 @@ export default function useSongProcessing() {
   const seedBracket = useCallback(
     async (trackList, seedingMethod) => {
       switch (seedingMethod) {
-        case "random":
-          return shuffleArray(trackList);
+        case "random": {
+          const temp = await shuffleArray(trackList);
+          return arrangeSeeds(temp);
+        }
         case "popularity": {
           const temp = trackList.toSorted(popularitySort);
           // console.table(trackList);
@@ -305,6 +307,7 @@ export default function useSongProcessing() {
   return {
     sortTracks,
     seedBracket,
+    arrangeSeeds,
     getArtistTracks,
     getPlaylistTracks,
     loadPlaylists,

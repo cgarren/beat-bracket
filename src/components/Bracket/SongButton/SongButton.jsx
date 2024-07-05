@@ -47,7 +47,7 @@ export default function SongButton({
   }, [color]);
 
   return (
-    <div>
+    <div className="w-fit">
       {actionButton}
       <div
         className={cx(
