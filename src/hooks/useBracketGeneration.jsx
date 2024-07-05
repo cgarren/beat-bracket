@@ -75,18 +75,6 @@ export default function useBracketGeneration() {
         // promote songs from previous rounds if all previous songs are disabled
         if (col === 1) {
           if (colMap.get(side + col + i).previousIds.length > 0) {
-            // console.log(
-            //   colMap.get(side + col + i).previousIds.every((id) => {
-            //     console.log(id, oldBracketMap.get(id));
-            //     return oldBracketMap.get(id)?.disabled;
-            //   }),
-            // );
-            if (side + col + i === "l10") {
-              console.log(colMap.get(side + col + i).previousIds);
-              for (let id of colMap.get(side + col + i).previousIds) {
-                console.log(!oldBracketMap.get(id)?.song?.name);
-              }
-            }
             if (colMap.get(side + col + i).previousIds.some((id) => !oldBracketMap.get(id)?.song?.name)) {
               colMap.get(side + col + i).previousIds.forEach((id) => {
                 // console.log(oldBracketMap.get(id));
@@ -105,7 +93,6 @@ export default function useBracketGeneration() {
           }
         }
       }
-      // console.log(colMap);
       return colMap;
     },
     [getColorsFromImage],
