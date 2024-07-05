@@ -289,7 +289,7 @@ export default function App({ params, location }) {
         { bracketId: params.id, userId: owner.id },
       ])?.bracketData;
       if (saveData) {
-        console.log(saveData);
+        // console.log(saveData);
         setSavePending(true);
         const newData = { bracketData: saveData, winner: bracketWinner, percentageFilled: percentageFilled };
         saveBracketMutation(newData);
