@@ -65,55 +65,48 @@ export default function Bracket({
             const [mykey, value] = entry;
             const colExpression = side === "l" ? i : columns - 1 - i;
             if (value.side === side && value.col === colExpression) {
+              // Logic to determine whether to show the button or a placeholder
+              const hideButton =
+                (!value.song?.name || !Boolean(currentBracket.get(value.opponentId)?.song?.name)) && value.col === 0;
               return (
-                <div
-                  key={mykey}
-                  className={cx(
-                    {
-                      // set opacity to 0 if the song is empty or opponent song is empty and the column is 0
-                      "opacity-0":
-                        (!value.song?.name || !Boolean(currentBracket.get(value.opponentId)?.song?.name)) &&
-                        value.col === 0,
-                    },
-                    "w-[var(--buttonwidth)]",
-                    "min-w-[var(--buttonwidth)]",
+                <div key={mykey} className={cx("w-[var(--buttonwidth)]", "min-w-[var(--buttonwidth)]")}>
+                  {/* Create the element for the song button */}
+                  {!hideButton &&
+                    createElement(
+                      songButtonType,
+                      {
+                        ...songButtonProps,
+                        styling: cx({
+                          [`${topStyles[colExpression]}`]: value.index === 0,
+                          // [`${styles[colExpression]}`]:
+                          //     value.index !== 0 &&
+                          //     value.index % 2 === 0,
+                        }),
+                        song: value.song,
+                        id: value.id,
+                        col: value.col,
+                        nextId: value.nextId,
+                        opponentId: value.opponentId,
+                        previousIds: value.previousIds,
+                        side: side,
+                        color: value.color,
+                        eliminated: value.eliminated,
+                        winner: value.winner,
+                        undoFunc: value.undoFunc,
+                        disabled: songButtonProps.editable && value.song?.name ? value.disabled : true,
+                      },
+                      null,
+                    )}
+
+                  {/* If the button is hidden, show a placeholder */}
+                  {hideButton && (
+                    <div
+                      className={cx({
+                        "w-[var(--buttonwidth)] h-[var(--buttonheight)]": true,
+                      })}
+                    />
                   )}
-                >
-                  {createElement(
-                    songButtonType,
-                    {
-                      ...songButtonProps,
-                      styling: cx({
-                        [`${topStyles[colExpression]}`]: value.index === 0,
-                        // [`${styles[colExpression]}`]:
-                        //     value.index !== 0 &&
-                        //     value.index % 2 === 0,
-                      }),
-                      song: value.song,
-                      id: value.id,
-                      col: value.col,
-                      nextId: value.nextId,
-                      opponentId: value.opponentId,
-                      previousIds: value.previousIds,
-                      side: side,
-                      color: value.color,
-                      eliminated: value.eliminated,
-                      winner: value.winner,
-                      undoFunc: value.undoFunc,
-                      disabled: songButtonProps.editable && value.song?.name ? value.disabled : true,
-                    },
-                    null,
-                  )}
-                  {/* {value.song &&
-                    (value.col === 0 ||
-                      (value.col === 1 && value.previousIds?.every((id) => currentBracket.get(id)?.disabled))) &&
-                    songSourceType ? (
-                      <div className="px-1 text-center text-black text-xs text-ellipsis line-clamp-1 break-all">
-                        {value.seed + " "}
-                        {songSourceType === "playlist" && value.song.artist}
-                        {songSourceType === "artist" && value.song.album}
-                      </div>
-                    ) : null} */}
+
                   <div
                     className={cx({
                       [`w-[var(--buttonwidth)] relative ${lineStyles[colExpression]}`]: currentBracket.has(
@@ -121,7 +114,8 @@ export default function Bracket({
                       ),
                     })}
                   >
-                    {value.index % 2 === 0 && value.nextId != null ? (
+                    {/* Show bracket line */}
+                    {!hideButton && value.index % 2 === 0 && value.nextId != null ? (
                       <div
                         className={cx({
                           [`${lineStyles[colExpression]}`]: true,
@@ -133,13 +127,33 @@ export default function Bracket({
                         key={`${mykey}line`}
                       />
                     ) : null}
-                    {value.song && isEdgeSong(value, (id) => currentBracket.get(id)) && songSourceType ? (
+
+                    {/* If button is hidden, show placehodler for bracket line */}
+                    {hideButton && (
+                      <div
+                        className={cx({
+                          [`${lineStyles[colExpression]}`]: true,
+                          absolute: true,
+                        })}
+                      />
+                    )}
+
+                    {/* Show the song or artist name */}
+                    {!hideButton &&
+                    value.song &&
+                    isEdgeSong(value, (id) => currentBracket.get(id)) &&
+                    songSourceType ? (
                       <div className="px-1 text-center text-black text-xs text-ellipsis line-clamp-1 break-all">
                         {/* {value.seed + " "} */}
                         {songSourceType === "playlist" && value.song.artist}
                         {songSourceType === "artist" && value.song.album}
                       </div>
                     ) : null}
+
+                    {/* If button is hidden, show placeholder for song or artist name */}
+                    {hideButton && (
+                      <div className="px-1 text-center text-black text-xs text-ellipsis line-clamp-1 break-all" />
+                    )}
                   </div>
                 </div>
               );
