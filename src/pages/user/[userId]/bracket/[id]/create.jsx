@@ -262,7 +262,7 @@ export default function App({ params, location }) {
         tempSeedingMethod = "popularity";
         setSeedingMethod("popularity");
       }
-      if (String(hardLimit) === value) {
+      if (String(hardLimit) === value && songSource?.type === "playlist") {
         setInclusionMethod("playlist");
       }
       changeBracket(undefined, value, tempSeedingMethod, tempInclusionMethod);
