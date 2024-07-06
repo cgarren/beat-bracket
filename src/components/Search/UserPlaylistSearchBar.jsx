@@ -1,8 +1,8 @@
-import React, { useCallback } from "react";
+import React, { forwardRef, useCallback } from "react";
 import SearchBar from "./SearchBar";
 import { getArt } from "../../utils/spotify";
 
-export default function UserPlaylistSearchBar({ allPlaylists, setPlaylist }) {
+export default forwardRef(({ allPlaylists, setPlaylist }, ref) => {
   const searchSuggestions = useCallback(
     async (searchText) => {
       const templist = [];
@@ -24,8 +24,13 @@ export default function UserPlaylistSearchBar({ allPlaylists, setPlaylist }) {
   );
 
   return allPlaylists.length > 0 ? (
-    <SearchBar searchSuggestions={searchSuggestions} disabled={false} placeholder="Search for a playlist..." />
+    <SearchBar
+      searchSuggestions={searchSuggestions}
+      disabled={false}
+      placeholder="Search for a playlist..."
+      ref={ref}
+    />
   ) : (
     <div className="">No playlists found. Add some to your Spotify library to get started.</div>
   );
-}
+});

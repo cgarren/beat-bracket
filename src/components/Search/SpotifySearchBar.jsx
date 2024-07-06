@@ -1,8 +1,8 @@
-import React, { useCallback } from "react";
+import React, { useCallback, forwardRef } from "react";
 import { search, getArt } from "../../utils/spotify";
 import SearchBar from "./SearchBar";
 
-export default function SpotifySearchBar({ type, setFunc, disabled, id = "spotify-search" }) {
+export default forwardRef(({ type, setFunc, disabled, id = "spotify-search" }, ref) => {
   const placeholder = (() => {
     switch (type) {
       case "artist":
@@ -51,5 +51,7 @@ export default function SpotifySearchBar({ type, setFunc, disabled, id = "spotif
     [type, setFunc],
   );
 
-  return <SearchBar searchSuggestions={searchSuggestions} disabled={disabled} placeholder={placeholder} id={id} />;
-}
+  return (
+    <SearchBar searchSuggestions={searchSuggestions} disabled={disabled} placeholder={placeholder} id={id} ref={ref} />
+  );
+});

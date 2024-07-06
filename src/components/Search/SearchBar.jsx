@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, forwardRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Suggestion from "./Suggestion";
 import { Input } from "../ui/input";
 
-export default function SearchBar({ searchSuggestions, disabled, placeholder, id = "searchbar" }) {
+export default forwardRef(({ searchSuggestions, disabled, placeholder, id = "searchbar" }, ref) => {
   const [searchText, setSearchText] = useState("");
   const {
     data: suggestionList,
@@ -100,7 +100,7 @@ export default function SearchBar({ searchSuggestions, disabled, placeholder, id
           autoCorrect="off"
           autoCapitalize="off"
           id={id}
-          // autoFocus
+          ref={ref}
           onChange={(e) => setSearchText(e.target.value)}
         />
       </div>
@@ -129,4 +129,4 @@ export default function SearchBar({ searchSuggestions, disabled, placeholder, id
       </div>
     </div>
   );
-}
+});
