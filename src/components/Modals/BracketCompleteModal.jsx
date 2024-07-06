@@ -65,7 +65,9 @@ export default function BracketCompleteModal({
             )}
             {saveError && (
               <>
-                <div className="flex flex-row justify-around text-red-500 font-bold">Error saving your bracket!</div>
+                <div className="flex flex-row justify-around text-red-500 font-bold my-auto">
+                  Error saving your bracket!
+                </div>
                 <AlertDialogAction onClick={retrySave}>Retry save</AlertDialogAction>
               </>
             )}
