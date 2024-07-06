@@ -87,14 +87,15 @@ const questions = [
       <>
         Beat Bracket currently has limited storage space and is only able to support a certain number of brackets per
         account. In the future I may add a way to purchase more storage space, but for now I&apos;m limiting the number
-        of brackets per account to keep costs down. If this is a feature you would like to see, please{" "}
+        of brackets per account to keep costs down. I&apos;ve put a cap (hopefully high enough) on the number of songs
+        you can have in a bracket for the same reason. If this is a feature you would like to see, please{" "}
         <a className="text-green-500 hover:text-green-700 underline" href="mailto:feedback@beatbracket.com">
           reach out
         </a>
         !
       </>
     ),
-    paths: ["/my-brackets/"],
+    paths: ["*"],
   },
   {
     question: "Why are there duplicate/similar tracks in my bracket?",
