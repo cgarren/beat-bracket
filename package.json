@@ -13,7 +13,8 @@
     "build": "gatsby build",
     "serve": "gatsby serve",
     "clean": "gatsby clean",
-    "deploy-qa": "gatsby build --prefix-paths && gh-pages -d public --repo https://github.com/cgarren/beat-bracket-qa.git"
+    "deploy-qa": "git push qa $(git rev-parse --abbrev-ref HEAD):main",
+    "deploy-qa-old": "gatsby build --prefix-paths && gh-pages -d public --repo https://github.com/cgarren/beat-bracket-qa.git"
   },
   "dependencies": {
     "@fontsource-variable/roboto-flex": "^5.0.8",
