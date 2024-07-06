@@ -15,6 +15,13 @@ import { camelCaseToTitleCase } from "../../utils/helpers";
 // import Badge from "../Badge";
 
 export default function CreateBracketModal({ showModal, setShowModal }) {
+  const searchBarRef = useCallback((node) => {
+    if (node !== null) {
+      setTimeout(() => {
+        node.focus();
+      }, 1);
+    }
+  }, []);
   const mixpanel = useContext(MixpanelContext);
   const userInfo = useContext(UserInfoContext);
   const { loadPlaylists } = useSongProcessing();
@@ -59,8 +66,6 @@ export default function CreateBracketModal({ showModal, setShowModal }) {
           <Tabs
             defaultValue="artist"
             onValueChange={(value) => {
-              // const searchbar = document.getElementById("searchbar");
-              // if (searchbar) searchbar.focus();
               mixpanel.track("Click Tab", { "Tab Group": "Create Bracket", Tab: camelCaseToTitleCase(value) });
             }}
           >
@@ -72,10 +77,10 @@ export default function CreateBracketModal({ showModal, setShowModal }) {
             <Separator className="my-3" />
             <TabsContent value="artist">
               <ArtistSearchBar
-                id="searchbar"
                 setArtist={(artist) => {
                   createBracket({ type: "artist", artist: artist });
                 }}
+                ref={searchBarRef}
               />
             </TabsContent>
             <TabsContent value="playlist">
@@ -88,12 +93,12 @@ export default function CreateBracketModal({ showModal, setShowModal }) {
               )}
               {isSuccess && (
                 <UserPlaylistSearchBar
-                  id="searchbar"
                   setPlaylist={(playlist) => {
                     console.debug("Selected playlist:", playlist);
                     createBracket({ type: "playlist", playlist: playlist });
                   }}
                   allPlaylists={userPlaylists}
+                  ref={searchBarRef}
                 />
               )}
             </TabsContent>
