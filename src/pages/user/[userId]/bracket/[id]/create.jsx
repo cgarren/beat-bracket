@@ -33,6 +33,7 @@ import { UserInfoContext } from "../../../../../context/UserInfoContext";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../../../../../components/ui/accordion";
 
 export default function App({ params, location }) {
+  const maxBracketSize = 512;
   const [seedingMethod, setSeedingMethod] = useState("popularity");
   const [inclusionMethod, setInclusionMethod] = useState("popularity");
   const [limit, setLimit] = useState(32);
@@ -96,7 +97,7 @@ export default function App({ params, location }) {
     return tracks;
   }, [bracket]);
 
-  const hardLimit = allTracks?.length > 512 ? 512 : allTracks?.length;
+  const hardLimit = allTracks?.length > maxBracketSize ? maxBracketSize : allTracks?.length;
 
   const trackedProps = useMemo(
     () => ({
@@ -399,6 +400,8 @@ export default function App({ params, location }) {
               showBracket={showBracket}
               limit={limit}
               hardLimit={hardLimit}
+              totalTracks={allTracks?.length}
+              maxBracketSize={maxBracketSize}
               seedingChange={seedingChange}
               seedingMethod={seedingMethod}
               inclusionChange={inclusionChange}
