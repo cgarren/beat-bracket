@@ -51,8 +51,8 @@ export default function SongButton({
       {/* Test code for songs where the artist is featured */}
       {/* {song ? (
         <div className="border-0 p-0 text-black absolute -top-[50%] -left-[2] z-50">{song.feature ? "Yes" : "No"}</div>
-      ) : null}
-      {actionButton} */}
+      ) : null} */}
+      {actionButton}
       <div
         className={cx(
           "flex",
