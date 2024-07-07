@@ -291,6 +291,7 @@ export default function useSongProcessing() {
   const getArtistTracks = useCallback(
     async (artistId) => {
       const tracks = await loadAlbums(
+        // could also include appears_on
         `artists/${artistId}/albums?include_groups=album,single,compilation&limit=20`,
         artistId,
       );
