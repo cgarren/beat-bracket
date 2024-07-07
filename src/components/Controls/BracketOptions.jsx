@@ -16,6 +16,7 @@ export default function BracketOptions({
   seedingMethod,
   inclusionChange,
   inclusionMethod,
+  maxBracketSize,
   // playbackChange,
   // playbackEnabled,
   startBracket,
@@ -38,7 +39,9 @@ export default function BracketOptions({
           {(hardLimit >= 64 || limit === 64) && <SelectItem value="64">64</SelectItem>}
           {(hardLimit >= 128 || limit === 128) && <SelectItem value="128">128</SelectItem>}
           {(hardLimit >= 256 || limit === 256) && <SelectItem value="256">256</SelectItem>}
-          {Math.log2(hardLimit) % 1 !== 0 && <SelectItem value={String(hardLimit)}>{`Max (${hardLimit})`}</SelectItem>}
+          {(Math.log2(hardLimit) % 1 !== 0 || hardLimit === maxBracketSize) && (
+            <SelectItem value={String(hardLimit)}>{`Max (${hardLimit})`}</SelectItem>
+          )}
         </BracketOptionsSelect>
         {limit !== hardLimit && (
           <BracketOptionsSelect

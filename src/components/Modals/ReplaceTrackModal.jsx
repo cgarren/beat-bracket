@@ -1,6 +1,7 @@
 import React, { useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import SearchBar from "../Search/SearchBar";
+import defaultPlaylistImage from "../../assets/images/defaultPlaylistImage.png";
 
 export default function ReplaceTrackModal({
   replacementTracks,
@@ -12,12 +13,12 @@ export default function ReplaceTrackModal({
   const searchSuggestions = useCallback(
     async (searchText) => {
       const templist = [];
-      replacementTracks.forEach((track) => {
-        if (track.name.toLowerCase().includes(searchText.toLowerCase())) {
+      replacementTracks.forEach((track, i) => {
+        if (`${track.name} ${track.artist}`.toLowerCase().includes(searchText.toLowerCase())) {
           templist.push({
             name: `${track.name}${showSongInfo ? ` by ${track.artist}` : ""}`,
-            art: track.art,
-            id: track.id,
+            art: track.art ?? defaultPlaylistImage,
+            id: track?.id ?? i,
             onClick: () => {
               handleReplacement(track);
               setShowModal(false);

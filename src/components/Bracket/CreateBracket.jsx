@@ -55,7 +55,7 @@ export default function CreateBracket({
         "New Song Id": newSong.id,
         "New Song Name": newSong.name,
       });
-      const newColor = await getColorsFromImage(newSong.art);
+      const newColor = newSong?.art && (await getColorsFromImage(newSong.art));
       modifyBracket(
         [
           [id, "song", newSong],
