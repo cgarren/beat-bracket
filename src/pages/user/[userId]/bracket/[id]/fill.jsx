@@ -48,8 +48,7 @@ export default function App({ params, location }) {
   // Constants
   // const localSaveKey = "savedBracket";
 
-  const { data: ownerData } = useUserInfo(params.userId);
-  const ownerInfo = ownerData?.data;
+  const { data: { data: ownerInfo } = { data: {} } } = useUserInfo(params.userId) || {};
 
   const owner = useMemo(
     () => ({ name: ownerInfo?.display_name, id: params.userId }),

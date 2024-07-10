@@ -35,7 +35,7 @@ export default function App({ params, location }) {
   const { getNumberOfColumns } = useBracketGeneration();
   const { share } = useShareBracket(location.href);
 
-  const { data: ownerInfo } = useUserInfo(params.userId);
+  const { data: { data: ownerInfo } = { data: {} } } = useUserInfo(params.userId) || {};
 
   const owner = useMemo(
     () => ({ name: ownerInfo?.display_name, id: params.userId }),
