@@ -174,7 +174,12 @@ export default function App({ params, location }) {
   return (
     <Layout noChanges={() => true} path={location.pathname} pageName="View Bracket" trackedProps={trackedProps}>
       <div className="text-center">
-        <BracketHeader songSource={songSource} owner={owner} template={template} bracketTracks={bracketTracks} />
+        <BracketHeader
+          songSource={songSource}
+          owner={{ name: owner?.name ?? loadedBracket.ownerUsername, id: owner?.id }}
+          template={template}
+          bracketTracks={bracketTracks}
+        />
         {bracketWinner && (
           <BracketWinnerInfo
             bracketWinner={bracketWinner}
