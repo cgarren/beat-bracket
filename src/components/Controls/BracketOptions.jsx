@@ -47,7 +47,7 @@ export default function BracketOptions({
               // )
             );
           })}
-          {(Math.log2(hardLimit) % 1 !== 0 || totalTracks === maxBracketSize || totalTracks === limit) && (
+          {(Math.log2(hardLimit) % 1 !== 0 || totalTracks === maxBracketSize || totalTracks === hardLimit) && (
             <SelectItem value={String(hardLimit)}>{`Max (${hardLimit})`}</SelectItem>
           )}
         </BracketOptionsSelect>
