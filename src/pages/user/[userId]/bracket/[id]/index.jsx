@@ -35,7 +35,7 @@ export default function App({ params, location }) {
   const { getNumberOfColumns } = useBracketGeneration();
   const { share } = useShareBracket(location.href);
 
-  const { data: ownerInfo } = useUserInfo(params.userId);
+  const { data: ownerInfo = {} } = useUserInfo(params.userId)?.data || {};
 
   const owner = useMemo(
     () => ({ name: ownerInfo?.display_name, id: params.userId }),
@@ -174,7 +174,12 @@ export default function App({ params, location }) {
   return (
     <Layout noChanges={() => true} path={location.pathname} pageName="View Bracket" trackedProps={trackedProps}>
       <div className="text-center">
-        <BracketHeader songSource={songSource} owner={owner} template={template} bracketTracks={bracketTracks} />
+        <BracketHeader
+          songSource={songSource}
+          owner={{ name: owner?.name ?? loadedBracket.ownerUsername, id: owner?.id }}
+          template={template}
+          bracketTracks={bracketTracks}
+        />
         {bracketWinner && (
           <BracketWinnerInfo
             bracketWinner={bracketWinner}
