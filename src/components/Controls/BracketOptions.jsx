@@ -17,6 +17,7 @@ export default function BracketOptions({
   inclusionChange,
   inclusionMethod,
   maxBracketSize,
+  totalTracks,
   // playbackChange,
   // playbackEnabled,
   startBracket,
@@ -33,17 +34,24 @@ export default function BracketOptions({
           disabled={!showBracket}
           minWidth="min-w-[80px]"
         >
-          {(hardLimit >= 8 || limit === 8) && <SelectItem value="8">8</SelectItem>}
-          {(hardLimit >= 16 || limit === 16) && <SelectItem value="16">16</SelectItem>}
-          {(hardLimit >= 32 || limit === 32) && <SelectItem value="32">32</SelectItem>}
-          {(hardLimit >= 64 || limit === 64) && <SelectItem value="64">64</SelectItem>}
-          {(hardLimit >= 128 || limit === 128) && <SelectItem value="128">128</SelectItem>}
-          {(hardLimit >= 256 || limit === 256) && <SelectItem value="256">256</SelectItem>}
-          {(Math.log2(hardLimit) % 1 !== 0 || hardLimit === maxBracketSize) && (
+          {/* generate the below code (for select options) automatically */}
+
+          {Array.from({ length: Math.log2(maxBracketSize) }, (_, i) => {
+            const value = Math.pow(2, i + 3);
+            if (value > maxBracketSize || value >= totalTracks) return null;
+            return (
+              // (hardLimit >= value || limit === value) && (
+              <SelectItem key={value} value={String(value)}>
+                {value}
+              </SelectItem>
+              // )
+            );
+          })}
+          {(Math.log2(hardLimit) % 1 !== 0 || totalTracks === maxBracketSize || totalTracks === limit) && (
             <SelectItem value={String(hardLimit)}>{`Max (${hardLimit})`}</SelectItem>
           )}
         </BracketOptionsSelect>
-        {limit !== hardLimit && (
+        {limit !== totalTracks && (
           <BracketOptionsSelect
             label="Songs to include"
             value={inclusionMethod}
