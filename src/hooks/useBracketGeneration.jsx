@@ -2,8 +2,10 @@
 import Vibrant from "node-vibrant";
 import { useCallback } from "react";
 import { nearestGreaterPowerOf2, objectIsEmpty } from "../utils/helpers";
+import useSongProcessing from "./useSongProcessing";
 
 export default function useBracketGeneration() {
+  const { sortTracks, arrangeSeeds, seedBracket } = useSongProcessing();
   // Function to get the prominent colors from an image
   const getColorsFromImage = useCallback(async (image) => {
     // const color = await new FastAverageColor().getColorAsync(image)
@@ -154,10 +156,51 @@ export default function useBracketGeneration() {
     return null;
   }, []);
 
+  const changeBracket = useCallback(
+    async (allTracks, limit, seedingMethod, inclusionMethod) => {
+      const greaterPower = nearestGreaterPowerOf2(limit);
+
+      // sort the list by inclusion method
+      let newAllTracks = await sortTracks(allTracks, inclusionMethod);
+
+      // limit the list to the selected limit
+      newAllTracks = newAllTracks.slice(0, limit);
+
+      // sort the list by seeding method
+      newAllTracks = await sortTracks(newAllTracks, seedingMethod);
+
+      // add seed numbers
+      newAllTracks = newAllTracks.map((track, index) => {
+        const newTrack = { ...track, seed: index + 1 };
+        return newTrack;
+      });
+
+      // calculate the number of tracks to use for the base bracket, before byes
+      const numTracks = Number(limit) === greaterPower ? limit : greaterPower;
+
+      // fill in the bracket with byes
+      for (let i = newAllTracks.length; i < numTracks; i += 1) {
+        newAllTracks.push({ seed: i + 1 });
+      }
+
+      // arrange the seeds
+      newAllTracks = await arrangeSeeds(newAllTracks);
+
+      if (newAllTracks?.length > 0) {
+        // create the bracket and relate songs
+        const temp = await fillBracket(newAllTracks, getNumberOfColumns(newAllTracks.length));
+        return temp;
+      }
+      return null;
+    },
+    [sortTracks, seedBracket, fillBracket, getNumberOfColumns],
+  );
+
   return {
     fillBracket,
     getNumberOfColumns,
     getNumberOfSongs,
     getColorsFromImage,
+    changeBracket,
   };
 }

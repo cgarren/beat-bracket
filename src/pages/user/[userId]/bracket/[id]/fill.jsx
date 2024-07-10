@@ -41,7 +41,7 @@ export default function App({ params, location }) {
   // Hooks
   const { isCurrentUser } = useAuthentication();
   const { updatePreviewUrls } = useSongProcessing();
-  const { getNumberOfColumns, fillBracket } = useBracketGeneration();
+  const { getNumberOfColumns, fillBracket, changeBracket: generateBracket } = useBracketGeneration();
   const queryClient = useQueryClient();
   const { share } = useShareBracket(location.href);
 
@@ -357,8 +357,15 @@ export default function App({ params, location }) {
       // update preview urls
       loadedTemplate.tracks = await updatePreviewUrls(loadedTemplate.tracks);
 
-      // fill bracket with template tracks
-      const filledBracket = await fillBracket(loadedTemplate.tracks, getNumberOfColumns(loadedTemplate.tracks.length));
+      const newBracket = await generateBracket(
+        loadedTemplate.tracks,
+        loadedTemplate.tracks.length,
+        templateData.seedingMethod,
+        templateData.inclusionMethod,
+      );
+
+      // // fill bracket with template tracks
+      // const newBracket = await fillBracket(loadedTemplate.tracks, getNumberOfColumns(loadedTemplate.tracks.length));
 
       // create bracket and set it up for the user to fill
       createBracketMutation({
@@ -366,7 +373,7 @@ export default function App({ params, location }) {
         ownerUsername: ownerUsername,
         templateId: loadedTemplate.id,
         templateOwnerId: loadedTemplate.ownerId,
-        bracketData: Object.fromEntries(filledBracket),
+        bracketData: Object.fromEntries(newBracket),
       });
     },
     [getTemplate, createBracketMutation, fillBracket, getNumberOfColumns, updatePreviewUrls],
