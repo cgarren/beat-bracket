@@ -33,7 +33,7 @@ import { UserInfoContext } from "../../../../../context/UserInfoContext";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../../../../../components/ui/accordion";
 
 export default function App({ params, location }) {
-  const maxBracketSize = 512;
+  const maxBracketSize = 256;
   const [seedingMethod, setSeedingMethod] = useState("popularity");
   const [inclusionMethod, setInclusionMethod] = useState("popularity");
   const [limit, setLimit] = useState(32);
