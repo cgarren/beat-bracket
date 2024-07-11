@@ -48,7 +48,7 @@ export default function App({ params, location }) {
   // Constants
   // const localSaveKey = "savedBracket";
 
-  const { data: ownerInfo = {} } = useUserInfo(params.userId)?.data || {};
+  const { data: { data: ownerInfo = {} } = {}, isPending: ownerPending = false } = useUserInfo(params.userId) || {};
 
   const owner = useMemo(
     () => ({ name: ownerInfo?.display_name, id: params.userId }),
@@ -71,7 +71,7 @@ export default function App({ params, location }) {
     refetchOnWindowFocus: false,
     staleTime: 3600000,
     meta: {
-      errorMessage: creationPossible ? false : "Error loading bracket",
+      errorMessage: creationPossible || ownerPending ? false : "Error loading bracket",
     },
     retry: (failureCount, error) => error?.cause?.code !== 404 && failureCount < 3,
   });
