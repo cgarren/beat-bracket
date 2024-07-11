@@ -56,7 +56,7 @@ export default function App({ params, location }) {
   );
 
   const creationPossible = useMemo(
-    () => location?.state?.template && owner?.name && owner.id && params?.id,
+    () => Boolean(location?.state?.template && owner?.name && owner.id && params?.id),
     [location?.state, owner?.name, owner.id, params?.id],
   );
 
