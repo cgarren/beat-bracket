@@ -361,8 +361,8 @@ export default function App({ params, location }) {
       const newBracket = await generateBracket(
         loadedTemplate.tracks,
         loadedTemplate.tracks.length,
-        templateData.seedingMethod,
-        templateData.inclusionMethod,
+        loadedTemplate.seedingMethod,
+        loadedTemplate.inclusionMethod,
       );
 
       // // fill bracket with template tracks
