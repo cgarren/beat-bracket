@@ -112,6 +112,7 @@ export default function App({ params, location }) {
     isPending: creationPending,
     mutate: createBracketMutation,
     isError: creationFailure,
+    error: creationError,
   } = useMutation({
     mutationFn: async (creationObject) => {
       await createBracket(creationObject);
@@ -470,10 +471,10 @@ export default function App({ params, location }) {
     return (
       <Layout noChanges={() => true} path={location.pathname} pageName="Fill Bracket">
         <div className="inline-flex justify-center flex-col">
-          <div className="font-bold mb-2">Error creating bracket</div>
           <Button
             onClick={() => initializeBracketFromTemplate(location.state.template, params.id, owner.name)}
             variant="secondary"
+            className="mt-2"
           >
             Retry
           </Button>
