@@ -471,6 +471,8 @@ export default function App({ params, location }) {
     return (
       <Layout noChanges={() => true} path={location.pathname} pageName="Fill Bracket">
         <div className="inline-flex justify-center flex-col">
+          <div className="font-bold text-red-500">Error creating bracket!</div>
+          Error message: {creationError?.message()}
           <Button
             onClick={() => initializeBracketFromTemplate(location.state.template, params.id, owner.name)}
             variant="secondary"
