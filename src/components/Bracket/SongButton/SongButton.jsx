@@ -125,7 +125,7 @@ export default function SongButton({
         )}
         {song?.preview_url && !disabled && (
           // eslint-disable-next-line jsx-a11y/media-has-caption
-          <audio src={song.preview_url} className="hidden" ref={audioRef} />
+          <audio src={disabled ? "" : song.preview_url} className="hidden" ref={audioRef} preload="none" />
         )}
       </div>
     </div>
