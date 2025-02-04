@@ -97,11 +97,12 @@ export default function useSongProcessing() {
     }
   }, []);
 
+  // function to update the preview urls of all tracks that don't have them
   const updatePreviewUrls = useCallback(
     async (trackList) =>
       Promise.all(
         trackList.map(async (track) => {
-          if (!track.preview_url) {
+          if (!track?.preview_url && track?.id) {
             const response = await axiosInstance.get(`tracks/${track.id}`);
             const trackData = response.data;
             return { ...track, preview_url: trackData.preview_url };
