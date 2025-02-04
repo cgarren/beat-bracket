@@ -82,6 +82,7 @@ export default function App({ params, location }) {
     if (loadedBracket?.bracketData) {
       let mymap = new Map(Object.entries(loadedBracket.bracketData));
       mymap = new Map([...mymap].sort(bracketSorter));
+      console.log("test");
       return mymap;
     }
     return null;
