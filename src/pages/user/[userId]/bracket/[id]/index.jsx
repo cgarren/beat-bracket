@@ -17,7 +17,6 @@ import BracketWinnerInfo from "../../../../../components/Bracket/BracketWinnerIn
 import LoadingIndicator from "../../../../../components/LoadingIndicator";
 // Hooks
 import useBracketGeneration from "../../../../../hooks/useBracketGeneration";
-import useSongProcessing from "../../../../../hooks/useSongProcessing";
 import useAuthentication from "../../../../../hooks/useAuthentication";
 import useUserInfo from "../../../../../hooks/useUserInfo";
 import useShareBracket from "../../../../../hooks/useShareBracket";
@@ -143,12 +142,12 @@ export default function App({ params, location }) {
   // DUPLICATE
 
   const duplicateBracket = useCallback(async () => {
-    if (template?.id && template?.ownerId && userInfo?.id) {
+    if (template?.id && template?.ownerId && userInfo?.id && bracket) {
       console.log("Getting things ready to duplicate...");
       // update template tracks with seed numbers and new preview urls
       const tracks = [];
       bracket.forEach((value) => {
-        if (value.col === 0) {
+        if (value.col === 0 && value.seed !== undefined) {
           tracks.push({ ...value.song, seed: value.seed });
         }
       });
