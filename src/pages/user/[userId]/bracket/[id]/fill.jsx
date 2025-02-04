@@ -41,7 +41,7 @@ export default function App({ params, location }) {
   // Hooks
   const { isCurrentUser } = useAuthentication();
   const { updatePreviewUrls } = useSongProcessing();
-  const { getNumberOfColumns, fillBracket } = useBracketGeneration();
+  const { getNumberOfColumns, fillBracket, changeBracket: generateBracket } = useBracketGeneration();
   const queryClient = useQueryClient();
   const { share } = useShareBracket(location.href);
 
@@ -345,58 +345,68 @@ export default function App({ params, location }) {
   const initializeBracketFromTemplate = useCallback(
     async (templateData, newBracketId, ownerUsername) => {
       console.debug("Creating new bracket from template...", templateData);
-      // load template from backend
-      const loadedTemplate = templateData;
-      // try {
-      //   loadedTemplate = await getTemplate(templateData.id, templateData.ownerId);
-      // } catch (e) {
-      //   toast.error("Error loading template bracket!");
-      //   console.error(e);
-      //   return;
-      // }
-      // log template details
-      console.debug("Loaded template:", loadedTemplate);
 
-      // update preview urls
-      // loadedTemplate.tracks = await updatePreviewUrls(loadedTemplate.tracks);
-
-      // const newBracket = await generateBracket(
-      //   loadedTemplate.tracks,
-      //   loadedTemplate.tracks.length,
-      //   loadedTemplate.seedingMethod,
-      //   loadedTemplate.inclusionMethod,
-      // );
-
-      console.log("Template tracks", loadedTemplate.tracks);
-
-      const seededTracks = new Array(loadedTemplate.tracks.length);
-
-      // rearrange tracks based on seed number
-      loadedTemplate.tracks.forEach((track) => {
-        if (!track?.seed) {
-          console.error("Invalid template: Seed number missing. Problematic track:", track);
-          toast.error("Error duplicating bracket");
-          seededTracks.fill(null);
+      let newBracket;
+      // check to see if we have an incoming list of tracks with seeds. If not, we have to get the bracket info from the backend
+      if (templateData.tracks.length === 0) {
+        let loadedTemplate;
+        try {
+          loadedTemplate = await getTemplate(templateData.id, templateData.ownerId);
+        } catch (e) {
+          toast.error("Error loading template bracket!");
+          console.error(e);
           return;
         }
-        if (track.seed > seededTracks.length) {
-          console.error("Seed number too high!");
-          return;
-        }
-        seededTracks[track.seed - 1] = track;
-      });
 
-      console.log("seededTracks", seededTracks);
+        // log template details
+        console.debug("Loaded template:", loadedTemplate);
 
-      const switchedTracks = [
-        ...loadedTemplate.tracks.slice(0, loadedTemplate.tracks.length / 2),
-        ...loadedTemplate.tracks.slice(loadedTemplate.tracks.length / 2),
-      ];
+        // update preview urls
+        // loadedTemplate.tracks = await updatePreviewUrls(loadedTemplate.tracks);
 
-      console.log("switchedTracks", switchedTracks);
+        const switchedTracks = [
+          ...loadedTemplate.tracks.slice(0, loadedTemplate.tracks.length / 2),
+          ...loadedTemplate.tracks.slice(loadedTemplate.tracks.length / 2),
+        ];
 
-      const newBracket = await fillBracket(switchedTracks, getNumberOfColumns(switchedTracks.length));
+        newBracket = await generateBracket(
+          switchedTracks,
+          switchedTracks.length,
+          loadedTemplate.seedingMethod,
+          loadedTemplate.inclusionMethod,
+        );
+      } else {
+        console.log("Template tracks", templateData.tracks);
 
+        const seededTracks = new Array(templateData.tracks.length);
+
+        // rearrange tracks based on seed number
+        templateData.tracks.forEach((track) => {
+          if (!track?.seed) {
+            console.error("Invalid template: Seed number missing. Problematic track:", track);
+            toast.error("Error duplicating bracket");
+            seededTracks.fill(null);
+            return;
+          }
+          if (track.seed > seededTracks.length) {
+            console.error("Seed number too high!");
+            toast.error("Error duplicating bracket");
+            return;
+          }
+          seededTracks[track.seed - 1] = track;
+        });
+
+        // console.log("seededTracks", seededTracks);
+
+        const switchedTracks = [
+          ...templateData.tracks.slice(0, templateData.tracks.length / 2),
+          ...templateData.tracks.slice(templateData.tracks.length / 2),
+        ];
+
+        // console.log("switchedTracks", switchedTracks);
+
+        newBracket = await fillBracket(switchedTracks, getNumberOfColumns(switchedTracks.length));
+      }
       // // fill bracket with template tracks
       // const newBracket = await fillBracket(loadedTemplate.tracks, getNumberOfColumns(loadedTemplate.tracks.length));
 
@@ -404,8 +414,8 @@ export default function App({ params, location }) {
       createBracketMutation({
         bracketId: newBracketId,
         ownerUsername: ownerUsername,
-        templateId: loadedTemplate.id,
-        templateOwnerId: loadedTemplate.ownerId,
+        templateId: templateData.id,
+        templateOwnerId: templateData.ownerId,
         bracketData: Object.fromEntries(newBracket),
       });
     },
