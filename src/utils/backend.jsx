@@ -48,6 +48,10 @@ export async function deleteBracket(id) {
   await axiosInstance.delete("bracket", { includeAuth: true, params: { id: id } });
 }
 
+export async function updateTemplate(id, updateObject) {
+  await axiosInstance.patch("template", updateObject, { includeAuth: true, params: { id: id } });
+}
+
 // const updateBracket = useCallback(
 //   async (id, updateObject) => {
 //     await loadBackendRequest(
