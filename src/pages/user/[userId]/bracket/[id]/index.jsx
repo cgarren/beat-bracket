@@ -142,13 +142,30 @@ export default function App({ params, location }) {
   // DUPLICATE
 
   const duplicateBracket = useCallback(async () => {
-    if (template?.id && template?.ownerId && userInfo?.id) {
+    if (template?.id && template?.ownerId && userInfo?.id && bracket) {
+      console.log("Getting things ready to duplicate...");
+      // update template tracks with seed numbers and new preview urls
+      const tracks = [];
+      bracket.forEach((value) => {
+        if (value.col === 0 && value.seed !== undefined) {
+          tracks.push({ ...value.song, seed: value.seed });
+        }
+      });
+      console.log("Tracks to duplicate:", tracks);
+
+      // update template with new preview urls IF the user owns the template (never true for now)
+      // if (!isCurrentUser(template.ownerId)) {
+      //   const updatedTracks = await updatePreviewUrls(tracks);
+      //   console.log("Tracks updated with preview urls:", updatedTracks);
+      //   await updateTemplate(template.id, { tracks: updatedTracks });
+      // }
+
       // generate new bracket id
       const uuid = uuidv4();
       console.debug(`Create New Bracket with id: ${uuid}`);
 
       // navigate to new bracket page
-      openBracket(uuid, userInfo.id, "fill", { template: template });
+      openBracket(uuid, userInfo.id, "fill", { template: { ...template, tracks: tracks } });
     } else {
       toast.error("Error duplicating bracket");
       console.error("Error duplicating bracket. Something is wrong with the template:", template);

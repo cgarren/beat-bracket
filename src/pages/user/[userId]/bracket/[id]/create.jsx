@@ -43,8 +43,8 @@ export default function App({ params, location }) {
   const [playbackEnabled] = useState(true);
 
   const { isCurrentUser } = useAuthentication();
-  const { seedBracket, sortTracks, getArtistTracks, getPlaylistTracks, arrangeSeeds } = useSongProcessing();
-  const { getNumberOfColumns, fillBracket } = useBracketGeneration();
+  const { getArtistTracks, getPlaylistTracks } = useSongProcessing();
+  const { changeBracket: changeBracketGeneric } = useBracketGeneration();
 
   const mixpanel = useContext(MixpanelContext);
   const userInfo = useContext(UserInfoContext);
@@ -165,43 +165,16 @@ export default function App({ params, location }) {
       customSeedingMethod = seedingMethod,
       customInclusionMethod = inclusionMethod,
     ) => {
-      const greaterPower = nearestGreaterPowerOf2(customLimit);
-
-      // sort the list by inclusion method
-      let newCustomAllTracks = await sortTracks(customAllTracks, customInclusionMethod);
-
-      // limit the list to the selected limit
-      newCustomAllTracks = newCustomAllTracks.slice(0, customLimit);
-
-      // sort the list by seeding method
-      newCustomAllTracks = await sortTracks(newCustomAllTracks, customSeedingMethod);
-
-      // add seed numbers
-      newCustomAllTracks = newCustomAllTracks.map((track, index) => {
-        const newTrack = { ...track, seed: index + 1 };
-        return newTrack;
-      });
-
-      // calculate the number of tracks to use for the base bracket, before byes
-      const numTracks = Number(customLimit) === greaterPower ? customLimit : greaterPower;
-
-      // fill in the bracket with byes
-      for (let i = newCustomAllTracks.length; i < numTracks; i += 1) {
-        newCustomAllTracks.push({ seed: i + 1 });
-      }
-
-      // arrange the seeds
-      newCustomAllTracks = await arrangeSeeds(newCustomAllTracks);
-
-      if (newCustomAllTracks?.length > 0) {
-        // create the bracket and relate songs
-        const temp = await fillBracket(newCustomAllTracks, getNumberOfColumns(newCustomAllTracks.length));
-        setBracket(temp);
-        return temp;
-      }
-      return null;
+      const newBracket = await changeBracketGeneric(
+        customAllTracks,
+        customLimit,
+        customSeedingMethod,
+        customInclusionMethod,
+      );
+      setBracket(newBracket);
+      return newBracket;
     },
-    [allTracks, limit, seedingMethod, inclusionMethod, sortTracks, seedBracket, fillBracket, getNumberOfColumns],
+    [allTracks, limit, seedingMethod, inclusionMethod, changeBracketGeneric, setBracket],
   );
 
   useEffect(() => {

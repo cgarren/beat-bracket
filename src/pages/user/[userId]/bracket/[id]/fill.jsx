@@ -41,14 +41,16 @@ export default function App({ params, location }) {
   // Hooks
   const { isCurrentUser } = useAuthentication();
   const { updatePreviewUrls } = useSongProcessing();
-  const { getNumberOfColumns, fillBracket } = useBracketGeneration();
+  const { getNumberOfColumns, fillBracket, changeBracket: generateBracket } = useBracketGeneration();
   const queryClient = useQueryClient();
   const { share } = useShareBracket(location.href);
 
   // Constants
   // const localSaveKey = "savedBracket";
 
+  // const { data: { data: ownerInfo = {} } = {}, isPending: ownerPending = false } = useUserInfo(params.userId) || {};
   const { data: ownerInfo = {} } = useUserInfo(params.userId)?.data || {};
+  const { isPending: ownerPending = false } = useUserInfo(params.userId) || {};
 
   const owner = useMemo(
     () => ({ name: ownerInfo?.display_name, id: params.userId }),
@@ -56,7 +58,7 @@ export default function App({ params, location }) {
   );
 
   const creationPossible = useMemo(
-    () => location?.state?.template && owner?.name && owner.id && params?.id,
+    () => Boolean(location?.state?.template && owner?.name && owner.id && params?.id),
     [location?.state, owner?.name, owner.id, params?.id],
   );
 
@@ -71,7 +73,7 @@ export default function App({ params, location }) {
     refetchOnWindowFocus: false,
     staleTime: 3600000,
     meta: {
-      errorMessage: creationPossible ? false : "Error loading bracket",
+      errorMessage: creationPossible || ownerPending ? false : "Error loading bracket",
     },
     retry: (failureCount, error) => error?.cause?.code !== 404 && failureCount < 3,
   });
@@ -112,6 +114,7 @@ export default function App({ params, location }) {
     isPending: creationPending,
     mutate: createBracketMutation,
     isError: creationFailure,
+    error: creationError,
   } = useMutation({
     mutationFn: async (creationObject) => {
       await createBracket(creationObject);
@@ -342,31 +345,78 @@ export default function App({ params, location }) {
   const initializeBracketFromTemplate = useCallback(
     async (templateData, newBracketId, ownerUsername) => {
       console.debug("Creating new bracket from template...", templateData);
-      // load template from backend
-      let loadedTemplate;
-      try {
-        loadedTemplate = await getTemplate(templateData.id, templateData.ownerId);
-      } catch (e) {
-        toast.error("Error loading template bracket!");
-        console.error(e);
-        return;
+
+      let newBracket;
+      // check to see if we have an incoming list of tracks with seeds. If not, we have to get the bracket info from the backend
+      if (templateData.tracks.length === 0) {
+        let loadedTemplate;
+        try {
+          loadedTemplate = await getTemplate(templateData.id, templateData.ownerId);
+        } catch (e) {
+          toast.error("Error loading template bracket!");
+          console.error(e);
+          return;
+        }
+
+        // log template details
+        console.debug("Loaded template:", loadedTemplate);
+
+        // update preview urls
+        // loadedTemplate.tracks = await updatePreviewUrls(loadedTemplate.tracks);
+
+        const switchedTracks = [
+          ...loadedTemplate.tracks.slice(0, loadedTemplate.tracks.length / 2),
+          ...loadedTemplate.tracks.slice(loadedTemplate.tracks.length / 2),
+        ];
+
+        newBracket = await generateBracket(
+          switchedTracks,
+          switchedTracks.length,
+          loadedTemplate.seedingMethod,
+          loadedTemplate.inclusionMethod,
+        );
+      } else {
+        console.log("Template tracks", templateData.tracks);
+
+        const seededTracks = new Array(templateData.tracks.length);
+
+        // rearrange tracks based on seed number
+        templateData.tracks.forEach((track) => {
+          if (!track?.seed) {
+            console.error("Invalid template: Seed number missing. Problematic track:", track);
+            toast.error("Error duplicating bracket");
+            seededTracks.fill(null);
+            return;
+          }
+          if (track.seed > seededTracks.length) {
+            console.error("Seed number too high!");
+            toast.error("Error duplicating bracket");
+            return;
+          }
+          seededTracks[track.seed - 1] = track;
+        });
+
+        // console.log("seededTracks", seededTracks);
+
+        const switchedTracks = [
+          ...templateData.tracks.slice(0, templateData.tracks.length / 2),
+          ...templateData.tracks.slice(templateData.tracks.length / 2),
+        ];
+
+        // console.log("switchedTracks", switchedTracks);
+
+        newBracket = await fillBracket(switchedTracks, getNumberOfColumns(switchedTracks.length));
       }
-      // log template details
-      console.debug("Loaded template:", loadedTemplate);
-
-      // update preview urls
-      loadedTemplate.tracks = await updatePreviewUrls(loadedTemplate.tracks);
-
-      // fill bracket with template tracks
-      const filledBracket = await fillBracket(loadedTemplate.tracks, getNumberOfColumns(loadedTemplate.tracks.length));
+      // // fill bracket with template tracks
+      // const newBracket = await fillBracket(loadedTemplate.tracks, getNumberOfColumns(loadedTemplate.tracks.length));
 
       // create bracket and set it up for the user to fill
       createBracketMutation({
         bracketId: newBracketId,
         ownerUsername: ownerUsername,
-        templateId: loadedTemplate.id,
-        templateOwnerId: loadedTemplate.ownerId,
-        bracketData: Object.fromEntries(filledBracket),
+        templateId: templateData.id,
+        templateOwnerId: templateData.ownerId,
+        bracketData: Object.fromEntries(newBracket),
       });
     },
     [getTemplate, createBracketMutation, fillBracket, getNumberOfColumns, updatePreviewUrls],
@@ -463,10 +513,12 @@ export default function App({ params, location }) {
     return (
       <Layout noChanges={() => true} path={location.pathname} pageName="Fill Bracket">
         <div className="inline-flex justify-center flex-col">
-          <div className="font-bold mb-2">Error creating bracket</div>
+          <div className="font-bold text-red-500">Error creating bracket!</div>
+          Error message: {creationError?.message()}
           <Button
             onClick={() => initializeBracketFromTemplate(location.state.template, params.id, owner.name)}
             variant="secondary"
+            className="mt-2"
           >
             Retry
           </Button>

@@ -167,7 +167,7 @@ export default function Bracket({
   );
 
   const renderArray = useMemo(() => {
-    if (bracket instanceof Map && bracket.size !== 0) {
+    if (bracket instanceof Map && bracketSize !== 0) {
       const columns = getNumberOfColumns(bracketSize);
       const bracketArray = bracket instanceof Map ? Array.from(bracket.entries()) : null;
       const [leftArray] = generateComponentArray("l", columns, bracketArray, bracket);

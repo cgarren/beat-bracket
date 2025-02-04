@@ -2,8 +2,10 @@
 import Vibrant from "node-vibrant";
 import { useCallback } from "react";
 import { nearestGreaterPowerOf2, objectIsEmpty } from "../utils/helpers";
+import useSongProcessing from "./useSongProcessing";
 
 export default function useBracketGeneration() {
+  const { sortTracks, arrangeSeeds, seedBracket } = useSongProcessing();
   // Function to get the prominent colors from an image
   const getColorsFromImage = useCallback(async (image) => {
     // const color = await new FastAverageColor().getColorAsync(image)
@@ -20,9 +22,9 @@ export default function useBracketGeneration() {
   }, []);
 
   const relateSongs = useCallback(
-    async (len, theTracks, col, side, otherSide, oldBracketMap) => {
+    async (colLength, theTracks, col, side, otherSide, oldBracketMap) => {
       const colMap = new Map();
-      for (let i = 0; i < len; i += 1) {
+      for (let i = 0; i < colLength; i += 1) {
         let colorObj = null;
         if (theTracks?.[i]?.art) {
           colorObj = await getColorsFromImage(theTracks[i].art);
@@ -41,8 +43,8 @@ export default function useBracketGeneration() {
         colMap.set(side + col + i, {
           song: song,
           seed: seed,
-          opponentId: len <= 1 ? otherSide + col + 0 : side + col + (i % 2 === 0 ? i + 1 : i - 1),
-          nextId: len <= 1 ? null : side + (col + 1) + Math.floor(i / 2),
+          opponentId: colLength <= 1 ? otherSide + col + 0 : side + col + (i % 2 === 0 ? i + 1 : i - 1),
+          nextId: colLength <= 1 ? null : side + (col + 1) + Math.floor(i / 2),
           previousIds:
             col === 0 ? [] : [side + (col - 1) + Math.ceil(i * 2), side + (col - 1) + (Math.ceil(i * 2) + 1)],
           id: side + col + i,
@@ -106,12 +108,13 @@ export default function useBracketGeneration() {
       let temp = new Map();
 
       while (i < cols) {
-        const len = nearestGreaterPowerOf2(tracks.length) / 2 ** (i + 1);
-        let theTracks = new Array(len);
+        // calculate the number of tracks to use for the current column
+        const colLength = nearestGreaterPowerOf2(tracks.length) / 2 ** (i + 1);
+        let theTracks = new Array(colLength);
         if (i >= cols - 1) {
           if (!repeated) {
             repeated = true;
-            temp = new Map([...(await relateSongs(len, theTracks, i, "r", "l", temp)), ...temp]);
+            temp = new Map([...(await relateSongs(colLength, theTracks, i, "r", "l", temp)), ...temp]);
             forward = false;
             i = 0;
             continue;
@@ -127,10 +130,10 @@ export default function useBracketGeneration() {
         }
 
         if (forward) {
-          temp = new Map([...(await relateSongs(len, theTracks, i, "r", "l", temp)), ...temp]);
+          temp = new Map([...(await relateSongs(colLength, theTracks, i, "r", "l", temp)), ...temp]);
           i += 1;
         } else {
-          temp = new Map([...(await relateSongs(len, theTracks, i, "l", "r", temp)), ...temp]);
+          temp = new Map([...(await relateSongs(colLength, theTracks, i, "l", "r", temp)), ...temp]);
           i += 1;
         }
       }
@@ -154,10 +157,51 @@ export default function useBracketGeneration() {
     return null;
   }, []);
 
+  const changeBracket = useCallback(
+    async (allTracks, limit, seedingMethod, inclusionMethod) => {
+      const greaterPower = nearestGreaterPowerOf2(limit);
+
+      // sort the list by inclusion method
+      let newAllTracks = await sortTracks(allTracks, inclusionMethod);
+
+      // limit the list to the selected limit
+      newAllTracks = newAllTracks.slice(0, limit);
+
+      // sort the list by seeding method
+      newAllTracks = await sortTracks(newAllTracks, seedingMethod);
+
+      // add seed numbers
+      newAllTracks = newAllTracks.map((track, index) => {
+        const newTrack = { ...track, seed: index + 1 };
+        return newTrack;
+      });
+
+      // calculate the number of tracks to use for the base bracket, before byes
+      const numTracks = Number(limit) === greaterPower ? limit : greaterPower;
+
+      // fill in the bracket with byes
+      for (let i = newAllTracks.length; i < numTracks; i += 1) {
+        newAllTracks.push({ seed: i + 1 });
+      }
+
+      // arrange the seeds
+      newAllTracks = await arrangeSeeds(newAllTracks);
+
+      if (newAllTracks?.length > 0) {
+        // create the bracket and relate songs
+        const temp = await fillBracket(newAllTracks, getNumberOfColumns(newAllTracks.length));
+        return temp;
+      }
+      return null;
+    },
+    [sortTracks, seedBracket, fillBracket, getNumberOfColumns],
+  );
+
   return {
     fillBracket,
     getNumberOfColumns,
     getNumberOfSongs,
     getColorsFromImage,
+    changeBracket,
   };
 }

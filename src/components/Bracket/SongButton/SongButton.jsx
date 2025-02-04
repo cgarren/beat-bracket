@@ -48,10 +48,16 @@ export default function SongButton({
 
   return (
     <div className="w-fit">
-      {/* Test code for songs where the artist is featured */}
+      {/* Test code for song feature indicator */}
       {/* {song ? (
         <div className="border-0 p-0 text-black absolute -top-[50%] -left-[2] z-50">{song.feature ? "Yes" : "No"}</div>
       ) : null} */}
+
+      {/* Test code for popularity */}
+      {/* {song ? (
+        <div className="border-0 p-0 text-black absolute -top-[50%] -left-[2] z-50">{song.popularity}</div>
+      ) : null} */}
+
       {actionButton}
       <div
         className={cx(
