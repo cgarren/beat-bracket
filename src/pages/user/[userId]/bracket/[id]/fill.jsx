@@ -88,15 +88,17 @@ export default function App({ params, location }) {
       // throw new Error("Error saving bracket");
     },
     onError: () => {
-      if (lastSaved.saveData) {
-        queryClient.setQueryData(
-          ["backend", "bracket", { bracketId: params.id, userId: owner.id }],
-          lastSaved.saveData,
-        );
-      }
-      if (lastSaved.commands) {
-        setCommands(lastSaved.commands);
-      }
+      // Use these if you want to reset the bracket and undo queue to the last saved state
+      // Caution: there is a bug with this where it doesn't actually reset the visible bracket
+      // if (lastSaved.saveData) {
+      //   queryClient.setQueryData(
+      //     ["backend", "bracket", { bracketId: params.id, userId: owner.id }],
+      //     lastSaved.saveData,
+      //   );
+      // }
+      // if (lastSaved.commands) {
+      //   setCommands(lastSaved.commands);
+      // }
     },
     meta: {
       errorMessage: "Error saving bracket",
