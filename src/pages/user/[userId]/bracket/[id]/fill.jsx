@@ -23,6 +23,7 @@ import useBracketGeneration from "../../../../../hooks/useBracketGeneration";
 import useSongProcessing from "../../../../../hooks/useSongProcessing";
 import useAuthentication from "../../../../../hooks/useAuthentication";
 import useShareBracket from "../../../../../hooks/useShareBracket";
+import useBracketSync from "../../../../../hooks/useBracketSync";
 // Assets
 import ShareIcon from "../../../../../assets/svgs/shareIcon.svg";
 import useUserInfo from "../../../../../hooks/useUserInfo";
@@ -35,8 +36,6 @@ export default function App({ params, location }) {
   // State
   const [commands, setCommands] = useState([]);
   const [currentlyPlayingId, setCurrentlyPlayingId] = useState(null);
-  const [lastSaved, setLastSaved] = useState({ time: 0, commandsLength: 0 });
-  const [savePending, setSavePending] = useState(false);
 
   // Hooks
   const { isCurrentUser } = useAuthentication();
@@ -45,10 +44,6 @@ export default function App({ params, location }) {
   const queryClient = useQueryClient();
   const { share } = useShareBracket(location.href);
 
-  // Constants
-  // const localSaveKey = "savedBracket";
-
-  // const { data: { data: ownerInfo = {} } = {}, isPending: ownerPending = false } = useUserInfo(params.userId) || {};
   const { data: ownerInfo = {} } = useUserInfo(params.userId)?.data || {};
   const { isPending: ownerPending = false } = useUserInfo(params.userId) || {};
 
@@ -61,6 +56,48 @@ export default function App({ params, location }) {
     () => Boolean(location?.state?.template && owner?.name && owner.id && params?.id),
     [location?.state, owner?.name, owner.id, params?.id],
   );
+
+  const {
+    mutate: saveBracketMutation,
+    isError: saveError,
+    isPending: saving,
+  } = useMutation({
+    mutationFn: async (data) => {
+      await updateBracket(params.id, data);
+    },
+    onSettled: async () => {
+      queryClient.invalidateQueries({ queryKey: ["backend", "brackets", { userId: owner.id }] });
+    },
+    meta: {
+      errorMessage: "Error saving bracket",
+    },
+  });
+
+  const {
+    mutate: createBracketMutation,
+    isPending: creationPending,
+    isError: creationFailure,
+    error: creationError,
+  } = useMutation({
+    mutationFn: async (creationObject) => {
+      await createBracket(creationObject);
+    },
+    meta: {
+      errorMessage: "Error creating bracket",
+      successMessage: "Bracket created successfully",
+    },
+    onSettled: async () => {
+      queryClient.invalidateQueries({ queryKey: ["backend", "brackets", { userId: owner.id }] });
+      queryClient.invalidateQueries({ queryKey: ["backend", "bracket", { bracketId: params.id, userId: owner.id }] });
+    },
+  });
+
+  // Add the new bracket sync hook
+  const { saveBracket, recoverFromLocal, syncStatus, syncError } = useBracketSync({
+    bracketId: params.id,
+    ownerId: params.userId,
+    saveMutation: saveBracketMutation,
+  });
 
   const {
     data: loadedBracket,
@@ -76,59 +113,6 @@ export default function App({ params, location }) {
       errorMessage: creationPossible || ownerPending ? false : "Error loading bracket",
     },
     retry: (failureCount, error) => error?.cause?.code !== 404 && failureCount < 3,
-  });
-
-  const {
-    isError: saveError,
-    isPending: saving,
-    mutate: saveBracketMutation,
-  } = useMutation({
-    mutationFn: async (data) => {
-      await updateBracket(params.id, data);
-      // throw new Error("Error saving bracket");
-    },
-    onError: () => {
-      // Use these if you want to reset the bracket and undo queue to the last saved state
-      // Caution: there is a bug with this where it doesn't actually reset the visible bracket
-      // if (lastSaved.saveData) {
-      //   queryClient.setQueryData(
-      //     ["backend", "bracket", { bracketId: params.id, userId: owner.id }],
-      //     lastSaved.saveData,
-      //   );
-      // }
-      // if (lastSaved.commands) {
-      //   setCommands(lastSaved.commands);
-      // }
-    },
-    meta: {
-      errorMessage: "Error saving bracket",
-      // successMessage: "Bracket saved successfully",
-    },
-    onSettled: async (data) => {
-      queryClient.invalidateQueries({ queryKey: ["backend", "brackets", { userId: owner.id }] });
-
-      setLastSaved({ commands: commands, time: Date.now(), saveData: data });
-      setSavePending(false);
-    },
-  });
-
-  const {
-    isPending: creationPending,
-    mutate: createBracketMutation,
-    isError: creationFailure,
-    error: creationError,
-  } = useMutation({
-    mutationFn: async (creationObject) => {
-      await createBracket(creationObject);
-    },
-    meta: {
-      errorMessage: "Error creating bracket",
-      successMessage: "Bracket created successfully",
-    },
-    onSettled: async () => {
-      queryClient.invalidateQueries({ queryKey: ["backend", "brackets", { userId: owner.id }] });
-      queryClient.invalidateQueries({ queryKey: ["backend", "bracket", { bracketId: params.id, userId: owner.id }] });
-    },
   });
 
   const songSource = useMemo(() => {
@@ -285,27 +269,28 @@ export default function App({ params, location }) {
   //   }
   // }
 
-  const saveCurrentBracket = useCallback(() => {
-    if (bracket && bracket.size > 0) {
-      const saveData = queryClient.getQueryData([
-        "backend",
-        "bracket",
-        { bracketId: params.id, userId: owner.id },
-      ])?.bracketData;
-      if (saveData) {
-        // console.log(saveData);
-        setSavePending(true);
-        const newData = { bracketData: saveData, winner: bracketWinner, percentageFilled: percentageFilled };
-        saveBracketMutation(newData);
+  const saveCurrentBracket = useCallback(
+    async (isWinner = false, forceSync = false) => {
+      if (bracket && bracket.size > 0) {
+        const saveData = queryClient.getQueryData([
+          "backend",
+          "bracket",
+          { bracketId: params.id, userId: owner.id },
+        ])?.bracketData;
+        if (saveData) {
+          const newData = { bracketData: saveData, winner: bracketWinner, percentageFilled: percentageFilled };
+          await saveBracket(newData, isWinner, forceSync);
+        }
       }
-    }
-  }, [bracket, bracketWinner, owner.id, params.id, queryClient, saveBracketMutation]);
+    },
+    [bracket, bracketWinner, owner.id, params.id, queryClient, saveBracket, percentageFilled],
+  );
 
   const [, cancel] = useDebounce(
     () => {
-      saveCurrentBracket();
+      saveCurrentBracket(false);
     },
-    4000,
+    1000,
     [bracket],
   );
 
@@ -318,15 +303,14 @@ export default function App({ params, location }) {
         await queryClient.setQueryData(["backend", "bracket", { bracketId: params.id, userId: owner.id }], (oldData) =>
           produce(oldData, (draft) => Object.assign(draft, newData)),
         );
-        setSavePending(true);
+
         if (bracketWinner) {
           cancel();
-          saveBracketMutation(newData);
+          await saveCurrentBracket(true);
         }
-        // console.log(await queryClient.getQueryData(["bracket", { bracketId: params.id, userId: owner.id }]));
       }
     },
-    [bracketWinner, owner.id, params.id, queryClient],
+    [bracketWinner, owner.id, params.id, queryClient, saveCurrentBracket, cancel],
   );
 
   // useEffect(() => {
@@ -461,7 +445,7 @@ export default function App({ params, location }) {
   const noChanges = useCallback(
     (navigateAway) => {
       if (
-        (navigateAway && savePending && commands.length > 0) ||
+        (navigateAway && syncStatus === "syncing" && commands.length > 0) ||
         (!navigateAway && commands.length !== 0 && bracketUnchanged(bracket))
       ) {
         if (window.confirm("You have bracket changes that will be lost! Proceed anyways?")) {
@@ -471,7 +455,7 @@ export default function App({ params, location }) {
       }
       return true;
     },
-    [savePending, commands, bracket],
+    [syncStatus, commands, bracket],
   );
 
   function undo() {
@@ -553,9 +537,9 @@ export default function App({ params, location }) {
         bracketWinner={bracketWinner}
         bracketTracks={bracketTracks}
         songSource={songSource}
-        savePending={savePending}
-        saveError={saveError}
-        retrySave={saveCurrentBracket}
+        savePending={syncStatus === "syncing"}
+        saveError={syncError}
+        retrySave={() => saveCurrentBracket(true, true)}
         viewLink={`/user/${owner.id}/bracket/${params.id}`}
         share={share}
       />
@@ -563,15 +547,15 @@ export default function App({ params, location }) {
       {bracket && songSource && (
         <>
           <div className="text-xs -space-x-px rounded-md sticky mx-auto top-0 w-fit z-30 text-center">
+            {/* <GeneratePlaylistButton tracks={tracks} artist={artist} /> */}
             <div className="flex items-center gap-2">
-              {/* <GeneratePlaylistButton tracks={tracks} artist={artist} /> */}
               <Button onClick={share} variant="secondary" className="flex justify-center gap-1">
                 <ShareIcon />
                 Share
               </Button>
             </div>
             <div className="">{percentageFilled.toFixed(0)}% filled</div>
-            {saving && !saveError && (
+            {syncStatus === "syncing" && !syncError && (
               <div className="absolute left-1/2 -translate-x-1/2 -bottom-1/3 flex items-center gap-1">
                 <div className="animate-spin-reverse w-fit h-fit" aria-label="Saving" title="Saving">
                   <SyncIcon />
@@ -579,10 +563,15 @@ export default function App({ params, location }) {
                 Saving
               </div>
             )}
-            {saveError && (
+            {syncStatus === "local" && !syncError && (
+              <div className="absolute left-1/2 -translate-x-1/2 -bottom-1/3 flex items-center gap-1 text-gray-500">
+                Saved locally
+              </div>
+            )}
+            {syncError && (
               <div className="absolute left-1/2 -translate-x-1/2 top-full translate-y-1.5 flex flex-col items-center gap-1 !text-red-500 !font-bold whitespace-nowrap">
                 Save Error!
-                <Button onClick={saveCurrentBracket} variant="secondary">
+                <Button onClick={() => saveCurrentBracket(false, true)} variant="secondary">
                   Retry
                 </Button>
               </div>
@@ -603,33 +592,7 @@ export default function App({ params, location }) {
   );
 }
 
-export function Head({ params, location }) {
-  // const [name, setName] = useState(null);
-  // const [userName, setUserName] = useState(null);
-
-  // useEffect(() => {
-  //   async function updateTitle() {
-  //     if (params && params.id && params.userId) {
-  //       try {
-  //         const loadedBracket = await getBracket(params.id, params.userId);
-  //         if (loadedBracket && loadedBracket.userName) {
-  //           setUserName(loadedBracket.userName);
-  //           if (loadedBracket.songSource && loadedBracket.songSource.type === "artist") {
-  //             setName(loadedBracket.songSource.artist.name);
-  //           } else if (loadedBracket.songSource && loadedBracket.songSource.type === "playlist") {
-  //             setName(loadedBracket.songSource.playlist.name);
-  //           }
-  //         }
-  //       } catch (error) {
-
-  //       }
-  //     }
-  //   }
-  //   updateTitle();
-  // }, [params]);
-
-  return (
-    // name && userName ? `${name} bracket by ${userName}` : "View/edit bracket"
-    <Seo title="Fill Bracket" pathname={location.pathname} />
-  );
+export function Head({ location }) {
+  // name && userName ? `${name} bracket by ${userName}` : "View/edit bracket"
+  return <Seo title="Fill Bracket" pathname={location.pathname} />;
 }
