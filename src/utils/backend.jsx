@@ -36,20 +36,24 @@ export async function getTemplate(id, ownerId) {
 }
 
 export async function createBracket(bracket) {
-  await axiosInstance.put("bracket", bracket, { includeAuth: true });
+  const response = await axiosInstance.put("bracket", bracket, { includeAuth: true });
   console.debug("Written Bracket:", bracket);
+  return response.data;
 }
 
 export async function updateBracket(id, updateObject) {
-  await axiosInstance.patch("bracket", updateObject, { includeAuth: true, params: { id: id } });
+  const response = await axiosInstance.patch("bracket", updateObject, { includeAuth: true, params: { id: id } });
+  return response.data;
 }
 
 export async function deleteBracket(id) {
-  await axiosInstance.delete("bracket", { includeAuth: true, params: { id: id } });
+  const response = await axiosInstance.delete("bracket", { includeAuth: true, params: { id: id } });
+  return response.data;
 }
 
 export async function updateTemplate(id, updateObject) {
-  await axiosInstance.patch("template", updateObject, { includeAuth: true, params: { id: id } });
+  const response = await axiosInstance.patch("template", updateObject, { includeAuth: true, params: { id: id } });
+  return response.data;
 }
 
 // const updateBracket = useCallback(

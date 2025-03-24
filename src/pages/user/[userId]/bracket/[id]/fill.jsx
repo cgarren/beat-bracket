@@ -57,16 +57,40 @@ export default function App({ params, location }) {
     [location?.state, owner?.name, owner.id, params?.id],
   );
 
+  // Add the bracket sync hook first
   const {
-    mutate: saveBracketMutation,
-    isError: saveError,
-    isPending: saving,
+    saveLocal,
+    shouldSyncToServer,
+    changesSinceSync,
+    lastServerSync,
+    setLastServerSync,
+    setChangesSinceSync,
+    syncStatus,
+    updateSyncStatus,
+  } = useBracketSync({
+    bracketId: params.id,
+    ownerId: params.userId,
+  });
+
+  // Then define the mutation
+  const {
+    mutateAsync: saveBracketToServerMutationAsync,
+    isError: saveErrorToServer,
+    isPending: savingToServer,
   } = useMutation({
     mutationFn: async (data) => {
-      await updateBracket(params.id, data);
+      updateSyncStatus("syncing");
+      const result = await updateBracket(params.id, data);
+      return result;
     },
-    onSettled: async () => {
-      queryClient.invalidateQueries({ queryKey: ["backend", "brackets", { userId: owner.id }] });
+    onSuccess: () => {
+      updateSyncStatus("synced");
+      queryClient.invalidateQueries({
+        queryKey: ["backend", "brackets", { userId: owner.id }],
+      });
+    },
+    onError: () => {
+      updateSyncStatus("error");
     },
     meta: {
       errorMessage: "Error saving bracket",
@@ -90,13 +114,6 @@ export default function App({ params, location }) {
       queryClient.invalidateQueries({ queryKey: ["backend", "brackets", { userId: owner.id }] });
       queryClient.invalidateQueries({ queryKey: ["backend", "bracket", { bracketId: params.id, userId: owner.id }] });
     },
-  });
-
-  // Add the new bracket sync hook
-  const { saveBracket, recoverFromLocal, syncStatus, syncError } = useBracketSync({
-    bracketId: params.id,
-    ownerId: params.userId,
-    saveMutation: saveBracketMutation,
   });
 
   const {
@@ -230,45 +247,6 @@ export default function App({ params, location }) {
     [params.id, owner.name, loadedBracket?.template, songSource, bracketTracks.length],
   );
 
-  // SAVE
-
-  // async function saveBracket(data) {
-  //   // Called on these occasions: on initial bracket load, user clicks save button, user completes bracket
-  //   if (saving !== true && bracket.size > 0) {
-  //     try {
-  //       setSaving(true);
-  //       // write to database and stuff
-  //       console.debug("Saving bracket...");
-  //       await backOff(() => updateBracket(params.id, data), {
-  //         jitter: "full",
-  //         maxDelay: 25000,
-  //         timeMultiple: 5,
-  //         retry: (e) => {
-  //           console.debug(e);
-  //           if (e.cause && e.cause.code === 429) {
-  //             console.debug("429 error! Retrying with delay...", e);
-  //             return true;
-  //           }
-  //           return false;
-  //         },
-  //       });
-  //       console.debug("Bracket Saved");
-  //       // show notification Saved", "success");
-  //       setSaving(false);
-  //       setWaitingToSave(false);
-  //       setLastSaved({ commandsLength: commands.length, time: Date.now() });
-  //     } catch (error) {
-  //       if (error.cause && error.cause.code === 429) {
-  //         toast.error("Error saving bracket! Wait a minute or two and then try making another choice");
-  //       } else {
-  //         toast.error("Error saving bracket! Please try again later");
-  //       }
-  //       setSaving("error");
-  //       setWaitingToSave(false);
-  //     }
-  //   }
-  // }
-
   const saveCurrentBracket = useCallback(
     async (isWinner = false, forceSync = false) => {
       if (bracket && bracket.size > 0) {
@@ -277,13 +255,38 @@ export default function App({ params, location }) {
           "bracket",
           { bracketId: params.id, userId: owner.id },
         ])?.bracketData;
+
         if (saveData) {
-          const newData = { bracketData: saveData, winner: bracketWinner, percentageFilled: percentageFilled };
-          await saveBracket(newData, isWinner, forceSync);
+          // Always save locally first
+          saveLocal({ bracketData: saveData, winner: bracketWinner, percentageFilled });
+
+          // Then sync to server if needed
+          if (forceSync || shouldSyncToServer(isWinner, forceSync)) {
+            try {
+              await saveBracketToServerMutationAsync({
+                bracketData: saveData,
+                winner: bracketWinner,
+                percentageFilled,
+              });
+            } catch (error) {
+              // Let React Query handle retries
+              console.error("Save failed:", error);
+            }
+          }
         }
       }
     },
-    [bracket, bracketWinner, owner.id, params.id, queryClient, saveBracket, percentageFilled],
+    [
+      bracket,
+      bracketWinner,
+      owner.id,
+      params.id,
+      queryClient,
+      saveLocal,
+      shouldSyncToServer,
+      saveBracketToServerMutationAsync,
+      percentageFilled,
+    ],
   );
 
   const [, cancel] = useDebounce(
@@ -538,7 +541,7 @@ export default function App({ params, location }) {
         bracketTracks={bracketTracks}
         songSource={songSource}
         savePending={syncStatus === "syncing"}
-        saveError={syncError}
+        saveError={saveErrorToServer}
         retrySave={() => saveCurrentBracket(true, true)}
         viewLink={`/user/${owner.id}/bracket/${params.id}`}
         share={share}
@@ -554,8 +557,11 @@ export default function App({ params, location }) {
                 Share
               </Button>
             </div>
+            <div className="">
+              {`syncStatus: ${syncStatus}, savingToServer: ${savingToServer}, saveErrorToServer: ${saveErrorToServer}, changesSinceSync: ${changesSinceSync}, lastServerSync: ${lastServerSync}`}
+            </div>
             <div className="">{percentageFilled.toFixed(0)}% filled</div>
-            {syncStatus === "syncing" && !syncError && (
+            {savingToServer && !saveErrorToServer && (
               <div className="absolute left-1/2 -translate-x-1/2 -bottom-1/3 flex items-center gap-1">
                 <div className="animate-spin-reverse w-fit h-fit" aria-label="Saving" title="Saving">
                   <SyncIcon />
@@ -563,12 +569,12 @@ export default function App({ params, location }) {
                 Saving
               </div>
             )}
-            {syncStatus === "local" && !syncError && (
-              <div className="absolute left-1/2 -translate-x-1/2 -bottom-1/3 flex items-center gap-1 text-gray-500">
+            {syncStatus === "local" && !savingToServer && !saveErrorToServer && (
+              <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1 text-gray-500 whitespace-nowrap">
                 Saved locally
               </div>
             )}
-            {syncError && (
+            {syncStatus === "error" && (
               <div className="absolute left-1/2 -translate-x-1/2 top-full translate-y-1.5 flex flex-col items-center gap-1 !text-red-500 !font-bold whitespace-nowrap">
                 Save Error!
                 <Button onClick={() => saveCurrentBracket(false, true)} variant="secondary">

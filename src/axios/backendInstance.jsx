@@ -18,6 +18,7 @@ export const maxBracketsKey = "maxBrackets";
 // axios instance
 const axiosInstance = axios.create({
   baseURL: process.env.GATSBY_BACKEND_URL,
+  timeout: 10000,
 });
 
 // helpers for export
