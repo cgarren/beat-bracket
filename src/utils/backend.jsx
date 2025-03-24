@@ -42,6 +42,7 @@ export async function createBracket(bracket) {
 }
 
 export async function updateBracket(id, updateObject) {
+  // throw new Error("Not implemented");
   const response = await axiosInstance.patch("bracket", updateObject, { includeAuth: true, params: { id: id } });
   return response.data;
 }

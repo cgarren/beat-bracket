@@ -49,7 +49,6 @@ export default function useBracketSync({ bracketId, ownerId }) {
         };
         localStorage.setItem(`bracket_${bracketId}`, JSON.stringify(saveObj));
         setSyncStatus("local");
-        setChangesSinceSync((prev) => prev + 1);
         return true;
       } catch (e) {
         console.error("Error saving to localStorage:", e);

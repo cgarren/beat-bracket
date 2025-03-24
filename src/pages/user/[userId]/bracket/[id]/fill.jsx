@@ -293,7 +293,7 @@ export default function App({ params, location }) {
     () => {
       saveCurrentBracket(false);
     },
-    1000,
+    10,
     [bracket],
   );
 
@@ -306,6 +306,9 @@ export default function App({ params, location }) {
         await queryClient.setQueryData(["backend", "bracket", { bracketId: params.id, userId: owner.id }], (oldData) =>
           produce(oldData, (draft) => Object.assign(draft, newData)),
         );
+
+        // Increment changes counter here, where we know a change has actually happened
+        setChangesSinceSync((prev) => prev + 1);
 
         if (bracketWinner) {
           cancel();
