@@ -23,7 +23,7 @@ import useBracketGeneration from "../../../../../hooks/useBracketGeneration";
 import useSongProcessing from "../../../../../hooks/useSongProcessing";
 import useAuthentication from "../../../../../hooks/useAuthentication";
 import useShareBracket from "../../../../../hooks/useShareBracket";
-import useBracketSync from "../../../../../hooks/useBracketSync";
+import useLocalBracketStorage from "../../../../../hooks/useLocalBracketStorage";
 // Assets
 import ShareIcon from "../../../../../assets/svgs/shareIcon.svg";
 import useUserInfo from "../../../../../hooks/useUserInfo";
@@ -63,11 +63,10 @@ export default function App({ params, location }) {
     shouldSyncToServer,
     changesSinceSync,
     lastServerSync,
-    setLastServerSync,
     setChangesSinceSync,
     syncStatus,
     updateSyncStatus,
-  } = useBracketSync({
+  } = useLocalBracketStorage({
     bracketId: params.id,
     ownerId: params.userId,
   });
@@ -75,8 +74,8 @@ export default function App({ params, location }) {
   // Then define the mutation
   const {
     mutateAsync: saveBracketToServerMutationAsync,
-    isError: saveErrorToServer,
-    isPending: savingToServer,
+    // isError: saveError,
+    // isPending: savingToServer,
   } = useMutation({
     mutationFn: async (data) => {
       updateSyncStatus("syncing");
@@ -288,6 +287,24 @@ export default function App({ params, location }) {
       percentageFilled,
     ],
   );
+
+  // Auto-sync effect - check every 30 seconds if we should sync based on time threshold
+  useEffect(() => {
+    if (!bracket || !changesSinceSync) return undefined;
+
+    console.log("setting timer");
+
+    const timer = setInterval(() => {
+      // Only attempt to sync if we have changes to save
+      if (changesSinceSync > 0 && shouldSyncToServer()) {
+        saveCurrentBracket();
+      }
+    }, 30000); // Check every 30 seconds
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, [bracket, changesSinceSync, shouldSyncToServer, saveCurrentBracket]);
 
   const [, cancel] = useDebounce(
     () => {
@@ -544,7 +561,7 @@ export default function App({ params, location }) {
         bracketTracks={bracketTracks}
         songSource={songSource}
         savePending={syncStatus === "syncing"}
-        saveError={saveErrorToServer}
+        saveError={syncStatus === "error"}
         retrySave={() => saveCurrentBracket(true, true)}
         viewLink={`/user/${owner.id}/bracket/${params.id}`}
         share={share}
@@ -561,10 +578,10 @@ export default function App({ params, location }) {
               </Button>
             </div>
             <div className="">
-              {`syncStatus: ${syncStatus}, savingToServer: ${savingToServer}, saveErrorToServer: ${saveErrorToServer}, changesSinceSync: ${changesSinceSync}, lastServerSync: ${lastServerSync}`}
+              {`syncStatus: ${syncStatus}, changesSinceSync: ${changesSinceSync}, lastServerSync: ${lastServerSync}`}
             </div>
             <div className="">{percentageFilled.toFixed(0)}% filled</div>
-            {savingToServer && !saveErrorToServer && (
+            {syncStatus === "syncing" && (
               <div className="absolute left-1/2 -translate-x-1/2 -bottom-1/3 flex items-center gap-1">
                 <div className="animate-spin-reverse w-fit h-fit" aria-label="Saving" title="Saving">
                   <SyncIcon />
@@ -572,7 +589,7 @@ export default function App({ params, location }) {
                 Saving
               </div>
             )}
-            {syncStatus === "local" && !savingToServer && !saveErrorToServer && (
+            {syncStatus === "local" && (
               <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1 text-gray-500 whitespace-nowrap">
                 Saved locally
               </div>

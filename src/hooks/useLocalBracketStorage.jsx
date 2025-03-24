@@ -5,7 +5,7 @@ const SAVE_THRESHOLDS = {
   TIME: 60000, // Save after 60 seconds
 };
 
-export default function useBracketSync({ bracketId, ownerId }) {
+export default function useLocalBracketStorage({ bracketId, ownerId }) {
   const [lastServerSync, setLastServerSync] = useState(Date.now());
   const [changesSinceSync, setChangesSinceSync] = useState(0);
   const [syncStatus, setSyncStatus] = useState("synced"); // "synced" | "local" | "syncing" | "error"
@@ -96,7 +96,6 @@ export default function useBracketSync({ bracketId, ownerId }) {
     shouldSyncToServer,
     changesSinceSync,
     lastServerSync,
-    setLastServerSync,
     setChangesSinceSync,
     syncStatus,
     updateSyncStatus,
