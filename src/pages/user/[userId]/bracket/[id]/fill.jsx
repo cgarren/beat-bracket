@@ -292,8 +292,6 @@ export default function App({ params, location }) {
   useEffect(() => {
     if (!bracket || !changesSinceSync) return undefined;
 
-    console.log("setting timer");
-
     const timer = setInterval(() => {
       // Only attempt to sync if we have changes to save
       if (changesSinceSync > 0 && shouldSyncToServer()) {
