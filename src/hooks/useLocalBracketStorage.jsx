@@ -48,7 +48,10 @@ export default function useLocalBracketStorage({ bracketId, ownerId }) {
           ownerId,
         };
         localStorage.setItem(`bracket_${bracketId}`, JSON.stringify(saveObj));
-        setSyncStatus("local");
+        // Only set to local if we have changes since last sync
+        if (changesSinceSync > 0) {
+          setSyncStatus("local");
+        }
         return true;
       } catch (e) {
         console.error("Error saving to localStorage:", e);
@@ -67,7 +70,7 @@ export default function useLocalBracketStorage({ bracketId, ownerId }) {
         return false;
       }
     },
-    [bracketId, cleanupOldBrackets, ownerId],
+    [bracketId, cleanupOldBrackets, ownerId, changesSinceSync],
   );
 
   // Check if we should sync to server
