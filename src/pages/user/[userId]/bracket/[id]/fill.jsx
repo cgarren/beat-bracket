@@ -286,15 +286,6 @@ export default function App({ params, location }) {
     [params.id, owner.name, loadedBracket?.template, songSource, bracketTracks.length],
   );
 
-  useEffect(() => {
-    window.onbeforeunload = function () {
-      if (syncStatus !== "synced" && syncStatus !== "local") {
-        return true;
-      }
-      return null;
-    };
-  }, [syncStatus]);
-
   // Check for and resolve local storage data vs server data - only happens once because we mark as complete
   useEffect(() => {
     // Skip if we've already done the comparison or don't have server data
@@ -430,6 +421,17 @@ export default function App({ params, location }) {
       updateSyncStatus,
     ],
   );
+
+  // Save unsaved changes on beforeunload
+  useEffect(() => {
+    window.onbeforeunload = function () {
+      if (syncStatus !== "synced") {
+        setTimeout(() => saveCurrentBracket(true), 0);
+        return true;
+      }
+      return null;
+    };
+  }, [syncStatus]);
 
   const [, cancel] = useDebounce(
     () => {
