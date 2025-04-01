@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 // React
-import React, { useEffect, useState, useMemo, useCallback, useContext, useRef } from "react";
+import React, { useEffect, useState, useMemo, useCallback, useContext } from "react";
 import { useDebounce } from "react-use";
 // Third Party
 import Mousetrap from "mousetrap";
@@ -9,7 +9,7 @@ import toast from "react-hot-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { produce } from "immer";
 // Helpers
-import { bracketSorter, bracketUnchanged, isEdgeSong } from "../../../../../utils/helpers";
+import { bracketSorter, isEdgeSong } from "../../../../../utils/helpers";
 import { updateBracket, getBracket, getTemplate, createBracket } from "../../../../../utils/backend";
 import { openBracket } from "../../../../../utils/impureHelpers";
 // Components
@@ -21,7 +21,6 @@ import BracketCompleteModal from "../../../../../components/Modals/BracketComple
 // Hooks
 import useBracketGeneration from "../../../../../hooks/useBracketGeneration";
 import useSongProcessing from "../../../../../hooks/useSongProcessing";
-import useAuthentication from "../../../../../hooks/useAuthentication";
 import useShareBracket from "../../../../../hooks/useShareBracket";
 import useLocalBracketStorage from "../../../../../hooks/useLocalBracketStorage";
 import useUserInfo from "../../../../../hooks/useUserInfo";
@@ -41,9 +40,6 @@ export default function App({ params, location }) {
   const [isSyncingOnExit, setIsSyncingOnExit] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
   const [dataComparisonComplete, setDataComparisonComplete] = useState(false);
-
-  // Refs for safety timeouts
-  const redirectTimeoutRef = useRef(null);
 
   // Perform direct auth check - do not wait for context to resolve
   const isLoggedIn = useMemo(() => tokensExist(), []);
@@ -95,7 +91,6 @@ export default function App({ params, location }) {
   );
 
   // Hooks - ALL hooks must be called unconditionally
-  const { isCurrentUser } = useAuthentication();
   const { updatePreviewUrls } = useSongProcessing();
   const { getNumberOfColumns, fillBracket, changeBracket: generateBracket } = useBracketGeneration();
   const queryClient = useQueryClient();
@@ -293,6 +288,15 @@ export default function App({ params, location }) {
     [params.id, owner.name, loadedBracket?.template, songSource, bracketTracks.length],
   );
 
+  useEffect(() => {
+    window.onbeforeunload = function () {
+      if (syncStatus !== "synced" && syncStatus !== "local") {
+        return true;
+      }
+      return null;
+    };
+  }, [syncStatus]);
+
   // Define saveCurrentBracket first
   const saveCurrentBracket = useCallback(
     async (forceSync = false) => {
@@ -375,7 +379,7 @@ export default function App({ params, location }) {
     () => {
       cancel();
       console.log("Debounced saveCurrentBracket called");
-      saveCurrentBracket(false);
+      saveCurrentBracket();
     },
     10, // Extend debounce time to 1 second for debugging
     [bracket, dataComparisonComplete],
@@ -651,7 +655,7 @@ export default function App({ params, location }) {
             // Show syncing indicator
             setIsSyncingOnExit(true);
             // Try to save to server first
-            await saveCurrentBracket(false, true);
+            await saveCurrentBracket(true);
             setIsSyncingOnExit(false);
             return true;
           } catch (error) {
@@ -785,7 +789,7 @@ export default function App({ params, location }) {
         songSource={songSource}
         savePending={syncStatus === "syncing"}
         saveError={syncStatus === "error"}
-        retrySave={() => saveCurrentBracket(true, true)}
+        retrySave={() => saveCurrentBracket(true)}
         viewLink={`/user/${owner.id}/bracket/${params.id}`}
         share={share}
       />
@@ -820,7 +824,7 @@ export default function App({ params, location }) {
             {syncStatus === "error" && (
               <div className="absolute left-1/2 -translate-x-1/2 top-full translate-y-1.5 flex flex-col items-center gap-1 !text-red-500 !font-bold whitespace-nowrap">
                 Save Error!
-                <Button onClick={() => saveCurrentBracket(false, true)} variant="secondary">
+                <Button onClick={() => saveCurrentBracket(true)} variant="secondary">
                   Retry
                 </Button>
               </div>
