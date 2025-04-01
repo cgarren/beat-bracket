@@ -233,11 +233,9 @@ export default function App({ params, location }) {
       const left = bracket.get(`l${cols}0`);
       const right = bracket.get(`r${cols}0`);
       if (left && left.winner && left.song) {
-        console.log("Left winner detected", left.song);
         return left.song;
       }
       if (right && right.winner && right.song) {
-        console.log("Right winner detected", right.song);
         return right.song;
       }
     }
@@ -297,135 +295,14 @@ export default function App({ params, location }) {
     };
   }, [syncStatus]);
 
-  // Define saveCurrentBracket first
-  const saveCurrentBracket = useCallback(
-    async (forceSync = false) => {
-      // Only proceed if we're the owner
-      if (!isOwner) return;
-
-      console.log("saveCurrentBracket called", {
-        forceSync,
-        dataComparisonComplete,
-        syncStatus,
-        changesSinceSync,
-      });
-
-      if (bracket && bracket.size > 0) {
-        const saveData = queryClient.getQueryData([
-          "backend",
-          "bracket",
-          { bracketId: params.id, userId: owner.id },
-        ])?.bracketData;
-
-        if (saveData) {
-          // Only save locally if data comparison is already complete or we have a winner or forced sync
-          // This prevents automatic local saves during initial load
-          if (dataComparisonComplete || forceSync) {
-            console.log("Attempting local save");
-            try {
-              saveLocal({ bracketData: saveData, winner: bracketWinner, percentageFilled });
-              // Only update status to "local" after successful save to localStorage
-              console.log("Local save successful, setting syncStatus to 'local'");
-              updateSyncStatus("local");
-            } catch (error) {
-              console.error("Error saving to local storage:", error);
-              // If local storage fails, update status to error
-              updateSyncStatus("error");
-            }
-          } else {
-            console.log("Skipping local save - dataComparison not complete");
-          }
-
-          console.log("bracketWinner", bracketWinner, "forceSync", forceSync);
-          // Then sync to server if needed
-          if (forceSync || shouldSyncToServer(bracketWinner, forceSync)) {
-            try {
-              console.log("Setting syncStatus to 'syncing'");
-              updateSyncStatus("syncing");
-              await saveBracketToServerMutationAsync({
-                bracketData: saveData,
-                winner: bracketWinner,
-                percentageFilled,
-              });
-              // Server sync is handled by the mutation's onSuccess/onError callbacks
-            } catch (error) {
-              // Let React Query handle retries
-              console.error("Save failed:", error);
-            }
-          }
-        }
-      }
-    },
-    [
-      bracket,
-      bracketWinner,
-      owner.id,
-      params.id,
-      queryClient,
-      saveLocal,
-      shouldSyncToServer,
-      saveBracketToServerMutationAsync,
-      percentageFilled,
-      isOwner,
-      dataComparisonComplete,
-      updateSyncStatus,
-      syncStatus,
-      changesSinceSync,
-    ],
-  );
-
-  // Then define useDebounce which uses saveCurrentBracket
-  const [, cancel] = useDebounce(
-    () => {
-      cancel();
-      console.log("Debounced saveCurrentBracket called");
-      saveCurrentBracket();
-    },
-    10, // Extend debounce time to 1 second for debugging
-    [bracket, dataComparisonComplete],
-  );
-
-  // Finally define changeBracket which uses both saveCurrentBracket and cancel
-  const changeBracket = useCallback(
-    async (bracketData) => {
-      // Early return if not the owner
-      if (!isOwner) {
-        console.error("Not authorized to modify this bracket");
-        return;
-      }
-
-      if (bracketData) {
-        const bracketObject = Object.fromEntries(bracketData);
-        queryClient.cancelQueries(["backend", "bracket", { bracketId: params.id, userId: owner.id }]);
-        const newData = { bracketData: bracketObject, winner: bracketWinner };
-        await queryClient.setQueryData(["backend", "bracket", { bracketId: params.id, userId: owner.id }], (oldData) =>
-          produce(oldData, (draft) => Object.assign(draft, newData)),
-        );
-
-        // Increment changes counter here, where we know a change has actually happened
-        setChangesSinceSync((prev) => prev + 1);
-        console.log("Bracket changed, changesSinceSync incremented");
-
-        if (bracketWinner) {
-          console.log("Bracket winner detected, calling cancel and saveCurrentBracket");
-          cancel();
-          await saveCurrentBracket(true);
-        }
-      }
-    },
-    [bracketWinner, owner.id, params.id, queryClient, saveCurrentBracket, cancel, isOwner],
-  );
-
   // Check for and resolve local storage data vs server data - only happens once because we mark as complete
   useEffect(() => {
     // Skip if we've already done the comparison or don't have server data
     if (dataComparisonComplete || !loadedBracket) return;
 
-    console.log("Running data comparison, localData:", !!localData);
-
     // If we don't have local data, just mark comparison as complete and return
     if (!localData || !localData.data) {
-      console.log("No local data found, marking comparison as complete");
+      console.debug("No local data found, marking comparison as complete");
       setDataComparisonComplete(true);
       return;
     }
@@ -491,6 +368,105 @@ export default function App({ params, location }) {
     saveBracketToServerMutationAsync,
     dataComparisonComplete,
   ]);
+
+  // Define saveCurrentBracket first
+  const saveCurrentBracket = useCallback(
+    async (forceSync = false) => {
+      // Only proceed if we're the owner
+      if (!isOwner) return;
+
+      if (bracket && bracket.size > 0) {
+        const saveData = queryClient.getQueryData([
+          "backend",
+          "bracket",
+          { bracketId: params.id, userId: owner.id },
+        ])?.bracketData;
+
+        if (saveData) {
+          // Only save locally if data comparison is already complete or forced sync
+          // This prevents automatic local saves during initial load
+          if (dataComparisonComplete || forceSync) {
+            try {
+              saveLocal({ bracketData: saveData, winner: bracketWinner, percentageFilled });
+              // Only update status to "local" after successful save to localStorage
+              updateSyncStatus("local");
+            } catch (error) {
+              console.error("Error saving to local storage:", error);
+              // If local storage fails, update status to error
+              updateSyncStatus("error");
+            }
+          }
+
+          // Then sync to server if needed
+          if (forceSync || shouldSyncToServer(bracketWinner, forceSync)) {
+            try {
+              updateSyncStatus("syncing");
+              await saveBracketToServerMutationAsync({
+                bracketData: saveData,
+                winner: bracketWinner,
+                percentageFilled,
+              });
+              // Server sync is handled by the mutation's onSuccess/onError callbacks
+            } catch (error) {
+              // Let React Query handle retries
+              console.error("Save failed:", error);
+            }
+          }
+        }
+      }
+    },
+    [
+      bracket,
+      bracketWinner,
+      owner.id,
+      params.id,
+      queryClient,
+      saveLocal,
+      shouldSyncToServer,
+      saveBracketToServerMutationAsync,
+      percentageFilled,
+      isOwner,
+      dataComparisonComplete,
+      updateSyncStatus,
+    ],
+  );
+
+  const [, cancel] = useDebounce(
+    () => {
+      cancel();
+      saveCurrentBracket();
+    },
+    10,
+    [bracket, dataComparisonComplete],
+  );
+
+  const changeBracket = useCallback(
+    async (bracketData) => {
+      // Early return if not the owner
+      if (!isOwner) {
+        console.error("Not authorized to modify this bracket");
+        return;
+      }
+
+      if (bracketData) {
+        const bracketObject = Object.fromEntries(bracketData);
+        queryClient.cancelQueries(["backend", "bracket", { bracketId: params.id, userId: owner.id }]);
+        const newData = { bracketData: bracketObject, winner: bracketWinner };
+        await queryClient.setQueryData(["backend", "bracket", { bracketId: params.id, userId: owner.id }], (oldData) =>
+          produce(oldData, (draft) => Object.assign(draft, newData)),
+        );
+
+        // Increment changes counter here, where we know a change has actually happened
+        setChangesSinceSync((prev) => prev + 1);
+
+        if (bracketWinner) {
+          cancel();
+          await saveCurrentBracket(true);
+        }
+      }
+    },
+    [bracketWinner, owner.id, params.id, queryClient, saveCurrentBracket, cancel, isOwner],
+  );
 
   // Auto-sync effect - check every 30 seconds if we should sync based on time threshold
   useEffect(() => {
