@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 
 const SAVE_THRESHOLDS = {
   CHANGES: 5, // Save after 5 changes
@@ -9,6 +9,27 @@ export default function useLocalBracketStorage({ bracketId, ownerId }) {
   const [lastServerSync, setLastServerSync] = useState(Date.now());
   const [changesSinceSync, setChangesSinceSync] = useState(0);
   const [syncStatus, setSyncStatus] = useState("synced"); // "synced" | "local" | "syncing" | "error"
+  const [localData, setLocalData] = useState(null);
+
+  // Load data from localStorage on mount - just retrieve, don't make decisions
+  useEffect(() => {
+    try {
+      const savedData = localStorage.getItem(`bracket_${bracketId}`);
+      if (savedData) {
+        const parsedData = JSON.parse(savedData);
+        // Only set local data if it matches the current owner
+        if (parsedData.ownerId === ownerId) {
+          setLocalData(parsedData);
+          // Don't modify sync status here - let the parent component decide
+        } else {
+          // Clear invalid local data
+          localStorage.removeItem(`bracket_${bracketId}`);
+        }
+      }
+    } catch (e) {
+      console.error("Error loading from localStorage:", e);
+    }
+  }, [bracketId, ownerId]);
 
   // Clean up old brackets from localStorage
   const cleanupOldBrackets = useCallback(() => {
@@ -40,14 +61,15 @@ export default function useLocalBracketStorage({ bracketId, ownerId }) {
   // Save to localStorage
   const saveLocal = useCallback(
     (bracketData) => {
+      const saveObj = {
+        data: bracketData,
+        timestamp: Date.now(),
+        bracketId,
+        ownerId,
+      };
       try {
-        const saveObj = {
-          data: bracketData,
-          timestamp: Date.now(),
-          bracketId,
-          ownerId,
-        };
         localStorage.setItem(`bracket_${bracketId}`, JSON.stringify(saveObj));
+        setLocalData(saveObj);
         // Only set to local if we have changes since last sync
         if (changesSinceSync > 0) {
           setSyncStatus("local");
@@ -60,7 +82,11 @@ export default function useLocalBracketStorage({ bracketId, ownerId }) {
           cleanupOldBrackets();
           // Try again
           try {
-            localStorage.setItem(`bracket_${bracketId}`, JSON.stringify(bracketData));
+            localStorage.setItem(`bracket_${bracketId}`, JSON.stringify(saveObj)); // Fixed: use saveObj here
+            setLocalData(saveObj);
+            if (changesSinceSync > 0) {
+              setSyncStatus("local");
+            }
             return true;
           } catch (retryError) {
             console.error("Error saving to localStorage after cleanup:", retryError);
@@ -86,13 +112,25 @@ export default function useLocalBracketStorage({ bracketId, ownerId }) {
   );
 
   // Update sync status
-  const updateSyncStatus = useCallback((status) => {
-    setSyncStatus(status);
-    if (status === "synced") {
-      setLastServerSync(Date.now());
-      setChangesSinceSync(0);
-    }
-  }, []);
+  const updateSyncStatus = useCallback(
+    (status) => {
+      setSyncStatus(status);
+      if (status === "synced") {
+        setLastServerSync(Date.now());
+        setChangesSinceSync(0);
+        // Clear local data when synced to server
+        localStorage.removeItem(`bracket_${bracketId}`);
+        setLocalData(null);
+      }
+    },
+    [bracketId],
+  );
+
+  // Clear local data without changing sync status
+  const clearLocalData = useCallback(() => {
+    localStorage.removeItem(`bracket_${bracketId}`);
+    setLocalData(null);
+  }, [bracketId]);
 
   return {
     saveLocal,
@@ -102,5 +140,7 @@ export default function useLocalBracketStorage({ bracketId, ownerId }) {
     setChangesSinceSync,
     syncStatus,
     updateSyncStatus,
+    localData,
+    clearLocalData,
   };
 }

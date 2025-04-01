@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 // React
-import React, { useEffect, useState, useMemo, useCallback } from "react";
+import React, { useEffect, useState, useMemo, useCallback, useContext, useRef } from "react";
 import { useDebounce } from "react-use";
 // Third Party
 import Mousetrap from "mousetrap";
@@ -24,26 +24,62 @@ import useSongProcessing from "../../../../../hooks/useSongProcessing";
 import useAuthentication from "../../../../../hooks/useAuthentication";
 import useShareBracket from "../../../../../hooks/useShareBracket";
 import useLocalBracketStorage from "../../../../../hooks/useLocalBracketStorage";
-// Assets
-import ShareIcon from "../../../../../assets/svgs/shareIcon.svg";
 import useUserInfo from "../../../../../hooks/useUserInfo";
 import LoadingIndicator from "../../../../../components/LoadingIndicator";
 import SyncIcon from "../../../../../assets/svgs/syncIcon.svg";
 import BracketHeader from "../../../../../components/BracketHeader";
 import { Button } from "../../../../../components/ui/button";
+import { UserInfoContext } from "../../../../../context/UserInfoContext";
+// Assets
+import ShareIcon from "../../../../../assets/svgs/shareIcon.svg";
+import { tokensExist } from "../../../../../axios/spotifyInstance";
 
 export default function App({ params, location }) {
   // State
   const [commands, setCommands] = useState([]);
   const [currentlyPlayingId, setCurrentlyPlayingId] = useState(null);
+  const [isSyncingOnExit, setIsSyncingOnExit] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
 
-  // Hooks
-  const { isCurrentUser } = useAuthentication();
-  const { updatePreviewUrls } = useSongProcessing();
-  const { getNumberOfColumns, fillBracket, changeBracket: generateBracket } = useBracketGeneration();
-  const queryClient = useQueryClient();
-  const { share } = useShareBracket(location.href);
+  // Refs for safety timeouts
+  const redirectTimeoutRef = useRef(null);
 
+  // Perform direct auth check - do not wait for context to resolve
+  const isLoggedIn = useMemo(() => tokensExist(), []);
+
+  // Get current user info for auth checks - but don't block on it
+  const currentUserInfo = useContext(UserInfoContext);
+
+  // Determine ownership directly - either we're logged in and are the owner, or we're not
+  const isOwner = useMemo(
+    () => Boolean(isLoggedIn && currentUserInfo?.id && params.userId && currentUserInfo.id === params.userId),
+    [isLoggedIn, currentUserInfo?.id, params.userId],
+  );
+
+  // Direct check and redirect for non-owners
+  useEffect(() => {
+    // If not logged in, redirect immediately
+    if (!isLoggedIn) {
+      console.debug("Not logged in, redirecting to view page");
+      window.location.href = `/user/${params.userId}/bracket/${params.id}`;
+      return;
+    }
+
+    // If logged in but user context has loaded and we're not the owner
+    if (currentUserInfo !== undefined && !isOwner) {
+      console.debug("Not the bracket owner, redirecting to view page");
+      window.location.href = `/user/${params.userId}/bracket/${params.id}`;
+      return;
+    }
+
+    // If we get here and we're logged in, we're either the owner or still waiting on context
+    if (currentUserInfo !== undefined) {
+      console.debug("Auth check complete, owner status:", isOwner);
+      setAuthChecked(true);
+    }
+  }, [isLoggedIn, currentUserInfo, isOwner, params.userId, params.id]);
+
+  // Use owner data hooks unconditionally
   const { data: ownerInfo = {} } = useUserInfo(params.userId)?.data || {};
   const { isPending: ownerPending = false } = useUserInfo(params.userId) || {};
 
@@ -57,7 +93,14 @@ export default function App({ params, location }) {
     [location?.state, owner?.name, owner.id, params?.id],
   );
 
-  // Add the bracket sync hook first
+  // Hooks - ALL hooks must be called unconditionally
+  const { isCurrentUser } = useAuthentication();
+  const { updatePreviewUrls } = useSongProcessing();
+  const { getNumberOfColumns, fillBracket, changeBracket: generateBracket } = useBracketGeneration();
+  const queryClient = useQueryClient();
+  const { share } = useShareBracket(location.href);
+
+  // Add the bracket sync hook
   const {
     saveLocal,
     shouldSyncToServer,
@@ -66,17 +109,15 @@ export default function App({ params, location }) {
     setChangesSinceSync,
     syncStatus,
     updateSyncStatus,
+    localData,
+    clearLocalData,
   } = useLocalBracketStorage({
     bracketId: params.id,
     ownerId: params.userId,
   });
 
-  // Then define the mutation
-  const {
-    mutateAsync: saveBracketToServerMutationAsync,
-    // isError: saveError,
-    // isPending: savingToServer,
-  } = useMutation({
+  // Define all mutations
+  const { mutateAsync: saveBracketToServerMutationAsync } = useMutation({
     mutationFn: async (data) => {
       updateSyncStatus("syncing");
       const result = await updateBracket(params.id, data);
@@ -115,6 +156,7 @@ export default function App({ params, location }) {
     },
   });
 
+  // Load bracket data - but only enable the query if we're the owner
   const {
     data: loadedBracket,
     isPending: fetchPending,
@@ -122,7 +164,7 @@ export default function App({ params, location }) {
   } = useQuery({
     queryKey: ["backend", "bracket", { bracketId: params.id, userId: owner.id }],
     queryFn: async () => getBracket(params.id, owner.id),
-    enabled: params.id && isCurrentUser(owner.id),
+    enabled: Boolean(params.id && params.userId && isOwner),
     refetchOnWindowFocus: false,
     staleTime: 3600000,
     meta: {
@@ -131,6 +173,7 @@ export default function App({ params, location }) {
     retry: (failureCount, error) => error?.cause?.code !== 404 && failureCount < 3,
   });
 
+  // Define all other memos that depend on loadedBracket
   const songSource = useMemo(() => {
     if (loadedBracket?.template?.songSource?.type === "artist") {
       return {
@@ -248,6 +291,9 @@ export default function App({ params, location }) {
 
   const saveCurrentBracket = useCallback(
     async (isWinner = false, forceSync = false) => {
+      // Only proceed if we're the owner
+      if (!isOwner) return;
+
       if (bracket && bracket.size > 0) {
         const saveData = queryClient.getQueryData([
           "backend",
@@ -285,8 +331,71 @@ export default function App({ params, location }) {
       shouldSyncToServer,
       saveBracketToServerMutationAsync,
       percentageFilled,
+      isOwner,
     ],
   );
+
+  // Check for and resolve local storage data vs server data
+  useEffect(() => {
+    // Skip if we don't have both data sources
+    if (!loadedBracket || !localData || !localData.data) return;
+
+    // Compare timestamps to determine which is newer
+    // Use server's lastModified for proper comparison
+    const serverTimestamp = loadedBracket.lastModified || 0;
+    const localTimestamp = localData.timestamp || 0;
+
+    console.debug(`Comparing data: Server timestamp: ${serverTimestamp}, Local timestamp: ${localTimestamp}`);
+
+    // Skip if no valid timestamps to compare
+    if (!serverTimestamp || !localTimestamp) {
+      console.debug("Missing valid timestamps, clearing local data");
+      clearLocalData();
+      return;
+    }
+
+    if (localTimestamp > serverTimestamp) {
+      // Local is newer, update the query data and sync to server
+      console.debug("Local data is newer, updating from local storage and syncing to server");
+
+      // Update query data with local
+      queryClient.setQueryData(["backend", "bracket", { bracketId: params.id, userId: owner.id }], (oldData) => ({
+        ...oldData,
+        bracketData: localData.data.bracketData,
+        winner: localData.data.winner,
+        percentageFilled: localData.data.percentageFilled,
+      }));
+
+      // Set changes since sync to trigger proper status
+      setChangesSinceSync(1);
+
+      // Make a copy of local data before clearing
+      const dataToSync = {
+        bracketData: localData.data.bracketData,
+        winner: localData.data.winner,
+        percentageFilled: localData.data.percentageFilled,
+      };
+
+      // Clear local data to prevent this effect from running again
+      clearLocalData();
+
+      // Directly sync to server with the copied data
+      saveBracketToServerMutationAsync(dataToSync);
+    } else {
+      // Server is newer, clear local data without changing sync status
+      console.debug("Server data is newer, using server data and clearing local storage");
+      clearLocalData();
+    }
+  }, [
+    loadedBracket,
+    localData,
+    params.id,
+    owner.id,
+    queryClient,
+    setChangesSinceSync,
+    clearLocalData,
+    saveBracketToServerMutationAsync,
+  ]);
 
   // Auto-sync effect - check every 30 seconds if we should sync based on time threshold
   useEffect(() => {
@@ -314,6 +423,12 @@ export default function App({ params, location }) {
 
   const changeBracket = useCallback(
     async (bracketData) => {
+      // Early return if not the owner
+      if (!isOwner) {
+        console.error("Not authorized to modify this bracket");
+        return;
+      }
+
       if (bracketData) {
         const bracketObject = Object.fromEntries(bracketData);
         queryClient.cancelQueries(["backend", "bracket", { bracketId: params.id, userId: owner.id }]);
@@ -331,7 +446,7 @@ export default function App({ params, location }) {
         }
       }
     },
-    [bracketWinner, owner.id, params.id, queryClient, saveCurrentBracket, cancel],
+    [bracketWinner, owner.id, params.id, queryClient, saveCurrentBracket, cancel, isOwner],
   );
 
   // useEffect(() => {
@@ -464,19 +579,41 @@ export default function App({ params, location }) {
   );
 
   const noChanges = useCallback(
-    (navigateAway) => {
-      if (
-        (navigateAway && syncStatus === "syncing" && commands.length > 0) ||
-        (!navigateAway && commands.length !== 0 && bracketUnchanged(bracket))
-      ) {
-        if (window.confirm("You have bracket changes that will be lost! Proceed anyways?")) {
-          return true;
+    async (navigateAway) => {
+      // If we're navigating away and have unsaved changes
+      if (navigateAway) {
+        // If we're currently syncing, always show the popup
+        if (syncStatus === "syncing") {
+          if (window.confirm("You have bracket changes that are being saved! Please wait before leaving.")) {
+            return true;
+          }
+          return false;
         }
-        return false;
+
+        // If we have local changes that haven't been synced
+        if (syncStatus === "local" || changesSinceSync > 0) {
+          try {
+            // Show syncing indicator
+            setIsSyncingOnExit(true);
+            // Try to save to server first
+            await saveCurrentBracket(false, true);
+            setIsSyncingOnExit(false);
+            return true;
+          } catch (error) {
+            setIsSyncingOnExit(false);
+            // If server save fails, save locally and show popup
+            if (window.confirm("Failed to save to server. Your changes will be saved locally. Proceed anyways?")) {
+              return true;
+            }
+            return false;
+          }
+        }
       }
+
+      // If we're not navigating away, check if there are unsaved changes
       return true;
     },
-    [syncStatus, commands, bracket],
+    [syncStatus, changesSinceSync, saveCurrentBracket],
   );
 
   function undo() {
@@ -494,12 +631,36 @@ export default function App({ params, location }) {
     Mousetrap.bind("mod+z", undo);
   }
 
-  if (!isCurrentUser(params.userId) || (!showBracketCompleteModal && bracketWinner)) {
-    // navigate(`/user/${params.userId}/bracket/${params.id}`, { state: location.state });
-    openBracket(params.id, params.userId, "", location.state);
-    // return <Redirect to={`/user/${params.userId}/bracket/${params.id}/fill`} />;
+  // Handle completed bracket redirects - only if we're the owner
+  useEffect(() => {
+    // Skip if not the owner or still loading
+    if (!isOwner || fetchPending) return;
+
+    // Only redirect for bracket completion
+    if (!showBracketCompleteModal && bracketWinner) {
+      // Bracket is complete without showing modal
+      openBracket(params.id, params.userId, "", location.state);
+    }
+  }, [params.userId, params.id, bracketWinner, showBracketCompleteModal, location.state, fetchPending, isOwner]);
+
+  // Conditional rendering AFTER all hooks
+  if (!isLoggedIn) {
+    return (
+      <Layout noChanges={() => true} path={location.pathname}>
+        <LoadingIndicator loadingText="Redirecting to view page..." />
+      </Layout>
+    );
   }
 
+  if (!authChecked) {
+    return (
+      <Layout noChanges={() => true} path={location.pathname}>
+        <LoadingIndicator loadingText="Verifying access..." />
+      </Layout>
+    );
+  }
+
+  // Standard loading states
   if (fetchPending) {
     return (
       <Layout noChanges={() => true} path={location.pathname}>
@@ -551,6 +712,15 @@ export default function App({ params, location }) {
           recycle={false}
           className="!z-[100]"
         />
+      )}
+      {isSyncingOnExit && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center">
+            <SyncIcon className="animate-spin-reverse w-6 h-6 mb-4" />
+            <p className="text-lg font-medium">Saving your bracket...</p>
+            <p className="text-sm text-gray-600">Please wait while we save your changes</p>
+          </div>
+        </div>
       )}
       <BracketCompleteModal
         showModal={showBracketCompleteModal}
