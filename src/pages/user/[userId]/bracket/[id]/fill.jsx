@@ -101,7 +101,6 @@ export default function App({ params, location }) {
     saveLocal,
     shouldSyncToServer,
     changesSinceSync,
-    lastServerSync,
     setChangesSinceSync,
     syncStatus,
     updateSyncStatus,
@@ -379,8 +378,6 @@ export default function App({ params, location }) {
           if (dataComparisonComplete || forceSync) {
             try {
               saveLocal({ bracketData: saveData, winner: bracketWinner, percentageFilled });
-              // Only update status to "local" after successful save to localStorage
-              updateSyncStatus("local");
             } catch (error) {
               console.error("Error saving to local storage:", error);
               // If local storage fails, update status to error
