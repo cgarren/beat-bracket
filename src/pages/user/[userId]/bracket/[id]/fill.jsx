@@ -40,6 +40,7 @@ export default function App({ params, location }) {
   const [currentlyPlayingId, setCurrentlyPlayingId] = useState(null);
   const [isSyncingOnExit, setIsSyncingOnExit] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
+  const [dataComparisonComplete, setDataComparisonComplete] = useState(false);
 
   // Refs for safety timeouts
   const redirectTimeoutRef = useRef(null);
@@ -335,13 +336,12 @@ export default function App({ params, location }) {
     ],
   );
 
-  // Check for and resolve local storage data vs server data
+  // Check for and resolve local storage data vs server data - only happens once because we mark as complete
   useEffect(() => {
-    // Skip if we don't have both data sources
-    if (!loadedBracket || !localData || !localData.data) return;
+    // Skip if we've already done the comparison or don't have both data sources
+    if (dataComparisonComplete || !loadedBracket || !localData || !localData.data) return;
 
     // Compare timestamps to determine which is newer
-    // Use server's lastModified for proper comparison
     const serverTimestamp = loadedBracket.lastModified || 0;
     const localTimestamp = localData.timestamp || 0;
 
@@ -351,6 +351,7 @@ export default function App({ params, location }) {
     if (!serverTimestamp || !localTimestamp) {
       console.debug("Missing valid timestamps, clearing local data");
       clearLocalData();
+      setDataComparisonComplete(true);
       return;
     }
 
@@ -376,15 +377,19 @@ export default function App({ params, location }) {
         percentageFilled: localData.data.percentageFilled,
       };
 
-      // Clear local data to prevent this effect from running again
+      // Clear local data
       clearLocalData();
+
+      // Mark comparison as complete
+      setDataComparisonComplete(true);
 
       // Directly sync to server with the copied data
       saveBracketToServerMutationAsync(dataToSync);
     } else {
-      // Server is newer, clear local data without changing sync status
+      // Server is newer, clear local data
       console.debug("Server data is newer, using server data and clearing local storage");
       clearLocalData();
+      setDataComparisonComplete(true);
     }
   }, [
     loadedBracket,
@@ -395,6 +400,7 @@ export default function App({ params, location }) {
     setChangesSinceSync,
     clearLocalData,
     saveBracketToServerMutationAsync,
+    dataComparisonComplete,
   ]);
 
   // Auto-sync effect - check every 30 seconds if we should sync based on time threshold
