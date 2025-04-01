@@ -780,9 +780,10 @@ export default function App({ params, location }) {
                 Share
               </Button>
             </div>
-            <div className="">
+            {/* Debug state info */}
+            {/* <div className="">
               {`syncStatus: ${syncStatus}, changesSinceSync: ${changesSinceSync}, lastServerSync: ${lastServerSync}`}
-            </div>
+            </div> */}
             <div className="">{percentageFilled.toFixed(0)}% filled</div>
             {syncStatus === "syncing" && (
               <div className="absolute left-1/2 -translate-x-1/2 -bottom-1/3 flex items-center gap-1">
