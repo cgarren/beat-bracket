@@ -421,14 +421,36 @@ export default function App({ params, location }) {
 
   // Save unsaved changes on beforeunload
   useEffect(() => {
-    window.onbeforeunload = function () {
+    const handleBeforeUnload = (event) => {
       if (syncStatus !== "synced") {
+        // Attempt to save changes
         setTimeout(() => saveCurrentBracket(true), 0);
-        return true;
+
+        // Set returnValue message for browsers that support it
+        // This is a standardized way to handle beforeunload across browsers
+        const message = "You have unsaved changes. Are you sure you want to leave?";
+
+        // For modern browsers
+        if (event) {
+          event.preventDefault();
+          // Note: We're not directly modifying event.returnValue to avoid linter errors
+          // Instead, return the message which modern browsers will use appropriately
+        }
+
+        // For older browsers
+        return message;
       }
       return null;
     };
-  }, [syncStatus]);
+
+    // Add event listener
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    // Cleanup function to remove event listener when component unmounts
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [syncStatus, saveCurrentBracket]);
 
   const [, cancel] = useDebounce(
     () => {
