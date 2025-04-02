@@ -457,7 +457,7 @@ export default function App({ params, location }) {
       cancel();
       saveCurrentBracket();
     },
-    1000,
+    700,
     [bracket, dataComparisonComplete],
   );
 
