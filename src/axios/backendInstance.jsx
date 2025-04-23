@@ -123,12 +123,17 @@ export const Interceptor = ({ children }) => {
     }
 
     if (error?.response?.status === 403) {
-      await refreshExpiredToken(userInfo?.id, sessionStorage.getItem(accessTokenKey));
-      const newRequest = {
-        ...originalRequest,
-        params: { ...originalRequest.params, secondTry: true },
-      };
-      return axiosInstance(newRequest);
+      if (sessionStorage.getItem(accessTokenKey)) {
+        await refreshExpiredToken(userInfo?.id, sessionStorage.getItem(accessTokenKey));
+        const newRequest = {
+          ...originalRequest,
+          params: { ...originalRequest.params, secondTry: true },
+        };
+        return axiosInstance(newRequest);
+      }
+      logoutUser();
+      console.debug("no access key in session storage. logging out user");
+      return Promise.reject(error);
     }
 
     const newError = {
