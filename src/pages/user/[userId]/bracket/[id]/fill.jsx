@@ -325,6 +325,7 @@ export default function App({ params, location }) {
 
       // Set changes since sync to trigger proper status
       setChangesSinceSync(1);
+      // setChangesSinceSync(1);
 
       // Make a copy of local data before clearing
       const dataToSync = {
@@ -376,6 +377,8 @@ export default function App({ params, location }) {
           // Only save locally if data comparison is already complete or forced sync
           // This prevents automatic local saves during initial load
           if (dataComparisonComplete || forceSync) {
+
+          if ((dataComparisonComplete || forceSync) && changesSinceSync > 0) {
             try {
               saveLocal({ bracketData: saveData, winner: bracketWinner, percentageFilled });
             } catch (error) {
