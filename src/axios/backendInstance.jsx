@@ -18,6 +18,7 @@ export const maxBracketsKey = "maxBrackets";
 // axios instance
 const axiosInstance = axios.create({
   baseURL: process.env.GATSBY_BACKEND_URL,
+  timeout: 10000,
 });
 
 // helpers for export
@@ -104,7 +105,7 @@ export const Interceptor = ({ children }) => {
   const errInterceptor = async (error) => {
     const originalRequest = error.config;
 
-    // eitrher loguouit the user on auth error or attmept to refresh the token and try again
+    // either log out the user on auth error or attempt to refresh the token and try again
     if ([400, 401].includes(error?.response?.status) && originalRequest.url === authURL) {
       if (error?.response?.status === 401) {
         const res = await refreshExpiredSpotifyToken();
@@ -122,12 +123,17 @@ export const Interceptor = ({ children }) => {
     }
 
     if (error?.response?.status === 403) {
-      await refreshExpiredToken(userInfo?.id, sessionStorage.getItem(accessTokenKey));
-      const newRequest = {
-        ...originalRequest,
-        params: { ...originalRequest.params, secondTry: true },
-      };
-      return axiosInstance(newRequest);
+      if (sessionStorage.getItem(accessTokenKey)) {
+        await refreshExpiredToken(userInfo?.id, sessionStorage.getItem(accessTokenKey));
+        const newRequest = {
+          ...originalRequest,
+          params: { ...originalRequest.params, secondTry: true },
+        };
+        return axiosInstance(newRequest);
+      }
+      logoutUser();
+      console.debug("no access key in session storage. logging out user");
+      return Promise.reject(error);
     }
 
     const newError = {
