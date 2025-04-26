@@ -452,6 +452,7 @@ export default function App({ params, location }) {
     };
   }, [syncStatus, saveCurrentBracket]);
 
+  // debouce time is 0 now but this function is in place in case we need to use it in the future. 0 is ucrrently the best user experience as they get instant feedback on save status, especially in the bracket complete modal
   const [, cancel] = useDebounce(
     () => {
       cancel();
