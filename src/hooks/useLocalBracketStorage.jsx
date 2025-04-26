@@ -20,6 +20,7 @@ export default function useLocalBracketStorage({ bracketId, ownerId }) {
         // Only set local data if it matches the current owner
         if (parsedData.ownerId === ownerId) {
           setLocalData(parsedData);
+          console.debug("found local bracket data");
           // Don't modify sync status here - let the parent component decide
         } else {
           // Clear invalid local data
