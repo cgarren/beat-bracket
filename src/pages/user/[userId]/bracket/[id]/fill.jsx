@@ -71,7 +71,6 @@ export default function App({ params, location }) {
 
     // If we get here and we're logged in, we're either the owner or still waiting on context
     if (currentUserInfo !== undefined) {
-      console.debug("Auth check complete, owner status:", isOwner);
       setAuthChecked(true);
     }
   }, [isLoggedIn, currentUserInfo, isOwner, params.userId, params.id]);
