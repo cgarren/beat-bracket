@@ -105,7 +105,7 @@ export const Interceptor = ({ children }) => {
   const errInterceptor = async (error) => {
     const originalRequest = error.config;
 
-    // either loguout the user on auth error or attmept to refresh the token and try again
+    // either log out the user on auth error or attempt to refresh the token and try again
     if ([400, 401].includes(error?.response?.status) && originalRequest.url === authURL) {
       if (error?.response?.status === 401) {
         const res = await refreshExpiredSpotifyToken();
