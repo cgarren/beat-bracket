@@ -314,6 +314,11 @@ export default function App({ params, location }) {
       // Local is newer, update the query data and sync to server
       console.debug("Local data is newer, updating from local storage and syncing to server");
 
+      // Show toast notification to inform user about local data restoration
+      toast.success("Bracket restored from local cache", {
+        id: "localDataRestored",
+      });
+
       // Update query data with local
       queryClient.setQueryData(["backend", "bracket", { bracketId: params.id, userId: owner.id }], (oldData) => ({
         ...oldData,
