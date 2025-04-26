@@ -1,7 +1,7 @@
 import { useCallback, useState, useEffect } from "react";
 
 const SAVE_THRESHOLDS = {
-  CHANGES: 8, // Save after 5 changes
+  CHANGES: 8, // Save after 8 changes
   TIME: 60000, // Save after 60 seconds
 };
 
