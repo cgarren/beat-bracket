@@ -19,7 +19,7 @@ const questions = [
   {
     question: "Why do I need a Spotify account to use Beat Bracket?",
     answer:
-      "This site uses Spotify's API to get information about artists, playlists, and tracks. After you create a bracket, it is associated with your Spotify account so that you'll be able to edit and share it later!",
+      "Beat Bracket uses Spotify's API to get information about artists, playlists, and tracks. After you create a bracket, it is associated with your Spotify account so that you'll be able to edit and share it later!",
     paths: ["*"],
   },
   {
