@@ -1,5 +1,5 @@
 // Library to get prominent colors from images (for coloring bracket spaces according to album art)
-import Vibrant from "node-vibrant";
+import { Vibrant } from "node-vibrant/browser";
 import { useCallback } from "react";
 import { nearestGreaterPowerOf2, objectIsEmpty } from "../utils/helpers";
 import useSongProcessing from "./useSongProcessing";
@@ -9,15 +9,16 @@ export default function useBracketGeneration() {
   // Function to get the prominent colors from an image
   const getColorsFromImage = useCallback(async (image) => {
     // const color = await new FastAverageColor().getColorAsync(image)
-    const color = (await Vibrant.from(image).getPalette()).Vibrant;
+    const palette = await Vibrant.from(image).getPalette();
+    const color = palette.Vibrant;
     if (!color) {
       return null;
     }
     return {
       // backgroundColor: color.hex,
       // textColor: color.isDark ? 'white' : 'black'
-      backgroundColor: color.getHex(),
-      textColor: color.getBodyTextColor(),
+      backgroundColor: color.hex,
+      textColor: color.bodyTextColor,
     };
   }, []);
 

@@ -1,5 +1,5 @@
 import React, { useRef, useMemo } from "react";
-import Vibrant from "node-vibrant";
+import { Vibrant } from "node-vibrant/browser";
 import cx from "classnames";
 import PlayPauseButton from "./PlayPauseButton";
 
@@ -32,7 +32,11 @@ export default function SongButton({
         };
       }
       // provide support for legacy brackets using old color system
-      const tempColor = new Vibrant.Swatch(color.rgb, color.population);
+      // TODO: Need to find correct v4.0.0 API for creating Swatch objects
+      const tempColor = {
+        getHex: () => `rgb(${color.rgb[0]}, ${color.rgb[1]}, ${color.rgb[2]})`,
+        getBodyTextColor: () => (color.population > 50 ? "#ffffff" : "#000000"),
+      };
       return {
         backgroundColor: tempColor.getHex(),
         color: tempColor.getBodyTextColor(),

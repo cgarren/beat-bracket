@@ -19,13 +19,13 @@ export default function CardName({ displayName, songSource, numTracks, completed
         {!ownsTemplate && (
           <span
             title="Created from a template by another user"
-            className="text-blue-600 text-xs font-medium inline-flex rounded-md"
+            className="text-blue-600 text-xs font-medium inline-flex rounded-md w-4 h-4"
           >
             <DuplicateIcon />
           </span>
         )}
         {completed && (
-          <span title="Completed" className="text-green-600 text-xs font-medium inline-flex rounded-md">
+          <span title="Completed" className="text-green-600 text-xs font-medium inline-flex rounded-md w-4 h-4">
             <CompletedIcon />
           </span>
         )}

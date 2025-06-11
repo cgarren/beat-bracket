@@ -778,7 +778,9 @@ export default function App({ params, location }) {
       {isSyncingOnExit && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center">
-            <SyncIcon className="animate-spin-reverse w-6 h-6 mb-4" />
+            <div className="animate-spin-reverse w-6 h-6 mb-4">
+              <SyncIcon />
+            </div>
             <p className="text-lg font-medium">Saving your bracket...</p>
             <p className="text-sm text-gray-600">Please wait while we save your changes</p>
           </div>
@@ -803,7 +805,9 @@ export default function App({ params, location }) {
             {/* <GeneratePlaylistButton tracks={tracks} artist={artist} /> */}
             <div className="flex items-center gap-2">
               <Button onClick={share} variant="secondary" className="flex justify-center gap-1">
-                <ShareIcon />
+                <div className="w-4 h-4">
+                  <ShareIcon />
+                </div>
                 Share
               </Button>
             </div>
@@ -814,7 +818,7 @@ export default function App({ params, location }) {
             <div className="">{percentageFilled.toFixed(0)}% filled</div>
             {syncStatus === "syncing" && (
               <div className="absolute left-1/2 -translate-x-1/2 -bottom-1/3 flex items-center gap-1">
-                <div className="animate-spin-reverse w-fit h-fit" aria-label="Saving" title="Saving">
+                <div className="animate-spin-reverse w-4 h-4" aria-label="Saving" title="Saving">
                   <SyncIcon />
                 </div>
                 Saving

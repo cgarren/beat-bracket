@@ -59,7 +59,9 @@ export default function ProfileDropdown({ noChanges }) {
             <div className="hidden ml-2 text-left sm:block">
               <strong className="block text-s font-bold text-white">{userInfo?.display_name}</strong>
             </div>
-            <CarrotIcon />
+            <div className="w-5 h-5 ml-2 text-white">
+              <CarrotIcon />
+            </div>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-full absolute;">
@@ -82,7 +84,9 @@ export default function ProfileDropdown({ noChanges }) {
             className="flex justify-between"
           >
             Log out
-            <LogoutIcon />
+            <div className="w-4 h-4">
+              <LogoutIcon />
+            </div>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

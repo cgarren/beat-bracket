@@ -1,8 +1,7 @@
 <svg
-	xmlns="http://www.w3.org/2000/svg"
-	className="w-4 h-4 text-secondary transition sm:block group-hover:text-secondary"
-	viewBox="0 0 24 24"
 	fill="currentColor"
+	viewBox="0 0 24 24"
+	xmlns="http://www.w3.org/2000/svg"
 	>
-	<path d="M16 10v-5l8 7-8 7v-5h-8v-4h8zm-16-8v20h14v-2h-12v-16h12v-2h-14z" />
+	<path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.59L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
 </svg>

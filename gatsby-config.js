@@ -11,10 +11,14 @@ module.exports = {
   plugins: [
     "gatsby-plugin-postcss",
     {
-      resolve: "gatsby-plugin-react-svg",
+      resolve: "gatsby-plugin-svgr-loader",
       options: {
         rule: {
-          include: /svgs/, // Including svgs in image folder for now
+          include: /assets\/svgs/,
+        },
+        svgrOptions: {
+          expandProps: false,
+          dimensions: false,
         },
       },
     },
