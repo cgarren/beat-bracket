@@ -34,25 +34,25 @@
     "@tanstack/react-query": "^5.17.10",
     "@tanstack/react-query-devtools": "^5.17.10",
     "axios": "^1.6.7",
-    "class-variance-authority": "^0.7.0",
-    "classnames": "^2.3.2",
-    "clsx": "^2.1.0",
+    "class-variance-authority": "^0.7.1",
+    "classnames": "^2.5.1",
+    "clsx": "^2.1.1",
     "eslint-webpack-plugin": "^4.0.1",
-    "exponential-backoff": "^3.1.1",
-    "gatsby": "^5.3.3",
-    "gatsby-plugin-manifest": "^5.3.1",
+    "exponential-backoff": "^3.1.2",
+    "gatsby": "^5.14.4",
+    "gatsby-plugin-manifest": "^5.14.0",
     "gatsby-plugin-react-svg": "^3.3.0",
-    "immer": "^10.0.3",
+    "immer": "^10.1.1",
     "lucide-react": "^0.319.0",
     "mixpanel-browser": "^2.47.0",
     "mousetrap": "^1.6.5",
     "node-vibrant": "^4.0.3",
-    "react": "^18.2.0",
-    "react-confetti": "^6.1.0",
-    "react-dom": "^18.2.0",
+    "react": "^18.3.1",
+    "react-confetti": "^6.4.0",
+    "react-dom": "^18.3.1",
     "react-error-boundary": "^4.0.11",
-    "react-hot-toast": "^2.4.1",
-    "react-use": "^17.4.0",
+    "react-hot-toast": "^2.5.2",
+    "react-use": "^17.4.2",
     "tailwind-merge": "^2.2.1",
     "tailwindcss-animate": "^1.0.7",
     "uuid": "^9.0.0"
@@ -60,7 +60,7 @@
   "devDependencies": {
     "@babel/eslint-parser": "^7.23.3",
     "@tanstack/eslint-plugin-query": "^5.17.7",
-    "autoprefixer": "^10.4.8",
+    "autoprefixer": "^10.4.21",
     "eslint": "^8.55.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-node": "^4.1.0",
@@ -71,15 +71,15 @@
     "eslint-plugin-prettier": "^5.0.1",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "gatsby-plugin-postcss": "^6.3.0",
+    "gatsby-plugin-postcss": "^6.14.0",
     "gh-pages": "^6.3.0",
-    "postcss": "^8.4.20",
-    "prettier": "^3.1.1",
+    "postcss": "^8.5.4",
+    "prettier": "^3.5.3",
     "tailwindcss": "^3.3.1"
   },
   "overrides": {
     "react-server-dom-webpack@0.0.0-experimental-c8b778b7f-20220825": {
-      "react": "^18.2.0"
+      "react": "^18.3.1"
     }
   }
 }
