@@ -8,6 +8,7 @@
     "gatsby"
   ],
   "scripts": {
+    "dev": "gatsby develop",
     "develop": "gatsby develop",
     "start": "gatsby develop",
     "build": "gatsby build",
@@ -45,7 +46,7 @@
     "lucide-react": "^0.319.0",
     "mixpanel-browser": "^2.47.0",
     "mousetrap": "^1.6.5",
-    "node-vibrant": "^3.1.6",
+    "node-vibrant": "^4.0.3",
     "react": "^18.2.0",
     "react-confetti": "^6.1.0",
     "react-dom": "^18.2.0",
@@ -71,7 +72,7 @@
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "gatsby-plugin-postcss": "^6.3.0",
-    "gh-pages": "^4.0.0",
+    "gh-pages": "^6.3.0",
     "postcss": "^8.4.20",
     "prettier": "^3.1.1",
     "tailwindcss": "^3.3.1"

@@ -86,8 +86,9 @@ if (process.env.GATSBY_MIXPANEL_TOKEN && process.env.GATSBY_BACKEND_URL) {
   if (process.env.NODE_ENV !== "production") {
     mixpanel.init(process.env.GATSBY_MIXPANEL_TOKEN, {
       debug: true,
+      record_sessions_percent: 1,
     });
-    mixpanel.disable();
+    // mixpanel.disable();
   } else {
     mixpanel.init(process.env.GATSBY_MIXPANEL_TOKEN);
   }
