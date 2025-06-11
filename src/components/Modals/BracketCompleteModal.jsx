@@ -38,8 +38,10 @@ export default function BracketCompleteModal({
               showSongInfo={songSource && songSource.type === "playlist"}
             />
           )}
-          <Button onClick={share} variant="outline" icon={<ShareIcon />} className="w-fit mx-auto gap-1">
-            <ShareIcon />
+          <Button onClick={share} variant="outline" className="w-fit mx-auto gap-1">
+            <div className="w-4 h-4">
+              <ShareIcon />
+            </div>
             Share
           </Button>
           <AlertDialogFooter>
@@ -57,7 +59,7 @@ export default function BracketCompleteModal({
             )}
             {savePending && (
               <div className="flex items-center gap-1 justify-center">
-                <div className="animate-spin-reverse w-fit h-fit" aria-label="Saving" title="Saving">
+                <div className="animate-spin-reverse w-4 h-4" aria-label="Saving" title="Saving">
                   <SyncIcon />
                 </div>
                 Hang tight! Saving your bracket...

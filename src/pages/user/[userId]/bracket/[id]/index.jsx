@@ -208,13 +208,17 @@ export default function App({ params, location }) {
         <>
           <div className="text-xs -space-x-px rounded-md sticky mx-auto top-0 w-fit z-30 mt-1">
             <div className="flex items-center gap-2">
-              <Button onClick={share} variant="secondary" icon={<ShareIcon />} className="flex justify-center gap-1">
-                <ShareIcon />
+              <Button onClick={share} variant="secondary" className="flex justify-center gap-1">
+                <div className="w-4 h-4">
+                  <ShareIcon />
+                </div>
                 Share
               </Button>
               {userInfo?.id && !isCurrentUser(params.userId) && !isCurrentUser(template.ownerId) && (
                 <Button onClick={duplicateBracket} className="flex justify-center gap-1">
-                  <DuplicateIcon />
+                  <div className="w-4 h-4">
+                    <DuplicateIcon />
+                  </div>
                   Make my own picks
                 </Button>
               )}

@@ -57,7 +57,7 @@ const questions = [
       <>
         After you start a bracket, select songs to advance to the next round by clicking on them! If an audio preview is
         availiable for a track, you&apos;ll see a{" "}
-        <div className="inline-flex items-center align-middle bg-black text-white rounded w-[18px] h-[18px]">
+        <div className="inline-flex items-center align-middle bg-black text-white rounded w-[18px] h-[18px] p-0.5">
           <PlayIcon />
         </div>{" "}
         icon next to the track name which will play 30 seconds of the song. You can also click the{" "}
