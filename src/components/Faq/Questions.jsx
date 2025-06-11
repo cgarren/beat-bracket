@@ -23,6 +23,19 @@ const questions = [
     paths: ["*"],
   },
   {
+    question: "What's the difference between using Beat Bracket with a Spotify Free account vs Spotify Premium?",
+    answer: (
+      <>
+        Both Spotify Free and Premium users have access to all the same great features on Beat Bracket! The only major
+        difference is that Spotify Premium users may see expanded access to 30-second song previews, while Spotify Free
+        users may not see 30-second previews available for some tracks. This limitation comes from Spotify and is not
+        something we can control. Regardless of your subscription type, you can still create brackets, choose songs,
+        share brackets, and enjoy the full Beat Bracket experience!
+      </>
+    ),
+    paths: ["*"],
+  },
+  {
     question: "How do I create a bracket?",
     answer: (
       <ol className="list-decimal list-inside">
@@ -137,19 +150,6 @@ const questions = [
     answer:
       'Click your profile in the top right corner and select "Log out". You will be re-prompted to authorize Beat Bracket to access your account on the next sign in.',
     paths: ["/my-brackets/", "/user/*/bracket/*"],
-  },
-  {
-    question: "What's the difference between using Beat Bracket with a Spotify Free account vs Spotify Premium?",
-    answer: (
-      <>
-        Both Spotify Free and Premium users have access to all the same great features on Beat Bracket! The only major
-        difference is that Spotify Premium users may see expanded access to 30-second song previews, while Spotify Free
-        users may not see 30-second previews available for some tracks. This limitation comes from Spotify and is not
-        something we can control. Regardless of your subscription type, you can still create brackets, choose songs,
-        share brackets, and enjoy the full Beat Bracket experience!
-      </>
-    ),
-    paths: ["*"],
   },
   {
     question: "How do I suggest an improvement or get in touch?",
