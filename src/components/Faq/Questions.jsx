@@ -19,7 +19,20 @@ const questions = [
   {
     question: "Why do I need a Spotify account to use Beat Bracket?",
     answer:
-      "This site uses Spotify's API to get information about artists, playlists, and tracks. After you create a bracket, it is associated with your Spotify account so that you'll be able to edit and share it later!",
+      "Beat Bracket uses Spotify's API to get information about artists, playlists, and tracks. After you create a bracket, it is associated with your Spotify account so that you'll be able to edit and share it later!",
+    paths: ["*"],
+  },
+  {
+    question: "What's the difference between using Beat Bracket with a Spotify Free account vs Spotify Premium?",
+    answer: (
+      <>
+        Both Spotify Free and Premium users have access to all the same great features on Beat Bracket! The only major
+        difference is that Spotify Premium users may see expanded access to 30-second song previews, while Spotify Free
+        users may not see 30-second previews available for some tracks. This limitation comes from Spotify and is not
+        something we can control. Regardless of your subscription type, you can still create brackets, choose songs,
+        share brackets, and enjoy the full Beat Bracket experience!
+      </>
+    ),
     paths: ["*"],
   },
   {
