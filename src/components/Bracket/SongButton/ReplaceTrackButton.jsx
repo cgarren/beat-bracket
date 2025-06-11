@@ -9,7 +9,7 @@ export default function ReplaceTrackButton({ replacementFunction }) {
       extraClasses="flex items-center justify-center hover:bg-gray-200 bg-white text-black"
       label="Replace track"
     >
-      <div className="w-[16px] h-[16px]">
+      <div className="w-[16px] h-[16px] text-black">
         <SwapIcon />
       </div>
     </SongButtonAction>

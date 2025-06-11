@@ -121,7 +121,7 @@ export default function PlayPauseButton({
       )}
       style={song ? { ...colorStyle, color: "black" } : {}}
     >
-      {paused ? <PlayIcon /> : <PauseIcon />}
+      <div className="w-full h-full flex items-center justify-center">{paused ? <PlayIcon /> : <PauseIcon />}</div>
     </button>
   );
 }

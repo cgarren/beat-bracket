@@ -36,7 +36,7 @@ export default function SaveIndicator({
     >
       {savingState === "error" && (
         <>
-          <div className="" aria-label="Error saving">
+          <div className="w-4 h-4" aria-label="Error saving">
             <XIcon />
           </div>
           {errorText}
@@ -44,7 +44,7 @@ export default function SaveIndicator({
       )}{" "}
       {savingState === "waiting" && (
         <>
-          <div className="" aria-label="Waiting to save" title="Waiting to save">
+          <div className="w-4 h-4" aria-label="Waiting to save" title="Waiting to save">
             <WaitingIcon />
           </div>
           {/* {waitingText} */}
@@ -52,7 +52,7 @@ export default function SaveIndicator({
       )}
       {savingState === "saving" && (
         <>
-          <div className="animate-spin-reverse" aria-label="Saving" title="Saving">
+          <div className="w-4 h-4 animate-spin-reverse" aria-label="Saving" title="Saving">
             <SyncIcon />
           </div>
           {/* {savingText} */}

@@ -18,7 +18,7 @@ export default function BracketHeader({ songSource, owner, template, bracketTrac
               <PopoverTrigger asChild>
                 <span
                   title="Created from a template by another user"
-                  className="text-blue-600 text-xs font-medium inline-flex rounded-md cursor-pointer"
+                  className="text-blue-600 text-xs font-medium inline-flex rounded-md cursor-pointer w-4 h-4"
                 >
                   <DuplicateIcon />
                 </span>

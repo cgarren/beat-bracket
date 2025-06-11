@@ -81,7 +81,9 @@ export default function FillSongButton({
               },
             )}
           >
-            <UndoIcon />
+            <div className="w-4 h-4">
+              <UndoIcon />
+            </div>
           </button>
         )}
       <SongButton
