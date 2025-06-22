@@ -52,7 +52,7 @@ export default function BracketCompleteModal({
                   Admire my masterpiece
                 </AlertDialogCancel>
                 <AlertDialogAction className="min-w-[182px]" onClick={() => navigate("/my-brackets")}>
-                  Start a new bracket
+                  Back to my brackets
                 </AlertDialogAction>
                 {/* </div> */}
               </>
