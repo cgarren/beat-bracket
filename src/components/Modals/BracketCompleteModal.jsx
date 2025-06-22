@@ -3,6 +3,7 @@ import { navigate } from "gatsby";
 import BracketWinnerInfo from "../Bracket/BracketWinnerInfo";
 import SyncIcon from "../../assets/svgs/syncIcon.svg";
 import ShareIcon from "../../assets/svgs/shareIcon.svg";
+import UndoIcon from "../../assets/svgs/undoIcon.svg";
 import { Button } from "../ui/button";
 import {
   AlertDialog,
@@ -24,6 +25,7 @@ export default function BracketCompleteModal({
   retrySave,
   viewLink,
   share,
+  onUndo,
 }) {
   return (
     <div>
@@ -74,6 +76,17 @@ export default function BracketCompleteModal({
               </>
             )}
           </AlertDialogFooter>
+          {!savePending && !saveError && onUndo && (
+            <div className="flex justify-center mt-0">
+              <button
+                onClick={onUndo}
+                className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors underline"
+                type="button"
+              >
+                Choose a different winner
+              </button>
+            </div>
+          )}
         </AlertDialogContent>
       </AlertDialog>
     </div>
