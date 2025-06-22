@@ -797,6 +797,7 @@ export default function App({ params, location }) {
         retrySave={() => saveCurrentBracket(true)}
         viewLink={`/user/${owner.id}/bracket/${params.id}`}
         share={share}
+        onUndo={showBracketCompleteModal && commands.length > 0 ? undo : undefined}
       />
       <BracketHeader songSource={songSource} owner={owner} template={template} bracketTracks={bracketTracks} />
       {bracket && songSource && (
