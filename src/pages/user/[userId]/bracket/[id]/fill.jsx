@@ -920,7 +920,13 @@ export default function App({ params, location }) {
         share={share}
         onUndo={showBracketCompleteModal && commands.length > 0 ? undo : undefined}
       />
-      <BracketHeader songSource={songSource} owner={owner} template={template} bracketTracks={bracketTracks} />
+      <BracketHeader
+        songSource={songSource}
+        owner={owner}
+        template={template}
+        bracketTracks={bracketTracks}
+        isSecondChance={formatType === "secondChance"}
+      />
       <div className="text-xs -space-x-px rounded-md sticky mx-auto top-0 w-fit z-30 text-center">
         <div className="flex items-center gap-2">
           <Button onClick={share} variant="secondary" className="flex justify-center gap-1">
@@ -954,7 +960,7 @@ export default function App({ params, location }) {
         )}
       </div>
       {formatType === "secondChance" ? (
-        <Tabs defaultValue="main" className="w-full">
+        <Tabs defaultValue="main" className="w-full mt-5">
           <TabsList className="mx-auto mb-2">
             <TabsTrigger value="main">Main Bracket</TabsTrigger>
             <TabsTrigger value="secondChance">Second Chance Bracket</TabsTrigger>

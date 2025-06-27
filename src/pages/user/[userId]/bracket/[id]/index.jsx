@@ -221,6 +221,7 @@ export default function App({ params, location }) {
           owner={{ name: owner?.name ?? loadedBracket.ownerUsername, id: owner?.id }}
           template={template}
           bracketTracks={bracketTracks}
+          isSecondChance={formatType === "secondChance"}
         />
         {bracketWinner && (
           <BracketWinnerInfo

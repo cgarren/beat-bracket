@@ -1,9 +1,10 @@
 import React from "react";
 import DuplicateIcon from "../assets/svgs/duplicateIcon.svg";
+import SecondChanceIcon from "../assets/svgs/secondChanceIcon.svg";
 import TrackNumber from "./BracketCard/TrackNumber";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 
-export default function BracketHeader({ songSource, owner, template, bracketTracks }) {
+export default function BracketHeader({ songSource, owner, template, bracketTracks, isSecondChance }) {
   return (
     <div className="text-center">
       <div className="mx-auto flex flex-col gap-0 items-center justify-center max-w-[90%]">
@@ -13,6 +14,7 @@ export default function BracketHeader({ songSource, owner, template, bracketTrac
             {Boolean(songSource?.type === "playlist") ? songSource.playlist.name : null}
           </h1>
           {Boolean(bracketTracks?.length) && <TrackNumber numTracks={bracketTracks.length} />}
+          {/* Icon to show that the bracket was created from a template */}
           {Boolean(template?.ownerId !== owner?.id && template?.ownerUsername) && (
             <Popover>
               <PopoverTrigger asChild>
@@ -25,6 +27,22 @@ export default function BracketHeader({ songSource, owner, template, bracketTrac
               </PopoverTrigger>
               <PopoverContent className="text-sm w-fit p-1.5 rounded-lg" side="top" align="center">
                 Created from a template by {template.ownerUsername}
+              </PopoverContent>
+            </Popover>
+          )}
+          {/* Icon to show that the bracket was created using the second chance format */}
+          {Boolean(isSecondChance) && (
+            <Popover>
+              <PopoverTrigger asChild>
+                <span
+                  title="Second Chance Bracket enabled"
+                  className="text-blue-600 text-xs font-medium inline-flex rounded-md cursor-pointer w-4 h-4"
+                >
+                  <SecondChanceIcon />
+                </span>
+              </PopoverTrigger>
+              <PopoverContent className="text-sm w-fit p-1.5 rounded-lg" side="top" align="center">
+                Second Chance Bracket enabled
               </PopoverContent>
             </Popover>
           )}

@@ -345,7 +345,13 @@ export default function App({ params, location }) {
       {owner?.name && songSource && bracket && bracketTracks && (
         <div className="mb-1 text-center">
           Customize Bracket
-          <BracketHeader songSource={songSource} owner={null} template={null} bracketTracks={null} />
+          <BracketHeader
+            songSource={songSource}
+            owner={null}
+            template={null}
+            bracketTracks={null}
+            isSecondChance={false}
+          />
           <Accordion
             type="single"
             collapsible
