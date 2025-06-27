@@ -7,7 +7,6 @@ import { UserInfoContext } from "../../context/UserInfoContext";
 import RemoveBracketModal from "../Modals/RemoveBracketModal";
 import { openBracket } from "../../utils/impureHelpers";
 import { deleteBracket } from "../../utils/backend";
-import Badge from "../Badge";
 
 export default function BracketCard({ bracket }) {
   const [showModal, setShowModal] = useState(false);
@@ -63,15 +62,6 @@ export default function BracketCard({ bracket }) {
     return null;
   })();
 
-  const isSecondChanceBracket =
-    bracket?.template?.formatType === "secondChance" || bracket?.formatType === "secondChance";
-
-  const secondChanceBadge = isSecondChanceBracket ? (
-    <Badge variant="secondary" className="bg-blue-100 text-blue-800 border-blue-200">
-      Second Chance
-    </Badge>
-  ) : null;
-
   return (
     <>
       <RemoveBracketModal
@@ -95,13 +85,13 @@ export default function BracketCard({ bracket }) {
               numTracks={bracket && bracket.tracks ? bracket.tracks.length : null}
               ownsTemplate={bracket.ownerId === bracket.templateOwnerId}
               completed={bracket.completed || bracket.winner}
+              isSecondChance={bracket.formatType === "secondChance"}
             />
           }
           removeFunc={() => setShowModal(true)}
           onClick={() => {
             openBracket(bracket.id, userInfo.id, !bracket.winner ? "fill" : "");
           }}
-          badge={secondChanceBadge}
         />
       </div>
     </>
