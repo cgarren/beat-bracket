@@ -16,6 +16,8 @@ export default function BracketOptions({
   seedingMethod,
   inclusionChange,
   inclusionMethod,
+  formatType,
+  formatChange,
   maxBracketSize,
   totalTracks,
   // playbackChange,
@@ -32,12 +34,12 @@ export default function BracketOptions({
           value={limit}
           onChange={limitChange}
           disabled={!showBracket}
-          minWidth="min-w-[80px]"
+          minWidth="min-w-[55px]"
         >
           {/* generate the below code (for select options) automatically */}
 
           {Array.from({ length: Math.log2(maxBracketSize) }, (_, i) => {
-            const value = Math.pow(2, i + 3);
+            const value = 2 ** (i + 3);
             if (value > maxBracketSize || value >= totalTracks) return null;
             return (
               // (hardLimit >= value || limit === value) && (
@@ -80,6 +82,16 @@ export default function BracketOptions({
             <SelectItem value="playlist">Playlist order (track 1 vs {limit})</SelectItem>
           ) : null}
           {seedingMethod === "custom" ? <SelectItem value="custom">Custom</SelectItem> : null}
+        </BracketOptionsSelect>
+        <BracketOptionsSelect
+          label="Format"
+          value={formatType}
+          onChange={formatChange}
+          disabled={!showBracket}
+          minWidth="min-w-[70px]"
+        >
+          <SelectItem value="singleElimination">Standard</SelectItem>
+          <SelectItem value="secondChance">Second Chance Bracket</SelectItem>
         </BracketOptionsSelect>
         <Button onClick={() => setShowModal(true)}>Start Bracket</Button>
         {/* <div className={""}>

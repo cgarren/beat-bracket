@@ -198,11 +198,42 @@ export default function useBracketGeneration() {
     [sortTracks, seedBracket, fillBracket, getNumberOfColumns],
   );
 
+  // Create blank second chance bracket (with 2 songs less than main bracket and blank)
+  const createSecondChanceBracket = useCallback(async (numberOfBracketSongs) => {
+    const numSecondChanceBracketSongs = numberOfBracketSongs - 2;
+    const blankTracks = Array(numSecondChanceBracketSongs)
+      .fill(null)
+      .map((_, index) => ({ name: "TBD" }));
+
+    const secondChanceBracket = await changeBracket(blankTracks, numSecondChanceBracketSongs, "random", "random");
+
+    // disable all songs in second chance bracket to start
+    secondChanceBracket.forEach((value, key) => {
+      if (value.song?.name === "TBD" && !value.disabled) {
+        secondChanceBracket.set(key, { ...value, disabled: true, placeholder: true, song: { name: "placeholder" } });
+      } else {
+        secondChanceBracket.set(key, { ...value, disabled: true });
+      }
+    });
+
+    // // calculate the number of tracks to use for the base bracket, before byes
+    // const numTracks = Number(limit) === greaterPower ? limit : greaterPower;
+
+    // // fill in the bracket with byes
+    // for (let i = blankTracks.length; i < numSecondChanceBracketSongs; i += 1) {
+    //   blankTracks.push({});
+    // }
+    // console.log("blankTracks with byes", blankTracks);
+    // const secondChanceBracket = await fillBracket(blankTracks, numSecondChanceBracketColumns);
+    return secondChanceBracket;
+  }, []);
+
   return {
     fillBracket,
     getNumberOfColumns,
     getNumberOfSongs,
     getColorsFromImage,
     changeBracket,
+    createSecondChanceBracket,
   };
 }

@@ -50,13 +50,14 @@ export function removeDuplicatesWithKey(array, key) {
   // init tracking array
   const tempArray = [];
   // loop through given array
-  for (let index in newArray) {
+  for (let i = 0; i < newArray.length; i += 1) {
+    const index = i;
     // check to see if element at the key is already in tracking array
     if (tempArray.includes(newArray[index][key])) {
       // remove element at the current position from the array
       newArray.splice(index, 1);
       // deincrement our position to account for the deleted item
-      index -= 1;
+      i -= 1;
     } else {
       // add element to our tracking array
       tempArray.push(newArray[index][key]);
@@ -105,6 +106,11 @@ export function nearestLesserPowerOf2(num) {
 export function bracketSorter(a, b) {
   const value1 = a[1];
   const value2 = b[1];
+
+  // // Guard against undefined sides - treat as equal (return 0)
+  // if (!value1?.side || !value2?.side) {
+  //   return 0;
+  // }
 
   // r > l
   // for r, sort col increasing

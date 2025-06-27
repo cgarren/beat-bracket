@@ -28,6 +28,7 @@ import { UserInfoContext } from "../../../../../context/UserInfoContext";
 import BracketHeader from "../../../../../components/BracketHeader";
 import LoginButton from "../../../../../components/Controls/LoginButton";
 import { Button } from "../../../../../components/ui/button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../../../../components/ui/tabs";
 
 export default function App({ params, location }) {
   const userInfo = useContext(UserInfoContext);
@@ -76,15 +77,27 @@ export default function App({ params, location }) {
     return null;
   }, [loadedBracket?.template?.songSource]);
 
+  const formatType = useMemo(() => {
+    if (loadedBracket?.template?.formatType) return loadedBracket.template.formatType;
+    if (loadedBracket?.formatType) return loadedBracket.formatType;
+    return "singleElimination";
+  }, [loadedBracket]);
+
   const bracket = useMemo(() => {
-    // console.log(loadedBracket?.bracketData);
-    if (loadedBracket?.bracketData) {
-      let mymap = new Map(Object.entries(loadedBracket.bracketData));
-      mymap = new Map([...mymap].sort(bracketSorter));
-      return mymap;
-    }
-    return null;
+    if (!loadedBracket?.bracketData) return null;
+    const mainData = loadedBracket.bracketData.main ? loadedBracket.bracketData.main : loadedBracket.bracketData;
+    let mymap = new Map(Object.entries(mainData));
+    mymap = new Map([...mymap].sort(bracketSorter));
+    return mymap;
   }, [loadedBracket?.bracketData]);
+
+  const secondChanceBracket = useMemo(() => {
+    if (formatType !== "secondChance") return null;
+    if (!loadedBracket?.bracketData?.secondChance) return null;
+    let mymap = new Map(Object.entries(loadedBracket.bracketData.secondChance));
+    mymap = new Map([...mymap].sort(bracketSorter));
+    return mymap;
+  }, [loadedBracket?.bracketData, formatType]);
 
   const template = useMemo(() => {
     if (loadedBracket?.template) {
@@ -109,6 +122,18 @@ export default function App({ params, location }) {
     }
     return tracks;
   }, [bracket]);
+
+  const secondChanceBracketTracks = useMemo(() => {
+    const tracks = [];
+    if (secondChanceBracket) {
+      secondChanceBracket.forEach((item) => {
+        if (isEdgeSong(item, (id) => secondChanceBracket.get(id))) {
+          if (item.song) tracks.push(item.song);
+        }
+      });
+    }
+    return tracks;
+  }, [secondChanceBracket]);
 
   const bracketWinner = useMemo(() => {
     if (bracket) {
@@ -232,7 +257,26 @@ export default function App({ params, location }) {
               )}
             </div>
           </div>
-          <BracketView bracket={bracket} bracketTracks={bracketTracks} songSource={songSource} />
+          {formatType === "secondChance" ? (
+            <Tabs defaultValue="main" className="w-full">
+              <TabsList className="mx-auto mb-2">
+                <TabsTrigger value="main">Main Bracket</TabsTrigger>
+                <TabsTrigger value="secondChance">Second Chance</TabsTrigger>
+              </TabsList>
+              <TabsContent value="main">
+                <BracketView bracket={bracket} bracketTracks={bracketTracks} songSource={songSource} />
+              </TabsContent>
+              <TabsContent value="secondChance">
+                {secondChanceBracket ? (
+                  <BracketView bracket={secondChanceBracket} bracketTracks={bracketTracks} songSource={songSource} />
+                ) : (
+                  <div className="text-center">No second chance bracket data found.</div>
+                )}
+              </TabsContent>
+            </Tabs>
+          ) : (
+            <BracketView bracket={bracket} bracketTracks={bracketTracks} songSource={songSource} />
+          )}
         </>
       )}
     </Layout>

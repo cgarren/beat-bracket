@@ -29,6 +29,7 @@ import SyncIcon from "../../../../../assets/svgs/syncIcon.svg";
 import BracketHeader from "../../../../../components/BracketHeader";
 import { Button } from "../../../../../components/ui/button";
 import { UserInfoContext } from "../../../../../context/UserInfoContext";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../../../../components/ui/tabs";
 // Assets
 import ShareIcon from "../../../../../assets/svgs/shareIcon.svg";
 import { tokensExist } from "../../../../../axios/spotifyInstance";
@@ -91,7 +92,12 @@ export default function App({ params, location }) {
 
   // Hooks - ALL hooks must be called unconditionally
   const { updatePreviewUrls } = useSongProcessing();
-  const { getNumberOfColumns, fillBracket, changeBracket: generateBracket } = useBracketGeneration();
+  const {
+    getNumberOfColumns,
+    fillBracket,
+    changeBracket: generateBracket,
+    getColorsFromImage,
+  } = useBracketGeneration();
   const queryClient = useQueryClient();
   const { share } = useShareBracket(location.href);
 
@@ -168,6 +174,13 @@ export default function App({ params, location }) {
     retry: (failureCount, error) => error?.cause?.code !== 404 && failureCount < 3,
   });
 
+  // Determine format type
+  const formatType = useMemo(() => {
+    if (loadedBracket?.template?.formatType) return loadedBracket.template.formatType;
+    // fallback to single elimination if not provided
+    return "singleElimination";
+  }, [loadedBracket]);
+
   // Define all other memos that depend on loadedBracket
   const songSource = useMemo(() => {
     if (loadedBracket?.template?.songSource?.type === "artist") {
@@ -191,15 +204,25 @@ export default function App({ params, location }) {
     return null;
   }, [loadedBracket?.template?.songSource]);
 
+  // Parse both single and second chance main brackets
   const bracket = useMemo(() => {
-    // console.log(loadedBracket?.bracketData);
-    if (loadedBracket?.bracketData) {
-      let mymap = new Map(Object.entries(loadedBracket.bracketData));
-      mymap = new Map([...mymap].sort(bracketSorter));
-      return mymap;
-    }
-    return null;
+    if (!loadedBracket?.bracketData) return null;
+    const mainData = loadedBracket.bracketData.main ? loadedBracket.bracketData.main : loadedBracket.bracketData;
+    let mymap = new Map(Object.entries(mainData));
+    mymap = new Map([...mymap].sort(bracketSorter));
+    return mymap;
   }, [loadedBracket?.bracketData]);
+
+  // Parse second chance bracket if exists
+  const secondChanceBracket = useMemo(() => {
+    console.log("formatType", formatType, "loadedBracket", loadedBracket);
+    if (formatType !== "secondChance") return null;
+    if (!loadedBracket?.bracketData?.secondChance) return null;
+    let mymap = new Map(Object.entries(loadedBracket.bracketData.secondChance));
+    mymap = new Map([...mymap].sort(bracketSorter));
+    console.log("secondChanceBracket", mymap);
+    return mymap;
+  }, [loadedBracket?.bracketData, formatType]);
 
   const template = useMemo(() => {
     if (loadedBracket?.template) {
@@ -224,6 +247,18 @@ export default function App({ params, location }) {
     }
     return tracks;
   }, [bracket]);
+
+  const secondChanceBracketTracks = useMemo(() => {
+    const tracks = [];
+    if (secondChanceBracket) {
+      secondChanceBracket.forEach((item) => {
+        if (isEdgeSong(item, (id) => secondChanceBracket.get(id))) {
+          if (item.song) tracks.push(item.song);
+        }
+      });
+    }
+    return tracks;
+  }, [secondChanceBracket]);
 
   const bracketWinner = useMemo(() => {
     if (bracket) {
@@ -276,6 +311,7 @@ export default function App({ params, location }) {
       "Owner Username": owner?.name,
       "Seeding Method": loadedBracket?.template?.seedingMethod,
       "Inclusion Method": loadedBracket?.template?.inclusionMethod,
+      "Format Type": loadedBracket?.template?.formatType,
       "Song Source Type": songSource?.type,
       "Song Source Name": songSource?.[songSource?.type]?.name,
       "Song Source Id": songSource?.[songSource?.type]?.id,
@@ -468,7 +504,7 @@ export default function App({ params, location }) {
   );
 
   const changeBracket = useCallback(
-    async (bracketData) => {
+    async (bracketData, bracketType = "main") => {
       // Early return if not the owner
       if (!isOwner) {
         console.error("Not authorized to modify this bracket");
@@ -476,11 +512,28 @@ export default function App({ params, location }) {
       }
 
       if (bracketData) {
+        console.log(
+          "current bracket data",
+          queryClient.getQueryData(["backend", "bracket", { bracketId: params.id, userId: owner.id }]),
+        );
         const bracketObject = Object.fromEntries(bracketData);
+        console.log("bracketObject", bracketObject);
         queryClient.cancelQueries(["backend", "bracket", { bracketId: params.id, userId: owner.id }]);
-        const newData = { bracketData: bracketObject, winner: bracketWinner };
         await queryClient.setQueryData(["backend", "bracket", { bracketId: params.id, userId: owner.id }], (oldData) =>
-          produce(oldData, (draft) => Object.assign(draft, newData)),
+          produce(oldData, (draft) => {
+            draft.winner = bracketWinner;
+            if (bracketType === "main") {
+              draft.bracketData.main = bracketObject;
+            } else {
+              draft.bracketData.secondChance = bracketObject;
+            }
+            return draft;
+          }),
+        );
+
+        console.log(
+          "new bracket data",
+          queryClient.getQueryData(["backend", "bracket", { bracketId: params.id, userId: owner.id }]),
         );
 
         // Increment changes counter here, where we know a change has actually happened
@@ -493,6 +546,74 @@ export default function App({ params, location }) {
       }
     },
     [bracketWinner, owner.id, params.id, queryClient, saveCurrentBracket, cancel, isOwner],
+  );
+
+  // Find first available slot in secondChanceBracket with song name "TBD" and has placeholder set to true. Start with edge songs (col === 0) and proceed to the middle
+  const findAvailableEntry = useCallback((bracketMap) => {
+    // check indexes, sides, then iterate through columns
+    for (let col = 0; col < bracketMap.size; col += 1) {
+      // iterate through indexes
+      for (let sideIndex = 0; sideIndex < 2; sideIndex += 1) {
+        const side = sideIndex === 0 ? "l" : "r";
+        for (let index = 0; index < bracketMap.size; index += 1) {
+          const entry = bracketMap.get(`${side}${col}${index}`);
+          if (entry && entry.placeholder) {
+            return entry;
+          }
+        }
+      }
+    }
+
+    // // check right side, iterate through columns
+    // for (let i = 0; i < bracketMap.size; i += 1) {
+    //   // iterate through rows
+    //   for (let j = 0; j < bracketMap.size; j += 1) {
+    //     const entry = bracketMap.get(`r${i}${j}`);
+    //     if (entry && entry.placeholder) {
+    //       return entry;
+    //     }
+    //   }
+    // }
+    return null;
+  }, []);
+
+  // Callback when a song is eliminated from the main bracket (to populate Second Chance bracket)
+  const handleElimination = useCallback(
+    async (song) => {
+      console.log("handleElimination", song);
+      if (formatType !== "secondChance" || !song) return;
+
+      // If secondChanceBracket hasn't been initialised yet, bail out (the blank skeleton is created on create page)
+      if (!secondChanceBracket) return;
+
+      const bracketMap = new Map(secondChanceBracket);
+      const availableEntry = findAvailableEntry(bracketMap);
+      console.log("availableEntry", availableEntry);
+      if (availableEntry) {
+        const { id } = availableEntry;
+        const colorObj = song.art ? await getColorsFromImage(song.art) : null;
+
+        // Place the song immediately and enable it
+        bracketMap.set(id, {
+          ...availableEntry,
+          song: song,
+          color: colorObj,
+          disabled: false,
+          placeholder: false,
+        });
+
+        // Check if opponent exists and enable the matchup
+        const { opponentId } = availableEntry;
+        const opponent = bracketMap.get(opponentId);
+        if (opponent && opponent.song) {
+          // Both slots have songs now, so enable both
+          bracketMap.set(opponentId, { ...opponent, disabled: false });
+        }
+
+        changeBracket(bracketMap, "secondChance");
+      }
+    },
+    [formatType, secondChanceBracket, changeBracket, getColorsFromImage],
   );
 
   // Auto-sync effect - check every 30 seconds if we should sync based on time threshold
@@ -800,55 +921,87 @@ export default function App({ params, location }) {
         onUndo={showBracketCompleteModal && commands.length > 0 ? undo : undefined}
       />
       <BracketHeader songSource={songSource} owner={owner} template={template} bracketTracks={bracketTracks} />
-      {bracket && songSource && (
-        <>
-          <div className="text-xs -space-x-px rounded-md sticky mx-auto top-0 w-fit z-30 text-center">
-            {/* <GeneratePlaylistButton tracks={tracks} artist={artist} /> */}
-            <div className="flex items-center gap-2">
-              <Button onClick={share} variant="secondary" className="flex justify-center gap-1">
-                <div className="w-4 h-4">
-                  <ShareIcon />
-                </div>
-                Share
-              </Button>
+      <div className="text-xs -space-x-px rounded-md sticky mx-auto top-0 w-fit z-30 text-center">
+        <div className="flex items-center gap-2">
+          <Button onClick={share} variant="secondary" className="flex justify-center gap-1">
+            <div className="w-4 h-4">
+              <ShareIcon />
             </div>
-            {/* Debug state info */}
-            {/* <div className="">
-              {`syncStatus: ${syncStatus}, changesSinceSync: ${changesSinceSync}, lastServerSync: ${lastServerSync}`}
-            </div> */}
-            <div className="">{percentageFilled.toFixed(0)}% filled</div>
-            {syncStatus === "syncing" && (
-              <div className="absolute left-1/2 -translate-x-1/2 -bottom-1/3 flex items-center gap-1">
-                <div className="animate-spin-reverse w-4 h-4" aria-label="Saving" title="Saving">
-                  <SyncIcon />
-                </div>
-                Saving
-              </div>
-            )}
-            {syncStatus === "local" && (
-              <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1 text-gray-500 whitespace-nowrap">
-                Saved locally
-              </div>
-            )}
-            {syncStatus === "error" && (
-              <div className="absolute left-1/2 -translate-x-1/2 top-full translate-y-1.5 flex flex-col items-center gap-1 !text-red-500 !font-bold whitespace-nowrap">
-                Save Error!
-                <Button onClick={() => saveCurrentBracket(true)} variant="secondary">
-                  Retry
-                </Button>
-              </div>
-            )}
+            Share
+          </Button>
+        </div>
+        <div className="">{percentageFilled.toFixed(0)}% filled</div>
+        {syncStatus === "syncing" && (
+          <div className="absolute left-1/2 -translate-x-1/2 -bottom-1/3 flex items-center gap-1">
+            <div className="animate-spin-reverse w-4 h-4" aria-label="Saving" title="Saving">
+              <SyncIcon />
+            </div>
+            Saving
           </div>
-          <FillBracket
-            bracketTracks={bracketTracks}
-            songSource={songSource}
-            bracket={bracket}
-            changeBracket={changeBracket}
-            currentlyPlayingId={currentlyPlayingId}
-            setCurrentlyPlayingId={setCurrentlyPlayingId}
-            saveCommand={saveCommand}
-          />
-        </>
+        )}
+        {syncStatus === "local" && (
+          <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1 text-gray-500 whitespace-nowrap">
+            Saved locally
+          </div>
+        )}
+        {syncStatus === "error" && (
+          <div className="absolute left-1/2 -translate-x-1/2 top-full translate-y-1.5 flex flex-col items-center gap-1 !text-red-500 !font-bold whitespace-nowrap">
+            Save Error!
+            <Button onClick={() => saveCurrentBracket(true)} variant="secondary">
+              Retry
+            </Button>
+          </div>
+        )}
+      </div>
+      {formatType === "secondChance" ? (
+        <Tabs defaultValue="main" className="w-full">
+          <TabsList className="mx-auto mb-2">
+            <TabsTrigger value="main">Main Bracket</TabsTrigger>
+            <TabsTrigger value="secondChance">Second Chance Bracket</TabsTrigger>
+          </TabsList>
+          <TabsContent value="main">
+            <FillBracket
+              bracketTracks={bracketTracks}
+              songSource={songSource}
+              bracket={bracket}
+              changeBracket={(bracketData) => changeBracket(bracketData, "main")}
+              currentlyPlayingId={currentlyPlayingId}
+              setCurrentlyPlayingId={setCurrentlyPlayingId}
+              saveCommand={saveCommand}
+              onEliminate={handleElimination}
+            />
+          </TabsContent>
+          <TabsContent value="secondChance" className="flex flex-col items-center gap-2">
+            <div className="text-center text-sm text-gray-600 max-w-xs">
+              Make selections in the main bracket and the losing songs appear here for their second chance!
+            </div>
+            {secondChanceBracket ? (
+              <FillBracket
+                bracketTracks={bracketTracks.slice(0, bracketTracks.length - 2)}
+                songSource={songSource}
+                bracket={secondChanceBracket}
+                changeBracket={(bracketData) => changeBracket(bracketData, "secondChance")}
+                currentlyPlayingId={currentlyPlayingId}
+                setCurrentlyPlayingId={setCurrentlyPlayingId}
+                saveCommand={saveCommand}
+                onEliminate={undefined}
+              />
+            ) : (
+              <div className="text-center">Second Chance bracket will populate as songs lose.</div>
+            )}
+          </TabsContent>
+        </Tabs>
+      ) : (
+        <FillBracket
+          bracketTracks={bracketTracks}
+          songSource={songSource}
+          bracket={bracket}
+          changeBracket={changeBracket}
+          currentlyPlayingId={currentlyPlayingId}
+          setCurrentlyPlayingId={setCurrentlyPlayingId}
+          saveCommand={saveCommand}
+          onEliminate={undefined}
+        />
       )}
     </Layout>
   );

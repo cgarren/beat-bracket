@@ -6,12 +6,7 @@ import toast from "react-hot-toast";
 // import Mousetrap from "mousetrap";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 // Helpers
-import {
-  nearestLesserPowerOf2,
-  nearestGreaterPowerOf2,
-  camelCaseToTitleCase,
-  isEdgeSong,
-} from "../../../../../utils/helpers";
+import { nearestLesserPowerOf2, camelCaseToTitleCase, isEdgeSong } from "../../../../../utils/helpers";
 import { createBracket } from "../../../../../utils/backend";
 import { openBracket } from "../../../../../utils/impureHelpers";
 // Components
@@ -36,6 +31,7 @@ export default function App({ params, location }) {
   const maxBracketSize = 256;
   const [seedingMethod, setSeedingMethod] = useState("popularity");
   const [inclusionMethod, setInclusionMethod] = useState("popularity");
+  const [formatType, setFormatType] = useState("singleElimination");
   const [limit, setLimit] = useState(32);
   // const [commands, setCommands] = useState(defaultValues.commands);
   const [bracket, setBracket] = useState(new Map());
@@ -44,7 +40,7 @@ export default function App({ params, location }) {
 
   const { isCurrentUser } = useAuthentication();
   const { getArtistTracks, getPlaylistTracks } = useSongProcessing();
-  const { changeBracket: changeBracketGeneric } = useBracketGeneration();
+  const { changeBracket: changeBracketGeneric, createSecondChanceBracket } = useBracketGeneration();
 
   const mixpanel = useContext(MixpanelContext);
   const userInfo = useContext(UserInfoContext);
@@ -105,12 +101,13 @@ export default function App({ params, location }) {
       "Owner Username": owner?.name,
       "Seeding Method": seedingMethod,
       "Inclusion Method": inclusionMethod,
+      "Format Type": formatType,
       "Song Source Type": songSource?.type,
       "Song Source Name": songSource?.[songSource?.type]?.name,
       "Song Source Id": songSource?.[songSource?.type]?.id,
       Tracks: bracketTracks?.length,
     }),
-    [params?.id, owner?.name, seedingMethod, inclusionMethod, songSource, bracketTracks?.length],
+    [params?.id, owner?.name, seedingMethod, inclusionMethod, formatType, songSource, bracketTracks?.length],
   );
 
   // START BRACKET
@@ -118,24 +115,43 @@ export default function App({ params, location }) {
   const makeCreationObject = useCallback(async () => {
     if (owner?.name) {
       const bracketObject = Object.fromEntries(bracket);
+
+      // Create blank second chance bracket (same structure minus 2 songs and blank) if format type is second chance
+      const secondChanceBracket = await createSecondChanceBracket(bracketTracks.length);
+      const secondChanceBracketObject = Object.fromEntries(secondChanceBracket);
+
       return {
         bracketId: params.id,
         ownerUsername: owner.name,
         seedingMethod: seedingMethod,
         inclusionMethod: inclusionMethod,
+        formatType: formatType,
         displayName: null,
         songSource: songSource,
         tracks: bracketTracks,
-        bracketData: bracketObject,
+        bracketData: {
+          main: bracketObject,
+          secondChance: secondChanceBracketObject,
+        },
       };
     }
     return null;
-  }, [bracket, bracketTracks, inclusionMethod, owner?.name, seedingMethod, songSource]);
+  }, [
+    bracket,
+    bracketTracks,
+    inclusionMethod,
+    owner?.name,
+    seedingMethod,
+    songSource,
+    formatType,
+    createSecondChanceBracket,
+  ]);
 
   const startBracket = useCallback(async () => {
     if (owner?.name) {
       try {
         const creationObj = await makeCreationObject();
+        console.log("creationObj", creationObj);
         await createBracket(creationObj);
         console.debug("Bracket created");
         queryClient.refetchQueries({ queryKey: ["backend", "brackets", { userId: owner.id }] });
@@ -277,6 +293,13 @@ export default function App({ params, location }) {
     [seedingMethod, changeBracket],
   );
 
+  const formatChange = useCallback((value) => {
+    mixpanel.track("Change Format Type", {
+      "Format Type": value,
+    });
+    setFormatType(value);
+  }, []);
+
   // redirect
   if (!(location.state?.artist || location.state?.playlist) || !isCurrentUser(params.userId)) {
     openBracket(params.id, params.userId);
@@ -379,6 +402,8 @@ export default function App({ params, location }) {
               seedingMethod={seedingMethod}
               inclusionChange={inclusionChange}
               inclusionMethod={inclusionMethod}
+              formatType={formatType}
+              formatChange={formatChange}
               playbackEnabled={playbackEnabled}
               startBracket={() => startBracket()}
             />

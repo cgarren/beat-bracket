@@ -12,10 +12,12 @@ export default function Card({
   cardText,
   onClick = () => {},
   removeFunc = null,
+  badge = null,
 }) {
   return (
     <div className="relative h-full">
       {removeFunc && image ? <CornerButton removeFunc={removeFunc} /> : null}
+      {badge && <div className="absolute top-2 left-2 z-10">{badge}</div>}
       <UICard className="text-center bg-white shadow-lg h-full">
         <Button onClick={onClick} disabled={imageLoading} variant="ghost" className="h-full flex-col p-3">
           {/* <button className="text-center p-3 bg-white" onClick={onClick} disabled={imageLoading} type="button"> */}

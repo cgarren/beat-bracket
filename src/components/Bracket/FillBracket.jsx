@@ -11,6 +11,8 @@ export default function FillBracket({
   currentlyPlayingId,
   setCurrentlyPlayingId,
   saveCommand,
+  onEliminate,
+  placeholderText,
 }) {
   const getBracket = useCallback((key) => bracket.get(key), [bracket]);
   const modifyBracket = useCallback(
@@ -73,9 +75,15 @@ export default function FillBracket({
         triples.push(...[[id, "winner", true]]);
       }
       modifyBracket(triples);
+      if (onEliminate) {
+        const opponentSong = getBracket(opponentId)?.song;
+        if (opponentSong) {
+          onEliminate(opponentSong);
+        }
+      }
       setCurrentlyPlayingId(null);
     },
-    [modifyBracket, setCurrentlyPlayingId],
+    [modifyBracket, getBracket, setCurrentlyPlayingId, onEliminate],
   );
 
   return (
@@ -96,8 +104,10 @@ export default function FillBracket({
           editable: true,
           undoChoice: undoChoice,
           makeChoice: makeChoice,
+          onEliminate: onEliminate,
+          placeholderText: placeholderText,
         }),
-        [modifyBracket, getBracket, currentlyPlayingId, setCurrentlyPlayingId],
+        [modifyBracket, getBracket, currentlyPlayingId, setCurrentlyPlayingId, onEliminate, placeholderText],
       )}
     />
   );

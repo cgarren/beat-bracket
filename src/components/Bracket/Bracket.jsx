@@ -65,7 +65,7 @@ export default function Bracket({
             const [mykey, value] = entry;
             const colExpression = side === "l" ? i : columns - 1 - i;
             if (value.side === side && value.col === colExpression) {
-              // Logic to determine whether to show the button or a placeholder
+              // Logic to determine whether to show the button or a placeholder that blends in with the backckground. Used to keep spacingfor uneven brackets ONLY.
               const hideButton =
                 (!value.song?.name || !Boolean(currentBracket.get(value.opponentId)?.song?.name)) && value.col === 0;
               return (

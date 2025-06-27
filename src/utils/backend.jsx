@@ -36,6 +36,7 @@ export async function getTemplate(id, ownerId) {
 }
 
 export async function createBracket(bracket) {
+  console.log("createBracketData", bracket);
   const response = await axiosInstance.put("bracket", bracket, { includeAuth: true });
   console.debug("Written Bracket:", bracket);
   return response.data;
